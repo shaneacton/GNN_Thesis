@@ -49,7 +49,7 @@ class TrainingExample:
             if question.answers.answer_candidates:
                 rep += "candidates:\n"
                 candidates = set([ " * " + can.text for can in question.answers.answer_candidates])
-                rep += "\n".join(candidates)
+                rep += "\n".join(candidates) + "\n"
 
             answers = set([ans.text for ans in question.answers.correct_answers])
             answers = [(" * " if len(answers) > 1 else "") + ans for ans in answers  ]

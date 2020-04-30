@@ -7,7 +7,7 @@ class ExtractedAnswer(Answer):
         it can be expressed as a start and end char index pair
     """
 
-    def __init__(self, text, start_id):
+    def __init__(self, text, start_char_id):
         super().__init__(text)
-        self.start_id = start_id
-        self.end_id = start_id + len(text)
+        self.start_char_id = start_char_id
+        self.end_char_id = start_char_id + len(text)

@@ -7,6 +7,7 @@ from Code.GNN_Playground.Models import embedded_size
 
 """
     source: https://github.com/galsang/BiDAF-pytorch
+    author: Taeuk Kim, Ph.D. student, Seoul National University
 """
 
 
@@ -27,6 +28,7 @@ class AttentionFlow(nn.Module):
         """
         c_len = c.size(1)
         q_len = q.size(1)
+        batch_size = c.size(0)
 
         # (batch, c_len, q_len, embedding_dim)
         # c_tiled = c.unsqueeze(2).expand(-1, -1, q_len, -1)
@@ -58,9 +60,10 @@ class AttentionFlow(nn.Module):
         # (batch, 1, c_len)
         b = F.softmax(torch.max(s, dim=2)[0], dim=1).unsqueeze(1)
         # (batch, 1, c_len) * (batch, c_len, embedding_dim) -> (batch, embedding_dim)
-        q2c_att = torch.bmm(b, c).squeeze()
+        q2c_att = torch.bmm(b, c).squeeze().view(batch_size,-1)
         # (batch, c_len, embedding_dim) (tiled)
-        q2c_att = q2c_att.unsqueeze(1).expand(-1, c_len, -1)
+        q2c_att = q2c_att.unsqueeze(1).expand(batch_size, c_len, -1)
+
         # q2c_att = torch.stack([q2c_att] * c_len, dim=1)
 
         # (batch, c_len, embedding_dim * 4)

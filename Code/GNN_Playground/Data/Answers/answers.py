@@ -25,4 +25,5 @@ class Answers:
         return [a.text for a in self.correct_answers] + \
                [c.text for c in self.answer_candidates] if self.answer_candidates is not None else []
 
-
+    def get_answer_type(self):
+        return type(self.correct_answers[0])
