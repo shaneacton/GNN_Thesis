@@ -38,20 +38,20 @@ class TrainingExample:
 
         rep += "context:\n"
 
-        passages = ['\n'.join(textwrap.wrap(passage.text, 125)) for passage in self.context.passages]
+        passages = ['\n'.join(textwrap.wrap(repr(passage), 125)) for passage in self.context.passages]
         rep += "\n\n".join(passages) + "\n\n"
 
         rep += "question" + (":" if len(self.questions) == 1 else "s:")
 
         for question in self.questions:
-            rep += "\n\nQ: " + question.text + "\n"
+            rep += "\n\nQ: " + repr(question) + "\n"
 
             if question.answers.answer_candidates:
                 rep += "candidates:\n"
-                candidates = set([ " * " + can.text for can in question.answers.answer_candidates])
+                candidates = set([ " * " + repr(can) for can in question.answers.answer_candidates])
                 rep += "\n".join(candidates) + "\n"
 
-            answers = set([ans.text for ans in question.answers.correct_answers])
+            answers = set([repr(ans) for ans in question.answers.correct_answers])
             answers = [(" * " if len(answers) > 1 else "") + ans for ans in answers  ]
 
             rep += "A: " if len(answers) == 1 else "Valid answers:\n"

@@ -1,6 +1,5 @@
 import torch
 from transformers import BertTokenizer, BertModel
-
 embedder_type = "bert"
 
 if embedder_type == "bert":

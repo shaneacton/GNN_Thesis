@@ -36,7 +36,6 @@ class Context:
             since the embedding used may be contextual, and thus be constrained in length
             each passage is embedded separately.
         """
-        # todo get max num tokens dynamically
         # todo possibly add in newlines between passages
         embeddings = []
         for passage in self.passages:
@@ -45,6 +44,13 @@ class Context:
         full_embeddings = torch.cat(embeddings,dim=1)
         # print("con emb:",full_embeddings.size())
         return full_embeddings
+
+    def get_context_tokens(self):
+        tokens = []
+        for passage in self.passages:
+            tokens.extend(passage.get_tokens())
+        return tokens
+
 
 
 

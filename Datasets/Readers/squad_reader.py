@@ -23,7 +23,7 @@ class SQuADDatasetReader(DataReader):
         answers are found directly in the passages
     """
 
-    def __init__(self, tokenizer: Tokenizer, token_indexers=None):
+    def __init__(self, tokenizer: Tokenizer = None, token_indexers=None):
         super().__init__(tokenizer,token_indexers)
 
     @staticmethod
@@ -42,13 +42,16 @@ class SQuADDatasetReader(DataReader):
                     answerable_qs = [q for q in qas if not q["is_impossible"]]
                     unanswerable_qs = [q for q in qas if q["is_impossible"]]
 
+                    context_tokens = training_example.context.get_context_tokens()
+
                     for qa in answerable_qs:
                         question = Question(qa["question"])
                         id = qa["id"]
                         answers_json = qa["answers"]
                         # print("q:",question)
                         # print("a's:", answers_json)
-                        answer_objects = [ExtractedAnswer(a["text"], int(a["answer_start"])) for a in answers_json]
+                        answer_objects = [ExtractedAnswer(a["text"], int(a["answer_start"]), context_tokens)
+                                          for a in answers_json]
                         answers = Answers(answer_objects)
                         question.answers = answers
                         training_example.add_question(question)

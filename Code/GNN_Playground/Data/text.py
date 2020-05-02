@@ -13,7 +13,8 @@ class Text:
             of maximum size. In the overlap there will be words with 2 differing contextual embeddings.
             The embedding created by the nearest window should be chosen
         """
-        max_tokens = 512
+        max_tokens = 512  # todo get max num tokens dynamically
+
         tokens = tokeniser(self.text)
         if len(tokens) > max_tokens:
             # todo use window to embed full text
@@ -21,3 +22,12 @@ class Text:
             tokens = tokens[:max_tokens]
 
         return embedder(tokens)
+
+    def get_tokens(self):
+        return tokeniser(self.text)
+
+    def __repr__(self):
+        return self.text
+
+    def __eq__(self, other):
+        return self.text == other.text

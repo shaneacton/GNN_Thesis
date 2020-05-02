@@ -13,34 +13,26 @@ from Code.GNN_Playground.Models import embedded_size
 
 class AttentionFlow(nn.Module):
 
-    def __init__(self):
+    def __init__(self, c_size, q_size):
         super().__init__()
 
-        self.att_weight_c = Linear(embedded_size, 1)
-        self.att_weight_q = Linear(embedded_size, 1)
-        self.att_weight_cq = Linear(embedded_size, 1)
+        self.att_weight_c = Linear(c_size, 1)
+        self.att_weight_q = Linear(q_size, 1)
+        self.att_weight_cq = Linear(c_size, 1)
 
     def forward(self, c, q):
         """
-        :param c: (batch, c_len, embedding_dim)
-        :param q: (batch, q_len, embedding_dim)
+        :param c: (batch, c_len, s_size)
+        :param q: (batch, q_len, q_size)
         :return: (batch, c_len, q_len)
         """
         c_len = c.size(1)
         q_len = q.size(1)
         batch_size = c.size(0)
 
-        # (batch, c_len, q_len, embedding_dim)
-        # c_tiled = c.unsqueeze(2).expand(-1, -1, q_len, -1)
-        # (batch, c_len, q_len, embedding_dim)
-        # q_tiled = q.unsqueeze(1).expand(-1, c_len, -1, -1)
-        # (batch, c_len, q_len, embedding_dim)
-        # cq_tiled = c_tiled * q_tiled
-        # cq_tiled = c.unsqueeze(2).expand(-1, -1, q_len, -1) * q.unsqueeze(1).expand(-1, c_len, -1, -1)
-
         cq = []
         for i in range(q_len):
-            # (batch, 1, embedding_dim)
+            # (batch, 1, q_size)
             qi = q.select(1, i).unsqueeze(1)
             # (batch, c_len, 1)
             ci = self.att_weight_cq(c * qi).squeeze()
@@ -63,8 +55,6 @@ class AttentionFlow(nn.Module):
         q2c_att = torch.bmm(b, c).squeeze().view(batch_size,-1)
         # (batch, c_len, embedding_dim) (tiled)
         q2c_att = q2c_att.unsqueeze(1).expand(batch_size, c_len, -1)
-
-        # q2c_att = torch.stack([q2c_att] * c_len, dim=1)
 
         # (batch, c_len, embedding_dim * 4)
         x = torch.cat([c, c2q_att, c * c2q_att, c * q2c_att], dim=-1)

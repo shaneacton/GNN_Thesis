@@ -19,17 +19,17 @@ qangaroo_reader = QUangarooDatasetReader(tokeniser)
 bidaf = BiDAF(100)
 
 for training_example in squad_reader.get_training_examples(SQuADDatasetReader.dev_set_location()):
-    # print(training_example)
+    print(training_example)
     output = bidaf(training_example.context, training_example.questions[0])
     print("squad out:", [o.size() for o in output])
     break
 
-for training_example in qangaroo_reader.get_training_examples(QUangarooDatasetReader.dev_set_location("wikihop")):
-    # print(training_example)
-    training_example.context.get_context_embedding()
-    output = bidaf(training_example.context, training_example.questions[0])
-    print("wikihop out:", [o.size() for o in output])
-    break
+# for training_example in qangaroo_reader.get_training_examples(QUangarooDatasetReader.dev_set_location("wikihop")):
+#     # print(training_example)
+#     training_example.context.get_context_embedding()
+#     output = bidaf(training_example.context, training_example.questions[0])
+#     print("wikihop out:", [o.size() for o in output])
+#     break
 
 #
 # squad_vocab = Vocabulary.from_instances(squad_reader.read(squad_reader.dev_set_location()))
