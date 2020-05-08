@@ -11,7 +11,7 @@ class Seq2Cand(nn.Module):
 
     def __init__(self, hidden_size):
         super().__init__()
-        self.candidates_reduction = Linear(embedded_size, 2*hidden_size)
+        self.candidates_reduction = Linear(2*embedded_size, 2*hidden_size)
         self.att_flow_layer = AttentionFlow(2*hidden_size, 2*hidden_size)
 
     def forward(self, seq, candidates):

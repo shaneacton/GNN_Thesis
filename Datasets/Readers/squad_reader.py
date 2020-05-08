@@ -10,7 +10,7 @@ from Code.GNN_Playground.Data.Answers.extracted_answer import ExtractedAnswer
 from Code.GNN_Playground.Data.context import Context
 from Code.GNN_Playground.Data.passage import Passage
 from Code.GNN_Playground.Data.question import Question
-from Code.GNN_Playground.Data.training_example import TrainingExample
+from Code.GNN_Playground.Data.data_sample import DataSample
 from Datasets.Readers.data_reader import DataReader
 
 
@@ -26,8 +26,11 @@ class SQuADDatasetReader(DataReader):
     def __init__(self, tokenizer: Tokenizer = None, token_indexers=None):
         super().__init__(tokenizer,token_indexers)
 
+    def get_dev_set(self):
+        return self.get_training_examples(self.dev_set_location())
+
     @staticmethod
-    def get_training_examples(file_path: str) -> Iterable[TrainingExample]:
+    def get_training_examples(file_path: str) -> Iterable[DataSample]:
         with open(file_path) as json_file:
             data = json.load(json_file)["data"]
             for example in data:
@@ -36,7 +39,7 @@ class SQuADDatasetReader(DataReader):
                 # print("title:",title)
                 for paragraph in paragraphs:
                     passage = Passage(paragraph["context"])
-                    training_example = TrainingExample(Context(passage), title=title)
+                    training_example = DataSample(Context(passage), title=title)
                     # print("context:",context)
                     qas = paragraph["qas"]
                     answerable_qs = [q for q in qas if not q["is_impossible"]]

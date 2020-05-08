@@ -8,7 +8,7 @@ from Code.GNN_Playground.Data.Answers.answers import Answers
 from Code.GNN_Playground.Data.Answers.one_word_answer import OneWordAnswer
 from Code.GNN_Playground.Data.context import Context
 from Code.GNN_Playground.Data.question import Question
-from Code.GNN_Playground.Data.training_example import TrainingExample
+from Code.GNN_Playground.Data.data_sample import DataSample
 from Datasets.Readers.data_reader import DataReader
 
 
@@ -24,8 +24,11 @@ class QUangarooDatasetReader(DataReader):
     def __init__(self, tokenizer: Tokenizer=None, token_indexers=None):
         super().__init__(tokenizer,token_indexers)
 
+    def get_dev_set(self, set_name="wikihop"):
+        return self.get_training_examples(self.dev_set_location(set_name))
+
     @staticmethod
-    def get_training_examples(file_path: str) -> Iterable[TrainingExample]:
+    def get_training_examples(file_path: str) -> Iterable[DataSample]:
         with open(file_path) as json_file:
             data = json.load(json_file)
             for question_data in data:
@@ -42,16 +45,16 @@ class QUangarooDatasetReader(DataReader):
                 for support in supports:
                     context.add_text_as_passage(support)
 
-                training_example = TrainingExample(context, question)
+                training_example = DataSample(context, question)
                 yield training_example
 
 
     @staticmethod
     def qangaroo_set_location():
-        return os.path.join(DataReader.raw_data_location(), "QAngaroo")
+        return os.path.join(DataReader.raw_data_location(), "qangaroo_v1.1")
 
     @staticmethod
-    def dev_set_location(set_name):
+    def dev_set_location(set_name="wikihop"):
         return os.path.join(QUangarooDatasetReader.qangaroo_set_location(), set_name, "dev.json")
 
     @staticmethod

@@ -6,7 +6,7 @@ from allennlp.data.fields import LabelField, TextField
 from allennlp.data.token_indexers import SingleIdTokenIndexer
 from allennlp.data import DatasetReader, Instance, Tokenizer
 
-from Code.GNN_Playground.Data.training_example import TrainingExample
+from Code.GNN_Playground.Data.data_sample import DataSample
 
 
 class DataReader(DatasetReader):
@@ -30,7 +30,7 @@ class DataReader(DatasetReader):
         return Instance(fields)
 
     @staticmethod
-    def get_training_examples(file_path: str) -> Iterable[TrainingExample]:
+    def get_training_examples(file_path: str) -> Iterable[DataSample]:
         pass
 
     @staticmethod

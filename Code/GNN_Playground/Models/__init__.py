@@ -1,15 +1,22 @@
 import torch
-from transformers import BertTokenizer, BertModel
+from transformers import BertTokenizer, BertModel, BasicTokenizer
+
+from Code.GNN_Playground.Data.Tokenisation.bert_tokeniser import CustomBertTokenizer
+from Code.GNN_Playground.Training import device
+
 embedder_type = "bert"
 
 if embedder_type == "bert":
 
-    bert_tokeniser = BertTokenizer.from_pretrained("bert-base-uncased")
-    bert_model = BertModel.from_pretrained("bert-base-uncased")
+    basic_bert_tokeniser = BasicTokenizer()
+    bert_tokeniser = CustomBertTokenizer.from_pretrained("bert-base-uncased")
+    bert_model = BertModel.from_pretrained("bert-base-uncased").to(device)
 
-    tokeniser = lambda string: bert_tokeniser.tokenize(string)
+    subtoken_mapper = lambda string: bert_tokeniser.tokenize(string)[1]
+    tokeniser = lambda string: bert_tokeniser.tokenize(string)[0]
 
-    token_indexer = lambda tokens: torch.Tensor(bert_tokeniser.convert_tokens_to_ids(tokens)).reshape(1, -1).type(torch.LongTensor)
+    token_indexer = lambda tokens: torch.Tensor(bert_tokeniser.convert_tokens_to_ids(tokens)).reshape(1, -1)\
+        .type(torch.LongTensor).to(device)
 
     token_embedder = lambda tokens: bert_model.embeddings(token_indexer(tokens))
 

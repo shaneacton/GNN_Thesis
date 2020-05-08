@@ -3,6 +3,7 @@ from torch import Tensor
 
 from Code.GNN_Playground.Data.Answers.answers import Answers
 from Code.GNN_Playground.Data.text import Text
+from Code.GNN_Playground.Training import device
 
 
 class Question(Text):
@@ -21,6 +22,6 @@ class Question(Text):
         emb = self.answers.get_candidates_embedding()
         return emb
 
-    def get_answer_cand_vec(self):
+    def get_answer_cand_index_vec(self):
         id = self.answers.get_answer_cand_id()
-        return torch.tensor([id])
+        return torch.tensor([id]).to(device)

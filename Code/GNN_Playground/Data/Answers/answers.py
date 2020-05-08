@@ -4,6 +4,7 @@ import torch
 
 from Code.GNN_Playground.Data.Answers.answer import Answer
 from Code.GNN_Playground.Data.Answers.one_word_answer import OneWordAnswer
+from Code.GNN_Playground.Data.text import Text
 
 
 class Answers:
@@ -33,7 +34,7 @@ class Answers:
 
     def get_candidates_embedding(self):
         if self.get_answer_type() == OneWordAnswer:
-            return torch.cat([torch.sum(cand.get_embedding(), dim=1).view(1,1,-1) for cand in self.answer_candidates], dim=1)
+            return torch.cat([cand.get_embedding(Text.tail_concatinator) for cand in self.answer_candidates], dim=1)
         raise Exception()
 
     def get_answer_cand_id(self):

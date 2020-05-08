@@ -5,7 +5,7 @@ from Code.GNN_Playground.Data.context import Context
 from Code.GNN_Playground.Data.question import Question
 
 
-class TrainingExample:
+class DataSample:
 
     """
         one context or passage may contain multiple questions
@@ -38,7 +38,7 @@ class TrainingExample:
 
         rep += "context:\n"
 
-        passages = ['\n'.join(textwrap.wrap(repr(passage), 125)) for passage in self.context.passages]
+        passages = ['\n'.join(textwrap.wrap(repr(passage), 100)) for passage in self.context.passages]
         rep += "\n\n".join(passages) + "\n\n"
 
         rep += "question" + (":" if len(self.questions) == 1 else "s:")

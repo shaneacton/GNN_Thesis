@@ -9,6 +9,7 @@ from Code.GNN_Playground.Models.Vanilla.bidaf import BiDAF
 from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
 from Datasets.Readers.squad_reader import SQuADDatasetReader
 
+
 text = "the apple is bad. super bad. I even thought it was ok." * 30
 
 tokeniser = WordTokenizer()
