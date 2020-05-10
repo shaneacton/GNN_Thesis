@@ -4,11 +4,11 @@ from typing import Iterable
 
 from allennlp.data import DatasetReader, Tokenizer
 
-from Code.GNN_Playground.Data.Answers.answers import Answers
-from Code.GNN_Playground.Data.Answers.one_word_answer import OneWordAnswer
-from Code.GNN_Playground.Data.context import Context
-from Code.GNN_Playground.Data.question import Question
-from Code.GNN_Playground.Data.data_sample import DataSample
+from Code.Data.Answers.answers import Answers
+from Code.Data.Answers.one_word_answer import OneWordAnswer
+from Code.Data.context import Context
+from Code.Data.question import Question
+from Code.Data.data_sample import DataSample
 from Datasets.Readers.data_reader import DataReader
 
 

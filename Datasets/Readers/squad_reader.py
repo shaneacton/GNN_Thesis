@@ -5,12 +5,12 @@ from typing import Iterable
 
 from allennlp.data import DatasetReader, Tokenizer
 
-from Code.GNN_Playground.Data.Answers.answers import Answers
-from Code.GNN_Playground.Data.Answers.extracted_answer import ExtractedAnswer
-from Code.GNN_Playground.Data.context import Context
-from Code.GNN_Playground.Data.passage import Passage
-from Code.GNN_Playground.Data.question import Question
-from Code.GNN_Playground.Data.data_sample import DataSample
+from Code.Data.Answers.answers import Answers
+from Code.Data.Answers.extracted_answer import ExtractedAnswer
+from Code.Data.context import Context
+from Code.Data.passage import Passage
+from Code.Data.question import Question
+from Code.Data.data_sample import DataSample
 from Datasets.Readers.data_reader import DataReader
 
 
@@ -45,15 +45,13 @@ class SQuADDatasetReader(DataReader):
                     answerable_qs = [q for q in qas if not q["is_impossible"]]
                     unanswerable_qs = [q for q in qas if q["is_impossible"]]
 
-                    context_tokens = training_example.context.get_context_tokens()
-
                     for qa in answerable_qs:
                         question = Question(qa["question"])
                         id = qa["id"]
                         answers_json = qa["answers"]
                         # print("q:",question)
                         # print("a's:", answers_json)
-                        answer_objects = [ExtractedAnswer(a["text"], int(a["answer_start"]), context_tokens)
+                        answer_objects = [ExtractedAnswer(a["text"], int(a["answer_start"]))
                                           for a in answers_json]
                         answers = Answers(answer_objects)
                         question.answers = answers

@@ -6,7 +6,7 @@ from allennlp.data.fields import LabelField, TextField
 from allennlp.data.token_indexers import SingleIdTokenIndexer
 from allennlp.data import DatasetReader, Instance, Tokenizer
 
-from Code.GNN_Playground.Data.data_sample import DataSample
+from Code.Data.data_sample import DataSample
 
 
 class DataReader(DatasetReader):
