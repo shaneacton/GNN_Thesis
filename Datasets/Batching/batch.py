@@ -3,8 +3,10 @@ from typing import List
 import torch
 from torch import Tensor
 
-from Code.GNN_Playground.Models import embedded_size
-from Code.GNN_Playground.Training import device
+from Code.Data.Answers.candidate_answer import CandidateAnswer
+from Code.Data.Answers.extracted_answer import ExtractedAnswer
+from Code.Models import embedded_size
+from Code.Training import device
 from Datasets.Batching.batch_item import BatchItem
 
 
@@ -28,7 +30,7 @@ class Batch:
         return Batch.pad_and_combine([bi.question.get_candidates_embedding() for bi in self.batch_items])
 
     def get_contexts_vec(self):
-        return Batch.pad_and_combine([bi.data_example.context.get_context_embedding() for bi in self.batch_items])
+        return Batch.pad_and_combine([bi.data_sample.context.get_context_embedding() for bi in self.batch_items])
 
     def get_queries_vec(self):
         return Batch.pad_and_combine([bi.question.get_embedding() for bi in self.batch_items])
@@ -37,10 +39,17 @@ class Batch:
         return torch.cat([bi.question.get_answer_cand_index_vec() for bi in self.batch_items], dim=0)
 
     def get_cqc_vecs(self):
-        return self.get_contexts_vec(), self.get_queries_vec(), self.get_candidates_vec()
+        return self.get_contexts_vec(), self.get_queries_vec(), \
+               (self.get_candidates_vec() if self.get_answer_type() == CandidateAnswer else None)
 
     def get_answer_type(self):
         return self.batch_items[0].question.get_answer_type()
+
+    def get_answers(self):
+        if self.get_answer_type() == CandidateAnswer:
+            return self.get_answer_cand_index_vec()
+        if self.get_answer_type() == ExtractedAnswer:
+            return self.get_answer_span_vec()
 
     @staticmethod
     def pad_and_combine(vecs: List[Tensor], dim=1):
@@ -59,4 +68,13 @@ class Batch:
 
         vecs = [pad(vec) for vec in vecs]
         return torch.cat(vecs, dim=0)
+
+    def __repr__(self):
+        return "Batch("+"\n\n".join([repr(bi) for bi in self.batch_items])
+
+    def get_answer_span_vec(self):
+        """spans are shape: (batch, 2)"""
+        spans = [bi.data_sample.get_answer_span_vec(bi.question.answers) for bi in self.batch_items]
+        return torch.cat(spans, dim=0)
+
 

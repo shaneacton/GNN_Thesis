@@ -1,4 +1,4 @@
-from Code.GNN_Playground.Training import batch_size
+from Code.Training import batch_size
 from Datasets.Batching.batch import Batch
 from Datasets.Batching.batch_item import BatchItem
 from Datasets.Readers.data_reader import DataReader
@@ -18,7 +18,7 @@ class BatchReader:
 
     def get_batches(self, file_path):
         batch = Batch()
-        for data_example in self.data_reader.get_training_examples(file_path):
+        for data_example in self.data_reader.get_data_samples(file_path):
             for question in data_example.questions:
                 batch.add_batch_item(BatchItem(data_example, question))
                 if len(batch) == batch_size:

@@ -1,5 +1,8 @@
+import random
 from typing import List
 
+from Code.Data.Answers.answers import Answers
+from Code.Data.Answers.extracted_answer import ExtractedAnswer
 from Code.Data.context import Context
 from Code.Data.question import Question
 
@@ -17,11 +20,11 @@ class DataSample:
         self.title = title
 
         if isinstance(questions, List):
-            self.questions = questions
+            self.questions: List[Question] = questions
         if isinstance(questions, Question):
-            self.questions = [questions]
+            self.questions: List[Question] = [questions]
         if questions is None:
-            self.questions = []
+            self.questions: List[Question] = []
 
     def add_question(self, question : Question):
         self.questions.append(question)
@@ -29,6 +32,23 @@ class DataSample:
     def get_all_text_pieces(self):
         return self.context.get_all_text_pieces() + [text for q in self.questions for text in q.get_all_text_pieces()] \
                + ([self.title] if self.title else [])
+
+    def get_answer_span_vec(self, answers: Answers):
+        """
+        uses random samping of the multiple correct span answers
+        :return:
+        """
+        if self.get_answer_type() != ExtractedAnswer:
+            raise Exception()
+        # todo closest match instead of random
+        remaining_answers = set(answers.correct_answers)
+        while remaining_answers:
+            answer: ExtractedAnswer = random.choice(list(remaining_answers))
+            try:
+                return self.context.get_answer_span_vec(answer.start_char_id, answer.end_char_id)
+            except:
+                remaining_answers-= {answer}  # answer may be broken
+        raise Exception("failed to get subtokens for all answers")
 
     def __repr__(self):
         rep = ""
@@ -57,3 +77,6 @@ class DataSample:
             rep += "\n".join(answers) + "\n"
 
         return rep
+
+    def get_answer_type(self):
+        return self.questions[0].get_answer_type()

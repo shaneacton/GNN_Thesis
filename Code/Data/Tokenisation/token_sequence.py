@@ -42,12 +42,20 @@ class TokenSequence:
     def convert_token_span_to_subtoken_span(self, token_span):
         t_start, t_end = token_span
         sub_start = self.token_subtoken_map[t_start][0]
-        sub_end = self.token_subtoken_map[t_end][1]
+        sub_end = self.token_subtoken_map[t_end-1][1] # todo test ensure -1 is correct
         return (sub_start, sub_end)
 
     def find_char_seq_in_subtokens(self, start_char_id, end_char_id):
-        sub_string = self.text[start_char_id, end_char_id]
+        sub_string = self.text[start_char_id: end_char_id]
         return self.find_string_in_subtokens(sub_string)
+
+    def get_subtoken_span_from_chars(self, start_char_id, end_char_id):
+        sub_string = self.text[start_char_id: end_char_id]
+        matches = self.find_seq_in_seq(basic_tokeniser(self.text[:end_char_id]), basic_tokeniser(sub_string))
+        # since the text was sheered at the end_char_id, final match must be accurate
+        if not matches:
+            raise Exception("Possible substring does not align with chars")
+        return self.convert_token_span_to_subtoken_span(matches[-1])
 
     @staticmethod
     def find_seq_in_seq(seq, query):
@@ -100,6 +108,10 @@ class TokenSequence:
 
         return entities
 
+
+
+
+
 if __name__ == "__main__":
     text = """European authorities fined Google Stadia a record $5.1 billion on Wednesday for abusing its power in the 
     mobile phone market and ordered the company to alter its practices """ * 2
@@ -109,6 +121,5 @@ if __name__ == "__main__":
     print(ts.entities)
     spans = [ent.token_span for ent in ts.entities]
     sub_spans = [ts.convert_token_span_to_subtoken_span(span) for span in spans]
-    print(sub_spans)
     subs = [ts.sub_tokens[ss[0]:ss[1]] for ss in sub_spans]
     print(subs)

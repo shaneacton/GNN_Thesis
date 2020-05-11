@@ -17,9 +17,10 @@ class DataReader(DatasetReader):
         self._token_indexers = token_indexers or {"tokens": SingleIdTokenIndexer()}
 
     def _read(self, file_path: str) -> Iterable[Instance]:
-        for training_example in self.get_training_examples(file_path):
-            for text_piece in training_example.get_all_text_pieces():
-                yield self.text_to_instance(text_piece)
+        while True:  # loops forever
+            for data_sample in self.get_data_samples(file_path):
+                for text_piece in data_sample.get_all_text_pieces():
+                    yield self.text_to_instance(text_piece)
 
     def text_to_instance(self, string: str, label=None) -> Instance:
         fields = {}
@@ -29,9 +30,8 @@ class DataReader(DatasetReader):
             fields['label'] = LabelField(label, skip_indexing=True)
         return Instance(fields)
 
-    @staticmethod
-    def get_training_examples(file_path: str) -> Iterable[DataSample]:
-        pass
+    def get_data_samples(self, file_path: str) -> Iterable[DataSample]:
+        raise NotImplementedError()
 
     @staticmethod
     def raw_data_location():

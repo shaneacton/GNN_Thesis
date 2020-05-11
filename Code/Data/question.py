@@ -1,7 +1,10 @@
+import random
+
 import torch
 from torch import Tensor
 
 from Code.Data.Answers.answers import Answers
+from Code.Data.Answers.extracted_answer import ExtractedAnswer
 from Code.Data.text import Text
 from Code.Training import device
 

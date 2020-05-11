@@ -2,7 +2,9 @@ from typing import List, Union
 
 import torch
 
+from Code.Data.Tokenisation.token_sequence import TokenSequence
 from Code.Data.passage import Passage
+from Code.Training import device
 
 
 class Context:
@@ -18,6 +20,14 @@ class Context:
             self.passages : List[Passage] = [passages]
         if passages is None:
             self.passages : List[Passage] = []
+
+        self._token_sequence = None
+
+    @property
+    def token_sequence(self):
+        if not self._token_sequence:
+            self._token_sequence = TokenSequence(self.get_full_context())
+        return self._token_sequence
 
     def add_passage(self, passage: Passage):
         self.passages.append(passage)
@@ -50,6 +60,11 @@ class Context:
         for passage in self.passages:
             tokens.extend(passage.get_tokens())
         return tokens
+
+    def get_answer_span_vec(self, start_char_id, end_char_id):
+        sub_token_span = self.token_sequence.get_subtoken_span_from_chars(start_char_id, end_char_id)
+        sub_token_span = list(sub_token_span)
+        return torch.tensor(sub_token_span).view(1, 2).to(device)
 
 
 

@@ -2,7 +2,7 @@ import torch.nn as nn
 from torch.nn import Linear, LSTM
 
 from Code.Data.Answers.extracted_answer import ExtractedAnswer
-from Code.Data.Answers.one_word_answer import OneWordAnswer
+from Code.Data.Answers.candidate_answer import CandidateAnswer
 from Code.Data.context import Context
 from Code.Data.question import Question
 from Code.Models import embedded_size
@@ -66,7 +66,7 @@ class BiDAF(QAModel):
             # (batch, c_len), (batch, c_len)
             return self.span_output(attended_vec, modeled_vec)
 
-        if answer_type == OneWordAnswer:
+        if answer_type == CandidateAnswer:
             return self.candidate_output(modeled_vec, candidates)
 
         raise Exception("unrecognised answer type: " + repr(answer_type))

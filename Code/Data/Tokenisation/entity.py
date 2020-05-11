@@ -15,4 +15,4 @@ class Entity:
         self.token_span: Tuple[int] = token_span
 
     def __repr__(self):
-        return self.spacy_entity.text + ": " + repr(self.token_span)
+        return self.spacy_entity.text + "(" + self.spacy_entity.label_ + ")" + ":S" + repr(self.token_span)

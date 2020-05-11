@@ -1,5 +1,5 @@
-from Code.GNN_Playground.Data.data_sample import DataSample
-from Code.GNN_Playground.Data.question import Question
+from Code.Data.data_sample import DataSample
+from Code.Data.question import Question
 
 
 class BatchItem:
@@ -9,6 +9,11 @@ class BatchItem:
     """
 
     def __init__(self, data_example: DataSample, question: Question):
-        self.data_example: DataSample = data_example
+        self.data_sample: DataSample = data_example
         self.question: Question = question
+
+    def __repr__(self):
+        # todo exlude other questions
+        return repr(self.data_sample)
+
 

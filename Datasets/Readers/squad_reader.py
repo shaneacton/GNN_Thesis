@@ -27,10 +27,9 @@ class SQuADDatasetReader(DataReader):
         super().__init__(tokenizer,token_indexers)
 
     def get_dev_set(self):
-        return self.get_training_examples(self.dev_set_location())
+        return self.get_data_samples(self.dev_set_location())
 
-    @staticmethod
-    def get_training_examples(file_path: str) -> Iterable[DataSample]:
+    def get_data_samples(self, file_path: str) -> Iterable[DataSample]:
         with open(file_path) as json_file:
             data = json.load(json_file)["data"]
             for example in data:

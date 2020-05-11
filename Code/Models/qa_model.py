@@ -10,6 +10,10 @@ class QAModel(nn.Module):
     def __init__(self):
         super().__init__()
 
+    @property
+    def num_params(self):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
+
     @staticmethod
     def get_context_query_candidates_vecs(*args):
         """

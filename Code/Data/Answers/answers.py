@@ -3,7 +3,7 @@ from typing import List, Union
 import torch
 
 from Code.Data.Answers.answer import Answer
-from Code.Data.Answers.one_word_answer import OneWordAnswer
+from Code.Data.Answers.candidate_answer import CandidateAnswer
 from Code.Data.text import Text
 
 
@@ -33,7 +33,7 @@ class Answers:
         return type(self.correct_answers[0])
 
     def get_candidates_embedding(self):
-        if self.get_answer_type() == OneWordAnswer:
+        if self.get_answer_type() == CandidateAnswer:
             return torch.cat([cand.get_embedding(Text.tail_concatinator) for cand in self.answer_candidates], dim=1)
         raise Exception()
 
