@@ -1,5 +1,5 @@
-from Code.Data.data_sample import DataSample
-from Code.Data.question import Question
+from Code.Data.Text.data_sample import DataSample
+from Code.Data.Text.question import Question
 
 
 class BatchItem:

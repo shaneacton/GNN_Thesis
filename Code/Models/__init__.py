@@ -1,7 +1,7 @@
 import torch
-from transformers import BertTokenizer, BertModel, BasicTokenizer
+from transformers import BertModel, BasicTokenizer
 
-from Code.Data.Tokenisation.bert_tokeniser import CustomBertTokenizer
+from Code.Data.Text.Tokenisation.bert_tokeniser import CustomBertTokenizer
 from Code.Training import device
 
 embedder_type = "bert"
@@ -30,3 +30,17 @@ indexer = lambda info: string_indexer(info) if isinstance(info,str) else token_i
 
 embedded_size = list(embedder("test").size())[2]
 # print("embedding size:",embedded_size)
+
+
+def sum_over_sequence(seq_embedding):
+    batch_size = seq_embedding.size(0)
+    return torch.sum(seq_embedding, dim=1).view(batch_size,1,-1)
+
+
+def tail_concatinator(seq_embedding, cat_dim=2):
+    seq_head = seq_embedding[:,0:1,:]
+    num_el = seq_embedding.size(1)
+    if num_el == 1:
+        return torch.cat([seq_head,seq_head], dim=cat_dim)
+
+    return torch.cat([seq_head,seq_embedding[:,num_el-1:num_el,:]], dim=cat_dim)

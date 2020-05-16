@@ -1,13 +1,12 @@
 import time
-from typing import Iterable
 
 from torch import nn, optim
 
-from Code.Data.Answers.extracted_answer import ExtractedAnswer
-from Code.Data.Answers.candidate_answer import CandidateAnswer
+from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
+from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Models.Vanilla.bidaf import BiDAF
 from Code.Models.qa_model import QAModel
-from Code.Training import device, batch_size
+from Code.Training import device
 from Datasets.Batching.batch import Batch
 from Datasets.Batching.batch_reader import BatchReader
 from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
@@ -56,10 +55,10 @@ def train_model(batches_reader: BatchReader, path, model: QAModel, learning_rate
             optimizer.step()
             total_loss += loss.item()
             if i%PRINT_BATCH_EVERY == 0 and PRINT_BATCH_EVERY != -1:
-                print("batch", i, "loss", loss/batch_size)
+                print("batch", i, "loss", loss/batch.batch_size)
 
         e_time = time.time() - s_time
-        num_samples = i*batch_size
+        num_samples = i*batch.batch_size
         sample_time = e_time/num_samples
         sample_loss = total_loss/num_samples
         print("e",epoch,"loss per sample:",sample_loss,"time:",e_time,
@@ -72,8 +71,8 @@ if __name__ == "__main__":
     squad_reader = SQuADDatasetReader()
     qangaroo_reader = QUangarooDatasetReader()
 
-    qangaroo_batch_reader = BatchReader(qangaroo_reader)
-    squad_batch_reader = BatchReader(squad_reader)
+    qangaroo_batch_reader = BatchReader(qangaroo_reader, 1)
+    squad_batch_reader = BatchReader(squad_reader, 16)
 
     wikihop_path = QUangarooDatasetReader.dev_set_location("wikihop")
     squad_path = SQuADDatasetReader.dev_set_location()

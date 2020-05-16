@@ -3,9 +3,8 @@ from typing import List
 import torch
 from torch import Tensor
 
-from Code.Data.Answers.candidate_answer import CandidateAnswer
-from Code.Data.Answers.extracted_answer import ExtractedAnswer
-from Code.Models import embedded_size
+from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
+from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
 from Code.Training import device
 from Datasets.Batching.batch_item import BatchItem
 
@@ -17,7 +16,8 @@ class Batch:
         utils to pad and combine vecs from these examples
     """
 
-    def __init__(self):
+    def __init__(self, batch_size):
+        self.batch_size = batch_size
         self.batch_items: List[BatchItem] = []
 
     def add_batch_item(self, batch_item: BatchItem):

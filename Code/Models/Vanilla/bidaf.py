@@ -1,16 +1,12 @@
-import torch.nn as nn
-from torch.nn import Linear, LSTM
+from torch.nn import LSTM
 
-from Code.Data.Answers.extracted_answer import ExtractedAnswer
-from Code.Data.Answers.candidate_answer import CandidateAnswer
-from Code.Data.context import Context
-from Code.Data.question import Question
+from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
+from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Models import embedded_size
 from Code.Models.Layers.attention_flow import AttentionFlow
 from Code.Models.Layers.seq2cand import Seq2Cand
 from Code.Models.Layers.seq2span_flow import Seq2SpanFlow
 from Code.Models.qa_model import QAModel
-from Code.Training import device
 
 """
     source: https://github.com/galsang/BiDAF-pytorch

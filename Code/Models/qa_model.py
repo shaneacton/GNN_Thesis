@@ -1,7 +1,7 @@
 from torch import nn
 
-from Code.Data.context import Context
-from Code.Data.question import Question
+from Code.Data.Text.context import Context
+from Code.Data.Text.question import Question
 from Datasets.Batching.batch import Batch
 
 

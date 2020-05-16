@@ -3,18 +3,15 @@ import json
 import os
 from typing import Iterable
 
-from allennlp.data import DatasetReader, Tokenizer
-
-from Code.Data.Answers.answers import Answers
-from Code.Data.Answers.extracted_answer import ExtractedAnswer
-from Code.Data.context import Context
-from Code.Data.passage import Passage
-from Code.Data.question import Question
-from Code.Data.data_sample import DataSample
+from Code.Data.Text.Answers.answers import Answers
+from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
+from Code.Data.Text.context import Context
+from Code.Data.Text.passage import Passage
+from Code.Data.Text.question import Question
+from Code.Data.Text.data_sample import DataSample
 from Datasets.Readers.data_reader import DataReader
 
 
-@DatasetReader.register('SQuAD')
 class SQuADDatasetReader(DataReader):
 
     """
@@ -22,9 +19,6 @@ class SQuADDatasetReader(DataReader):
         each passage has multiple associated questions
         answers are found directly in the passages
     """
-
-    def __init__(self, tokenizer: Tokenizer = None, token_indexers=None):
-        super().__init__(tokenizer,token_indexers)
 
     def get_dev_set(self):
         return self.get_data_samples(self.dev_set_location())
