@@ -4,6 +4,7 @@ import torch
 
 from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 from Code.Data.Text.passage import Passage
+from Code.Data.Text.text import Text
 from Code.Training import device
 
 
@@ -12,6 +13,8 @@ class Context:
         a collection of passages with a natural grouping
         ie a document
     """
+
+    PASSAGE_BREAK_STRING = "\n\n"
 
     def __init__(self,passages : Union[List[Passage], Passage, None] = None):
         if isinstance(passages, List):
@@ -26,7 +29,7 @@ class Context:
     @property
     def token_sequence(self):
         if not self._token_sequence:
-            self._token_sequence = TokenSequence(self.get_full_context())
+            self._token_sequence = TokenSequence(Text(self.get_full_context()))
         return self._token_sequence
 
     def add_passage(self, passage: Passage):
@@ -39,7 +42,7 @@ class Context:
         return [passage.text for passage in self.passages]
 
     def get_full_context(self):
-        return "\n\n".join(self.get_all_text_pieces())
+        return Context.PASSAGE_BREAK_STRING.join(self.get_all_text_pieces())
 
     def get_context_embedding(self):
         """

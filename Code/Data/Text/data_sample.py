@@ -15,7 +15,7 @@ class DataSample:
         as well as multiple answer candidates
     """
 
-    def __init__(self, context : Context, questions=None, title=None):
+    def __init__(self, context : Context, questions=None, title=""):
         self.context = context
         self.title = title
 
@@ -25,6 +25,11 @@ class DataSample:
             self.questions: List[Question] = [questions]
         if questions is None:
             self.questions: List[Question] = []
+
+    @property
+    def title_and_peek(self):
+        peek = "_".join(self.context.passages[0].token_sequence.tokens[:4])
+        return self.title + ("_" if self.title else "") + peek
 
     def add_question(self, question : Question):
         self.questions.append(question)

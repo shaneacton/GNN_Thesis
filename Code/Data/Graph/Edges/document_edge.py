@@ -12,6 +12,9 @@ class DocumentEdge(EdgeRelation):
     'doc2stat' - document-level-node to statement-level-node for all statements in the doc
     """
 
+    def get_label(self):
+        return "DOC"
+
     def __init__(self, from_id, to_id, subtype: str):
         super().__init__(from_id, to_id, directed='2' in subtype)
         self.subtype = subtype

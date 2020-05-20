@@ -12,3 +12,7 @@ class Node (ABC):
     @abstractmethod
     def get_node_states(self) -> Dict[str, Tensor]:
         raise NotImplementedError()
+
+    @abstractmethod
+    def get_node_viz_text(self):
+        raise NotImplementedError()
