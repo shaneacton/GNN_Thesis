@@ -7,6 +7,6 @@ class AdjacentEntityEdge(EdgeRelation):
         super().__init__(from_id, to_id)
 
     def get_label(self):
-        return "WINDOW"
+        return "SEQ"
 
 

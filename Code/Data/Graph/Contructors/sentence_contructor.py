@@ -1,16 +1,17 @@
 from typing import Union
 
 from Code.Data.Graph.Contructors.coreference_constructor import CoreferenceConstructor
+from Code.Data.Graph.Contructors.document_structure_constructor import DocumentStructureConstructor
 from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
-from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor, IncompatibleGraphContructionOrder
+from Code.Data.Graph.Contructors.graph_constructor import IncompatibleGraphContructionOrder
 from Code.Data.Graph.Edges.document_edge import DocumentEdge
 from Code.Data.Graph.Nodes.entity_node import EntityNode
-from Code.Data.Graph.Nodes.document_structure_node import DocumentStructureNode
 from Code.Data.Graph.context_graph import ContextGraph
+from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.data_sample import DataSample
 
 
-class SentenceConstructor(GraphConstructor):
+class SentenceConstructor(DocumentStructureConstructor):
 
     """
     creates nodes which represent entire sentence summaries and links these nodes to the contained entity mentions and corefs
@@ -22,20 +23,17 @@ class SentenceConstructor(GraphConstructor):
             raise IncompatibleGraphContructionOrder(existing_graph, self,
                                                     "Entities and corefs must be graphed before sentences")
 
-        for sentence in data_sample.context.token_sequence.sentences:
-            node = DocumentStructureNode(sentence)
-            sentence_node_id = existing_graph.add_node(node)
-
-            contained_entity_nodes = [EntityNode(ent) for ent in sentence.contained_entities]
-            contained_entity_node_ids = existing_graph.add_nodes(contained_entity_nodes)
-
-            edges = [DocumentEdge(sentence_node_id, cont_node_id, subtype="stat2word")
-                     for cont_node_id in contained_entity_node_ids]
-
-            existing_graph.add_edges(edges)
+        tok_seq = data_sample.context.token_sequence
+        edge_type = DocumentEdge.get_x2y_edge_type(DocumentExtract.SENTENCE, DocumentExtract.WORD)
+        self.graph_heirarchical_span_seqs(existing_graph, tok_seq, tok_seq.sentences, tok_seq.entities_and_corefs,
+                                          edge_type, value_node_type=EntityNode)
 
         existing_graph.constructs.append(type(self))
         return existing_graph
+
+
+
+
 
 
 

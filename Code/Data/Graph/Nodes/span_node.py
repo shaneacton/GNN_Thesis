@@ -11,7 +11,7 @@ class SpanNode(Node):
         self.token_span = token_span
 
     def get_node_viz_text(self):
-        text = self.token_span.spacy_span.text + "\n" + repr(self.token_span.token_span)
+        text = self.token_span.text + "\n" + repr(self.token_span.token_span)
         return "\n".join(textwrap.wrap(text, 16))
 
     def __eq__(self, other):

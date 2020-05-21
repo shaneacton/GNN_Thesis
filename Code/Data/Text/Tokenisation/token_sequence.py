@@ -1,15 +1,15 @@
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
+import en_core_web_sm
+import neuralcoref
 from neuralcoref.neuralcoref import Cluster
 from spacy.tokens.doc import Doc
-import neuralcoref
 
-from Code.Data.Text.Tokenisation.entity import Entity
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
+from Code.Data.Text.Tokenisation.entity import Entity
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
 from Code.Models import tokeniser, subtoken_mapper, basic_tokeniser
 
-import en_core_web_sm
 nlp = en_core_web_sm.load()
 neuralcoref.add_to_pipe(nlp)
 
@@ -55,13 +55,12 @@ class TokenSequence:
         return self._corefs
 
     @property
-    def entities_and_corefs(self):
+    def entities_and_corefs(self) -> List[Entity]:
         ents_and_corefs: List[Entity] = []  # inserts corefs right after their mains resulting in an imperfect by nearly sorted array
         [ents_and_corefs.extend([ent] + (self.corefs[ent] if ent in self.corefs else [])) for ent in self.entities]
         #todo sort which exploits nearly sortedness
         ents_and_corefs = sorted(ents_and_corefs, key=lambda ent: 0.5 * (ent.token_span[0] + ent.token_span[1]))
         return ents_and_corefs
-
 
     @property
     def sentences(self) -> List[DocumentExtract]:
@@ -70,10 +69,17 @@ class TokenSequence:
         return self._sentences
 
     @property
+    def full_document(self):
+        return DocumentExtract(self, (0, len(self.tokens)), DocumentExtract.DOC)
+
+    @property
     def passages(self):
         if self._passages is None:
             self._passages = self.get_passages()
         return self._passages
+
+    def get_text_from_span(self, span):
+        return " ".join(self.tokens[span[0]:span[1]])
 
     def add_token_and_subtokens(self, token, subtokens):
         self.tokens.append(token)
@@ -140,13 +146,17 @@ class TokenSequence:
 
         mapping = {}
         v = 0
+        val = lambda v: value_spans[v]
+
         for key in key_spans:
             mapping[key] = []
-            val = value_spans[v]
-            while key.contains(val):
-                mapping[key] += [val]
+
+            while  v < len(value_spans) and key.contains(val(v)):
+                mapping[key] += [val(v)]
                 v += 1
-                val = value_spans[v]
+
+        if v != len(value_spans):
+            raise Exception("matching failed to place all value spans - " + str(v) + "/" + str(len(key_spans)))
 
         return mapping
 
@@ -181,58 +191,6 @@ class TokenSequence:
         return corefs
 
     def get_spacy_sentences(self, spacy_processed_doc=None):
-        """
-        creates sentence objects for each sentence extracted by spacy
-        also walks through entities while creating sentences
-        and links each sentence to its contained entities
-        """
-        processed: Doc = nlp(self.text.text) if not spacy_processed_doc else spacy_processed_doc
-        spacy_sents = processed.sents
-        sentences = []
-        # once an entity has been placed in a sentence it is matched, and cannot belong to another sentence
-        unmatched_entities = self.entities
-        # if a coref to an ent is not in the same sentence as that ent,
-        # care needs to be taken to find the corefs containing sentence
-        trailing_corefs = []
-
-        for sent in spacy_sents:
-            exact_match = self.get_token_span_from_chars(sent.start_char, sent.end_char)
-            sentence = DocumentExtract(self, exact_match, DocumentExtract.SENTENCE, sent)
-            sentences.append(sentence)
-
-            tc = 0
-            while tc < len(trailing_corefs):
-                # handles coreferences to entities which were found in earlier sentences but not yet matched
-                trailing_coref = trailing_corefs[tc]
-                if sentence.contains(trailing_coref):
-                    sentence.add_entity(trailing_coref)
-                    trailing_corefs.pop(tc) # has now been accounted for
-                else:
-                    tc +=1  # this trailing coref must be further along
-
-            next_ent = unmatched_entities[0]
-            while unmatched_entities and sentence.contains(next_ent):
-                sentence.add_entity(next_ent)
-                if next_ent in self.corefs:
-                    # this ent has corefs. add them in this sentence and possibly subsequent ones
-                    for ent_coref in self.corefs[next_ent]:
-                        # if this coref is in this sentence add it, else trail it for a later sentence
-                        if sentence.contains(ent_coref):
-                            sentence.add_entity(ent_coref)
-                        else:
-                            """place this coref in a subsequent sentence"""
-                            trailing_corefs.append(ent_coref)
-                            if ent_coref.before(sentence):
-                                raise Exception("cannot handle trailing coref antecedents")
-
-                unmatched_entities = unmatched_entities[1:]
-                if len(unmatched_entities) == 0:
-                    break  # no more entities. all matching complete
-                next_ent = unmatched_entities[0]
-
-        return sentences
-
-    def _get_spacy_sentences(self, spacy_processed_doc=None):
         processed: Doc = nlp(self.text.text) if not spacy_processed_doc else spacy_processed_doc
         spacy_sents = processed.sents
         sentences = []
@@ -255,13 +213,6 @@ class TokenSequence:
 
             passage = DocumentExtract(self,matches[0], DocumentExtract.PASSAGE)
             passages.append(passage)
-            for entity in self.entities:
-                # add all contained entities and corefs
-                if passage.contains(entity):
-                    passage.add_entity(entity)
-                    for coref in self.corefs[entity]:
-                        # assumes no corefs cross passage borders
-                        passage.add_entity(coref)
 
         return passages
 
@@ -289,15 +240,18 @@ Germany accepted the western borders of the republic, but continued to dispute t
     from Code.Data.Text.text import Text
     ts = TokenSequence(Text(text))
 
-    # print("entities:",ts.entities)
+    print("entities:",ts.entities)
     # spans = [ent.token_span for ent in ts.entities]
     # sub_spans = [ts.convert_token_span_to_subtoken_span(span) for span in spans]
     # subs = [ts.sub_tokens[ss[0]:ss[1]] for ss in sub_spans]
     # # print("ent sub toks:", subs)
-    # print("\ncorefs:", ts.corefs)
+    print("\ncorefs:", ts.corefs)
+    mapping = ts.match_heirarchical_span_seqs(ts.sentences, ts.entities_and_corefs)
+
+    print("\nents and corefs:", ts.entities_and_corefs)
 
     sentences = ts.sentences
     print(type(sentences[0]))
-    sentences = [repr(sent) + ":" + repr(sent.contained_entities) for sent in sentences]
+    sentences = [repr(sent) + ":" + repr([ent for ent in mapping[sent]]) for sent in sentences]
     print("\n\nsentences:\n", "\nS:\t".join(sentences))
 

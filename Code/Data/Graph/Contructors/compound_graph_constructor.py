@@ -1,8 +1,10 @@
 from typing import Union, List
 
 from Code.Data.Graph.Contructors.coreference_constructor import CoreferenceConstructor
+from Code.Data.Graph.Contructors.document_node_constructor import DocumentNodeConstructor
 from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
+from Code.Data.Graph.Contructors.passage_constructor import PassageConstructor
 from Code.Data.Graph.Contructors.sentence_contructor import SentenceConstructor
 from Code.Data.Graph.Contructors.sequential_entity_linker import SequentialEntityLinker
 from Code.Data.Graph.Edges.same_entity_edge import SameEntityEdge
@@ -19,7 +21,7 @@ class CompoundGraphConstructor(GraphConstructor):
     def append(self, _existing_graph: Union[None, ContextGraph], data_sample: DataSample) -> ContextGraph:
         existing_graph = ContextGraph()
         for const_type in self.construtors:
-            # print("constructing using:", const_type)
+            print("constructing using:", const_type)
             constructor: GraphConstructor = const_type()
             existing_graph = constructor.append(existing_graph, data_sample)
             if not existing_graph:
@@ -29,14 +31,17 @@ class CompoundGraphConstructor(GraphConstructor):
 
 
 if __name__ == "__main__":
-    cgc = CompoundGraphConstructor([EntitiesConstructor, SequentialEntityLinker, CoreferenceConstructor, SentenceConstructor])
+    cgc = CompoundGraphConstructor([EntitiesConstructor, SequentialEntityLinker, CoreferenceConstructor,
+                                    SentenceConstructor, PassageConstructor, DocumentNodeConstructor])
+    # cgc = CompoundGraphConstructor([EntitiesConstructor, SequentialEntityLinker, CoreferenceConstructor,
+    #                                 PassageConstructor, DocumentNodeConstructor])
     from Datasets.Readers.squad_reader import SQuADDatasetReader
 
     sq_reader = SQuADDatasetReader()
     qangaroo_reader = QUangarooDatasetReader()
 
-    # samples = sq_reader.get_dev_set()
-    samples = qangaroo_reader.get_dev_set()
+    samples = sq_reader.get_dev_set()
+    # samples = qangaroo_reader.get_dev_set()
 
     for i, sample in enumerate(samples):
         if i>=5:

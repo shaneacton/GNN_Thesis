@@ -15,6 +15,11 @@ class TokenSpan:
         self.spacy_span : Span = spacy_span
         self.token_sequence = token_sequence
         self.token_span: Tuple[int] = token_span
+        self.level = type(self)
+
+    @property
+    def text(self):
+        return self.spacy_span.text if self.spacy_span else self.token_sequence.get_text_from_span(self.token_span)
 
     @property
     def subtoken_span(self):

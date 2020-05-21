@@ -13,14 +13,16 @@ class EntityNode(SpanNode):
     entry level node which contains only a current state vector
     """
 
+    def get_node_states(self) -> Dict[str, Tensor]:
+        pass
+
     def __init__(self, entity:TokenSpan):
         super().__init__(entity)
-        self.current_state: Tensor = entity.get_embedding()
 
     @property
     def is_coref(self):
         ent: Entity = self.token_span
         return ent.is_coref
 
-    def get_node_states(self) -> Dict[str, Tensor]:
-        return {"current_state": self.current_state}
+    # def get_node_states(self) -> Dict[str, Tensor]:
+    #     return {"current_state": self.current_state}

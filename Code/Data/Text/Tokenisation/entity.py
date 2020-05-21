@@ -1,8 +1,8 @@
-from Code.Data.Text.Tokenisation.token_span import TokenSpan
+from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Models import tail_concatinator
 
 
-class Entity(TokenSpan):
+class Entity(DocumentExtract):
 
     """
         an entity exists with respect to a token sequence
@@ -13,7 +13,7 @@ class Entity(TokenSpan):
     """
 
     def __init__(self, token_sequence, token_span, spacy_span, is_coref=False):
-        super().__init__(token_sequence, token_span, spacy_span)
+        super().__init__(token_sequence, token_span, DocumentExtract.WORD, spacy_span)
         self.is_coref = is_coref
 
     def __repr__(self):
