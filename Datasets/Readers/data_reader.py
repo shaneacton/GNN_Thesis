@@ -6,8 +6,9 @@ from Code.Data.Text.data_sample import DataSample
 
 class DataReader:
 
-    def __init__(self, ):
+    def __init__(self, name):
         super().__init__()
+        self.datset_name = name
 
     def get_data_samples(self, file_path: str) -> Iterable[DataSample]:
         raise NotImplementedError()

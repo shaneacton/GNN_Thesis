@@ -1,14 +1,20 @@
 import textwrap
+from abc import ABC
 
 from Code.Data.Graph.Nodes.node import Node
+from Code.Data.Graph.State.current_state import CurrentState
+from Code.Data.Graph.State.starting_state import StartingState
+from Code.Data.Graph.State.tiered_state import TieredState
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 
-class SpanNode(Node):
+class SpanNode(Node, ABC):
+
+    STATE_TYPES = [CurrentState, StartingState]
 
     def __init__(self, token_span: TokenSpan):
-        super().__init__()
         self.token_span = token_span
+        super().__init__(SpanNode.STATE_TYPES)
 
     def get_node_viz_text(self):
         text = self.token_span.text + "\n" + repr(self.token_span.token_span)

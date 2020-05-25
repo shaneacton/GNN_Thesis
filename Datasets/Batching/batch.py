@@ -36,6 +36,7 @@ class Batch:
         return Batch.pad_and_combine([bi.question.get_embedding() for bi in self.batch_items])
 
     def get_answer_cand_index_vec(self):
+        """dim ~ (batch)"""
         return torch.cat([bi.question.get_answer_cand_index_vec() for bi in self.batch_items], dim=0)
 
     def get_cqc_vecs(self):

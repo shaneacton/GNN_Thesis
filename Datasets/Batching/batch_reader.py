@@ -12,13 +12,18 @@ class BatchReader:
         with a batch_iterator which collects multiple context,question pairs and groups them
     """
 
-    def __init__(self, data_reader: DataReader, batch_size):
+    def __init__(self, data_reader: DataReader, batch_size, data_path):
         self.data_reader = data_reader
         self.batch_size = batch_size
+        self.data_path = data_path
 
-    def get_batches(self, file_path):
+    @property
+    def dataset(self):
+        return self.data_reader.datset_name
+
+    def get_batches(self):
         batch = Batch(self.batch_size)
-        for data_example in self.data_reader.get_data_samples(file_path):
+        for data_example in self.data_reader.get_data_samples(self.data_path):
             for question in data_example.questions:
                 batch.add_batch_item(BatchItem(data_example, question))
                 if len(batch) == self.batch_size:

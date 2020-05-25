@@ -15,7 +15,7 @@ class Text:
 
     def __init__(self, text):
         self.text = text
-        self._token_sequence: TokenSequence=None
+        self._token_sequence: TokenSequence = None
         self._full_embedding: torch.Tensor = None
 
     @property
@@ -26,9 +26,12 @@ class Text:
 
     @property
     def full_embedding(self):
-        if self._full_embedding is None:
-            self._full_embedding = self.get_embedding()
-        return self._full_embedding
+        return self.get_embedding()
+        # if self._full_embedding is None:
+        #     self._full_embedding = self.get_embedding()
+        # else:
+        #     print("double embedding text")
+        # return self._full_embedding
 
     @property
     def clean(self):

@@ -27,6 +27,9 @@ class EdgeRelation(ABC):
         ids = ids if self.directed else sorted(ids)  # if sorted, each dir will has the same
         return hash((tuple(ids), type(self)))
 
+    def get_type(self):
+        return (type(self), self.subtype)
+
     @abstractmethod
     def get_label(self):
         raise NotImplementedError()

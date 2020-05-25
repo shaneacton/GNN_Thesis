@@ -151,7 +151,7 @@ class TokenSequence:
         for key in key_spans:
             mapping[key] = []
 
-            while  v < len(value_spans) and key.contains(val(v)):
+            while v < len(value_spans) and key.contains(val(v)):
                 mapping[key] += [val(v)]
                 v += 1
 
@@ -211,7 +211,9 @@ class TokenSequence:
             if len(matches) > 1:
                 raise Exception("duplicate passage in token seq")
 
-            passage = DocumentExtract(self,matches[0], DocumentExtract.PASSAGE)
+            # +1 to include one of the passage sep tokens for alignment reasons
+            match = (matches[0][0], min(matches[0][1] + 1, len(self.tokens)))
+            passage = DocumentExtract(self, match, DocumentExtract.PASSAGE)
             passages.append(passage)
 
         return passages

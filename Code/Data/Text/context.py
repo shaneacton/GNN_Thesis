@@ -14,7 +14,7 @@ class Context:
         ie a document
     """
 
-    PASSAGE_BREAK_STRING = "\n\n"
+    PASSAGE_BREAK_STRING = "\n.\n"
 
     def __init__(self,passages : Union[List[Passage], Passage, None] = None):
         if isinstance(passages, List):

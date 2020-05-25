@@ -20,7 +20,11 @@ class CoreferenceConstructor(GraphConstructor):
         if not existing_graph or EntitiesConstructor not in existing_graph.constructs:
             raise IncompatibleGraphContructionOrder(existing_graph, self, "Entities must be graphed before coreferences")
 
-        entity_nodes: List[EntityNode] = existing_graph.get_nodes_of_type(EntityNode)
+        try:
+            entity_nodes: List[EntityNode] = existing_graph.get_nodes_of_type(EntityNode)
+        except Exception as e:
+            raise Exception("Failed to add coref nodes\n\n"+repr(e) + "\n\nexisting nodes:", existing_graph.ordered_nodes, "text ents")
+
         corefs = data_sample.context.token_sequence.corefs
         for node in entity_nodes:
             ent = node.token_span

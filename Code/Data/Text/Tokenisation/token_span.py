@@ -2,6 +2,8 @@ from typing import Tuple
 
 from spacy.tokens.span import Span
 
+from Code.Models import tail_concatinator
+
 
 class TokenSpan:
 
@@ -34,11 +36,14 @@ class TokenSpan:
         span = self.subtoken_span
         return self.token_sequence.sub_tokens[span[0]: span[1]]
 
+    @property
+    def tail_concat_embedding(self):
+        return self.get_embedding(sequence_reduction=tail_concatinator)
+
     def __repr__(self):
-        text = self.spacy_span.text
-        label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span.label_ else ""
+        label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span and self.spacy_span.label_ else ""
         span = ":S" + repr(self.token_span)
-        return text  + label + span
+        return self.text + label + span
 
     def __eq__(self, other):
         return self.token_sequence == other.token_sequence and self.token_span == other.token_span

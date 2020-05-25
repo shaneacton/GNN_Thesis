@@ -29,7 +29,13 @@ class PassageConstructor(DocumentStructureConstructor):
 
         if SentenceConstructor in existing_graph.constructs:
             edge_type = DocumentEdge.get_x2y_edge_type(DocumentExtract.PASSAGE, DocumentExtract.SENTENCE)
-            self.graph_heirarchical_span_seqs(existing_graph, tok_seq, tok_seq.passages,tok_seq.sentences, edge_type)
+            try:
+                self.graph_heirarchical_span_seqs(existing_graph, tok_seq, tok_seq.passages, tok_seq.sentences, edge_type)
+            except:
+                print("\npassages:","\n".join([repr(span) for span in tok_seq.passages]))
+                print("\nsentences:","\n".join([repr(span) for span in tok_seq.sentences]))
+                raise Exception()
+
         else:
             edge_type = DocumentEdge.get_x2y_edge_type(DocumentExtract.PASSAGE, DocumentExtract.WORD)
             self.graph_heirarchical_span_seqs(existing_graph, tok_seq, tok_seq.passages,

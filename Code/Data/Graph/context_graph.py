@@ -28,6 +28,8 @@ class ContextGraph:
         self.edges: Set[EdgeRelation] = set()
         self.constructs : List[type] = []  # record of the contruction process used
 
+        self.label: torch.Tensor = None
+
     @property
     def edge_index(self):
         """
@@ -46,17 +48,17 @@ class ContextGraph:
         """
         converts this graph into data ready to be fed into pytorch geometric
         """
-        # todo should support nodes with different state types
         states_dict = {}
         for node in self.ordered_nodes:  # in order traversal
-            for state_name in node.get_node_states().keys():
+            for state_name in node.states.keys():
                 if not state_name in states_dict:
                     states_dict[state_name] = []
-                states_dict[state_name].append(node.get_node_states()[state_name])
+                states_dict[state_name].append(node.states[state_name])
 
         for state_name in states_dict.keys():
             states_dict[state_name] = torch.stack(states_dict[state_name], dim=0)
-        return Data(edge_index=self.edge_index, **states_dict)
+        print("states:", {name:states_dict[name].size() for name in states_dict.keys()}, "label:",self.label)
+        return Data(edge_index=self.edge_index, label=self.label, **states_dict)
 
     def get_nodes_of_type(self, type):
         return [self.ordered_nodes[id] for id in self.typed_nodes[type]]
@@ -99,7 +101,10 @@ class ContextGraph:
         for edge in self.edges:
             dot.edge(name(edge[0]), name(edge[1]), label=edge.get_label())
 
-        dot.render('/home/shane/Documents/Thesis/' + graph_name, view=True, format="png")
+        dot.render('/home/shane/Documents/Thesis/Viz/' + graph_name, view=False, format="png")
+
+    def set_label(self, label: torch.Tensor):
+        self.label = label
 
 
 if __name__ == "__main__":

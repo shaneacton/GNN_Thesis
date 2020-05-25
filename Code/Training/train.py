@@ -27,7 +27,7 @@ def get_candidate_loss(output, batch: Batch):
     return ce_loss(output, answers)
 
 
-def train_model(batches_reader: BatchReader, path, model: QAModel, learning_rate=1e-3):
+def train_model(batch_reader: BatchReader, model: QAModel, learning_rate=1e-3):
     model.train()
     num_epochs = 10
 
@@ -37,14 +37,14 @@ def train_model(batches_reader: BatchReader, path, model: QAModel, learning_rate
     for epoch in range(num_epochs):
         s_time = time.time()
         total_loss = 0
-        for i, batch in enumerate(batches_reader.get_batches(path)):
+        for i, batch in enumerate(batch_reader.get_batches()):
             # print(batch)
             if i >= MAX_BATCHES and MAX_BATCHES != -1:
                 break
+            optimizer.zero_grad()
             output = model(batch)
 
             loss = 0
-            optimizer.zero_grad()
 
             if batch.get_answer_type() == ExtractedAnswer:
                 loss = get_span_loss(output, batch)
@@ -68,14 +68,14 @@ def train_model(batches_reader: BatchReader, path, model: QAModel, learning_rate
 if __name__ == "__main__":
     model = BiDAF(100).to(device)
 
-    squad_reader = SQuADDatasetReader()
-    qangaroo_reader = QUangarooDatasetReader()
-
-    qangaroo_batch_reader = BatchReader(qangaroo_reader, 1)
-    squad_batch_reader = BatchReader(squad_reader, 16)
+    squad_reader = SQuADDatasetReader("SQuAD")
+    qangaroo_reader = QUangarooDatasetReader("wikihop")
 
     wikihop_path = QUangarooDatasetReader.dev_set_location("wikihop")
     squad_path = SQuADDatasetReader.dev_set_location()
 
-    train_model(qangaroo_batch_reader, wikihop_path, model)
-    # train_model(squad_batch_reader, squad_path, model)
+    qangaroo_batch_reader = BatchReader(qangaroo_reader, 1, wikihop_path)
+    squad_batch_reader = BatchReader(squad_reader, 10, squad_path)
+
+    train_model(qangaroo_batch_reader, model)
+    # train_model(squad_batch_reader, model)

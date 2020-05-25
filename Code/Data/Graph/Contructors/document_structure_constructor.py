@@ -11,7 +11,6 @@ class DocumentStructureConstructor(GraphConstructor, ABC):
 
     """links up nodes"""
 
-
     def graph_heirarchical_span_seqs(self, existing_graph, tok_seq, key_spans: List[TokenSpan],
                                      value_spans: List[TokenSpan], edge_type,
                                      key_node_type=DocumentStructureNode,
