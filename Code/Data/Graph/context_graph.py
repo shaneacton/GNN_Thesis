@@ -1,3 +1,4 @@
+import os
 from typing import List, Set, Dict
 
 import torch
@@ -91,7 +92,7 @@ class ContextGraph:
     def add_edge(self, edge):
         self.edges.add(edge)
 
-    def render_graph(self, graph_name):
+    def render_graph(self, graph_name, graph_folder):
         dot = graphviz.Digraph(comment='The Round Table')
         dot.graph_attr.update({'rankdir': 'LR'})
 
@@ -101,7 +102,8 @@ class ContextGraph:
         for edge in self.edges:
             dot.edge(name(edge[0]), name(edge[1]), label=edge.get_label())
 
-        dot.render('/home/shane/Documents/Thesis/Viz/' + graph_name, view=False, format="png")
+        path = os.path.join('/home/shane/Documents/Thesis/Viz/', graph_folder, graph_name)
+        dot.render(path, view=False, format="png")
 
     def set_label(self, label: torch.Tensor):
         self.label = label

@@ -1,0 +1,33 @@
+// The Round Table
+digraph {
+	graph [rankdir=LR]
+	"Node(0)" [label="English (1, 2)"]
+	"Node(1)" [label="Normans (4, 5)"]
+	"Node(2)" [label="French (9, 10)"]
+	"Node(3)" [label="Normans/Normanz
+(11, 14)"]
+	"Node(4)" [label="Normant (17, 18)"]
+	"Node(5)" [label="French (20, 21)"]
+	"Node(6)" [label="Old Low
+Franconian
+Nortmann (28,
+32)"]
+	"Node(7)" [label="Northman (33,
+34)"]
+	"Node(8)" [label="Norse Norðmaðr
+(39, 41)"]
+	"Node(9)" [label="Latinized (42,
+43)"]
+	"Node(10)" [label="Nortmannus (45,
+46)"]
+	"Node(11)" [label="Normannus (47,
+48)"]
+	"Node(12)" [label="Nordmannus (50,
+51)"]
+	"Node(13)" [label="Medieval Latin,
+9th century (54,
+59)"]
+	"Node(14)" [label="Norseman, Viking
+(63, 66)"]
+	"Node(2)" -> "Node(5)" [label=SAME]
+}

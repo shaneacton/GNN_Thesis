@@ -33,18 +33,19 @@ class CompoundGraphConstructor(GraphConstructor):
 
 
 if __name__ == "__main__":
-    cgc = CompoundGraphConstructor([EntitiesConstructor, SequentialEntityLinker, CoreferenceConstructor,
-                                    SentenceConstructor, PassageConstructor, DocumentNodeConstructor])
-    # cgc = CompoundGraphConstructor([EntitiesConstructor, CoreferenceConstructor, SentenceConstructor,
-    #                                 DocumentNodeConstructor])
+    # cgc = CompoundGraphConstructor([EntitiesConstructor, SequentialEntityLinker, CoreferenceConstructor,
+    #                                 SentenceConstructor, PassageConstructor, DocumentNodeConstructor])
+    cgc = CompoundGraphConstructor([EntitiesConstructor])
     from Datasets.Readers.squad_reader import SQuADDatasetReader
     from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
 
-    sq_reader = SQuADDatasetReader()
-    qangaroo_reader = QUangarooDatasetReader()
+    sq_reader = SQuADDatasetReader("SQuAD")
+    qangaroo_reader = QUangarooDatasetReader("wikihop")
 
-    # samples = sq_reader.get_dev_set()
-    samples = qangaroo_reader.get_dev_set()
+    reader = qangaroo_reader
+    # reader = sq_reader
+
+    samples = reader.get_dev_set()
 
     for i, sample in enumerate(samples):
         if i>=5:
@@ -52,6 +53,6 @@ if __name__ == "__main__":
 
         graph = cgc.append(None, sample)
         print(sample)
-        graph.render_graph(sample.title_and_peek)
+        graph.render_graph(sample.title_and_peek, reader.datset_name)
 
 

@@ -73,6 +73,7 @@ class GraphDataset(Dataset):
                     continue
                 label = batch.get_answers().squeeze()  # chops off batch dim
                 graph.set_label(label)
+                raise Exception()
                 yield graph.data
 
     def get_meta_path(self):
@@ -95,7 +96,7 @@ class GraphDataset(Dataset):
         else:
             """
             upper bound
-            real lenth may be lower if some data points fail conversion
+            real length may be lower if some data points fail conversion
             """
             for count, _ in enumerate(self.batch_reader.get_batches()):
                 pass
@@ -126,4 +127,6 @@ if __name__ == "__main__":
     qangaroo_batch_reader = BatchReader(qangaroo_reader, 1, wikihop_path)
     squad_batch_reader = BatchReader(squad_reader, 1, squad_path)
 
-    graph_dataset = GraphDataset(squad_batch_reader, cgc)
+    # graph_dataset = GraphDataset(squad_batch_reader, cgc)
+    graph_dataset = GraphDataset(qangaroo_batch_reader, cgc)
+

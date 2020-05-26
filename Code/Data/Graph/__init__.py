@@ -18,3 +18,8 @@ def register_node_type(type):
     type_to_id[type] = next_id
     id_to_type[next_id] = type
     next_id += 1
+
+
+def get_id_from_type(type):
+    register_node_type(type)
+    return type_to_id[type]

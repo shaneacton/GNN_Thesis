@@ -1,0 +1,48 @@
+// The Round Table
+digraph {
+	graph [rankdir=LR]
+	"Node(0)" [label="the 10th century
+(4, 7)"]
+	"Node(1)" [label="France (20, 21)"]
+	"Node(2)" [label="The Duchy of
+Normandy (34,
+38)"]
+	"Node(3)" [label="911 (42, 43)"]
+	"Node(4)" [label="Saint-Clair (53,
+56)"]
+	"Node(5)" [label="-Epte (58, 60)"]
+	"Node(6)" [label="Charles III (62,
+64)"]
+	"Node(7)" [label="West Francia
+(65, 67)"]
+	"Node(8)" [label="Rollo (72, 73)"]
+	"Node(9)" [label="Frankish (80,
+81)"]
+	"Node(10)" [label="Neustria (83,
+84)"]
+	"Node(11)" [label="Rollo (88, 89)"]
+	"Node(12)" [label="French (93, 94)"]
+	"Node(13)" [label="Epte (98, 99)"]
+	"Node(14)" [label="Atlantic (101,
+102)"]
+	"Node(15)" [label="Viking (110,
+111)"]
+	"Node(16)" [label="present-day
+(121, 124)"]
+	"Node(17)" [label="Upper Normandy
+(124, 126)"]
+	"Node(18)" [label="Seine (130, 131)"]
+	"Node(19)" [label="Duchy (134, 135)"]
+	"Node(20)" [label="Seine (141, 142)"]
+	"Node(21)" [label="Rouen (153, 154)"]
+	"Node(22)" [label="Roman (158, 159)"]
+	"Node(23)" [label="Gallia (162,
+163)"]
+	"Node(24)" [label="Lugdunensis II
+(163, 165)"]
+	"Node(25)" [label="Gallia
+Lugdunensis
+(170, 172)"]
+	"Node(18)" -> "Node(20)" [label=SAME]
+	"Node(8)" -> "Node(11)" [label=SAME]
+}
