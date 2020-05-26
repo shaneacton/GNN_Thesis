@@ -33,9 +33,9 @@ class CompoundGraphConstructor(GraphConstructor):
 
 
 if __name__ == "__main__":
-    # cgc = CompoundGraphConstructor([EntitiesConstructor, SequentialEntityLinker, CoreferenceConstructor,
-    #                                 SentenceConstructor, PassageConstructor, DocumentNodeConstructor])
-    cgc = CompoundGraphConstructor([EntitiesConstructor])
+    cgc = CompoundGraphConstructor([EntitiesConstructor, SequentialEntityLinker, CoreferenceConstructor,
+                                    SentenceConstructor, PassageConstructor, DocumentNodeConstructor])
+    # cgc = CompoundGraphConstructor([EntitiesConstructor])
     from Datasets.Readers.squad_reader import SQuADDatasetReader
     from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
 
@@ -53,6 +53,7 @@ if __name__ == "__main__":
 
         graph = cgc.append(None, sample)
         print(sample)
+        print("num nodes:", len(graph.ordered_nodes))
         graph.render_graph(sample.title_and_peek, reader.datset_name)
 
 

@@ -13,6 +13,8 @@ class Text:
     MAX_TOKENS = 512 # todo get max num tokens dynamically
     WINDOWED_EMBEDDINGS_OVERLAP = 50  # the amount a window looks in each direction
 
+    CACHE_EMBEDDING = True
+
     def __init__(self, text):
         self.text = text
         self._token_sequence: TokenSequence = None
@@ -26,12 +28,12 @@ class Text:
 
     @property
     def full_embedding(self):
-        return self.get_embedding()
-        # if self._full_embedding is None:
-        #     self._full_embedding = self.get_embedding()
-        # else:
-        #     print("double embedding text")
-        # return self._full_embedding
+        if Text.CACHE_EMBEDDING:
+            if self._full_embedding is None:
+                self._full_embedding = self.get_embedding()
+            return self._full_embedding
+        else:
+            return self.get_embedding()
 
     @property
     def clean(self):

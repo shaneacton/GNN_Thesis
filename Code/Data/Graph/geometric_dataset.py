@@ -73,7 +73,6 @@ class GraphDataset(Dataset):
                     continue
                 label = batch.get_answers().squeeze()  # chops off batch dim
                 graph.set_label(label)
-                raise Exception()
                 yield graph.data
 
     def get_meta_path(self):
