@@ -1,0 +1,11 @@
+Todo:
+1: make option to save embeddings as id's relative to a specific encoder eg BERT\
+2. rework stateset to not be used during dataset construction, but booted up during gnn run on the fly.
+    this way datasets and states can be completely decoupled
+3: allow for different state types and shapes to be saved to a geometric graph
+4: map back to node type during gnn passes - save type:id mappings per datsaset
+5: implement edge type saving and remapping
+6: create a edge type: layer mapper
+7: add support for candidate and query entity nodes
+8: swap out spacy coref for something better
+9: re-implement the GraphLayer/module system

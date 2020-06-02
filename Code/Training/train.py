@@ -4,7 +4,7 @@ from torch import nn, optim
 
 from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
-from Code.Models.Vanilla.bidaf import BiDAF
+from Code.Models.RNN.bidaf import BiDAF
 from Code.Models.qa_model import QAModel
 from Code.Training import device
 from Datasets.Batching.batch import Batch

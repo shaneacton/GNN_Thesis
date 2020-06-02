@@ -9,16 +9,11 @@ from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 class EntityNode(SpanNode):
 
-    """
-    entry level node which contains only a current state vector
-    """
-
-
-    def __init__(self, entity:TokenSpan):
+    def __init__(self, entity: TokenSpan):
         super().__init__(entity)
         self.subtype = repr(self.is_coref)
 
-    def get_starting_state(self) -> Tensor:
+    def get_sensory_state(self) -> Tensor:
         return self.token_span.tail_concat_embedding
 
     @property

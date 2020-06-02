@@ -6,6 +6,7 @@ from torch_geometric.utils import remove_self_loops, add_self_loops
 
 
 class SAGEConv(MessagePassing):
+
     def __init__(self, in_channels, out_channels):
         super(SAGEConv, self).__init__(aggr='max')  # "Max" aggregation.
         self.lin = torch.nn.Linear(in_channels, out_channels)
@@ -17,10 +18,8 @@ class SAGEConv(MessagePassing):
         # x has shape [N, in_channels]
         # edge_index has shape [2, E]
 
-
         edge_index, _ = remove_self_loops(edge_index)
         edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
-
 
         return self.propagate(edge_index, size=(x.size(0), x.size(0)), x=x)
 

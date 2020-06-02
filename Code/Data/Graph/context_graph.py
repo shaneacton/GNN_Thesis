@@ -13,6 +13,8 @@ from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 import graphviz
 
+from Code.Training import device
+
 
 class ContextGraph:
 
@@ -26,10 +28,12 @@ class ContextGraph:
         self.span_nodes: Dict[TokenSpan, int] = {}  # maps text segs (eg entities/sentences) to nodes
         self.typed_nodes: Dict[type,Set[int]] = {}  # maps node type to all nodes of that type
 
-        self.edges: Set[EdgeRelation] = set()
+        self.unique_edges: Set[EdgeRelation] = set()
+        self.ordered_edges: List[EdgeRelation] = []
         self.constructs : List[type] = []  # record of the contruction process used
 
         self.label: torch.Tensor = None
+        self.query: torch.Tensor = None
 
     @property
     def edge_index(self):
@@ -37,7 +41,7 @@ class ContextGraph:
         converts edges into connection info for pytorch geometric
         """
         index = [[], []]
-        for edge in self.edges:
+        for edge in self.unique_edges:
             for i in range(2):
                 index[i].append(edge[i])
                 if not edge.directed:  # adds returning direction
@@ -58,8 +62,13 @@ class ContextGraph:
 
         for state_name in states_dict.keys():
             states_dict[state_name] = torch.stack(states_dict[state_name], dim=0)
+
+        for edge in self.ordered_edges:
+            edge
+
+
         print("states:", {name:states_dict[name].size() for name in states_dict.keys()}, "label:",self.label)
-        return Data(edge_index=self.edge_index, label=self.label, **states_dict)
+        return Data(edge_index=torch.tensor(self.edge_index).to(device), label=self.label, query=self.query, **states_dict)
 
     def get_nodes_of_type(self, type):
         return [self.ordered_nodes[id] for id in self.typed_nodes[type]]
@@ -90,7 +99,10 @@ class ContextGraph:
         [self.add_edge(edge) for edge in edges]
 
     def add_edge(self, edge):
-        self.edges.add(edge)
+        if edge not in self.unique_edges:
+            self.unique_edges.add(edge)
+            self.ordered_edges.append(edge)
+
 
     def render_graph(self, graph_name, graph_folder):
         dot = graphviz.Digraph(comment='The Round Table')
@@ -99,7 +111,7 @@ class ContextGraph:
         name = lambda i: "Node(" + repr(i) +")"
         for i, node in enumerate(self.ordered_nodes):
             dot.node(name(i), node.get_node_viz_text())
-        for edge in self.edges:
+        for edge in self.unique_edges:
             dot.edge(name(edge[0]), name(edge[1]), label=edge.get_label())
 
         path = os.path.join('/home/shane/Documents/Thesis/Viz/', graph_folder, graph_name)
@@ -108,6 +120,8 @@ class ContextGraph:
     def set_label(self, label: torch.Tensor):
         self.label = label
 
+    def set_query(self, query: torch.Tensor):
+        self.query = query
 
 if __name__ == "__main__":
     x = torch.tensor([[2, 1], [5, 6], [3, 7], [12, 0]], dtype=torch.float)

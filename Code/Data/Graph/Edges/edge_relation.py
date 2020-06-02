@@ -28,7 +28,7 @@ class EdgeRelation(ABC):
         return hash((tuple(ids), type(self)))
 
     def get_type(self):
-        return (type(self), self.subtype)
+        return type(self), self.subtype
 
     @abstractmethod
     def get_label(self):

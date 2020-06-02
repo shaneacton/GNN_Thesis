@@ -2,7 +2,9 @@ from typing import Dict, Set
 
 from torch import Tensor
 
+from Code.Data.Graph.State.basic_state import BasicState
 from Code.Data.Graph.State.state import State
+from Code.Data.Graph.State.tiered_state import TieredState
 
 
 class StateSet(State):
@@ -12,9 +14,27 @@ class StateSet(State):
     belongs to a node or edge
     """
 
+    ENTITY_STATE = "entity_state"
+
+
     STARTING_STATE = "starting_state"
     CURRENT_STATE = "current_state"
-    TIERED_STATE_PREFIX = "tier"
+    QUERY_AGNOSTIC_STATE = "query_agnostic_state"
+
+    CHANNEL_STATE = lambda c: "channel("+repr(c)+")"
+    TIERED_STATE = lambda t: "tier(" + repr(t) + ")"
+
+    ALL_STATES = [STARTING_STATE, CURRENT_STATE, QUERY_AGNOSTIC_STATE]
+
+
+    STATE_TYPE_MAP = {STARTING_STATE: BasicState, CURRENT_STATE: BasicState,
+                      QUERY_AGNOSTIC_STATE: (TieredState, {"num_channels": 2})}
+
+    STATE_COMMUNICATION = {
+        STARTING_STATE: [],
+        CURRENT_STATE: [STARTING_STATE, CURRENT_STATE, QUERY_AGNOSTIC_STATE],
+        QUERY_AGNOSTIC_STATE: [QUERY_AGNOSTIC_STATE]
+    }
 
     def __init__(self):
         self.states: Set[StateSet] = set()

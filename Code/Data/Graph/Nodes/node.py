@@ -28,7 +28,8 @@ class Node (ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_starting_state(self) -> Tensor:
+    def get_sensory_state(self) -> Tensor:
+        """returns """
         raise NotImplementedError()
 
     def get_type(self):
@@ -45,7 +46,7 @@ class Node (ABC):
     def get_state_set(self, state_types):
         state_set = StateSet()
         for stype in state_types:
-            state = stype(self.get_starting_state())
+            state = stype(self.get_sensory_state())
             state_set.add_state(state)
         return state_set
 

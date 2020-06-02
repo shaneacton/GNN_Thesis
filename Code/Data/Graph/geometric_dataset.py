@@ -3,16 +3,17 @@ import os
 from typing import List
 
 import torch
-from torch_geometric.data import Data, Dataset
+from torch_geometric.data import Data, Dataset, DataLoader
 
 from Code.Data.Graph.Contructors.compound_graph_constructor import CompoundGraphConstructor
 from Code.Data.Graph.Contructors.coreference_constructor import CoreferenceConstructor
 from Code.Data.Graph.Contructors.document_node_constructor import DocumentNodeConstructor
 from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
-from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Contructors.passage_constructor import PassageConstructor
 from Code.Data.Graph.Contructors.sentence_contructor import SentenceConstructor
 from Code.Data.Graph.Contructors.sequential_entity_linker import SequentialEntityLinker
+from Code.Models.GNNs.prop_and_pool import PropAndPool
+from Code.Training import device
 from Datasets.Batching.batch_reader import BatchReader
 
 
@@ -126,6 +127,13 @@ if __name__ == "__main__":
     qangaroo_batch_reader = BatchReader(qangaroo_reader, 1, wikihop_path)
     squad_batch_reader = BatchReader(squad_reader, 1, squad_path)
 
-    # graph_dataset = GraphDataset(squad_batch_reader, cgc)
-    graph_dataset = GraphDataset(qangaroo_batch_reader, cgc)
+    graph_dataset = GraphDataset(squad_batch_reader, cgc)
+    # graph_dataset = GraphDataset(qangaroo_batch_reader, cgc)
 
+    loader = DataLoader(graph_dataset, batch_size=256, shuffle=True)
+    model = PropAndPool(1536).to(device)
+
+    for i, batch in enumerate(loader):
+        print(batch)
+        batch=batch.to(device)
+        out = model(batch)

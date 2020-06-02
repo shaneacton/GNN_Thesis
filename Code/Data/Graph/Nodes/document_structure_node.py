@@ -11,10 +11,9 @@ class DocumentStructureNode(SpanNode):
     def __init__(self, document_extract: DocumentExtract):
         super().__init__(document_extract)
 
-    def get_starting_state(self) -> Tensor:
+    def get_sensory_state(self) -> Tensor:
         # todo better sumary vec
         return self.token_span.tail_concat_embedding
-
 
     def get_node_viz_text(self):
         if self.token_span.level == DocumentExtract.SENTENCE:
