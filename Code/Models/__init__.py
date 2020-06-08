@@ -31,7 +31,6 @@ with torch.no_grad():
     indexer = lambda info: string_indexer(info) if isinstance(info,str) else token_indexer(info)
 
     embedded_size = list(embedder("test").size())[2]
-    # print("embedding size:",embedded_size)
 
 
 def sum_over_sequence(seq_embedding):

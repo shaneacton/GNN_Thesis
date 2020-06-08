@@ -7,6 +7,7 @@ from Code.Data.Graph.Contructors.graph_constructor import IncompatibleGraphContr
 from Code.Data.Graph.Contructors.passage_constructor import PassageConstructor
 from Code.Data.Graph.Contructors.sentence_contructor import SentenceConstructor
 from Code.Data.Graph.Edges.document_edge import DocumentEdge
+from Code.Data.Graph.Nodes.document_structure_node import DocumentStructureNode
 from Code.Data.Graph.Nodes.entity_node import EntityNode
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
@@ -22,16 +23,24 @@ class DocumentNodeConstructor(DocumentStructureConstructor):
 
         tok_seq = data_sample.context.token_sequence
 
+        key_type = DocumentExtract.DOC
+        value_node_type = DocumentStructureNode
         if PassageConstructor in existing_graph.constructs:
-            edge_type = DocumentEdge.get_x2y_edge_type(DocumentExtract.DOC, DocumentExtract.PASSAGE)
-            self.graph_heirarchical_span_seqs(existing_graph, tok_seq, [tok_seq.full_document], tok_seq.passages, edge_type)
+            value_type = DocumentExtract.PASSAGE
+            document_extract = tok_seq.passages
         elif SentenceConstructor in existing_graph.constructs:
-            edge_type = DocumentEdge.get_x2y_edge_type(DocumentExtract.DOC, DocumentExtract.SENTENCE)
-            self.graph_heirarchical_span_seqs(existing_graph, tok_seq, [tok_seq.full_document], tok_seq.sentences, edge_type)
+            value_type = DocumentExtract.SENTENCE
+            document_extract=tok_seq.sentences
         else:
-            edge_type = DocumentEdge.get_x2y_edge_type(DocumentExtract.DOC, DocumentExtract.WORD)
-            self.graph_heirarchical_span_seqs(existing_graph, tok_seq, [tok_seq.full_document],
-                                              tok_seq.entities_and_corefs, edge_type, value_node_type=EntityNode)
+            value_type = DocumentExtract.WORD
+            document_extract=tok_seq.entities_and_corefs
+            value_node_type=EntityNode
+
+        edge_type = DocumentEdge.get_x2y_edge_type(key_type, value_type)
+
+        self.graph_heirarchical_span_seqs(existing_graph, tok_seq, [tok_seq.full_document], document_extract,
+                                          edge_type, value_node_type=value_node_type, key_node_subtype=value_type,
+                                          value_node_subtype=value_type)
 
         existing_graph.constructs.append(type(self))
         return existing_graph

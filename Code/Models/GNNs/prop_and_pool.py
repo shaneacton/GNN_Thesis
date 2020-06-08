@@ -1,11 +1,13 @@
 from typing import Union
 
+import torch
 import torch.nn.functional as F
 from torch import nn, cat, sigmoid
 from torch_geometric.data import Batch
 from torch_geometric.nn import TopKPooling, SAGEConv, SAGPooling
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 
+from Code.Data.Graph.Nodes.span_node import SpanNode
 from Code.Data.Graph.State.state_set import StateSet
 from Code.Models.GNNs.prop_and_pool_layer import PropAndPoolLayer
 
@@ -27,10 +29,12 @@ class PropAndPool(nn.Module):
         self.act2 = nn.ReLU()
 
     def forward(self, data: Batch):
-        edge_index, batch = data.edge_index, data.batch
-        states = self.get_states(data)
-
-        x= states[StateSet.CURRENT_STATE]
+        # edge_index, edge_types, batch = data.edge_index, data.edge_types, data.batch
+        # query = data.query
+        #
+        # ids = getattr(data, SpanNode.EMB_IDS)
+        # print("ids:",ids.size())
+        x, edge_index, batch = data.x, data.edge_index, data.batch
         x = x.squeeze(1)
 
         x, edge_index, _, batch, = self.layer_1(x, edge_index, None, batch)
@@ -54,5 +58,22 @@ class PropAndPool(nn.Module):
 
         return x
 
-    def get_states(self, data: Batch):
-        return {name: getattr(data, name) for name in StateSet.ALL_STATES if hasattr(data, name)}
+
+if __name__ == "__main__":
+    from torch_geometric.data import Data
+
+    x = torch.tensor([[2, 1, 3], [5, 6, 4], [3, 7, 5], [12, 0, 6]], dtype=torch.float)
+    y = torch.tensor([0, 1, 0, 1], dtype=torch.float)
+
+    edge_index = torch.tensor([[0, 2, 1, 0, 3],
+                               [3, 1, 0, 1, 2]], dtype=torch.long)
+
+    data = Data(x=x, y=y, edge_index=edge_index)
+    batch = Batch.from_data_list([data, data])
+
+    pnp = PropAndPool(3)
+    sage = SAGEConv(3,128)
+
+    out = sage(batch.x, batch.edge_index)
+    print("sage_out:",out.size())
+    out = pnp(batch)

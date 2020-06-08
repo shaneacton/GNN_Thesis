@@ -18,12 +18,12 @@ PRINT_BATCH_EVERY = 50
 
 def get_span_loss(output, batch: Batch):
     p1, p2 = output
-    answers = batch.get_answers()
+    answers = batch.get_answers_tensor()
     return ce_loss(p1, answers[:,0]) + ce_loss(p2, answers[:,1])
 
 
 def get_candidate_loss(output, batch: Batch):
-    answers = batch.get_answers()
+    answers = batch.get_answers_tensor()
     return ce_loss(output, answers)
 
 

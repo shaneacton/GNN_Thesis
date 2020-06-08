@@ -1,7 +1,7 @@
 from typing import Union, List
 
 from torch import nn
-from torch_geometric.nn import SAGPooling, TopKPooling, SAGEConv
+from torch_geometric.nn import SAGPooling, TopKPooling, SAGEConv, GATConv
 
 from Code.Models.GNNs.graph_layer import GraphLayer
 
@@ -21,12 +21,13 @@ class PropAndPoolLayer(GraphLayer):
     def initialise_layer(self):
         return None
 
-    def forward(self, state, edge_index, edge_attributes, batch):
-        state = self.prop(state, edge_index)  # cannot wrap these two in a seq
-        state, edge_index, edge_attributes, batch, _, _ = self.pool(state, edge_index, edge_attributes, batch)
-        return state, edge_index, edge_attributes, batch
+    def forward(self, x, edge_index, edge_types, batch, **kwargs):
+        x = self.prop(x, edge_index, edge_types, batch, **kwargs)  # cannot wrap these two in a seq
+        x, edge_index, edge_types, batch, _, _ = self.pool(x, edge_index, edge_types, batch)
+        return x, edge_index, edge_types, batch
 
 
 if __name__ == "__main__":
     pnp = PropAndPoolLayer([100,200], SAGEConv, TopKPooling, activation_type=nn.ReLU, pool_args={"ratio":0.8})
+    g = GATConv
     print(pnp)

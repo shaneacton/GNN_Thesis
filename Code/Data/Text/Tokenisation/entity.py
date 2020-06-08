@@ -12,15 +12,15 @@ class Entity(DocumentExtract):
         or a candidate entity wrt: a multiple choice question
     """
 
-    def __init__(self, token_sequence, token_span, spacy_span, is_coref=False):
-        super().__init__(token_sequence, token_span, DocumentExtract.WORD, spacy_span)
+    def __init__(self, token_sequence, token_indexes, spacy_span, is_coref=False):
+        super().__init__(token_sequence, token_indexes, DocumentExtract.WORD, spacy_span)
         self.is_coref = is_coref
 
     def __repr__(self):
         text = self.spacy_span.text
         coref = "(coref)" if self.is_coref else ""
         label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span.label_ else ""
-        span = ":S" + repr(self.token_span)
+        span = ":S" + repr(self.token_indexes)
         return text + coref + label + span
 
     def get_embedding(self, sequence_reduction=tail_concatinator):

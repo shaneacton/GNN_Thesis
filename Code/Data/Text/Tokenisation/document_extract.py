@@ -10,8 +10,8 @@ class DocumentExtract(TokenSpan):
     PASSAGE = "passage"
     DOC = "doc"
 
-    def __init__(self, token_sequence, token_span, level: str, spacy_span: Span=None):
-        super().__init__(token_sequence, token_span, spacy_span=spacy_span)
+    def __init__(self, token_sequence, token_indexes, level: str, spacy_span: Span=None):
+        super().__init__(token_sequence, token_indexes, spacy_span=spacy_span)
         self.level = level
 
 

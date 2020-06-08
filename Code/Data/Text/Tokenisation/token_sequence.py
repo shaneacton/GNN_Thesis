@@ -59,7 +59,7 @@ class TokenSequence:
         ents_and_corefs: List[Entity] = []  # inserts corefs right after their mains resulting in an imperfect by nearly sorted array
         [ents_and_corefs.extend([ent] + (self.corefs[ent] if ent in self.corefs else [])) for ent in self.entities]
         #todo sort which exploits nearly sortedness
-        ents_and_corefs = sorted(ents_and_corefs, key=lambda ent: 0.5 * (ent.token_span[0] + ent.token_span[1]))
+        ents_and_corefs = sorted(ents_and_corefs, key=lambda ent: 0.5 * (ent.token_indexes[0] + ent.token_indexes[1]))
         return ents_and_corefs
 
     @property

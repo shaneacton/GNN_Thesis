@@ -8,8 +8,8 @@ class DocumentStructureNode(SpanNode):
 
     """can represent a sentence, passage, or whole document"""
 
-    def __init__(self, document_extract: DocumentExtract):
-        super().__init__(document_extract)
+    def __init__(self, document_extract: DocumentExtract, subtype=None):
+        super().__init__(document_extract, subtype=subtype)
 
     def get_sensory_state(self) -> Tensor:
         # todo better sumary vec

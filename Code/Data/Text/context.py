@@ -53,9 +53,7 @@ class Context:
         embeddings = []
         for passage in self.passages:
             embeddings.append(passage.get_embedding())
-            # print("pass emb:",embeddings[-1].size())
         full_embeddings = torch.cat(embeddings,dim=1)
-        # print("con emb:",full_embeddings.size())
         return full_embeddings
 
     def get_answer_span_vec(self, start_char_id, end_char_id):

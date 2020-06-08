@@ -1,13 +1,20 @@
 from abc import ABC, abstractmethod
 
+from Code.Data.Graph.graph_feature import GraphFeature
 
-class EdgeRelation(ABC):
 
-    def __init__(self, from_id, to_id, directed=True):
+class EdgeRelation(GraphFeature, ABC):
+
+    def __init__(self, from_id, to_id, directed=True, subtype=None):
+        """
+        :param subtype: should be made "reverse" if edge is directed and this instance is the returning edge
+        """
+        if subtype is None:
+            subtype = "uni" if directed else "forward"
+        super().__init__(subtype=subtype)
         self.from_id = from_id
         self.to_id = to_id
         self.directed = directed
-        self.subtype = None
 
     def __getitem__(self, item):
         if item == 0:
@@ -26,9 +33,6 @@ class EdgeRelation(ABC):
         ids = [self.from_id, self.to_id]
         ids = ids if self.directed else sorted(ids)  # if sorted, each dir will has the same
         return hash((tuple(ids), type(self)))
-
-    def get_type(self):
-        return type(self), self.subtype
 
     @abstractmethod
     def get_label(self):

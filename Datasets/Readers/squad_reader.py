@@ -29,11 +29,9 @@ class SQuADDatasetReader(DataReader):
             for example in data:
                 title = example["title"]
                 paragraphs = example["paragraphs"]
-                # print("title:",title)
                 for paragraph in paragraphs:
                     passage = Passage(paragraph["context"])
                     training_example = DataSample(Context(passage), title=title)
-                    # print("context:",context)
                     qas = paragraph["qas"]
                     answerable_qs = [q for q in qas if not q["is_impossible"]]
                     unanswerable_qs = [q for q in qas if q["is_impossible"]]
@@ -42,8 +40,6 @@ class SQuADDatasetReader(DataReader):
                         question = Question(qa["question"])
                         id = qa["id"]
                         answers_json = qa["answers"]
-                        # print("q:",question)
-                        # print("a's:", answers_json)
                         answer_objects = [ExtractedAnswer(a["text"], int(a["answer_start"]))
                                           for a in answers_json]
                         answers = Answers(answer_objects)

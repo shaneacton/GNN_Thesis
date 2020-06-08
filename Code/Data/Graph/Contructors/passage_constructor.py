@@ -30,16 +30,20 @@ class PassageConstructor(DocumentStructureConstructor):
         if SentenceConstructor in existing_graph.constructs:
             edge_type = DocumentEdge.get_x2y_edge_type(DocumentExtract.PASSAGE, DocumentExtract.SENTENCE)
             try:
-                self.graph_heirarchical_span_seqs(existing_graph, tok_seq, tok_seq.passages, tok_seq.sentences, edge_type)
-            except:
+                self.graph_heirarchical_span_seqs(existing_graph, tok_seq, tok_seq.passages, tok_seq.sentences,
+                                                  edge_type,key_node_subtype=DocumentExtract.PASSAGE,
+                                                  value_node_subtype=DocumentExtract.SENTENCE)
+            except Exception as e:
                 print("\npassages:","\n".join([repr(span) for span in tok_seq.passages]))
                 print("\nsentences:","\n".join([repr(span) for span in tok_seq.sentences]))
-                raise Exception()
+                raise e
 
         else:
             edge_type = DocumentEdge.get_x2y_edge_type(DocumentExtract.PASSAGE, DocumentExtract.WORD)
             self.graph_heirarchical_span_seqs(existing_graph, tok_seq, tok_seq.passages,
-                                              tok_seq.entities_and_corefs, edge_type, value_node_type=EntityNode)
+                                              tok_seq.entities_and_corefs, edge_type, value_node_type=EntityNode,
+                                              key_node_subtype=DocumentExtract.PASSAGE,
+                                              value_node_subtype=DocumentExtract.WORD)
 
         existing_graph.constructs.append(type(self))
         return existing_graph

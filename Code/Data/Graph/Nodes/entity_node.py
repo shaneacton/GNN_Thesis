@@ -9,17 +9,23 @@ from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 class EntityNode(SpanNode):
 
-    def __init__(self, entity: TokenSpan):
-        super().__init__(entity)
-        self.subtype = repr(self.is_coref)
+    COREF = "coref"
+    CONTEXT_MENTION = "mention"
+    QUERY_ENTITY = "query"
+    CANDIDATE = "candidate"
 
-    def get_sensory_state(self) -> Tensor:
+    ALL_TYPES = [COREF, CONTEXT_MENTION, QUERY_ENTITY, CANDIDATE]
+
+    def __init__(self, entity: TokenSpan , subtype=None):
+        super().__init__(entity, subtype=subtype)
+
+        subtype = EntityNode.COREF if self.is_coref else EntityNode.CONTEXT_MENTION
+        self.set_subtype(subtype)
+
+    def get_subtokens_embedding(self) -> Tensor:
         return self.token_span.tail_concat_embedding
 
     @property
     def is_coref(self):
         ent: Entity = self.token_span
         return ent.is_coref
-
-    # def get_node_states(self) -> Dict[str, Tensor]:
-    #     return {"current_state": self.current_state}

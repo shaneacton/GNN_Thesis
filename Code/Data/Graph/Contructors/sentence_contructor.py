@@ -26,7 +26,9 @@ class SentenceConstructor(DocumentStructureConstructor):
         tok_seq = data_sample.context.token_sequence
         edge_type = DocumentEdge.get_x2y_edge_type(DocumentExtract.SENTENCE, DocumentExtract.WORD)
         self.graph_heirarchical_span_seqs(existing_graph, tok_seq, tok_seq.sentences, tok_seq.entities_and_corefs,
-                                          edge_type, value_node_type=EntityNode)
+                                          edge_type, value_node_type=EntityNode,
+                                          key_node_subtype=DocumentExtract.SENTENCE,
+                                          value_node_subtype=DocumentExtract.WORD)
 
         existing_graph.constructs.append(type(self))
         return existing_graph

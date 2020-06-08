@@ -29,15 +29,15 @@ class GraphDataset(Dataset):
         if batch_reader.batch_size > 1:
             raise Exception("must provide batch reader with size 1 to graph dataset")
 
-        self.batch_reader=batch_reader
-        self.graph_constructor=graph_constructor
+        self.batch_text_reader=batch_reader
+        self.graph_constructor: CompoundGraphConstructor=graph_constructor
 
         super(GraphDataset, self).__init__(self.dataset_path, None, None)
         # process is called by super
 
     @property
     def dataset_path(self):
-        return os.path.join(GraphDataset.ROOT, self.batch_reader.dataset)
+        return os.path.join(GraphDataset.ROOT, self.batch_text_reader.dataset)
 
     @property
     def raw_file_names(self):
@@ -65,22 +65,25 @@ class GraphDataset(Dataset):
 
     def get_data_objects(self) -> List[Data]:
 
-        for i, batch in enumerate(self.batch_reader.get_batches()):
+        for i, batch in enumerate(self.batch_text_reader.get_batches()):
             for batch_item in batch.batch_items:
                 try:
-                    graph = self.graph_constructor.append(None, batch_item.data_sample)
+                    graph = self.graph_constructor.create_graph_from_data_sample(batch_item.data_sample)
                 except Exception as e:
                     print(e)
                     continue
-                label = batch.get_answers().squeeze()  # chops off batch dim
+                label = batch.get_answers_tensor().squeeze()  # chops off batch dim
                 graph.set_label(label)
+
+                query = batch.get_queries_tensor()
+                graph.set_query(query)
                 yield graph.data
 
     def get_meta_path(self):
         return os.path.join(self.processed_dir,"meta.json")
 
     def write_meta(self, length):
-        meta = {"length": length,"dataset":self.batch_reader.dataset,"graphtype":self.graph_constructor.type}
+        meta = {"length": length,"dataset":self.batch_text_reader.dataset, "graphtype":self.graph_constructor.type}
         with open(self.get_meta_path(), 'w') as outfile:
             json.dump(meta, outfile)
 
@@ -98,7 +101,7 @@ class GraphDataset(Dataset):
             upper bound
             real length may be lower if some data points fail conversion
             """
-            for count, _ in enumerate(self.batch_reader.get_batches()):
+            for count, _ in enumerate(self.batch_text_reader.get_batches()):
                 pass
             return count
 
@@ -130,7 +133,7 @@ if __name__ == "__main__":
     graph_dataset = GraphDataset(squad_batch_reader, cgc)
     # graph_dataset = GraphDataset(qangaroo_batch_reader, cgc)
 
-    loader = DataLoader(graph_dataset, batch_size=256, shuffle=True)
+    loader = DataLoader(graph_dataset, batch_size=1, shuffle=True)
     model = PropAndPool(1536).to(device)
 
     for i, batch in enumerate(loader):

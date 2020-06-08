@@ -24,7 +24,7 @@ class QAModel(nn.Module):
         if len(args) == 1:
             if type(args[0]) == Batch:
                 batch: Batch = args[0]
-                return batch.get_cqc_vecs()
+                return batch.get_cqc_tensors()
 
         if len(args) >= 2 and type(args[0]) == Context and type(args[1]) == Question:
             context: Context = args[0]

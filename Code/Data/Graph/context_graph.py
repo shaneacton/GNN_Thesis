@@ -1,3 +1,4 @@
+import copy
 import os
 from typing import List, Set, Dict
 
@@ -14,6 +15,7 @@ from Code.Data.Text.Tokenisation.token_span import TokenSpan
 import graphviz
 
 from Code.Training import device
+from Datasets.Batching.batch import Batch
 
 
 class ContextGraph:
@@ -40,35 +42,71 @@ class ContextGraph:
         """
         converts edges into connection info for pytorch geometric
         """
-        index = [[], []]
-        for edge in self.unique_edges:
-            for i in range(2):
-                index[i].append(edge[i])
+        index = [[], []]  # [[from_ids],[to_ids]]
+        for edge in self.ordered_edges:
+            for from_to in range(2):
+                index[from_to].append(edge[from_to])
                 if not edge.directed:  # adds returning direction
-                    index[i].append(edge[1-i])
+                    index[from_to].append(edge[1-from_to])
         return index
+
+    @property
+    def edge_types(self):
+        edge_types = []
+        for edge in self.ordered_edges:
+            edge_types.append(edge.get_type_tensor())
+            if not edge.directed:  # adds returning directions type
+                edge_types.append(edge.get_type_tensor())
+        return edge_types
 
     @property
     def data(self):
         """
         converts this graph into data ready to be fed into pytorch geometric
         """
-        states_dict = {}
+        states_dict: Dict[str, List[torch.Tensor]] = {}
         for node in self.ordered_nodes:  # in order traversal
-            for state_name in node.states.keys():
+            states = node.states_tensors
+            for state_name in states.keys():
                 if not state_name in states_dict:
                     states_dict[state_name] = []
-                states_dict[state_name].append(node.states[state_name])
+                states_dict[state_name].append(states[state_name])
 
         for state_name in states_dict.keys():
-            states_dict[state_name] = torch.stack(states_dict[state_name], dim=0)
+            states_dict[state_name] = self.pad_and_combine(states_dict[state_name])
 
-        for edge in self.ordered_edges:
-            edge
+        edge_types = torch.stack(self.edge_types, dim=0)
+        edge_index = torch.tensor(self.edge_index).to(device)
 
+        # print("states:", {name:states_dict[name].size() for name in states_dict.keys()}, "label:",self.label)
+        data_point = Data(edge_index=edge_index, edge_types=edge_types, label=self.label,
+                          query=self.query, **states_dict)
+        data_point.num_nodes = len(self.ordered_nodes)
+        return data_point
 
-        print("states:", {name:states_dict[name].size() for name in states_dict.keys()}, "label:",self.label)
-        return Data(edge_index=torch.tensor(self.edge_index).to(device), label=self.label, query=self.query, **states_dict)
+    @staticmethod
+    def pad_and_combine(vecs: List[torch.Tensor], pad_dim=-1):
+        """
+        pads dim to equal size, concats along batch dim
+        :param pad_dim: the padding dim which contains differing lengths
+        :return: batched seqs
+        """
+        pad_dim = pad_dim if pad_dim != -1 else vecs[0].dim() -1
+        longest_seq = max([vec.size(pad_dim) for vec in vecs])
+
+        sizes = list(vecs[0].size())
+        sizes = [sizes[i] for i in range(len(sizes)) if i != pad_dim]  # the hetro sizes which aren't the pad dim
+
+        def zeros(curr_len):
+            zero_sizes = copy.deepcopy(sizes)
+            zero_sizes.insert(pad_dim, longest_seq-curr_len)
+            return torch.zeros(*zero_sizes).to(device).long()
+
+        pad = lambda vec: torch.cat([vec, zeros(vec.size(pad_dim))], dim=pad_dim) \
+            if vec.size(pad_dim) < longest_seq else vec
+
+        vecs = [pad(vec) for vec in vecs]
+        return torch.cat(vecs, dim=0)
 
     def get_nodes_of_type(self, type):
         return [self.ordered_nodes[id] for id in self.typed_nodes[type]]
@@ -103,7 +141,6 @@ class ContextGraph:
             self.unique_edges.add(edge)
             self.ordered_edges.append(edge)
 
-
     def render_graph(self, graph_name, graph_folder):
         dot = graphviz.Digraph(comment='The Round Table')
         dot.graph_attr.update({'rankdir': 'LR'})
@@ -122,7 +159,3 @@ class ContextGraph:
 
     def set_query(self, query: torch.Tensor):
         self.query = query
-
-if __name__ == "__main__":
-    x = torch.tensor([[2, 1], [5, 6], [3, 7], [12, 0]], dtype=torch.float)
-    print(x.size())

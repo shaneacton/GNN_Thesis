@@ -22,8 +22,8 @@ class DocumentEdge(EdgeRelation):
 
     def __init__(self, from_id, to_id, subtype: str):
         super().__init__(from_id, to_id, directed='2' in subtype)
-        self.subtype = subtype
+        self.set_subtype(subtype)
 
     @staticmethod
-    def get_x2y_edge_type(from_level, to_level):
+    def get_x2y_edge_type(from_level:str, to_level:str):
         return from_level + "2" + to_level

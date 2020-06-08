@@ -23,7 +23,6 @@ class CompoundGraphConstructor(GraphConstructor):
     def append(self, _existing_graph: Union[None, ContextGraph], data_sample: DataSample) -> ContextGraph:
         existing_graph = ContextGraph()
         for const_type in self.constructors:
-            # print("constructing using:", const_type)
             constructor: GraphConstructor = const_type()
             existing_graph = constructor.append(existing_graph, data_sample)
             if not existing_graph:

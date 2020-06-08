@@ -3,7 +3,6 @@ from typing import Dict
 from torch import Tensor
 
 from Code.Data.Graph.State.channel_state import ChannelState
-from Code.Data.Graph.State.state import State
 from Code.Data.Graph.State.state_set import StateSet
 
 

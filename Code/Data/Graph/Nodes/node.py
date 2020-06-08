@@ -1,52 +1,31 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from typing import Dict
 
-import torch
 from torch import Tensor
 
-from Code.Data.Graph import get_id_from_type
-from Code.Data.Graph.State.state_set import StateSet
-from Code.Training import device
+from Code.Data.Graph.graph_feature import GraphFeature
 
 
-class Node (ABC):
+class Node (GraphFeature, ABC):
 
     TYPE = "type"
 
-    def __init__(self, state_types):
-        self.subtype = None
-        self.state: StateSet = self.get_state_set(state_types)
+    def __init__(self, subtype=None):
+        super().__init__(subtype=subtype)
 
     @property
-    def states(self) -> Dict[str, Tensor]:
-        state = self.state.get_state_tensors()
-        state.update({Node.TYPE: self.get_type_tensor()})
+    def states_tensors(self) -> Dict[str, Tensor]:
+        state = {Node.TYPE: self.get_type_tensor()}
+        state.update(self.get_all_node_state_tensors())
         return state
 
     @abstractmethod
     def get_node_viz_text(self):
         raise NotImplementedError()
 
-    @abstractmethod
-    def get_sensory_state(self) -> Tensor:
-        """returns """
-        raise NotImplementedError()
+    def get_all_node_state_tensors(self) -> Dict[str, Tensor]:
+        return {}
 
-    def get_type(self):
-        """
-        returns type, subtype
-        only some nodes have subtypes
-        """
-        return type(self), self.subtype
 
-    def get_type_tensor(self):
-        type_id = get_id_from_type(self.get_type())
-        return torch.tensor([type_id]).to(device).squeeze()
 
-    def get_state_set(self, state_types):
-        state_set = StateSet()
-        for stype in state_types:
-            state = stype(self.get_sensory_state())
-            state_set.add_state(state)
-        return state_set
 

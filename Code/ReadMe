@@ -1,5 +1,7 @@
 Todo:
-1: make option to save embeddings as id's relative to a specific encoder eg BERT\
+1: save context graphs instead of datapoints
+ 1.1: have GraphDataset load up context graphs and convert them into geometric datapoints on the fly
+ 1.2: during datapoint creation, sequence summarisation can be done online to make state sizes consistent across graphs
 2. rework stateset to not be used during dataset construction, but booted up during gnn run on the fly.
     this way datasets and states can be completely decoupled
 3: allow for different state types and shapes to be saved to a geometric graph
@@ -8,4 +10,5 @@ Todo:
 6: create a edge type: layer mapper
 7: add support for candidate and query entity nodes
 8: swap out spacy coref for something better
-9: re-implement the GraphLayer/module system
+9: Make bert tokeniser cased
+10: add in returning edges for the directed edges
