@@ -18,11 +18,15 @@ class PropAndPoolLayer(GraphLayer):
         self.prop = GraphLayer(sizes, prop_type, activation_type=activation_type, layer_args=prop_args)
         self.pool = pool_type(sizes[1], **pool_args)
 
+    def get_layer(self):
+        return self.prop.layer
+
     def initialise_layer(self):
         return None
 
-    def forward(self, x, edge_index, edge_types, batch, **kwargs):
-        x = self.prop(x, edge_index, edge_types, batch, **kwargs)  # cannot wrap these two in a seq
+    def forward(self, x, edge_index, batch, **kwargs):
+        edge_types = kwargs["edge_types"] if "edge_types" in kwargs else None
+        x = self.prop(x, edge_index, batch, **kwargs)  # cannot wrap these two in a seq
         x, edge_index, edge_types, batch, _, _ = self.pool(x, edge_index, edge_types, batch)
         return x, edge_index, edge_types, batch
 

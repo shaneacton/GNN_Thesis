@@ -5,12 +5,13 @@ from Code.Data.Graph.graph_feature import GraphFeature
 
 class EdgeRelation(GraphFeature, ABC):
 
-    def __init__(self, from_id, to_id, directed=True, subtype=None):
+    def __init__(self, from_id, to_id, directed=True, subtype=None, direction=None):
         """
-        :param subtype: should be made "reverse" if edge is directed and this instance is the returning edge
+        :param direction: should be made "reverse" if edge is directed and this instance is the returning edge
         """
-        if subtype is None:
-            subtype = "uni" if directed else "forward"
+        if direction is None:
+            direction = "uni" if directed else "forward"
+        self.direction = direction
         super().__init__(subtype=subtype)
         self.from_id = from_id
         self.to_id = to_id
@@ -33,6 +34,9 @@ class EdgeRelation(GraphFeature, ABC):
         ids = [self.from_id, self.to_id]
         ids = ids if self.directed else sorted(ids)  # if sorted, each dir will has the same
         return hash((tuple(ids), type(self)))
+
+    def get_type(self):
+        return super(EdgeRelation, self).get_type() + (self.direction,)
 
     @abstractmethod
     def get_label(self):

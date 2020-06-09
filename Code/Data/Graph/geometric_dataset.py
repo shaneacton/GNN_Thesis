@@ -65,7 +65,7 @@ class GraphDataset(Dataset):
 
     def get_data_objects(self) -> List[Data]:
 
-        for i, batch in enumerate(self.batch_text_reader.get_batches()):
+        for batch in self.batch_text_reader.get_batches():
             for batch_item in batch.batch_items:
                 try:
                     graph = self.graph_constructor.create_graph_from_data_sample(batch_item.data_sample)
@@ -109,6 +109,7 @@ class GraphDataset(Dataset):
         return os.path.join(self.processed_dir, 'data_{}.pt'.format(idx))
 
     def get(self, idx):
+        # load up the context graph and return the newly created geometric datapoint
         data = torch.load(self.get_data_file_path(idx))
         return data
 

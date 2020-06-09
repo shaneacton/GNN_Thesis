@@ -1,14 +1,13 @@
-from typing import Union
+import inspect
 
 import torch
 import torch.nn.functional as F
 from torch import nn, cat, sigmoid
 from torch_geometric.data import Batch
-from torch_geometric.nn import TopKPooling, SAGEConv, SAGPooling
+from torch_geometric.nn import TopKPooling, SAGEConv
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 
-from Code.Data.Graph.Nodes.span_node import SpanNode
-from Code.Data.Graph.State.state_set import StateSet
+from Code.Models.GNNs.graph_layer import GraphLayer
 from Code.Models.GNNs.prop_and_pool_layer import PropAndPoolLayer
 
 
@@ -29,21 +28,17 @@ class PropAndPool(nn.Module):
         self.act2 = nn.ReLU()
 
     def forward(self, data: Batch):
-        # edge_index, edge_types, batch = data.edge_index, data.edge_types, data.batch
-        # query = data.query
-        #
-        # ids = getattr(data, SpanNode.EMB_IDS)
-        # print("ids:",ids.size())
-        x, edge_index, batch = data.x, data.edge_index, data.batch
-        x = x.squeeze(1)
+        kwargs = self.get_required_kwargs_from_batch(data, self.layer_1)
 
-        x, edge_index, _, batch, = self.layer_1(x, edge_index, None, batch)
+        x, edge_index, _, batch, = self.layer_1(**kwargs)
         x1 = cat([gmp(x, batch), gap(x, batch)], dim=1)
 
-        x, edge_index, _, batch, = self.layer_2(x, edge_index, None, batch)
+        kwargs.update({"x":x, "edge_index":edge_index, "batch": batch})
+        x, edge_index, _, batch, = self.layer_2(**kwargs)
         x2 = cat([gmp(x, batch), gap(x, batch)], dim=1)
 
-        x, edge_index, _, batch, = self.layer_3(x, edge_index, None, batch)
+        kwargs.update({"x":x, "edge_index":edge_index, "batch": batch})
+        x, edge_index, _, batch, = self.layer_3(**kwargs)
         x3 = cat([gmp(x, batch), gap(x, batch)], dim=1)
 
         x = x1 + x2 + x3
@@ -58,6 +53,14 @@ class PropAndPool(nn.Module):
 
         return x
 
+    def get_required_kwargs_from_batch(self, data: Batch, layer: GraphLayer):
+        """
+        plucks params out of the data object which are needed by the given layer
+        """
+        layer_args = layer.get_base_layer_all_arg_names()
+        data_args = data.__dict__
+        present_args = {arg: data_args[arg] for arg in layer_args if arg in data_args.keys()}
+        return present_args
 
 if __name__ == "__main__":
     from torch_geometric.data import Data
@@ -68,12 +71,14 @@ if __name__ == "__main__":
     edge_index = torch.tensor([[0, 2, 1, 0, 3],
                                [3, 1, 0, 1, 2]], dtype=torch.long)
 
-    data = Data(x=x, y=y, edge_index=edge_index)
+    edge_types = torch.tensor([[0, 2, 1, 0, 3]], dtype=torch.long)
+
+    data = Data(x=x, y=y, edge_index=edge_index, edge_attr=edge_types)
+    # data = Data(x=x, y=y, edge_index=edge_index)
+
     batch = Batch.from_data_list([data, data])
 
     pnp = PropAndPool(3)
-    sage = SAGEConv(3,128)
 
-    out = sage(batch.x, batch.edge_index)
-    print("sage_out:",out.size())
     out = pnp(batch)
+    print("pnp_out:",out.size())

@@ -1,6 +1,8 @@
+import inspect
+
 import torch
 from torch.nn import Sequential as Seq, Linear, ReLU
-from torch_geometric.nn import MessagePassing
+from torch_geometric.nn import MessagePassing, RGCNConv
 from torch_geometric.utils import remove_self_loops, add_self_loops
 
 
@@ -21,13 +23,14 @@ class ExampleSAGEConv(MessagePassing):
         edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
         print("f3 edge:",edge_index.size())
 
-
         return self.propagate(edge_index, size=(x.size(0), x.size(0)), x=x)
 
-    def message(self, x_j):
-        print("message x_j:",x_j.size())
+    def message(self, x_j, edge_index_i):
         # x_j has shape [E, in_channels]
-
+        mask = torch.tensor([1,0,0,1,1,0,0,0,1], dtype=torch.long)
+        mask = mask.view(-1,1)
+        prod =  mask * x_j
+        print("prod:",prod.size(), prod)
         x_j = self.lin(x_j)
         x_j = self.act(x_j)
 
@@ -56,7 +59,9 @@ if __name__ == "__main__":
     data = Data(x=x, y=y, edge_index=edge_index)
 
     conv = ExampleSAGEConv(3, 6)
+    rconv = RGCNConv
 
     out = conv(x, edge_index)
 
     print("out:", out.size())
+
