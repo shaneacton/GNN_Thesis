@@ -5,6 +5,8 @@ from torch.nn import Sequential as Seq, Linear, ReLU
 from torch_geometric.nn import MessagePassing, RGCNConv
 from torch_geometric.utils import remove_self_loops, add_self_loops
 
+from Code.Training import device
+
 
 class ExampleSAGEConv(MessagePassing):
     def __init__(self, in_channels, out_channels):
@@ -27,7 +29,7 @@ class ExampleSAGEConv(MessagePassing):
 
     def message(self, x_j, edge_index_i):
         # x_j has shape [E, in_channels]
-        mask = torch.tensor([1,0,0,1,1,0,0,0,1], dtype=torch.long)
+        mask = torch.tensor([1,0,0,1,1,0,0,0,1], dtype=torch.long).to(device)
         mask = mask.view(-1,1)
         prod =  mask * x_j
         print("prod:",prod.size(), prod)
@@ -50,15 +52,15 @@ class ExampleSAGEConv(MessagePassing):
 if __name__ == "__main__":
     from torch_geometric.data import Data
 
-    x = torch.tensor([[2, 1, 3], [5, 6, 4], [3, 7, 5], [12, 0, 6]], dtype=torch.float)
+    x = torch.tensor([[2, 1, 3], [5, 6, 4], [3, 7, 5], [12, 0, 6]], dtype=torch.float).to(device)
     y = torch.tensor([0, 1, 0, 1], dtype=torch.float)
 
     edge_index = torch.tensor([[0, 2, 1, 0, 3],
-                               [3, 1, 0, 1, 2]], dtype=torch.long)
+                               [3, 1, 0, 1, 2]], dtype=torch.long).to(device)
 
-    data = Data(x=x, y=y, edge_index=edge_index)
+    data = Data(x=x, y=y, edge_index=edge_index).to(device)
 
-    conv = ExampleSAGEConv(3, 6)
+    conv = ExampleSAGEConv(3, 6).to(device)
     rconv = RGCNConv
 
     out = conv(x, edge_index)

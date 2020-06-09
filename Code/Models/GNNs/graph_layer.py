@@ -63,7 +63,10 @@ class GraphLayer(MessagePassing):
         thus they must be passed explicitly into message if needed
         """
         all_args = self.get_base_layer_forward_arg_names()
-        default_values = inspect.getfullargspec(self.layer.forward)[3]
+        default_values = inspect.getfullargspec(self.get_layer().forward)[3]
+        if default_values is None:
+            return {}
+
         defaulted_args = all_args[len(all_args) - len(default_values):]
         return {defaulted_args[i]: default_values[i] for i in range(len(defaulted_args))}
 
@@ -86,15 +89,21 @@ class GraphLayer(MessagePassing):
         return self.layer.update(inputs, **needed_args)
 
     def forward(self, x, edge_index, batch, **kwargs):
-        edge_index, _ = remove_self_loops(edge_index)
-        edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
+        edge_index = self.clean_loops(edge_index, kwargs, x.size(0))
         kwargs = self.get_kwargs_with_defaults(kwargs)
         # print("kwargs with defaults:",kwargs)
 
         kwargs.update({"batch":batch, "x":x})
-        print("propping args:",kwargs)
+        # print("propping args:",kwargs)
         x = self.propagate(edge_index, x=x, kwargs=kwargs)
-        # x = self.layer(x, edge_index)
         if self.activation:
             return self.activation(x)
         return x
+
+    def clean_loops(self,edge_index, kwargs, num_nodes):
+        edge_types = kwargs["edge_types"] if "edge_types" in kwargs else None
+
+        edge_index, edge_types = remove_self_loops(edge_index, edge_attr=edge_types)
+        edge_index, edge_types = add_self_loops(edge_index, num_nodes=num_nodes, edge_weight=edge_types)
+        kwargs["edge_types"] = edge_types
+        return edge_index

@@ -9,6 +9,7 @@ from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 
 from Code.Models.GNNs.graph_layer import GraphLayer
 from Code.Models.GNNs.prop_and_pool_layer import PropAndPoolLayer
+from Code.Training import device
 
 
 class PropAndPool(nn.Module):
@@ -73,12 +74,13 @@ if __name__ == "__main__":
 
     edge_types = torch.tensor([[0, 2, 1, 0, 3]], dtype=torch.long)
 
-    data = Data(x=x, y=y, edge_index=edge_index, edge_attr=edge_types)
+    data = Data(x=x, y=y, edge_index=edge_index, edge_types=edge_types)
     # data = Data(x=x, y=y, edge_index=edge_index)
+    batch = Batch.from_data_list([data, data]).to(device)
+    batch.edge_types = batch.edge_types.view(-1)
+    print("batch edge_attr:", batch.edge_types, "edge id:", batch.edge_index)
 
-    batch = Batch.from_data_list([data, data])
-
-    pnp = PropAndPool(3)
+    pnp = PropAndPool(3).to(device)
 
     out = pnp(batch)
     print("pnp_out:",out.size())

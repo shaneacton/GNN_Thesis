@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Type
 
 from torch import nn
-from torch_geometric.nn import TopKPooling, SAGEConv
+from torch_geometric.nn import TopKPooling, SAGEConv, MessagePassing
 
 from Code.Models.GNNs.graph_layer import GraphLayer
 from Code.Models.GNNs.prop_and_pool_layer import PropAndPoolLayer
@@ -20,7 +20,7 @@ class GraphModule(GraphLayer):
     a module needs no input layer if there are hidden layers, and the in_size==hidden_size
     """
 
-    def __init__(self, sizes: List[int], layer_type: type, num_hidden_layers, num_hidden_repeats=1,
+    def __init__(self, sizes: List[int], layer_type: Type[MessagePassing], num_hidden_layers, num_hidden_repeats=1,
                  repeated_layer_args=None):
         """
         :param sizes: [in_size, hidden_size, out_size]
