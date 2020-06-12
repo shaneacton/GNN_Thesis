@@ -2,9 +2,8 @@ from typing import List, Type, Any, Dict
 
 import torch
 from torch import Tensor, tensor
-from torch_geometric.data import Batch
 
-from Code.Models.GNNs.graph_layer import GraphLayer
+from Code.Models.GNNs.abstract.graph_layer import GraphLayer
 from Code.Training import device
 
 

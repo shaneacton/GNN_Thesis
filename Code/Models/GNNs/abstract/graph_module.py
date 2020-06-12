@@ -1,10 +1,17 @@
 from typing import List, Type
 
+import torch
 from torch import nn
 from torch_geometric.nn import TopKPooling, SAGEConv, MessagePassing
 
-from Code.Models.GNNs.graph_layer import GraphLayer
+from Code.Data import Graph
+from Code.Models.GNNs.abstract.graph_layer import GraphLayer
 from Code.Models.GNNs.prop_and_pool_layer import PropAndPoolLayer
+from Code.Training import device
+
+import torch.nn.functional as F
+from torch import nn, cat, sigmoid
+from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 
 
 class GraphModule(GraphLayer):
@@ -21,7 +28,7 @@ class GraphModule(GraphLayer):
     """
 
     def __init__(self, sizes: List[int], layer_type: Type[MessagePassing], num_hidden_layers, num_hidden_repeats=1,
-                 repeated_layer_args=None):
+                 repeated_layer_args=None, return_all_outputs=False):
         """
         :param sizes: [in_size, hidden_size, out_size]
         :param num_hidden_layers: number of unique hidden layers which each get their own weight params
@@ -34,6 +41,7 @@ class GraphModule(GraphLayer):
         self.num_hidden_repeats = num_hidden_repeats
         self.num_hidden_layers = num_hidden_layers
         self.repeated_layer_type = layer_type
+        self.return_all_outputs = return_all_outputs
         if num_hidden_layers and not num_hidden_repeats:
             raise Exception()
         if len(sizes) != 3:
@@ -43,6 +51,10 @@ class GraphModule(GraphLayer):
     @property
     def hidden_size(self):
         return self.sizes[1]
+
+    def get_layer(self):
+        for layer in self.layer:
+            return layer
 
     def initialise_layer(self):
         has_hidden = self.num_hidden_layers > 0
@@ -65,17 +77,49 @@ class GraphModule(GraphLayer):
                                   layer_args=self.repeated_layer_args)
 
         layers = [new_layer(self.input_size, self.hidden_size)] if needs_input else []
-        layers += [new_layer(self.hidden_size, self.hidden_size) for i in range(self.num_hidden_layers)] * self.num_hidden_repeats
+        layers += [new_layer(self.hidden_size, self.hidden_size) for _ in range(self.num_hidden_layers)] * self.num_hidden_repeats
         layers += [new_layer(self.hidden_size, self.output_size)] if needs_output else []
 
         return nn.Sequential(*layers)
 
+    def forward(self, x, edge_index, batch, **kwargs):
+        edge_index = self.clean_loops(edge_index, kwargs, x.size(0))
+        kwargs = self.get_kwargs_with_defaults(kwargs)
+        kwargs.update({"batch":batch, "x":x, "edge_index": edge_index})
+
+        all_outputs = []
+        for layer in self.layer:
+            """passes x through each item in the seq block and optionally records intermediate outputs"""
+
+            x = layer(**kwargs)
+            if self.return_all_outputs:
+                all_outputs.append(x)
+
+            if isinstance(x, tuple):
+                x, edge_index, edge_types, batch = x
+                kwargs["edge_index"] = edge_index
+                kwargs["edge_types"] = edge_types
+                kwargs["batch"] = batch
+
+            kwargs["x"] = x
+            # print("found layer", layer, "in module, providing:", kwargs)
+
+        if self.return_all_outputs:
+            # print("returning:",(x, all_outputs))
+            return x, all_outputs
+        return x
+
 
 if __name__ == "__main__":
-    pnp_args = {"activation_type":nn.ReLU, "prop_type": SAGEConv, "pool_type": TopKPooling, "pool_args": {"ratio":0.8}}
-    pnp = GraphModule([1000, 1000, 500], PropAndPoolLayer, 2, num_hidden_repeats=1, repeated_layer_args=pnp_args)
+    torch.manual_seed(0)
+
+    pnp_args = {"prop_type": SAGEConv, "pool_type": TopKPooling, "pool_args": {"ratio":0.8}}
+    pnp = GraphModule([3, 128, 128], PropAndPoolLayer, 2, num_hidden_repeats=1, repeated_layer_args=pnp_args,
+                      return_all_outputs=True).to(device)
     print(pnp)
     print(pnp.num_params)
-    pnp = GraphModule([1500, 1000, 1000], PropAndPoolLayer, 0, num_hidden_repeats=2, repeated_layer_args=pnp_args)
-    print(pnp)
-    print(pnp.num_params)
+
+    out = pnp(Graph.example_batch.x, Graph.example_batch.edge_index, Graph.example_batch.batch)
+    x, outs = out
+
+    print(x)

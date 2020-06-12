@@ -1,7 +1,7 @@
 import inspect
 from typing import List, Type, Dict, Any
 
-from torch import nn, Tensor
+from torch import Tensor
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import remove_self_loops, add_self_loops
 
@@ -9,14 +9,18 @@ from torch_geometric.utils import remove_self_loops, add_self_loops
 class GraphLayer(MessagePassing):
     """wrapper around a propagation layer such as SAGEConv, GATConv etc"""
 
-    def __init__(self, sizes: List[int], layer_type:Type[MessagePassing], activation_type=None, layer_args=None):
+    def __init__(self, sizes: List[int], layer_type:Type[MessagePassing], activation_type=None, layer_args=None, init_layer=True):
         super().__init__()
         self.layer_type = layer_type
         self.sizes = sizes
         self.layer_args = layer_args if layer_args else {}
 
-        self.layer = self.initialise_layer()
+        if init_layer:
+            self.layer = self.initialise_layer()
+        else:
+            self.layer = None
         self.activation = activation_type() if activation_type else None
+
 
     @property
     def input_size(self):
@@ -91,7 +95,6 @@ class GraphLayer(MessagePassing):
     def forward(self, x, edge_index, batch, **kwargs):
         edge_index = self.clean_loops(edge_index, kwargs, x.size(0))
         kwargs = self.get_kwargs_with_defaults(kwargs)
-        # print("kwargs with defaults:",kwargs)
 
         kwargs.update({"batch":batch, "x":x})
         # print("propping args:",kwargs)

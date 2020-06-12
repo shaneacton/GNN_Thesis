@@ -16,9 +16,9 @@ class ChannelState(State):
         super().__init__(name)
         self.states= [starting_state] * num_channels
 
-    def get_state_tensors(self, prefix_func=StateSet.CHANNEL_STATE):
+    def get_named_state_tensors(self, sufffix_func=StateSet.CHANNEL_STATE):
         named_states: Dict[str: Tensor] = {}
         for i, state in enumerate(self.states):
-            name = +prefix_func(i)
+            name = self.name + "_" + sufffix_func(i)
             named_states[name]=state
         return named_states

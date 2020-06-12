@@ -4,8 +4,9 @@ import torch
 from torch import nn, Tensor
 from torch_geometric.nn import SAGEConv, MessagePassing
 
-from Code.Models.GNNs.graph_layer import GraphLayer
-from Code.Models.GNNs.relational_layer import RelationalLayer
+from Code.Data.Graph import example_batch
+from Code.Models.GNNs.abstract.graph_layer import GraphLayer
+from Code.Models.GNNs.abstract.relational_layer import RelationalLayer
 from Code.Training import device
 
 
@@ -93,25 +94,10 @@ class RelationalSwitchLayer(GraphLayer):
 
 
 if __name__ == "__main__":
-    from torch_geometric.data import Data, Batch
-
-    x = torch.tensor([[2, 1, 3], [5, 6, 4], [3, 7, 5], [12, 0, 6]], dtype=torch.float)
-    y = torch.tensor([0, 1, 0, 1], dtype=torch.float)
-
-    edge_index = torch.tensor([[0, 2, 1, 0, 3],
-                               [3, 1, 0, 1, 2]], dtype=torch.long)
-
-    edge_types = torch.tensor([[0, 1, 2, 3, 0]], dtype=torch.long)
-
-    data = Data(x=x, y=y, edge_index=edge_index, edge_types=edge_types)
-
-    batch = Batch.from_data_list([data, data]).to(device)
-    batch.edge_types = batch.edge_types.view(-1)
-
     rel_switch = RelationalSwitchLayer([3, 128], SAGEConv, sub_layer_args={}).to(device)
     print(rel_switch)
-    print("num params:", rel_switch.num_params)
+    print("before forward num params:", rel_switch.num_params)
 
-    out = rel_switch(batch.x, batch.edge_index, batch.batch, edge_types=batch.edge_types)
+    out = rel_switch(example_batch.x, example_batch.edge_index, example_batch.batch, edge_types=example_batch.edge_types)
     print(rel_switch)
-    print("num params:", rel_switch.num_params)
+    print("after forward num params:", rel_switch.num_params)

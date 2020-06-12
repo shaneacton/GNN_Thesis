@@ -12,8 +12,8 @@ class StateSet(State):
     belongs to a node or edge
     """
 
+    STATE_SET = "state_set"
     ENTITY_STATE = "entity_state"
-
 
     STARTING_STATE = "starting_state"
     CURRENT_STATE = "current_state"
@@ -30,19 +30,23 @@ class StateSet(State):
         QUERY_AGNOSTIC_STATE: [QUERY_AGNOSTIC_STATE]
     }
 
-    def __init__(self):
-        self.states: Set[StateSet] = set()
+    def __init__(self, name):
+        super().__init__(name)
+        self.states: Dict[str,StateSet] = {}  # maps state_name to state obj
 
     def add_state(self, other: State):
         if type(other) == StateSet:
             other:StateSet = other
-            self.states += other.states
+            self.states.update(other.states)
         else:
-            self.states.add(other)
+            self.states[other.name] = other
 
-    def get_state_tensors(self):
+    def get_state(self, name):
+        return self.states[name]
+
+    def get_named_state_tensors(self):
         named_tensors: Dict[str: Tensor] = {}
-        for state in self.states:
+        for state in self.states.values():
             # for each contained state object
-            named_tensors.update(state.get_state_tensors())
+            named_tensors.update(state.get_named_state_tensors())
         return named_tensors

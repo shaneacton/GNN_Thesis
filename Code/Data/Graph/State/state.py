@@ -7,5 +7,5 @@ class State(ABC):
         self.name = name
 
     @abstractmethod
-    def get_state_tensors(self):
+    def get_named_state_tensors(self):
         raise NotImplementedError()

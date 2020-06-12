@@ -12,5 +12,5 @@ class BasicState(State, ABC):
         self.value = starting_value.squeeze()
         self.name = name
 
-    def get_state_tensors(self):
+    def get_named_state_tensors(self):
         return {self.name: self.value}

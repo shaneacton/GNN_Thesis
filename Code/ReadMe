@@ -2,21 +2,32 @@ Todo:
 1: save context graphs instead of datapoints
  1.1: have GraphDataset load up context graphs and convert them into geometric datapoints on the fly
  1.2: during datapoint creation, sequence summarisation can be done online to make state sizes consistent across graphs
-2. rework state system
- 2.1 state could be implemented via a multiplexer graph layer which stores every state mat using {state_name: vec} map
- 2.2 state communications could be defined eg current_state, starting_state -> current_state
- 2.3 acts as a graph where communication is edges and states are nodes
- 2.4 concat is used for state combination when multiple inputs are detected
-3:
-4: map back to node/edge type during gnn passes - save type:id mappings per datsaset
-5:
-6: complete relational and relational switch layer
-7: add support for candidate and query entity nodes / graph construction
-8: swap out spacy coref for something better
-9: Make bert tokeniser cased
-10: add in returning edges for the directed edges
-11: allow for different state types and shapes to be saved to a geometric graph
-12: come up with system to allow for grouping certain edge types under 1 relational layer.
- 12.1 edge groups should behave as single edge type
- 12.2 another option to have split groups on subtype/direction
- 12.3 feature where subtypes are ignored by type splitting, but fed to gnns as edge weights
+2. implement online summarisation system
+ 2.1 naively just head/tail concat
+ 2.2 seq+query coattention then self attentive-pooling can summarise docs in query aware way
+ 2.3 full transformer models can be used for doc summarisation
+3. rework state system
+ 3.1 state could be implemented via a multiplexer graph layer which stores every state mat using {state_name: vec} map
+ 3.2 state communications could be defined eg current_state, starting_state -> current_state
+ 3.3 acts as a graph where communication is edges and states are nodes
+ 3.4 concat is used for state combination when multiple inputs are detected
+4: expand graph construction
+ 4.1 add support for candidate and query entity nodes / graph construction
+ 4.2 swap out spacy coref for something better
+ 4.3 hierarchical unique entity nodes
+ 4.4 AMR
+5: Make bert tokeniser cased
+6: add in returning edges for the directed edges
+7: come up with system to allow for grouping certain edge types under 1 relational layer.
+ 8.1 edge groups should behave as single edge type
+ 8.2 another option to have split groups on subtype/direction
+ 8.3 feature where subtypes are ignored by type splitting, but fed to gnns as edge weights
+9: map back to node/edge type during gnn passes - save type:id mappings per datsaset
+10: Edge weights which are fed into the message passing via concatenation as other state such as query.
+
+
+
+NLP Libs:
+Spacy - ineffective
+StanfordNLP python wrapper has no coref
+
