@@ -22,10 +22,10 @@ class EntityNode(SpanNode):
         subtype = EntityNode.COREF if self.is_coref else EntityNode.CONTEXT_MENTION
         self.set_subtype(subtype)
 
-    def get_subtokens_embedding(self) -> Tensor:
-        return self.token_span.tail_concat_embedding
-
     @property
     def is_coref(self):
         ent: Entity = self.token_span
         return ent.is_coref
+
+    def get_span_summary_vec(self) -> Tensor:
+        return self.token_span.tail_concat_embedding

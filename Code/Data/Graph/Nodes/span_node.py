@@ -5,6 +5,7 @@ from typing import Dict
 from torch import Tensor
 
 from Code.Data.Graph.Nodes.node import Node
+from Code.Data.Graph.State.state_set import StateSet
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 
@@ -30,4 +31,14 @@ class SpanNode(Node, ABC):
         return self.token_span.subtoken_embedding_ids
 
     def get_all_node_state_tensors(self) -> Dict[str, Tensor]:
-        return {SpanNode.EMB_IDS: self.get_embedding_ids_sequence_tensor()}
+        # states = {SpanNode.EMB_IDS: self.get_embedding_ids_sequence_tensor()}  # returns the nodes embedding IDs
+        states = {StateSet.STARTING_STATE: self.get_span_summary_vec()}  # gets feature representation of token sequence
+        return states
+
+    def get_span_summary_vec(self) -> Tensor:
+        """
+        returns a tensor with the span representation in a fixed size.
+        for entities this summary is done with head/tail concat
+        for document structure nodes this summary is done via a separate encoder model
+        """
+        raise NotImplementedError()

@@ -12,5 +12,5 @@ class TieredState(ChannelState):
     def __init__(self, starting_state, name, num_channels=3):
         super().__init__(starting_state, name, num_channels)
 
-    def get_named_state_tensors(self, sufffix_func=StateSet.TIERED_STATE):
+    def get_named_state_tensors(self, sufffix_func=StateSet.TIERED_STATE_NAME):
         return super().get_named_state_tensors(sufffix_func=sufffix_func)

@@ -19,3 +19,7 @@ class DocumentStructureNode(SpanNode):
         if self.token_span.level == DocumentExtract.SENTENCE:
             return super().get_node_viz_text()
         return repr(self.token_span.level)
+
+    def get_span_summary_vec(self) -> Tensor:
+        # todo implement summary encoder
+        return self.token_span.tail_concat_embedding

@@ -6,9 +6,9 @@ from torch_geometric.nn import TopKPooling, SAGEConv
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 
 from Code.Data.Graph import example_batch
-from Code.Models.GNNs.abstract.gnn import GNN
-from Code.Models.GNNs.abstract.graph_module import GraphModule
-from Code.Models.GNNs.prop_and_pool_layer import PropAndPoolLayer
+from Code.Models.GNNs.Abstract.gnn import GNN
+from Code.Models.GNNs.Abstract.graph_module import GraphModule
+from Code.Models.GNNs.CustomLayers.prop_and_pool_layer import PropAndPoolLayer
 from Code.Training import device
 
 
@@ -19,7 +19,7 @@ class PropAndPool(GNN):
         pnp_args = {"activation_type": nn.ReLU, "prop_type": SAGEConv, "pool_type": TopKPooling,
                     "pool_args": {"ratio": 0.8}}
 
-        self.prop_module = GraphModule([in_size, 128, 128], PropAndPoolLayer, 20, num_hidden_repeats=1,
+        self.prop_module = GraphModule([in_size, 128, 128], PropAndPoolLayer, 2, num_hidden_repeats=1,
                                        repeated_layer_args=pnp_args, return_all_outputs=True)
 
         self.lin1 = nn.Linear(256, 128)
@@ -34,8 +34,13 @@ class PropAndPool(GNN):
 
     def forward(self, data: Batch):
         kwargs = self.get_required_kwargs_from_batch(data, self.prop_module)
+        state_set = self.get_state_set_from_batch(data)
 
-        _, outs = self.prop_module(**kwargs)
+        try:
+            _, outs = self.prop_module(**kwargs)
+        except Exception as e:
+            print("failed to prop through", self.prop_module, "with kwargs:",kwargs)
+            raise e
         """sum all the (cat(gmp, gap)) outputs from each module layer"""
         outs = [cat([gmp(x_i, batch), gap(x_i, batch)], dim=1) for x_i, _, _, batch  in outs]
         x = outs[0]

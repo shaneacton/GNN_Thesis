@@ -1,14 +1,13 @@
 
 import torch
-from torch.nn import Sequential as Seq, Linear, ReLU
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import remove_self_loops, add_self_loops
 
 
-class SAGEConv(MessagePassing):
+class CustomSAGEConv(MessagePassing):
 
     def __init__(self, in_channels, out_channels):
-        super(SAGEConv, self).__init__(aggr='max')  # "Max" aggregation.
+        super(CustomSAGEConv, self).__init__(aggr='max')  # "Max" aggregation.
         self.lin = torch.nn.Linear(in_channels, out_channels)
         self.act = torch.nn.ReLU()
         self.update_lin = torch.nn.Linear(in_channels + out_channels, in_channels, bias=False)

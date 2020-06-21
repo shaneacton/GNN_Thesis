@@ -3,7 +3,6 @@ Todo:
  1.1: have GraphDataset load up context graphs and convert them into geometric datapoints on the fly
  1.2: during datapoint creation, sequence summarisation can be done online to make state sizes consistent across graphs
 2. implement online summarisation system
- 2.1 naively just head/tail concat
  2.2 seq+query coattention then self attentive-pooling can summarise docs in query aware way
  2.3 full transformer models can be used for doc summarisation
 3. rework state system

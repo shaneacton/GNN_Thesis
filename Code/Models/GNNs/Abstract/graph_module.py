@@ -1,17 +1,14 @@
 from typing import List, Type
 
 import torch
-from torch import nn
 from torch_geometric.nn import TopKPooling, SAGEConv, MessagePassing
 
 from Code.Data import Graph
-from Code.Models.GNNs.abstract.graph_layer import GraphLayer
-from Code.Models.GNNs.prop_and_pool_layer import PropAndPoolLayer
+from Code.Models.GNNs.Abstract.graph_layer import GraphLayer
+from Code.Models.GNNs.CustomLayers.prop_and_pool_layer import PropAndPoolLayer
 from Code.Training import device
 
-import torch.nn.functional as F
-from torch import nn, cat, sigmoid
-from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
+from torch import nn
 
 
 class GraphModule(GraphLayer):

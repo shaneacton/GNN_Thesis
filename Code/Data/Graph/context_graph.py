@@ -2,20 +2,16 @@ import copy
 import os
 from typing import List, Set, Dict
 
+import graphviz
 import torch
+from torch_geometric.data import Data
 
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.Nodes.node import Node
-
-from torch_geometric.data import Data
-
 from Code.Data.Graph.Nodes.span_node import SpanNode
+from Code.Data.Graph.State.state_set import StateSet
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
-
-import graphviz
-
 from Code.Training import device
-from Datasets.Batching.batch import Batch
 
 
 class ContextGraph:
@@ -64,25 +60,45 @@ class ContextGraph:
         """
         converts this graph into data ready to be fed into pytorch geometric
         """
+        # data_point = Data(**self.named_state_vecs)
+        data_point = Data(**self.state_set.get_named_state_tensors())
+        data_point.num_nodes = len(self.ordered_nodes)
+        return data_point
+
+    @property
+    def state_set(self):
+        """creates a state set object containing current and optionally - starting, previous states"""
+        ss = StateSet(StateSet.CONTEXT)
+        ss.add_states_from_named_vecs(self.named_state_vecs)
+        ss.initialise_states()
+        return ss
+
+    @property
+    def named_state_vecs(self) -> Dict[str, torch.Tensor]:
+        """groups and concats the node states"""
         states_dict: Dict[str, List[torch.Tensor]] = {}
         for node in self.ordered_nodes:  # in order traversal
+            """ collects state from nodes and groups states by state_name"""
             states = node.states_tensors
             for state_name in states.keys():
                 if not state_name in states_dict:
                     states_dict[state_name] = []
                 states_dict[state_name].append(states[state_name])
 
+        states_dict: Dict[str, torch.Tensor]
         for state_name in states_dict.keys():
+            """concats node states"""
             states_dict[state_name] = self.pad_and_combine(states_dict[state_name])
 
         edge_types = torch.stack(self.edge_types, dim=0)
         edge_index = torch.tensor(self.edge_index).to(device)
 
-        # print("states:", {name:states_dict[name].size() for name in states_dict.keys()}, "label:",self.label)
-        data_point = Data(edge_index=edge_index, edge_types=edge_types, label=self.label,
-                          query=self.query, **states_dict)
-        data_point.num_nodes = len(self.ordered_nodes)
-        return data_point
+        states_dict["edge_types"] = edge_types
+        states_dict["edge_index"] = edge_index
+        states_dict["query"] = self.query
+        states_dict["label"] = self.label
+
+        return states_dict
 
     @staticmethod
     def pad_and_combine(vecs: List[torch.Tensor], pad_dim=-1):
