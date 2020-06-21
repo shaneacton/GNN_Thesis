@@ -1,0 +1,332 @@
+// The Round Table
+digraph {
+	graph [rankdir=LR]
+	"Node(0)" [label="James Sunny Jim
+Rolph (0, 4)"]
+	"Node(1)" [label="Jr. (5, 7)"]
+	"Node(2)" [label="August 23, 1869 
+(8, 12)"]
+	"Node(3)" [label="June 2, 1934
+(12, 16)"]
+	"Node(4)" [label="American (19,
+20)"]
+	"Node(5)" [label="the Republican
+Party (25, 28)"]
+	"Node(6)" [label="27th (38, 39)"]
+	"Node(7)" [label="California (41,
+42)"]
+	"Node(8)" [label="January 6, 1931
+(43, 47)"]
+	"Node(9)" [label="June 2, 1934
+(51, 55)"]
+	"Node(10)" [label="the Great
+Depression (59,
+62)"]
+	"Node(11)" [label="Rolph (65, 66)"]
+	"Node(12)" [label="30th (69, 70)"]
+	"Node(13)" [label="San Francisco
+(72, 74)"]
+	"Node(14)" [label="January 8, 1912
+(75, 79)"]
+	"Node(15)" [label="San Francisco
+(93, 95)"]
+	"Node(16)" [label="The California
+National Guard
+(98, 102)"]
+	"Node(17)" [label="California (106,
+107)"]
+	"Node(18)" [label="the National
+Guard of the
+United States
+(112, 119)"]
+	"Node(19)" [label="Army (123, 124)"]
+	"Node(20)" [label="Air National
+Guard (125, 128)"]
+	"Node(21)" [label="the United
+States (137,
+140)"]
+	"Node(22)" [label="22,900 (146,
+149)"]
+	"Node(23)" [label="California (154,
+155)"]
+	"Node(24)" [label="38 (161, 162)"]
+	"Node(25)" [label="2001 (164, 165)"]
+	"Node(26)" [label="twenty-nine
+(168, 171)"]
+	"Node(27)" [label="Iraq (175, 176)"]
+	"Node(28)" [label="two (177, 178)"]
+	"Node(29)" [label="Afghanistan
+(181, 182)"]
+	"Node(30)" [label="California (187,
+188)"]
+	"Node(31)" [label="California (194,
+195)"]
+	"Node(32)" [label="the California
+National Guard
+(204, 208)"]
+	"Node(33)" [label="the California
+State Military
+Reserve (209,
+214)"]
+	"Node(34)" [label="State (224, 225)"]
+	"Node(35)" [label="the California
+State
+Legislature
+(227, 231)"]
+	"Node(36)" [label="1849 (249, 250)"]
+	"Node(37)" [label="the year (251,
+253)"]
+	"Node(38)" [label="California (254,
+255)"]
+	"Node(39)" [label="Jerry Brown
+(263, 265)"]
+	"Node(40)" [label="Democrat (267,
+268)"]
+	"Node(41)" [label="January 3, 2011
+(271, 275)"]
+	"Node(42)" [label="from 1975 to
+1983 (283, 287)"]
+	"Node(43)" [label="October 2013
+(289, 291)"]
+	"Node(44)" [label="Jerry Brown
+(292, 294)"]
+	"Node(45)" [label="Earl Warren
+(295, 297)"]
+	"Node(46)" [label="William
+Richardson (454,
+456)"]
+	"Node(47)" [label="William
+Richardson (458,
+460)"]
+	"Node(48)" [label="December 1,
+1865September 6,
+1943 (462, 469)"]
+	"Node(49)" [label="American (473,
+474)"]
+	"Node(50)" [label="the Progressive
+Party (482, 485)"]
+	"Node(51)" [label="the Republican
+Party (487, 490)"]
+	"Node(52)" [label="Richardson (491,
+492)"]
+	"Node(53)" [label="the California
+State Treasurer
+(495, 499)"]
+	"Node(54)" [label="1915 to 1923
+(500, 503)"]
+	"Node(55)" [label="25th (509, 510)"]
+	"Node(56)" [label="California (512,
+513)"]
+	"Node(57)" [label="1923 (514, 515)"]
+	"Node(58)" [label="1927 (516, 517)"]
+	"Node(59)" [label="Richardson (518,
+519)"]
+	"Node(60)" [label="Progressive
+(537, 538)"]
+	"Node(61)" [label="Hiram Johnson
+(549, 551)"]
+	"Node(62)" [label="William Stephens
+(552, 554)"]
+	"Node(63)" [label="Edmund Gerald \"
+(556, 559)"]
+	"Node(64)" [label="Jerry\" Brown Jr.
+(559, 564)"]
+	"Node(65)" [label="April 7, 1938
+(566, 570)"]
+	"Node(66)" [label="American (573,
+574)"]
+	"Node(67)" [label="39th (582, 583)"]
+	"Node(68)" [label="California (585,
+586)"]
+	"Node(69)" [label="2011 (587, 588)"]
+	"Node(70)" [label="the Democratic
+Party (592, 595)"]
+	"Node(71)" [label="Brown (596, 597)"]
+	"Node(72)" [label="34th (601, 602)"]
+	"Node(73)" [label="1975 (604, 605)"]
+	"Node(74)" [label="1983 (606, 607)"]
+	"Node(75)" [label="California (616,
+617)"]
+	"Node(76)" [label="first (624, 625)"]
+	"Node(77)" [label="Brown (627, 628)"]
+	"Node(78)" [label="three (639, 640)"]
+	"Node(79)" [label="Democratic (645,
+646)"]
+	"Node(80)" [label="the United
+States (650,
+653)"]
+	"Node(81)" [label="Thomas Lee
+Woolwine (655,
+658)"]
+	"Node(82)" [label="California (660,
+661)"]
+	"Node(83)" [label="Los Angeles
+County (668,
+671)"]
+	"Node(84)" [label="1914 - 1923
+(671, 674)"]
+	"Node(85)" [label="1908 (684, 685)"]
+	"Node(86)" [label="California (691,
+692)"]
+	"Node(87)" [label="Democratic (694,
+695)"]
+	"Node(88)" [label="1922 (697, 698)"]
+	"Node(89)" [label="Friend
+Richardson (702,
+704)"]
+	"Node(90)" [label="William Desmond
+Taylor (707,
+710)"]
+	"Node(91)" [label="Asa Keyes (720,
+722)"]
+	"Node(92)" [label="The California
+State Military
+Reserve (724,
+729)"]
+	"Node(93)" [label="California (738,
+739)"]
+	"Node(94)" [label="one (741, 742)"]
+	"Node(95)" [label="three (743, 744)"]
+	"Node(96)" [label="the Active
+Militia of the
+State (746, 752)"]
+	"Node(97)" [label="California (760,
+761)"]
+	"Node(98)" [label="the National
+Guard (776, 779)"]
+	"Node(99)" [label="Military &
+Veteran's (789,
+794)"]
+	"Node(100)" [label="550 (796, 797)"]
+	"Node(101)" [label="Asa Keyes (799,
+801)"]
+	"Node(102)" [label="August 9, 1877
+October 18, 1934
+(802, 810)"]
+	"Node(103)" [label="Los Angeles
+County (815,
+818)"]
+	"Node(104)" [label="California (819,
+820)"]
+	"Node(105)" [label="June 1923 (821,
+823)"]
+	"Node(106)" [label="1928 (824, 825)"]
+	"Node(107)" [label="the Julian
+Petroleum
+Company (836,
+840)"]
+	"Node(108)" [label="five years'
+(844, 847)"]
+	"Node(109)" [label="James Rolph
+(854, 856)"]
+	"Node(110)" [label="August 1933
+(857, 859)"]
+	"Node(17)" -> "Node(23)" [label=SAME]
+	"Node(23)" -> "Node(97)" [label=SAME]
+	"Node(30)" -> "Node(104)" [label=SAME]
+	"Node(16)" -> "Node(32)" [label=SAME]
+	"Node(75)" -> "Node(104)" [label=SAME]
+	"Node(7)" -> "Node(104)" [label=SAME]
+	"Node(23)" -> "Node(86)" [label=SAME]
+	"Node(86)" -> "Node(93)" [label=SAME]
+	"Node(23)" -> "Node(38)" [label=SAME]
+	"Node(68)" -> "Node(86)" [label=SAME]
+	"Node(38)" -> "Node(75)" [label=SAME]
+	"Node(38)" -> "Node(97)" [label=SAME]
+	"Node(56)" -> "Node(97)" [label=SAME]
+	"Node(23)" -> "Node(82)" [label=SAME]
+	"Node(38)" -> "Node(93)" [label=SAME]
+	"Node(91)" -> "Node(101)" [label=SAME]
+	"Node(7)" -> "Node(86)" [label=SAME]
+	"Node(7)" -> "Node(31)" [label=SAME]
+	"Node(7)" -> "Node(93)" [label=SAME]
+	"Node(30)" -> "Node(56)" [label=SAME]
+	"Node(38)" -> "Node(82)" [label=SAME]
+	"Node(7)" -> "Node(68)" [label=SAME]
+	"Node(38)" -> "Node(104)" [label=SAME]
+	"Node(17)" -> "Node(75)" [label=SAME]
+	"Node(4)" -> "Node(66)" [label=SAME]
+	"Node(7)" -> "Node(56)" [label=SAME]
+	"Node(75)" -> "Node(82)" [label=SAME]
+	"Node(23)" -> "Node(68)" [label=SAME]
+	"Node(82)" -> "Node(97)" [label=SAME]
+	"Node(31)" -> "Node(68)" [label=SAME]
+	"Node(7)" -> "Node(82)" [label=SAME]
+	"Node(3)" -> "Node(9)" [label=SAME]
+	"Node(17)" -> "Node(68)" [label=SAME]
+	"Node(75)" -> "Node(86)" [label=SAME]
+	"Node(7)" -> "Node(75)" [label=SAME]
+	"Node(4)" -> "Node(49)" [label=SAME]
+	"Node(38)" -> "Node(68)" [label=SAME]
+	"Node(23)" -> "Node(75)" [label=SAME]
+	"Node(17)" -> "Node(31)" [label=SAME]
+	"Node(31)" -> "Node(93)" [label=SAME]
+	"Node(56)" -> "Node(104)" [label=SAME]
+	"Node(82)" -> "Node(86)" [label=SAME]
+	"Node(7)" -> "Node(38)" [label=SAME]
+	"Node(38)" -> "Node(86)" [label=SAME]
+	"Node(49)" -> "Node(66)" [label=SAME]
+	"Node(17)" -> "Node(82)" [label=SAME]
+	"Node(38)" -> "Node(56)" [label=SAME]
+	"Node(30)" -> "Node(82)" [label=SAME]
+	"Node(68)" -> "Node(82)" [label=SAME]
+	"Node(75)" -> "Node(93)" [label=SAME]
+	"Node(30)" -> "Node(75)" [label=SAME]
+	"Node(7)" -> "Node(30)" [label=SAME]
+	"Node(56)" -> "Node(75)" [label=SAME]
+	"Node(23)" -> "Node(31)" [label=SAME]
+	"Node(30)" -> "Node(93)" [label=SAME]
+	"Node(23)" -> "Node(93)" [label=SAME]
+	"Node(31)" -> "Node(75)" [label=SAME]
+	"Node(68)" -> "Node(104)" [label=SAME]
+	"Node(17)" -> "Node(93)" [label=SAME]
+	"Node(83)" -> "Node(103)" [label=SAME]
+	"Node(17)" -> "Node(38)" [label=SAME]
+	"Node(30)" -> "Node(68)" [label=SAME]
+	"Node(17)" -> "Node(97)" [label=SAME]
+	"Node(17)" -> "Node(86)" [label=SAME]
+	"Node(30)" -> "Node(86)" [label=SAME]
+	"Node(93)" -> "Node(104)" [label=SAME]
+	"Node(13)" -> "Node(15)" [label=SAME]
+	"Node(56)" -> "Node(86)" [label=SAME]
+	"Node(82)" -> "Node(104)" [label=SAME]
+	"Node(17)" -> "Node(30)" [label=SAME]
+	"Node(23)" -> "Node(104)" [label=SAME]
+	"Node(86)" -> "Node(97)" [label=SAME]
+	"Node(68)" -> "Node(75)" [label=SAME]
+	"Node(31)" -> "Node(56)" [label=SAME]
+	"Node(31)" -> "Node(38)" [label=SAME]
+	"Node(56)" -> "Node(68)" [label=SAME]
+	"Node(30)" -> "Node(97)" [label=SAME]
+	"Node(5)" -> "Node(51)" [label=SAME]
+	"Node(23)" -> "Node(56)" [label=SAME]
+	"Node(93)" -> "Node(97)" [label=SAME]
+	"Node(71)" -> "Node(77)" [label=SAME]
+	"Node(31)" -> "Node(104)" [label=SAME]
+	"Node(56)" -> "Node(93)" [label=SAME]
+	"Node(31)" -> "Node(86)" [label=SAME]
+	"Node(82)" -> "Node(93)" [label=SAME]
+	"Node(7)" -> "Node(23)" [label=SAME]
+	"Node(68)" -> "Node(97)" [label=SAME]
+	"Node(56)" -> "Node(82)" [label=SAME]
+	"Node(17)" -> "Node(56)" [label=SAME]
+	"Node(21)" -> "Node(80)" [label=SAME]
+	"Node(75)" -> "Node(97)" [label=SAME]
+	"Node(7)" -> "Node(97)" [label=SAME]
+	"Node(68)" -> "Node(93)" [label=SAME]
+	"Node(86)" -> "Node(104)" [label=SAME]
+	"Node(17)" -> "Node(104)" [label=SAME]
+	"Node(23)" -> "Node(30)" [label=SAME]
+	"Node(31)" -> "Node(82)" [label=SAME]
+	"Node(7)" -> "Node(17)" [label=SAME]
+	"Node(79)" -> "Node(87)" [label=SAME]
+	"Node(97)" -> "Node(104)" [label=SAME]
+	"Node(30)" -> "Node(38)" [label=SAME]
+	"Node(31)" -> "Node(97)" [label=SAME]
+	"Node(52)" -> "Node(59)" [label=SAME]
+	"Node(30)" -> "Node(31)" [label=SAME]
+	"Node(46)" -> "Node(47)" [label=SAME]
+	"Node(39)" -> "Node(44)" [label=SAME]
+	"Node(78)" -> "Node(95)" [label=SAME]
+	"Node(33)" -> "Node(92)" [label=SAME]
+}

@@ -1,0 +1,175 @@
+// The Round Table
+digraph {
+	graph [rankdir=LR]
+	"Node(0)" [label="Serie A (119,
+121)"]
+	"Node(1)" [label="Serie A TIM
+(124, 127)"]
+	"Node(2)" [label="TIM (131, 132)"]
+	"Node(3)" [label="Italian (147,
+148)"]
+	"Node(4)" [label="over eighty
+years (156, 159)"]
+	"Node(5)" [label="the 192930
+season (160,
+163)"]
+	"Node(6)" [label="Lega Calcio
+(169, 171)"]
+	"Node(7)" [label="2010 (172, 173)"]
+	"Node(8)" [label="the Lega Serie A
+(179, 183)"]
+	"Node(9)" [label="the 201011
+season (187,
+190)"]
+	"Node(10)" [label="Serie A (191,
+193)"]
+	"Node(11)" [label="one (196, 197)"]
+	"Node(12)" [label="Serie A (217,
+219)"]
+	"Node(13)" [label="second (224,
+225)"]
+	"Node(14)" [label="IFFHS (231, 232)"]
+	"Node(15)" [label="European Cup
+(239, 241)"]
+	"Node(16)" [label="Italian (243,
+244)"]
+	"Node(17)" [label="27 (255, 256)"]
+	"Node(18)" [label="12 (262, 263)"]
+	"Node(19)" [label="fourth (269,
+270)"]
+	"Node(20)" [label="European (271,
+272)"]
+	"Node(21)" [label="UEFA (275, 276)"]
+	"Node(22)" [label="La Liga (282,
+284)"]
+	"Node(23)" [label="Bundesliga (286,
+287)"]
+	"Node(24)" [label="the Premier
+League (288,
+291)"]
+	"Node(25)" [label="Italian (299,
+300)"]
+	"Node(26)" [label="the Champions
+League (302,
+305)"]
+	"Node(27)" [label="the Europa
+League (306,
+309)"]
+	"Node(28)" [label="the last five
+years (310, 314)"]
+	"Node(29)" [label="Serie A (315,
+317)"]
+	"Node(30)" [label="UEFA (319, 320)"]
+	"Node(31)" [label="1986 (322, 323)"]
+	"Node(32)" [label="1988 (324, 325)"]
+	"Node(33)" [label="from 1990 to
+1999 (326, 330)"]
+	"Node(34)" [label="Nevio Scala
+(332, 334)"]
+	"Node(35)" [label="Italian (335,
+336)"]
+	"Node(36)" [label="22 November 1947
+(344, 347)"]
+	"Node(37)" [label="Italian (350,
+351)"]
+	"Node(38)" [label="Italian (364,
+365)"]
+	"Node(39)" [label="A.C. Milan (376,
+381)"]
+	"Node(40)" [label="Parma (393, 394)"]
+	"Node(41)" [label="Serie B (408,
+410)"]
+	"Node(42)" [label="European (412,
+413)"]
+	"Node(43)" [label="Associazione
+Calcio Milan
+(416, 419)"]
+	"Node(44)" [label="A.C. Milan (424,
+429)"]
+	"Node(45)" [label="Milan (436, 437)"]
+	"Node(46)" [label="Italy (438, 439)"]
+	"Node(47)" [label="1899 (442, 443)"]
+	"Node(48)" [label="198081 (457,
+458)"]
+	"Node(49)" [label="198283 (459,
+460)"]
+	"Node(50)" [label="Italian (467,
+468)"]
+	"Node(51)" [label="Serie A (472,
+474)"]
+	"Node(52)" [label="192930 (475,
+476)"]
+	"Node(53)" [label="Serie B (478,
+480)"]
+	"Node(54)" [label="Serie B ConTe.it
+(483, 488)"]
+	"Node(55)" [label="second (495,
+496)"]
+	"Node(56)" [label="Italian (501,
+502)"]
+	"Node(57)" [label="the Serie A.
+(506, 510)"]
+	"Node(58)" [label="22 (514, 515)"]
+	"Node(59)" [label="July 2010 (524,
+526)"]
+	"Node(60)" [label="Lega Calcio
+(531, 533)"]
+	"Node(61)" [label="the Serie A and
+(539, 543)"]
+	"Node(62)" [label="Serie B. Common
+(543, 547)"]
+	"Node(63)" [label="Italian (567,
+568)"]
+	"Node(16)" -> "Node(35)" [label=SAME]
+	"Node(21)" -> "Node(30)" [label=SAME]
+	"Node(3)" -> "Node(35)" [label=SAME]
+	"Node(12)" -> "Node(51)" [label=SAME]
+	"Node(37)" -> "Node(56)" [label=SAME]
+	"Node(35)" -> "Node(37)" [label=SAME]
+	"Node(3)" -> "Node(38)" [label=SAME]
+	"Node(38)" -> "Node(63)" [label=SAME]
+	"Node(38)" -> "Node(56)" [label=SAME]
+	"Node(50)" -> "Node(56)" [label=SAME]
+	"Node(25)" -> "Node(50)" [label=SAME]
+	"Node(3)" -> "Node(63)" [label=SAME]
+	"Node(50)" -> "Node(63)" [label=SAME]
+	"Node(35)" -> "Node(38)" [label=SAME]
+	"Node(16)" -> "Node(38)" [label=SAME]
+	"Node(3)" -> "Node(56)" [label=SAME]
+	"Node(16)" -> "Node(56)" [label=SAME]
+	"Node(25)" -> "Node(37)" [label=SAME]
+	"Node(6)" -> "Node(60)" [label=SAME]
+	"Node(0)" -> "Node(12)" [label=SAME]
+	"Node(3)" -> "Node(25)" [label=SAME]
+	"Node(38)" -> "Node(50)" [label=SAME]
+	"Node(35)" -> "Node(63)" [label=SAME]
+	"Node(0)" -> "Node(51)" [label=SAME]
+	"Node(25)" -> "Node(56)" [label=SAME]
+	"Node(13)" -> "Node(55)" [label=SAME]
+	"Node(20)" -> "Node(42)" [label=SAME]
+	"Node(39)" -> "Node(44)" [label=SAME]
+	"Node(3)" -> "Node(50)" [label=SAME]
+	"Node(12)" -> "Node(29)" [label=SAME]
+	"Node(10)" -> "Node(51)" [label=SAME]
+	"Node(37)" -> "Node(50)" [label=SAME]
+	"Node(29)" -> "Node(51)" [label=SAME]
+	"Node(25)" -> "Node(63)" [label=SAME]
+	"Node(0)" -> "Node(10)" [label=SAME]
+	"Node(35)" -> "Node(56)" [label=SAME]
+	"Node(56)" -> "Node(63)" [label=SAME]
+	"Node(16)" -> "Node(50)" [label=SAME]
+	"Node(0)" -> "Node(29)" [label=SAME]
+	"Node(16)" -> "Node(37)" [label=SAME]
+	"Node(35)" -> "Node(50)" [label=SAME]
+	"Node(3)" -> "Node(37)" [label=SAME]
+	"Node(3)" -> "Node(16)" [label=SAME]
+	"Node(10)" -> "Node(12)" [label=SAME]
+	"Node(16)" -> "Node(25)" [label=SAME]
+	"Node(25)" -> "Node(38)" [label=SAME]
+	"Node(10)" -> "Node(29)" [label=SAME]
+	"Node(25)" -> "Node(35)" [label=SAME]
+	"Node(41)" -> "Node(53)" [label=SAME]
+	"Node(37)" -> "Node(38)" [label=SAME]
+	"Node(16)" -> "Node(63)" [label=SAME]
+	"Node(37)" -> "Node(63)" [label=SAME]
+}

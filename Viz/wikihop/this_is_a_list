@@ -1,0 +1,124 @@
+// The Round Table
+digraph {
+	graph [rankdir=LR]
+	"Node(0)" [label="Japanese (8, 9)"]
+	"Node(1)" [label="Kamen (11, 12)"]
+	"Node(2)" [label="SF (24, 25)"]
+	"Node(3)" [label="Fantasy (144,
+145)"]
+	"Node(4)" [label="Fantasy (204,
+205)"]
+	"Node(5)" [label="three (241, 242)"]
+	"Node(6)" [label="Japanese (263,
+264)"]
+	"Node(7)" [label="Toei Co., Ltd.
+(272, 278)"]
+	"Node(8)" [label="Toei Agency
+(279, 281)"]
+	"Node(9)" [label="Bandai (282,
+283)"]
+	"Node(10)" [label="Asahi (288, 289)"]
+	"Node(11)" [label="Japanese (297,
+298)"]
+	"Node(12)" [label="The Super Sentai
+Series (334,
+338)"]
+	"Node(13)" [label="Japan (347, 348)"]
+	"Node(14)" [label="the Ultra Series
+(350, 353)"]
+	"Node(15)" [label="Super Hero Time
+(367, 370)"]
+	"Node(16)" [label="Sundays (374,
+375)"]
+	"Node(17)" [label="Japan (377, 378)"]
+	"Node(18)" [label="the Super Sentai
+Series (379,
+383)"]
+	"Node(19)" [label="the United
+States (400,
+403)"]
+	"Node(20)" [label="Gamera (404,
+405)"]
+	"Node(21)" [label="the 1970s (408,
+410)"]
+	"Node(22)" [label="UHF (416, 417)"]
+	"Node(23)" [label="Saturday (420,
+421)"]
+	"Node(24)" [label="afternoon (421,
+422)"]
+	"Node(25)" [label="Creature Double
+Feature (426,
+429)"]
+	"Node(26)" [label="the 1990s (433,
+435)"]
+	"Node(27)" [label="Gamera (438,
+439)"]
+	"Node(28)" [label="Mystery Science
+Theater 3000
+(448, 452)"]
+	"Node(29)" [label="Heisei Kamen
+Rider (462, 465)"]
+	"Node(30)" [label="the late summer
+(469, 472)"]
+	"Node(31)" [label="second (484,
+485)"]
+	"Node(32)" [label="the spring (488,
+490)"]
+	"Node(33)" [label="730 million yen
+(496, 499)"]
+	"Node(34)" [label="approximately
+US$6.8 million
+(500, 507)"]
+	"Node(35)" [label="ten (512, 513)"]
+	"Node(36)" [label="OVA (513, 514)"]
+	"Node(37)" [label="Rider Den-O
+(534, 538)"]
+	"Node(38)" [label="third (542, 543)"]
+	"Node(39)" [label="October 2008
+(546, 548)"]
+	"Node(40)" [label="first (550, 551)"]
+	"Node(41)" [label="Kamen (553, 554)"]
+	"Node(42)" [label="second (558,
+559)"]
+	"Node(43)" [label="12 (561, 562)"]
+	"Node(44)" [label="OVA (562, 563)"]
+	"Node(45)" [label="November 2008
+(567, 569)"]
+	"Node(46)" [label="Takeru Satoh
+(570, 572)"]
+	"Node(47)" [label="fourth (594,
+595)"]
+	"Node(48)" [label="May 1, 2009
+(599, 603)"]
+	"Node(49)" [label="three (605, 606)"]
+	"Node(50)" [label="the summer of
+2010 (609, 613)"]
+	"Node(51)" [label="Gamera (668,
+669)"]
+	"Node(52)" [label="the \"Kamen
+Rider\" (678,
+683)"]
+	"Node(53)" [label="\"Metal Hero
+(684, 687)"]
+	"Node(54)" [label="Giant Robo (694,
+696)"]
+	"Node(55)" [label="Super Sentai
+(718, 720)"]
+	"Node(56)" [label="American (798,
+799)"]
+	"Node(57)" [label="the 1930s (802,
+804)"]
+	"Node(3)" -> "Node(4)" [label=SAME]
+	"Node(0)" -> "Node(6)" [label=SAME]
+	"Node(12)" -> "Node(18)" [label=SAME]
+	"Node(13)" -> "Node(17)" [label=SAME]
+	"Node(0)" -> "Node(11)" [label=SAME]
+	"Node(27)" -> "Node(51)" [label=SAME]
+	"Node(20)" -> "Node(51)" [label=SAME]
+	"Node(36)" -> "Node(44)" [label=SAME]
+	"Node(1)" -> "Node(41)" [label=SAME]
+	"Node(20)" -> "Node(27)" [label=SAME]
+	"Node(31)" -> "Node(42)" [label=SAME]
+	"Node(5)" -> "Node(49)" [label=SAME]
+	"Node(6)" -> "Node(11)" [label=SAME]
+}
