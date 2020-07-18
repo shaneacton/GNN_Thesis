@@ -39,7 +39,7 @@ class Context:
         self.passages.append(Passage(text))
 
     def get_all_text_pieces(self):
-        return [passage.text for passage in self.passages]
+        return [passage.raw_text for passage in self.passages]
 
     def get_full_context(self):
         return Context.PASSAGE_BREAK_STRING.join(self.get_all_text_pieces())

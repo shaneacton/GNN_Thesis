@@ -29,12 +29,12 @@ class TokenSpan:
 
     @property
     def tokens(self):
-        return self.token_sequence.tokens[self.token_indexes[0]: self.token_indexes[1]]
+        return self.token_sequence.raw_tokens[self.token_indexes[0]: self.token_indexes[1]]
 
     @property
     def subtokens(self):
         span = self.subtoken_indexes
-        return self.token_sequence.sub_tokens[span[0]: span[1]]
+        return self.token_sequence.raw_subtokens[span[0]: span[1]]
 
     @property
     def subtoken_embedding_ids(self):
@@ -78,7 +78,7 @@ class TokenSpan:
         return self.token_indexes[1] <= other_span.token_indexes[0]
 
     def get_embedding(self, sequence_reduction=None):
-        full_embedding = self.token_sequence.text.full_embedding
+        full_embedding = self.token_sequence.text_obj.full_embedding
         span = self.subtoken_indexes
         entity_embedding = full_embedding[:,span[0]:span[1],:]
         if sequence_reduction:

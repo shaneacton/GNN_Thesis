@@ -108,17 +108,448 @@ Rider\" (678,
 799)"]
 	"Node(57)" [label="the 1930s (802,
 804)"]
-	"Node(3)" -> "Node(4)" [label=SAME]
-	"Node(0)" -> "Node(6)" [label=SAME]
-	"Node(12)" -> "Node(18)" [label=SAME]
-	"Node(13)" -> "Node(17)" [label=SAME]
-	"Node(0)" -> "Node(11)" [label=SAME]
-	"Node(27)" -> "Node(51)" [label=SAME]
-	"Node(20)" -> "Node(51)" [label=SAME]
-	"Node(36)" -> "Node(44)" [label=SAME]
-	"Node(1)" -> "Node(41)" [label=SAME]
-	"Node(20)" -> "Node(27)" [label=SAME]
+	"Node(58)" [label="This is a list
+of characters
+throughout the
+Japanese
+tokusatsu series
+Kamen Rider Den
+- O. .  (0, 18)"]
+	"Node(59)" [label="Science fiction
+(often shortened
+to SF, sci-fi or
+scifi) is a
+genre of
+speculative
+fiction,
+typically
+dealing with
+imaginative
+concepts such as
+futuristic
+science and
+technology,
+space travel,
+time travel,
+faster than
+light travel,
+parallel
+universes, and
+extraterrestrial
+life. (18, 69)"]
+	"Node(60)" [label="Science fiction
+often explores
+the potential
+consequences of
+scientific and
+other
+innovations, and
+has been called
+a \"literature of
+ideas. (69, 92)"]
+	"Node(61)" [label="\" (92, 93)"]
+	"Node(62)" [label="It usually
+avoids the
+supernatural,
+and unlike the
+related genre of
+fantasy,
+historically
+science fiction
+stories were
+intended to have
+a grounding in
+science-based
+fact or theory
+at the time the
+story was
+created, but
+this connection
+is now limited
+to hard science
+fiction. .  (93,
+144)"]
+	"Node(63)" [label="Fantasy is a
+fiction genre
+set in an
+imaginary
+universe, often
+but not always
+without any
+locations,
+events, or
+people from the
+real world.
+(144, 172)"]
+	"Node(64)" [label="Most fantasy
+uses magic or
+other
+supernatural
+elements as a
+main plot
+element, theme,
+or setting.
+(172, 191)"]
+	"Node(65)" [label="Magic and
+magical
+creatures are
+common in many
+of these
+imaginary
+worlds. (191,
+204)"]
+	"Node(66)" [label="Fantasy is
+generally
+distinguished
+from the genres
+of science
+fiction and
+horror by the
+expectation that
+it steers clear
+of scientific
+and macabre
+themes,
+respectively,
+though there is
+a great deal of
+overlap between
+the three, all
+of which are
+subgenres of
+speculative
+fiction. .
+(204, 253)"]
+	"Node(67)" [label="The is the name
+given to the
+long-running
+Japanese
+superhero team
+franchise of TV
+series produced
+by Toei Co.,
+Ltd., Toei
+Agency and
+Bandai, and
+aired by TV
+Asahi (\"\"Sentai\"
+(253, 294)"]
+	"Node(68)" [label="\" is the
+Japanese word
+for \"task force\"
+or \"fighting
+squadron\").
+(294, 311)"]
+	"Node(69)" [label="The shows are of
+the tokusatsu
+genre, featuring
+live action
+characters and
+colorful special
+effects, and are
+aimed at
+children. (311,
+334)"]
+	"Node(70)" [label="The Super Sentai
+Series is one of
+the most
+prominent
+tokusatsu
+franchises in
+Japan, alongside
+the Ultra Series
+and the Kamen
+Rider Series,
+which it
+currently airs
+alongside in the
+\"Super Hero
+Time\"
+programming
+block on
+Sundays. (334,
+376)"]
+	"Node(71)" [label="Outside Japan,
+the Super Sentai
+Series is best
+known as the
+source material
+for the \"Power
+Rangers\"
+franchise. .
+(376, 399)"]
+	"Node(72)" [label="In the United
+States, Gamera
+attained
+prominence
+during the 1970s
+due to the
+burgeoning
+popularity of
+UHF television
+stations
+featuring
+Saturday
+afternoon
+matinee
+showcases like
+\"Creature Double
+Feature\" and
+later in the
+1990s when
+several \"Gamera\"
+films were
+featured on the
+TV show \"Mystery
+Science Theater
+3000\". .  (399,
+455)"]
+	"Node(73)" [label="Along with the
+usual film
+adaptation that
+Heisei Kamen
+Rider series
+have released
+during the late
+summer of their
+broadcast run,
+\"Den-O\" had a
+second film
+released in the
+spring following
+its broadcast
+run which
+grossed 730
+million yen
+(approximately
+US$6.8 million)
+and a series of
+ten OVA shorts,
+both of which
+are firsts for
+any \"Kamen
+Rider\". (455,
+528)"]
+	"Node(74)" [label="Continuing the
+trend, \"Kamen
+Rider Den-O\"
+also had a third
+film released in
+October 2008,
+the first for
+any Kamen Rider
+series and a
+second series of
+12 OVA shorts
+was released in
+November 2008.
+(528, 570)"]
+	"Node(75)" [label="Takeru Satoh
+claims that the
+reason that
+\"Den-O\" has
+amassed such
+popularity is
+because of its
+comedic timing.
+(570, 593)"]
+	"Node(76)" [label="its (589, 590)"]
+	"Node(77)" [label="A fourth film
+was released on
+May 1, 2009, and
+three more
+released in the
+summer of 2010.
+.  (593, 615)"]
+	"Node(78)" [label="\"Tokusatsu\"
+entertainment
+often deals with
+science fiction,
+fantasy or
+horror, but
+movies and
+television shows
+in other genres
+can sometimes
+count as
+\"tokusatsu\" as
+well. (615, 647)"]
+	"Node(79)" [label="The most popular
+types of
+\"tokusatsu\"
+include \"kaiju\"
+monster movies
+like the
+\"Godzilla\" and
+\"Gamera\" film
+series;
+superhero TV
+serials such as
+the \"Kamen
+Rider\" and
+\"Metal Hero\";
+and mecha series
+like \"Giant
+Robo\". (647,
+698)"]
+	"Node(80)" [label="Some \"tokusatsu\"
+television
+programs combine
+several of these
+subgenres, for
+example the
+\"Ultraman\" and
+\"Super Sentai\"
+series. .  (698,
+724)"]
+	"Node(81)" [label="In modern
+popular fiction,
+a superhero
+(sometimes
+rendered super-
+hero or super
+hero) is a type
+of costumed
+heroic character
+who possesses
+supernatural or
+superhuman
+powers and who
+is dedicated to
+fighting crime,
+protecting the
+public, and
+usually battling
+supervillains.
+(724, 771)"]
+	"Node(82)" [label="A female
+superhero is
+sometimes called
+a superheroine
+(also rendered
+super-heroine or
+super heroine).
+(771, 790)"]
+	"Node(83)" [label="Fiction centered
+on such
+characters,
+especially in
+American comic
+books since the
+1930s, is known
+as superhero
+fiction. (790,
+811)"]
+	"Node(84)" [label="'passage'"]
+	"Node(85)" [label="'passage'"]
+	"Node(86)" [label="'passage'"]
+	"Node(87)" [label="'passage'"]
+	"Node(88)" [label="'passage'"]
+	"Node(89)" [label="'passage'"]
+	"Node(90)" [label="'doc'"]
+	"Node(72)" -> "Node(22)" [label=sentence2word]
 	"Node(31)" -> "Node(42)" [label=SAME]
-	"Node(5)" -> "Node(49)" [label=SAME]
+	"Node(72)" -> "Node(26)" [label=sentence2word]
+	"Node(90)" -> "Node(72)" [label=doc2passage]
+	"Node(70)" -> "Node(12)" [label=sentence2word]
+	"Node(77)" -> "Node(50)" [label=sentence2word]
+	"Node(73)" -> "Node(31)" [label=sentence2word]
+	"Node(84)" -> "Node(61)" [label=passage2sentence]
+	"Node(90)" -> "Node(85)" [label=doc2passage]
+	"Node(63)" -> "Node(3)" [label=sentence2word]
+	"Node(0)" -> "Node(6)" [label=SAME]
+	"Node(74)" -> "Node(40)" [label=sentence2word]
+	"Node(73)" -> "Node(30)" [label=sentence2word]
+	"Node(73)" -> "Node(34)" [label=sentence2word]
+	"Node(89)" -> "Node(82)" [label=passage2sentence]
+	"Node(70)" -> "Node(14)" [label=sentence2word]
+	"Node(77)" -> "Node(49)" [label=sentence2word]
+	"Node(67)" -> "Node(7)" [label=sentence2word]
+	"Node(86)" -> "Node(67)" [label=passage2sentence]
+	"Node(66)" -> "Node(4)" [label=sentence2word]
+	"Node(73)" -> "Node(32)" [label=sentence2word]
+	"Node(73)" -> "Node(29)" [label=sentence2word]
+	"Node(20)" -> "Node(51)" [label=SAME]
+	"Node(84)" -> "Node(60)" [label=passage2sentence]
+	"Node(90)" -> "Node(84)" [label=doc2passage]
+	"Node(74)" -> "Node(42)" [label=sentence2word]
+	"Node(67)" -> "Node(10)" [label=sentence2word]
+	"Node(85)" -> "Node(66)" [label=passage2sentence]
+	"Node(77)" -> "Node(48)" [label=sentence2word]
+	"Node(74)" -> "Node(39)" [label=sentence2word]
+	"Node(66)" -> "Node(5)" [label=sentence2word]
+	"Node(87)" -> "Node(75)" [label=passage2sentence]
+	"Node(20)" -> "Node(27)" [label=SAME]
+	"Node(70)" -> "Node(15)" [label=sentence2word]
+	"Node(88)" -> "Node(78)" [label=passage2sentence]
+	"Node(58)" -> "Node(1)" [label=sentence2word]
+	"Node(80)" -> "Node(55)" [label=sentence2word]
+	"Node(84)" -> "Node(62)" [label=passage2sentence]
+	"Node(72)" -> "Node(25)" [label=sentence2word]
+	"Node(13)" -> "Node(17)" [label=SAME]
+	"Node(72)" -> "Node(19)" [label=sentence2word]
+	"Node(86)" -> "Node(69)" [label=passage2sentence]
+	"Node(86)" -> "Node(70)" [label=passage2sentence]
+	"Node(72)" -> "Node(27)" [label=sentence2word]
+	"Node(75)" -> "Node(76)" [label=sentence2word]
+	"Node(77)" -> "Node(47)" [label=sentence2word]
+	"Node(85)" -> "Node(63)" [label=passage2sentence]
+	"Node(58)" -> "Node(58)" [label=passage2sentence]
+	"Node(72)" -> "Node(20)" [label=sentence2word]
+	"Node(90)" -> "Node(88)" [label=doc2passage]
+	"Node(86)" -> "Node(71)" [label=passage2sentence]
+	"Node(58)" -> "Node(0)" [label=sentence2word]
+	"Node(72)" -> "Node(23)" [label=sentence2word]
+	"Node(87)" -> "Node(77)" [label=passage2sentence]
+	"Node(12)" -> "Node(18)" [label=SAME]
+	"Node(70)" -> "Node(13)" [label=sentence2word]
+	"Node(1)" -> "Node(41)" [label=SAME]
+	"Node(84)" -> "Node(59)" [label=passage2sentence]
+	"Node(68)" -> "Node(11)" [label=sentence2word]
+	"Node(67)" -> "Node(8)" [label=sentence2word]
+	"Node(74)" -> "Node(38)" [label=sentence2word]
+	"Node(83)" -> "Node(56)" [label=sentence2word]
+	"Node(86)" -> "Node(68)" [label=passage2sentence]
+	"Node(79)" -> "Node(51)" [label=sentence2word]
+	"Node(90)" -> "Node(87)" [label=doc2passage]
+	"Node(71)" -> "Node(17)" [label=sentence2word]
+	"Node(85)" -> "Node(65)" [label=passage2sentence]
+	"Node(74)" -> "Node(43)" [label=sentence2word]
+	"Node(36)" -> "Node(44)" [label=SAME]
+	"Node(74)" -> "Node(44)" [label=sentence2word]
+	"Node(67)" -> "Node(6)" [label=sentence2word]
+	"Node(75)" -> "Node(46)" [label=sentence2word]
+	"Node(67)" -> "Node(9)" [label=sentence2word]
+	"Node(83)" -> "Node(57)" [label=sentence2word]
+	"Node(74)" -> "Node(45)" [label=sentence2word]
+	"Node(87)" -> "Node(73)" [label=passage2sentence]
+	"Node(3)" -> "Node(4)" [label=SAME]
+	"Node(87)" -> "Node(74)" [label=passage2sentence]
+	"Node(90)" -> "Node(86)" [label=doc2passage]
+	"Node(74)" -> "Node(41)" [label=sentence2word]
+	"Node(70)" -> "Node(16)" [label=sentence2word]
+	"Node(72)" -> "Node(21)" [label=sentence2word]
 	"Node(6)" -> "Node(11)" [label=SAME]
+	"Node(79)" -> "Node(54)" [label=sentence2word]
+	"Node(0)" -> "Node(11)" [label=SAME]
+	"Node(73)" -> "Node(36)" [label=sentence2word]
+	"Node(59)" -> "Node(2)" [label=sentence2word]
+	"Node(73)" -> "Node(35)" [label=sentence2word]
+	"Node(89)" -> "Node(83)" [label=passage2sentence]
+	"Node(74)" -> "Node(37)" [label=sentence2word]
+	"Node(73)" -> "Node(33)" [label=sentence2word]
+	"Node(89)" -> "Node(81)" [label=passage2sentence]
+	"Node(88)" -> "Node(79)" [label=passage2sentence]
+	"Node(5)" -> "Node(49)" [label=SAME]
+	"Node(79)" -> "Node(53)" [label=sentence2word]
+	"Node(27)" -> "Node(51)" [label=SAME]
+	"Node(85)" -> "Node(64)" [label=passage2sentence]
+	"Node(72)" -> "Node(72)" [label=passage2sentence]
+	"Node(90)" -> "Node(58)" [label=doc2passage]
+	"Node(72)" -> "Node(24)" [label=sentence2word]
+	"Node(79)" -> "Node(52)" [label=sentence2word]
+	"Node(72)" -> "Node(28)" [label=sentence2word]
+	"Node(88)" -> "Node(80)" [label=passage2sentence]
+	"Node(90)" -> "Node(89)" [label=doc2passage]
+	"Node(71)" -> "Node(18)" [label=sentence2word]
 }

@@ -1,9 +1,7 @@
-from typing import Dict
-
 from torch import Tensor
 
 from Code.Data.Graph.Nodes.span_node import SpanNode
-from Code.Data.Text.Tokenisation.entity import Entity
+from Code.Data.Text.Tokenisation.entity_span import EntitySpan
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 
@@ -24,7 +22,7 @@ class EntityNode(SpanNode):
 
     @property
     def is_coref(self):
-        ent: Entity = self.token_span
+        ent: EntitySpan = self.token_span
         return ent.is_coref
 
     def get_span_summary_vec(self) -> Tensor:

@@ -97,11 +97,11 @@ class StateSet(State):
         else:
             raise Exception()
 
-        starting_vec = start.
-
-        if StateSet.CONFIG["use_starting_state"]:
-            self.add_state(BasicState(start., StateSet.STARTING_STATE))
-        if StateSet.CONFIG["use_previous_state"]:
-            self.add_state(BasicState(start_vec, StateSet.PREVIOUS_STATE))
+        # starting_vec = start.
+        #
+        # if StateSet.CONFIG["use_starting_state"]:
+        #     self.add_state(BasicState(start., StateSet.STARTING_STATE))
+        # if StateSet.CONFIG["use_previous_state"]:
+        #     self.add_state(BasicState(start_vec, StateSet.PREVIOUS_STATE))
 
 

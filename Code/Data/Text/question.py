@@ -12,7 +12,7 @@ class Question(Text):
         self.answers: Answers = answers
 
     def get_all_text_pieces(self):
-        return [self.text] + self.answers.get_all_text_pieces()
+        return [self.raw_text] + self.answers.get_all_text_pieces()
 
     def get_answer_type(self):
         return self.answers.get_answer_type()

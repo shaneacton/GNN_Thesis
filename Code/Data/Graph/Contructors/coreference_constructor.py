@@ -5,6 +5,7 @@ from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor, Inco
 from Code.Data.Graph.Edges.same_entity_edge import SameEntityEdge
 from Code.Data.Graph.Nodes.entity_node import EntityNode
 from Code.Data.Graph.context_graph import ContextGraph
+from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 from Code.Data.Text.data_sample import DataSample
 
 
@@ -25,7 +26,9 @@ class CoreferenceConstructor(GraphConstructor):
         except Exception as e:
             raise Exception("Failed to add coref nodes\n\n"+repr(e) + "\n\nexisting nodes:", existing_graph.ordered_nodes, "text ents")
 
-        corefs = data_sample.context.token_sequence.corefs
+        tok_seq = data_sample.context.token_sequence
+        span_hierarchy = TokenSpanHierarchy(tok_seq)
+        corefs = span_hierarchy.corefs
         for node in entity_nodes:
             ent = node.token_span
             if ent not in corefs.keys():

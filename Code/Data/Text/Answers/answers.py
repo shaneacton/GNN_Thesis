@@ -27,8 +27,8 @@ class Answers:
             raise Exception()
 
     def get_all_text_pieces(self):
-        return [a.text for a in self.correct_answers] + \
-               [c.text for c in self.answer_candidates] if self.answer_candidates is not None else []
+        return [a.raw_text for a in self.correct_answers] + \
+               [c.raw_text for c in self.answer_candidates] if self.answer_candidates is not None else []
 
     def get_answer_type(self):
         return type(self.correct_answers[0])

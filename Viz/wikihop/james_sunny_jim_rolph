@@ -221,112 +221,645 @@ Company (836,
 (854, 856)"]
 	"Node(110)" [label="August 1933
 (857, 859)"]
-	"Node(17)" -> "Node(23)" [label=SAME]
-	"Node(23)" -> "Node(97)" [label=SAME]
-	"Node(30)" -> "Node(104)" [label=SAME]
-	"Node(16)" -> "Node(32)" [label=SAME]
-	"Node(75)" -> "Node(104)" [label=SAME]
-	"Node(7)" -> "Node(104)" [label=SAME]
-	"Node(23)" -> "Node(86)" [label=SAME]
-	"Node(86)" -> "Node(93)" [label=SAME]
-	"Node(23)" -> "Node(38)" [label=SAME]
-	"Node(68)" -> "Node(86)" [label=SAME]
-	"Node(38)" -> "Node(75)" [label=SAME]
-	"Node(38)" -> "Node(97)" [label=SAME]
-	"Node(56)" -> "Node(97)" [label=SAME]
-	"Node(23)" -> "Node(82)" [label=SAME]
-	"Node(38)" -> "Node(93)" [label=SAME]
-	"Node(91)" -> "Node(101)" [label=SAME]
-	"Node(7)" -> "Node(86)" [label=SAME]
-	"Node(7)" -> "Node(31)" [label=SAME]
-	"Node(7)" -> "Node(93)" [label=SAME]
-	"Node(30)" -> "Node(56)" [label=SAME]
-	"Node(38)" -> "Node(82)" [label=SAME]
-	"Node(7)" -> "Node(68)" [label=SAME]
-	"Node(38)" -> "Node(104)" [label=SAME]
-	"Node(17)" -> "Node(75)" [label=SAME]
-	"Node(4)" -> "Node(66)" [label=SAME]
-	"Node(7)" -> "Node(56)" [label=SAME]
-	"Node(75)" -> "Node(82)" [label=SAME]
-	"Node(23)" -> "Node(68)" [label=SAME]
-	"Node(82)" -> "Node(97)" [label=SAME]
-	"Node(31)" -> "Node(68)" [label=SAME]
-	"Node(7)" -> "Node(82)" [label=SAME]
-	"Node(3)" -> "Node(9)" [label=SAME]
-	"Node(17)" -> "Node(68)" [label=SAME]
-	"Node(75)" -> "Node(86)" [label=SAME]
-	"Node(7)" -> "Node(75)" [label=SAME]
-	"Node(4)" -> "Node(49)" [label=SAME]
-	"Node(38)" -> "Node(68)" [label=SAME]
+	"Node(111)" [label="James Sunny Jim
+Rolph, (0, 5)"]
+	"Node(112)" [label="Jr. (August 23,
+1869  June 2,
+1934) was an
+American
+politician and a
+member of the
+Republican
+Party. (5, 29)"]
+	"Node(113)" [label="He was elected
+to a single term
+as the 27th
+governor of
+California from
+January 6, 1931
+until his death
+on June 2, 1934
+at the height of
+the Great
+Depression. (29,
+63)"]
+	"Node(114)" [label="Previously,
+Rolph had been
+the 30th mayor
+of San Francisco
+from January 8,
+1912 until his
+resignation to
+become governor.
+(63, 86)"]
+	"Node(115)" [label="Rolph remains
+the longest
+serving mayor in
+San Francisco
+history. .  (86,
+98)"]
+	"Node(116)" [label="The California
+National Guard
+is a federally
+funded
+California
+military force,
+part of the
+National Guard
+of the United
+States. (98,
+120)"]
+	"Node(117)" [label="It comprises
+both Army and
+Air National
+Guard components
+and is the
+largest national
+guard force in
+the United
+States with a
+total authorized
+strength of
+22,900 soldiers
+and airmen.
+(120, 153)"]
+	"Node(118)" [label=", California
+National
+Guardsmen have
+been deployed
+overseas 38
+times since
+2001, of which
+twenty-nine have
+been killed in
+Iraq and two
+have died in
+Afghanistan. .
+(153, 184)"]
+	"Node(119)" [label="The Governor of
+California is
+the chief
+executive of the
+California state
+government,
+commander-in-
+chief of the
+California
+National Guard
+and the
+California State
+Military
+Reserve, whose
+responsibilities
+also include
+making annual
+State of the
+State addresses
+to the
+California State
+Legislature,
+submitting the
+budget, and
+ensuring that
+state laws are
+enforced. (184,
+244)"]
+	"Node(120)" [label="The position was
+created in 1849,
+the year before
+California
+became a state.
+(244, 259)"]
+	"Node(121)" [label="The current
+governor is
+Jerry Brown, a
+Democrat who was
+inaugurated
+January 3, 2011,
+and who had
+previously
+served as
+governor from
+1975 to 1983.
+(259, 288)"]
+	"Node(122)" [label="In October 2013,
+Jerry Brown
+surpassed Earl
+Warren for the
+longest
+cumulative
+period of time
+served as
+governor. .
+(288, 309)"]
+	"Node(123)" [label="A commander-in-
+chief is the
+person or body
+that exercises
+supreme
+operational
+command and
+control of a
+nation's
+military forces
+or significant
+elements of
+those forces.
+(309, 341)"]
+	"Node(124)" [label="In the latter
+case, the force
+element is those
+forces within a
+particular
+region, or
+associated by
+function. (341,
+362)"]
+	"Node(125)" [label="As a practical
+term; it refers
+to military
+competencies
+that reside in a
+nation-state's
+executive
+leadershipeither
+a head of state,
+a head of
+government, a
+minister of
+defence, a
+national
+cabinet, or some
+other collegial
+body. (362, 408)"]
+	"Node(126)" [label="Often, a given
+country's
+commander-in-
+chief (if held
+by an official)
+need not be or
+have been a
+commissioned
+officer or even
+a veteran. (408,
+441)"]
+	"Node(127)" [label="This follows the
+principle of
+civilian control
+of the military.
+.  (441, 453)"]
+	"Node(128)" [label="Friend William
+Richardson (born
+William
+Richardson)
+(453, 461)"]
+	"Node(129)" [label="(December 1,
+1865September 6,
+1943), was an
+American
+newspaper
+publisher and
+politician.
+(461, 479)"]
+	"Node(130)" [label="A member of the
+Progressive
+Party and later
+the Republican
+Party,
+Richardson was
+elected as the
+California State
+Treasurer from
+1915 to 1923,
+and shortly
+afterwards as
+the 25th
+governor of
+California from
+1923 to 1927.
+(479, 518)"]
+	"Node(131)" [label="Richardson's
+governorship
+marked a sharp
+reversal in
+policies from
+previous
+administrations,
+rolling back
+many of the
+Progressive
+reforms and
+state
+governmental
+agencies put in
+place by
+previous
+governors Hiram
+Johnson and
+William
+Stephens. .
+(518, 556)"]
+	"Node(132)" [label="Edmund Gerald
+\"Jerry\" Brown
+Jr. (born April
+7, 1938) is an
+American
+politician and
+lawyer who has
+served as the
+39th Governor of
+California since
+2011. (556, 589)"]
+	"Node(133)" [label="A member of the
+Democratic
+Party, Brown
+previously
+served as the
+34th governor
+from 1975 to
+1983, and is the
+longest-serving
+governor in
+California
+history. (589,
+619)"]
+	"Node(134)" [label="Prior to and
+following his
+first
+governorship,
+Brown served in
+numerous state,
+local and party
+positions,
+including three
+times a
+candidate for
+the Democratic
+nomination for
+President of the
+United States. .
+(619, 655)"]
+	"Node(135)" [label="Thomas Lee
+Woolwine was a
+California
+politician .
+(655, 663)"]
+	"Node(136)" [label="He was District
+Attorney of Los
+Angeles County
+1914 - 1923 .
+(663, 675)"]
+	"Node(137)" [label="He began his
+career as a
+deputy DA in
+1908 . (675,
+686)"]
+	"Node(138)" [label="He ran for
+Governor of
+California under
+the Democratic
+ticket in 1922 ,
+but lost to
+Friend
+Richardson .
+(686, 705)"]
+	"Node(139)" [label="See also William
+Desmond Taylor
+case . (705,
+712)"]
+	"Node(140)" [label="When he resigned
+, he was
+succeeded by Asa
+Keyes . .  (712,
+724)"]
+	"Node(141)" [label="The California
+State Military
+Reserve (CSMR)
+is the state
+defense force of
+California, and
+one of three
+branches of the
+Active Militia
+of the State.
+(724, 753)"]
+	"Node(142)" [label="The military
+reserve was
+formed to
+provide
+California a
+trained and
+organized
+military force
+in the event of
+a state security
+emergency when
+the National
+Guard is
+deployed. (753,
+782)"]
+	"Node(143)" [label="Its current
+mission is
+articulated in
+CA Military &
+Veteran's Code §
+550: .  (782,
+799)"]
+	"Node(144)" [label="Asa Keyes
+(August 9, 1877
+October 18,
+1934) was
+district
+attorney of Los
+Angeles County,
+California from
+June 1923 until
+1928, when he
+was found guilty
+of accepting a
+bribe from the
+Julian Petroleum
+Company and was
+sentenced to
+five years'
+imprisonment.
+(799, 849)"]
+	"Node(145)" [label="He was pardoned
+by Governor
+James Rolph in
+August 1933.
+(849, 860)"]
+	"Node(146)" [label="'passage'"]
+	"Node(147)" [label="'passage'"]
+	"Node(148)" [label="'passage'"]
+	"Node(149)" [label="'passage'"]
+	"Node(150)" [label="'passage'"]
+	"Node(151)" [label="'passage'"]
+	"Node(152)" [label="'passage'"]
+	"Node(153)" [label="'passage'"]
+	"Node(154)" [label="'passage'"]
+	"Node(155)" [label="'doc'"]
+	"Node(152)" -> "Node(137)" [label=passage2sentence]
+	"Node(13)" -> "Node(15)" [label=SAME]
+	"Node(118)" -> "Node(27)" [label=sentence2word]
 	"Node(23)" -> "Node(75)" [label=SAME]
-	"Node(17)" -> "Node(31)" [label=SAME]
+	"Node(132)" -> "Node(69)" [label=sentence2word]
+	"Node(7)" -> "Node(17)" [label=SAME]
+	"Node(68)" -> "Node(86)" [label=SAME]
+	"Node(130)" -> "Node(55)" [label=sentence2word]
+	"Node(86)" -> "Node(93)" [label=SAME]
+	"Node(97)" -> "Node(104)" [label=SAME]
+	"Node(130)" -> "Node(53)" [label=sentence2word]
+	"Node(134)" -> "Node(76)" [label=sentence2word]
+	"Node(75)" -> "Node(97)" [label=SAME]
+	"Node(150)" -> "Node(130)" [label=passage2sentence]
+	"Node(17)" -> "Node(38)" [label=SAME]
+	"Node(133)" -> "Node(71)" [label=sentence2word]
+	"Node(155)" -> "Node(150)" [label=doc2passage]
+	"Node(130)" -> "Node(58)" [label=sentence2word]
+	"Node(38)" -> "Node(75)" [label=SAME]
+	"Node(149)" -> "Node(127)" [label=passage2sentence]
+	"Node(152)" -> "Node(135)" [label=passage2sentence]
+	"Node(155)" -> "Node(149)" [label=doc2passage]
+	"Node(145)" -> "Node(109)" [label=sentence2word]
+	"Node(56)" -> "Node(82)" [label=SAME]
+	"Node(112)" -> "Node(2)" [label=sentence2word]
+	"Node(23)" -> "Node(93)" [label=SAME]
+	"Node(82)" -> "Node(97)" [label=SAME]
+	"Node(38)" -> "Node(56)" [label=SAME]
+	"Node(23)" -> "Node(56)" [label=SAME]
+	"Node(134)" -> "Node(78)" [label=sentence2word]
+	"Node(133)" -> "Node(74)" [label=sentence2word]
+	"Node(31)" -> "Node(56)" [label=SAME]
+	"Node(7)" -> "Node(93)" [label=SAME]
+	"Node(31)" -> "Node(86)" [label=SAME]
+	"Node(82)" -> "Node(93)" [label=SAME]
+	"Node(113)" -> "Node(7)" [label=sentence2word]
+	"Node(120)" -> "Node(37)" [label=sentence2word]
+	"Node(38)" -> "Node(104)" [label=SAME]
+	"Node(138)" -> "Node(89)" [label=sentence2word]
+	"Node(151)" -> "Node(133)" [label=passage2sentence]
+	"Node(30)" -> "Node(75)" [label=SAME]
+	"Node(91)" -> "Node(101)" [label=SAME]
+	"Node(118)" -> "Node(26)" [label=sentence2word]
+	"Node(132)" -> "Node(68)" [label=sentence2word]
+	"Node(130)" -> "Node(51)" [label=sentence2word]
+	"Node(7)" -> "Node(75)" [label=SAME]
+	"Node(75)" -> "Node(86)" [label=SAME]
+	"Node(133)" -> "Node(73)" [label=sentence2word]
+	"Node(38)" -> "Node(93)" [label=SAME]
+	"Node(78)" -> "Node(95)" [label=SAME]
+	"Node(17)" -> "Node(104)" [label=SAME]
+	"Node(23)" -> "Node(30)" [label=SAME]
+	"Node(135)" -> "Node(81)" [label=sentence2word]
+	"Node(134)" -> "Node(79)" [label=sentence2word]
 	"Node(31)" -> "Node(93)" [label=SAME]
 	"Node(56)" -> "Node(104)" [label=SAME]
 	"Node(82)" -> "Node(86)" [label=SAME]
-	"Node(7)" -> "Node(38)" [label=SAME]
-	"Node(38)" -> "Node(86)" [label=SAME]
-	"Node(49)" -> "Node(66)" [label=SAME]
-	"Node(17)" -> "Node(82)" [label=SAME]
-	"Node(38)" -> "Node(56)" [label=SAME]
-	"Node(30)" -> "Node(82)" [label=SAME]
-	"Node(68)" -> "Node(82)" [label=SAME]
-	"Node(75)" -> "Node(93)" [label=SAME]
-	"Node(30)" -> "Node(75)" [label=SAME]
-	"Node(7)" -> "Node(30)" [label=SAME]
-	"Node(56)" -> "Node(75)" [label=SAME]
-	"Node(23)" -> "Node(31)" [label=SAME]
-	"Node(30)" -> "Node(93)" [label=SAME]
-	"Node(23)" -> "Node(93)" [label=SAME]
-	"Node(31)" -> "Node(75)" [label=SAME]
-	"Node(68)" -> "Node(104)" [label=SAME]
-	"Node(17)" -> "Node(93)" [label=SAME]
-	"Node(83)" -> "Node(103)" [label=SAME]
-	"Node(17)" -> "Node(38)" [label=SAME]
-	"Node(30)" -> "Node(68)" [label=SAME]
-	"Node(17)" -> "Node(97)" [label=SAME]
-	"Node(17)" -> "Node(86)" [label=SAME]
-	"Node(30)" -> "Node(86)" [label=SAME]
-	"Node(93)" -> "Node(104)" [label=SAME]
-	"Node(13)" -> "Node(15)" [label=SAME]
-	"Node(56)" -> "Node(86)" [label=SAME]
-	"Node(82)" -> "Node(104)" [label=SAME]
-	"Node(17)" -> "Node(30)" [label=SAME]
-	"Node(23)" -> "Node(104)" [label=SAME]
+	"Node(118)" -> "Node(23)" [label=sentence2word]
+	"Node(148)" -> "Node(121)" [label=passage2sentence]
+	"Node(118)" -> "Node(28)" [label=sentence2word]
+	"Node(7)" -> "Node(82)" [label=SAME]
+	"Node(132)" -> "Node(66)" [label=sentence2word]
+	"Node(154)" -> "Node(144)" [label=passage2sentence]
+	"Node(120)" -> "Node(36)" [label=sentence2word]
+	"Node(136)" -> "Node(83)" [label=sentence2word]
+	"Node(147)" -> "Node(118)" [label=passage2sentence]
+	"Node(141)" -> "Node(93)" [label=sentence2word]
+	"Node(155)" -> "Node(153)" [label=doc2passage]
+	"Node(121)" -> "Node(41)" [label=sentence2word]
+	"Node(75)" -> "Node(82)" [label=SAME]
+	"Node(144)" -> "Node(108)" [label=sentence2word]
+	"Node(138)" -> "Node(88)" [label=sentence2word]
+	"Node(119)" -> "Node(31)" [label=sentence2word]
+	"Node(143)" -> "Node(100)" [label=sentence2word]
+	"Node(23)" -> "Node(86)" [label=SAME]
+	"Node(136)" -> "Node(84)" [label=sentence2word]
+	"Node(30)" -> "Node(56)" [label=SAME]
+	"Node(130)" -> "Node(57)" [label=sentence2word]
+	"Node(133)" -> "Node(70)" [label=sentence2word]
+	"Node(152)" -> "Node(140)" [label=passage2sentence]
+	"Node(17)" -> "Node(23)" [label=SAME]
+	"Node(23)" -> "Node(97)" [label=SAME]
+	"Node(137)" -> "Node(85)" [label=sentence2word]
+	"Node(144)" -> "Node(103)" [label=sentence2word]
 	"Node(86)" -> "Node(97)" [label=SAME]
-	"Node(68)" -> "Node(75)" [label=SAME]
-	"Node(31)" -> "Node(56)" [label=SAME]
-	"Node(31)" -> "Node(38)" [label=SAME]
-	"Node(56)" -> "Node(68)" [label=SAME]
-	"Node(30)" -> "Node(97)" [label=SAME]
-	"Node(5)" -> "Node(51)" [label=SAME]
-	"Node(23)" -> "Node(56)" [label=SAME]
-	"Node(93)" -> "Node(97)" [label=SAME]
-	"Node(71)" -> "Node(77)" [label=SAME]
+	"Node(112)" -> "Node(1)" [label=sentence2word]
+	"Node(132)" -> "Node(64)" [label=sentence2word]
+	"Node(75)" -> "Node(93)" [label=SAME]
+	"Node(155)" -> "Node(148)" [label=doc2passage]
+	"Node(30)" -> "Node(104)" [label=SAME]
+	"Node(30)" -> "Node(82)" [label=SAME]
+	"Node(144)" -> "Node(106)" [label=sentence2word]
+	"Node(17)" -> "Node(82)" [label=SAME]
+	"Node(129)" -> "Node(48)" [label=sentence2word]
+	"Node(142)" -> "Node(98)" [label=sentence2word]
+	"Node(7)" -> "Node(56)" [label=SAME]
 	"Node(31)" -> "Node(104)" [label=SAME]
 	"Node(56)" -> "Node(93)" [label=SAME]
-	"Node(31)" -> "Node(86)" [label=SAME]
-	"Node(82)" -> "Node(93)" [label=SAME]
-	"Node(7)" -> "Node(23)" [label=SAME]
-	"Node(68)" -> "Node(97)" [label=SAME]
-	"Node(56)" -> "Node(82)" [label=SAME]
-	"Node(17)" -> "Node(56)" [label=SAME]
-	"Node(21)" -> "Node(80)" [label=SAME]
-	"Node(75)" -> "Node(97)" [label=SAME]
-	"Node(7)" -> "Node(97)" [label=SAME]
+	"Node(71)" -> "Node(77)" [label=SAME]
+	"Node(131)" -> "Node(61)" [label=sentence2word]
+	"Node(132)" -> "Node(63)" [label=sentence2word]
+	"Node(38)" -> "Node(86)" [label=SAME]
+	"Node(134)" -> "Node(77)" [label=sentence2word]
+	"Node(146)" -> "Node(111)" [label=passage2sentence]
+	"Node(38)" -> "Node(82)" [label=SAME]
+	"Node(122)" -> "Node(44)" [label=sentence2word]
+	"Node(17)" -> "Node(31)" [label=SAME]
+	"Node(144)" -> "Node(101)" [label=sentence2word]
+	"Node(138)" -> "Node(87)" [label=sentence2word]
+	"Node(30)" -> "Node(68)" [label=SAME]
+	"Node(23)" -> "Node(104)" [label=SAME]
+	"Node(17)" -> "Node(30)" [label=SAME]
+	"Node(7)" -> "Node(38)" [label=SAME]
+	"Node(155)" -> "Node(151)" [label=doc2passage]
+	"Node(131)" -> "Node(60)" [label=sentence2word]
+	"Node(153)" -> "Node(143)" [label=passage2sentence]
+	"Node(122)" -> "Node(45)" [label=sentence2word]
+	"Node(52)" -> "Node(59)" [label=SAME]
+	"Node(114)" -> "Node(14)" [label=sentence2word]
+	"Node(132)" -> "Node(65)" [label=sentence2word]
+	"Node(131)" -> "Node(59)" [label=sentence2word]
+	"Node(23)" -> "Node(38)" [label=SAME]
+	"Node(31)" -> "Node(75)" [label=SAME]
+	"Node(144)" -> "Node(107)" [label=sentence2word]
+	"Node(147)" -> "Node(117)" [label=passage2sentence]
+	"Node(128)" -> "Node(47)" [label=sentence2word]
+	"Node(112)" -> "Node(4)" [label=sentence2word]
 	"Node(68)" -> "Node(93)" [label=SAME]
-	"Node(86)" -> "Node(104)" [label=SAME]
-	"Node(17)" -> "Node(104)" [label=SAME]
-	"Node(23)" -> "Node(30)" [label=SAME]
-	"Node(31)" -> "Node(82)" [label=SAME]
-	"Node(7)" -> "Node(17)" [label=SAME]
+	"Node(116)" -> "Node(18)" [label=sentence2word]
+	"Node(30)" -> "Node(93)" [label=SAME]
 	"Node(79)" -> "Node(87)" [label=SAME]
-	"Node(97)" -> "Node(104)" [label=SAME]
+	"Node(119)" -> "Node(34)" [label=sentence2word]
+	"Node(3)" -> "Node(9)" [label=SAME]
+	"Node(141)" -> "Node(95)" [label=sentence2word]
+	"Node(151)" -> "Node(132)" [label=passage2sentence]
+	"Node(142)" -> "Node(97)" [label=sentence2word]
+	"Node(31)" -> "Node(82)" [label=SAME]
+	"Node(119)" -> "Node(33)" [label=sentence2word]
+	"Node(151)" -> "Node(134)" [label=passage2sentence]
+	"Node(17)" -> "Node(68)" [label=SAME]
+	"Node(114)" -> "Node(11)" [label=sentence2word]
+	"Node(68)" -> "Node(97)" [label=SAME]
+	"Node(145)" -> "Node(110)" [label=sentence2word]
+	"Node(56)" -> "Node(75)" [label=SAME]
+	"Node(118)" -> "Node(25)" [label=sentence2word]
+	"Node(148)" -> "Node(119)" [label=passage2sentence]
+	"Node(112)" -> "Node(5)" [label=sentence2word]
+	"Node(117)" -> "Node(21)" [label=sentence2word]
+	"Node(17)" -> "Node(56)" [label=SAME]
+	"Node(141)" -> "Node(94)" [label=sentence2word]
+	"Node(23)" -> "Node(68)" [label=SAME]
+	"Node(68)" -> "Node(104)" [label=SAME]
+	"Node(129)" -> "Node(49)" [label=sentence2word]
+	"Node(121)" -> "Node(42)" [label=sentence2word]
+	"Node(119)" -> "Node(32)" [label=sentence2word]
+	"Node(155)" -> "Node(152)" [label=doc2passage]
+	"Node(128)" -> "Node(46)" [label=sentence2word]
+	"Node(143)" -> "Node(99)" [label=sentence2word]
+	"Node(144)" -> "Node(104)" [label=sentence2word]
+	"Node(147)" -> "Node(116)" [label=passage2sentence]
+	"Node(150)" -> "Node(128)" [label=passage2sentence]
+	"Node(116)" -> "Node(16)" [label=sentence2word]
+	"Node(75)" -> "Node(104)" [label=SAME]
+	"Node(5)" -> "Node(51)" [label=SAME]
+	"Node(56)" -> "Node(68)" [label=SAME]
+	"Node(33)" -> "Node(92)" [label=SAME]
+	"Node(115)" -> "Node(15)" [label=sentence2word]
+	"Node(113)" -> "Node(9)" [label=sentence2word]
+	"Node(130)" -> "Node(54)" [label=sentence2word]
+	"Node(130)" -> "Node(50)" [label=sentence2word]
+	"Node(149)" -> "Node(125)" [label=passage2sentence]
+	"Node(93)" -> "Node(97)" [label=SAME]
+	"Node(46)" -> "Node(47)" [label=SAME]
+	"Node(141)" -> "Node(92)" [label=sentence2word]
+	"Node(118)" -> "Node(29)" [label=sentence2word]
+	"Node(132)" -> "Node(67)" [label=sentence2word]
+	"Node(144)" -> "Node(105)" [label=sentence2word]
+	"Node(154)" -> "Node(145)" [label=passage2sentence]
+	"Node(120)" -> "Node(38)" [label=sentence2word]
+	"Node(68)" -> "Node(75)" [label=SAME]
+	"Node(134)" -> "Node(80)" [label=sentence2word]
+	"Node(152)" -> "Node(138)" [label=passage2sentence]
+	"Node(38)" -> "Node(68)" [label=SAME]
+	"Node(119)" -> "Node(30)" [label=sentence2word]
+	"Node(30)" -> "Node(86)" [label=SAME]
+	"Node(113)" -> "Node(6)" [label=sentence2word]
+	"Node(119)" -> "Node(35)" [label=sentence2word]
+	"Node(17)" -> "Node(86)" [label=SAME]
+	"Node(118)" -> "Node(24)" [label=sentence2word]
+	"Node(155)" -> "Node(154)" [label=doc2passage]
+	"Node(149)" -> "Node(124)" [label=passage2sentence]
+	"Node(135)" -> "Node(82)" [label=sentence2word]
+	"Node(130)" -> "Node(52)" [label=sentence2word]
+	"Node(56)" -> "Node(97)" [label=SAME]
+	"Node(93)" -> "Node(104)" [label=SAME]
+	"Node(49)" -> "Node(66)" [label=SAME]
+	"Node(152)" -> "Node(139)" [label=passage2sentence]
+	"Node(23)" -> "Node(82)" [label=SAME]
+	"Node(86)" -> "Node(104)" [label=SAME]
+	"Node(116)" -> "Node(17)" [label=sentence2word]
+	"Node(117)" -> "Node(19)" [label=sentence2word]
+	"Node(39)" -> "Node(44)" [label=SAME]
+	"Node(113)" -> "Node(8)" [label=sentence2word]
+	"Node(21)" -> "Node(80)" [label=SAME]
+	"Node(17)" -> "Node(97)" [label=SAME]
+	"Node(114)" -> "Node(12)" [label=sentence2word]
+	"Node(4)" -> "Node(49)" [label=SAME]
+	"Node(146)" -> "Node(113)" [label=passage2sentence]
+	"Node(38)" -> "Node(97)" [label=SAME]
 	"Node(30)" -> "Node(38)" [label=SAME]
 	"Node(31)" -> "Node(97)" [label=SAME]
-	"Node(52)" -> "Node(59)" [label=SAME]
+	"Node(7)" -> "Node(23)" [label=SAME]
+	"Node(144)" -> "Node(102)" [label=sentence2word]
+	"Node(153)" -> "Node(142)" [label=passage2sentence]
+	"Node(17)" -> "Node(93)" [label=SAME]
+	"Node(83)" -> "Node(103)" [label=SAME]
+	"Node(146)" -> "Node(114)" [label=passage2sentence]
+	"Node(7)" -> "Node(104)" [label=SAME]
+	"Node(133)" -> "Node(72)" [label=sentence2word]
+	"Node(141)" -> "Node(96)" [label=sentence2word]
+	"Node(4)" -> "Node(66)" [label=SAME]
+	"Node(133)" -> "Node(75)" [label=sentence2word]
+	"Node(7)" -> "Node(97)" [label=SAME]
+	"Node(149)" -> "Node(123)" [label=passage2sentence]
+	"Node(23)" -> "Node(31)" [label=SAME]
+	"Node(16)" -> "Node(32)" [label=SAME]
+	"Node(148)" -> "Node(122)" [label=passage2sentence]
+	"Node(146)" -> "Node(115)" [label=passage2sentence]
+	"Node(152)" -> "Node(136)" [label=passage2sentence]
+	"Node(30)" -> "Node(97)" [label=SAME]
+	"Node(31)" -> "Node(38)" [label=SAME]
+	"Node(117)" -> "Node(22)" [label=sentence2word]
+	"Node(121)" -> "Node(40)" [label=sentence2word]
+	"Node(7)" -> "Node(31)" [label=SAME]
+	"Node(7)" -> "Node(86)" [label=SAME]
+	"Node(31)" -> "Node(68)" [label=SAME]
+	"Node(114)" -> "Node(13)" [label=sentence2word]
+	"Node(153)" -> "Node(141)" [label=passage2sentence]
+	"Node(140)" -> "Node(91)" [label=sentence2word]
+	"Node(7)" -> "Node(30)" [label=SAME]
+	"Node(56)" -> "Node(86)" [label=SAME]
+	"Node(82)" -> "Node(104)" [label=SAME]
+	"Node(112)" -> "Node(3)" [label=sentence2word]
+	"Node(138)" -> "Node(86)" [label=sentence2word]
+	"Node(131)" -> "Node(62)" [label=sentence2word]
+	"Node(155)" -> "Node(147)" [label=doc2passage]
+	"Node(150)" -> "Node(131)" [label=passage2sentence]
+	"Node(121)" -> "Node(39)" [label=sentence2word]
+	"Node(139)" -> "Node(90)" [label=sentence2word]
+	"Node(122)" -> "Node(43)" [label=sentence2word]
+	"Node(17)" -> "Node(75)" [label=SAME]
+	"Node(113)" -> "Node(10)" [label=sentence2word]
+	"Node(68)" -> "Node(82)" [label=SAME]
+	"Node(7)" -> "Node(68)" [label=SAME]
+	"Node(150)" -> "Node(129)" [label=passage2sentence]
+	"Node(149)" -> "Node(126)" [label=passage2sentence]
+	"Node(117)" -> "Node(20)" [label=sentence2word]
+	"Node(146)" -> "Node(112)" [label=passage2sentence]
 	"Node(30)" -> "Node(31)" [label=SAME]
-	"Node(46)" -> "Node(47)" [label=SAME]
-	"Node(39)" -> "Node(44)" [label=SAME]
-	"Node(78)" -> "Node(95)" [label=SAME]
-	"Node(33)" -> "Node(92)" [label=SAME]
+	"Node(148)" -> "Node(120)" [label=passage2sentence]
+	"Node(155)" -> "Node(146)" [label=doc2passage]
+	"Node(130)" -> "Node(56)" [label=sentence2word]
+	"Node(111)" -> "Node(0)" [label=sentence2word]
 }

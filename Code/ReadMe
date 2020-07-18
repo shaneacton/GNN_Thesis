@@ -1,4 +1,14 @@
 Todo:
+1: refactor token sequence, move functions to utils
+1: remove span information such as entities and sentences from token sequence.
+ 1.1: move this info into the context graph
+2: develop hierarchy in context graph where L0 is tokens, L1 is objects eg entities, L2 is sentences, L3 is passages, L4 is documents
+ 2.1: abstract sequential, and window edges to operate on L0,1,2
+3: store token sequence in context graph
+4: implement context graph gnn
+4: graph config json to define context graph construction methods
+5: start with live conversions - work on saving later
+
 1: save context graphs instead of datapoints
  1.1: have GraphDataset load up context graphs and convert them into geometric datapoints on the fly
  1.2: during datapoint creation, sequence summarisation can be done online to make state sizes consistent across graphs
@@ -21,7 +31,11 @@ Todo:
  8.1 edge groups should behave as single edge type
  8.2 another option to have split groups on subtype/direction
  8.3 feature where subtypes are ignored by type splitting, but fed to gnns as edge weights
+ 8.4 option to add universal message function which is used in tandem with edge type specific functions
+ 7.5 closest node window edge vs full window edge
 9: map back to node/edge type during gnn passes - save type:id mappings per datsaset
+ 9.1: node type switches update function
+ 9.2: edge type switches message function
 10: Edge weights which are fed into the message passing via concatenation as other state such as query.
 
 

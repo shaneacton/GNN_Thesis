@@ -9,15 +9,15 @@ raw_text = "the apple is bad. super bad. I even thought it was ok. My  name is E
 text = Text(raw_text)
 
 print("clean:",text.clean)
-print("tokens:", text.token_sequence.tokens)
-print("subtoken map:", text.token_sequence.sub_tokens)
+print("tokens:", text.token_sequence.raw_tokens)
+print("subtoken map:", text.token_sequence.raw_subtokens)
 
 nltk.download('maxent_ne_chunker')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('words')
 
-print("nltk pos:",pos_tag(text.token_sequence.tokens))
-print("nlkt NER:",ne_chunk(pos_tag(text.token_sequence.tokens)))
+print("nltk pos:", pos_tag(text.token_sequence.raw_tokens))
+print("nlkt NER:", ne_chunk(pos_tag(text.token_sequence.raw_tokens)))
 
 # stanfordnlp.download('en')
 nlp = stanfordnlp.Pipeline(processors="tokenize,mwt,lemma,pos")

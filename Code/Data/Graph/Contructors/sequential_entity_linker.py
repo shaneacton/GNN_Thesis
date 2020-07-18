@@ -4,6 +4,7 @@ from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor, IncompatibleGraphContructionOrder
 from Code.Data.Graph.Edges.adjacent_entity_edge import AdjacentEntityEdge
 from Code.Data.Graph.context_graph import ContextGraph
+from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 from Code.Data.Text.data_sample import DataSample
 
 
@@ -21,7 +22,9 @@ class SequentialEntityLinker(GraphConstructor):
                                                     "Entities must be graphed before sequentially linked")
 
         #todo possibly insert coref ents in for connection
-        entities = data_sample.context.token_sequence.entities
+        tok_seq = data_sample.context.token_sequence
+        span_hierarchy = TokenSpanHierarchy(tok_seq)
+        entities = span_hierarchy.entities
 
         edges = []
         for i in range(len(entities) -1):

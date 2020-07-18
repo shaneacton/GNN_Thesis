@@ -16,7 +16,7 @@ class Text:
     CACHE_EMBEDDING = True
 
     def __init__(self, text):
-        self.text = text
+        self.raw_text = text
         self._token_sequence: TokenSequence = None
         self._full_embedding: torch.Tensor = None
 
@@ -37,7 +37,7 @@ class Text:
 
     @property
     def clean(self):
-        return " ".join(self.token_sequence.tokens)
+        return " ".join(self.token_sequence.raw_tokens)
 
     def get_embedding(self, sequence_reduction=None):
         """
@@ -47,7 +47,7 @@ class Text:
         """
 
         if not self._full_embedding:
-            tokens = self.token_sequence.sub_tokens
+            tokens = self.token_sequence.raw_subtokens
             if len(tokens) > Text.MAX_TOKENS:
                 full_embeddings = self.get_windowed_embeddings(tokens)
             else:
@@ -62,13 +62,13 @@ class Text:
         return full_embeddings
 
     def __repr__(self):
-        return "\n".join(textwrap.wrap(self.text, Text.WRAP_TEXT_LENGTH))
+        return "\n".join(textwrap.wrap(self.raw_text, Text.WRAP_TEXT_LENGTH))
 
     def __eq__(self, other):
-        return self.text == other.text
+        return self.raw_text == other.raw_text
 
     def __hash__(self):
-        return self.text.__hash__()
+        return self.raw_text.__hash__()
 
     @staticmethod
     def get_windowed_embeddings(tokens):

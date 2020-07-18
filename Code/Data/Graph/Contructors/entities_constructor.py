@@ -4,6 +4,7 @@ from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor, Inco
 from Code.Data.Graph.Edges.same_entity_edge import SameEntityEdge
 from Code.Data.Graph.Nodes.entity_node import EntityNode
 from Code.Data.Graph.context_graph import ContextGraph
+from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 
 
 class EntitiesConstructor(GraphConstructor):
@@ -19,7 +20,10 @@ class EntitiesConstructor(GraphConstructor):
             raise IncompatibleGraphContructionOrder(existing_graph, self, "entities contruction must be bottom of stack")
 
         graph = ContextGraph()
-        entities = data_sample.context.token_sequence.entities
+        tok_seq = data_sample.context.token_sequence
+        span_hierarchy = TokenSpanHierarchy(tok_seq)
+
+        entities = span_hierarchy.entities
         entity_nodes = [EntityNode(ent) for ent in entities]
         node_ids = graph.add_nodes(entity_nodes)
         entity_clusters: Dict[Tuple[str], Tuple[int]] = {}  # maps a token list to a set of node ids's who represent these tokens

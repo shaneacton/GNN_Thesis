@@ -16,4 +16,4 @@ class ExtractedAnswer(Answer):
         self.end_token_id = None
 
     def __repr__(self):
-        return self.text + "\t\t- char ids : ["+repr(self.start_char_id)+", " + repr(self.end_char_id) + "]"
+        return self.raw_text + "\t\t- char ids : [" + repr(self.start_char_id) + ", " + repr(self.end_char_id) + "]"

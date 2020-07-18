@@ -24,11 +24,11 @@ class ContextGraph:
         self.ordered_nodes: List[Node] = []
         self.node_id_map: Dict[Node, int] = {}  # shortcut to get node id from node ref
         self.span_nodes: Dict[TokenSpan, int] = {}  # maps text segs (eg entities/sentences) to nodes
-        self.typed_nodes: Dict[type,Set[int]] = {}  # maps node type to all nodes of that type
+        self.typed_nodes: Dict[type, Set[int]] = {}  # maps node type to all nodes of that type
 
         self.unique_edges: Set[EdgeRelation] = set()
         self.ordered_edges: List[EdgeRelation] = []
-        self.constructs : List[type] = []  # record of the contruction process used
+        self.constructs: List[type] = []  # record of the contruction process used
 
         self.label: torch.Tensor = None
         self.query: torch.Tensor = None

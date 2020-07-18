@@ -1,11 +1,9 @@
 from typing import Union, List
 
 from Code.Data.Graph.Contructors.coreference_constructor import CoreferenceConstructor
-from Code.Data.Graph.Contructors.document_node_constructor import DocumentNodeConstructor
 from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
-from Code.Data.Graph.Contructors.passage_constructor import PassageConstructor
-from Code.Data.Graph.Contructors.sentence_contructor import SentenceConstructor
+from Code.Data.Graph.Contructors.new_document_structure_constructor import NewDocumentStructureConstructor
 from Code.Data.Graph.Contructors.sequential_entity_linker import SequentialEntityLinker
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.data_sample import DataSample
@@ -32,8 +30,7 @@ class CompoundGraphConstructor(GraphConstructor):
 
 
 if __name__ == "__main__":
-    cgc = CompoundGraphConstructor([EntitiesConstructor, SequentialEntityLinker, CoreferenceConstructor,
-                                    SentenceConstructor, PassageConstructor, DocumentNodeConstructor])
+    cgc = CompoundGraphConstructor([EntitiesConstructor, NewDocumentStructureConstructor])
     # cgc = CompoundGraphConstructor([EntitiesConstructor])
     from Datasets.Readers.squad_reader import SQuADDatasetReader
     from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
@@ -51,7 +48,7 @@ if __name__ == "__main__":
             break
 
         graph = cgc.append(None, sample)
-        print(sample)
+        # print("sample:", sample)
         print("num nodes:", len(graph.ordered_nodes))
         graph.render_graph(sample.title_and_peek, reader.datset_name)
 

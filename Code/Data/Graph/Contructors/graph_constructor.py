@@ -15,7 +15,7 @@ class GraphConstructor(ABC):
     """
 
     @abstractmethod
-    def append(self, existing_graph:Union[None,ContextGraph], data_sample: DataSample) -> ContextGraph:
+    def append(self, existing_graph:Union[None, ContextGraph], data_sample: DataSample) -> ContextGraph:
         raise NotImplementedError()
 
     def create_graph_from_data_sample(self, data_sample: DataSample):
