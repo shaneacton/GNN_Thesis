@@ -14,7 +14,7 @@ class EntityNode(SpanNode):
 
     ALL_TYPES = [COREF, CONTEXT_MENTION, QUERY_ENTITY, CANDIDATE]
 
-    def __init__(self, entity: TokenSpan , subtype=None):
+    def __init__(self, entity: TokenSpan, subtype=None):
         super().__init__(entity, subtype=subtype)
 
         subtype = EntityNode.COREF if self.is_coref else EntityNode.CONTEXT_MENTION

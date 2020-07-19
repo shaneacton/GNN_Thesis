@@ -6,10 +6,12 @@ from Code.Data.Graph.Edges.document_edge import DocumentEdge
 from Code.Data.Graph.Nodes.document_structure_node import DocumentStructureNode
 from Code.Data.Graph.Nodes.entity_node import EntityNode
 from Code.Data.Graph.Nodes.span_node import SpanNode
+from Code.Data.Graph.Nodes.token_node import TokenNode
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
+from Code.Data.Text.Tokenisation.token_span import TokenSpan
 from Code.Data.Text.data_sample import DataSample
 
 
@@ -18,6 +20,8 @@ def get_node_type(span) -> Type[SpanNode]:
         return EntityNode
     if isinstance(span, DocumentExtract):
         return DocumentStructureNode
+    if isinstance(span, TokenSpan):
+        return TokenNode
     raise Exception("cannot find type of span: " + repr(type(span)) + "-" +repr(span))
 
 
@@ -49,9 +53,11 @@ class DocumentStructureConstructor(GraphConstructor):
             try:
                 contain_map = context_span_hierarchy.match_heirarchical_span_seqs(containeR_spans, containeD_spans)
             except Exception as e:
-                print("failed matching", configuration.LEVELS[i], "to", configuration.LEVELS[i+1])
+                print("failed matching", configuration.LEVELS[level_indices[i]], "to",
+                      configuration.LEVELS[level_indices[i+1]])
                 raise e
 
+            # print("contain map:", contain_map)
             for containeR in containeR_spans:  # container will never be a token sequence
                 node_type = get_node_type(containeR)
                 containeR_node = node_type(containeR, subtype=containeR.get_subtype())

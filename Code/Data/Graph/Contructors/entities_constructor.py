@@ -16,14 +16,12 @@ class EntitiesConstructor(GraphConstructor):
     """
 
     def append(self, existing_graph, data_sample, context_span_hierarchy: TokenSpanHierarchy) -> ContextGraph:
-        if existing_graph and len(existing_graph.constructs) != 0:
-            raise IncompatibleGraphContructionOrder(existing_graph, self, "entities contruction must be bottom of stack")
-
-        graph = ContextGraph()
+        if not existing_graph:
+            existing_graph = ContextGraph()
 
         entities = context_span_hierarchy.entities
         entity_nodes = [EntityNode(ent) for ent in entities]
-        node_ids = graph.add_nodes(entity_nodes)
+        node_ids = existing_graph.add_nodes(entity_nodes)
         entity_clusters: Dict[Tuple[str], Tuple[int]] = {}  # maps a token list to a set of node ids's who represent these tokens
         for i, node in enumerate(entity_nodes):
             """finds all duplicate entities for linking"""
@@ -42,11 +40,11 @@ class EntitiesConstructor(GraphConstructor):
             edge_ids.extend(self.get_edge_ids_connecting_node_ids(ids))
 
         edges = [SameEntityEdge(edge_id[0], edge_id[1], is_coref=False) for edge_id in edge_ids]
-        graph.add_edges(edges)
+        existing_graph.add_edges(edges)
 
-        graph.constructs.append(type(self))
+        existing_graph.constructs.append(type(self))
 
-        return graph
+        return existing_graph
 
     def get_edge_ids_connecting_node_ids(self, ids):
         edge_ids = []

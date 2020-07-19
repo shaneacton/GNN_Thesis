@@ -36,10 +36,6 @@ class TokenSpan:
     def subtoken_embedding_ids(self):
         return indexer(self.subtokens)
 
-    @property
-    def tail_concat_embedding(self):
-        return self.get_embedding(sequence_reduction=tail_concatinator)
-
     def __repr__(self):
         label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span and self.spacy_span.label_ else ""
         span = ":S" + repr(self.subtoken_indexes)
@@ -72,12 +68,4 @@ class TokenSpan:
         """returns true if self preceeds other in the token seq"""
         # todo check for overlaps
         return self.subtoken_indexes[1] <= other_span.subtoken_indexes[0]
-
-    def get_embedding(self, sequence_reduction=None):
-        full_embedding = self.token_sequence.text_obj.full_embedding
-        span = self.subtoken_indexes
-        entity_embedding = full_embedding[:,span[0]:span[1],:]
-        if sequence_reduction:
-            return sequence_reduction(entity_embedding)
-        return entity_embedding
 

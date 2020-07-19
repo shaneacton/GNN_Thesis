@@ -47,22 +47,25 @@ class TokenSpanHierarchy:
 
         mapping = {}
         v_i = 0
-
         for key in containing_spans:  # for each containing span
             mapping[key] = []
-
-            while v_i < len(contained_spans) and key.contains(contained_spans[v_i]):
-                mapping[key] += [contained_spans[v_i]]
+            while v_i < len(contained_spans) and not key.contains(contained_spans[v_i]):
+                # loop until the first match is found
                 v_i += 1
 
-        if v_i != len(contained_spans):
-            raise Exception("matching failed to place all value spans - " + str(v_i) + "/" + str(len(containing_spans)))
+            while v_i < len(contained_spans) and key.contains(contained_spans[v_i]):
+                contained_span = contained_spans[v_i]
+                mapping[key] += [contained_span]
+                v_i += 1
+
+        # if v_i != len(contained_spans):
+        #     raise Exception("matching failed to place all value spans - " + str(v_i) + "/" + str(len(contained_spans)))
 
         return mapping
 
     def __getitem__(self, item) -> Union[List[DocumentExtract], TokenSequence]:
         if item == 0:
-            return self.token_sequence
+            return self.tokens
         if item == 1:
             return self.words
         if item == 2:

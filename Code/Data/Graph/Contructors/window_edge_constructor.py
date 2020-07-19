@@ -54,7 +54,11 @@ class WindowEdgeConstructor(DocumentStructureConstructor):
                 if span1.distance(span2) > window_size != -1:
                     # window distnace in token span exceeded
                     break
-                ids = existing_graph.span_nodes[span1], existing_graph.span_nodes[span2]
+                try:
+                    ids = existing_graph.span_nodes[span1], existing_graph.span_nodes[span2]
+                except Exception as e:
+                    print("failed to find span nodes in existing graph",existing_graph,existing_graph.span_nodes)
+                    raise e
                 edges.append(WindowEdge(ids[0], ids[1], type, level_id))
 
         existing_graph.add_edges(edges)

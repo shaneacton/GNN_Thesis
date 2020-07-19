@@ -10,8 +10,6 @@ from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 class SpanNode(Node, ABC):
 
-    EMB_IDS = "emb_ids"
-
     def __init__(self, token_span: TokenSpan, subtype=None):
         self.token_span = token_span
         super().__init__(subtype=subtype)
@@ -25,20 +23,3 @@ class SpanNode(Node, ABC):
 
     def __hash__(self):
         return hash(self.token_span)
-
-    def get_embedding_ids_sequence_tensor(self) -> Tensor:
-        return self.token_span.subtoken_embedding_ids
-
-    def get_all_node_state_tensors(self) -> Dict[str, Tensor]:
-        # states = {SpanNode.EMB_IDS: self.get_embedding_ids_sequence_tensor()}  # returns the nodes embedding IDs
-        from Code.Data.Graph.State.state_set import StateSet
-        states = {StateSet.STARTING_STATE: self.get_span_summary_vec()}  # gets feature representation of token sequence
-        return states
-
-    def get_span_summary_vec(self) -> Tensor:
-        """
-        returns a tensor with the span representation in a fixed size.
-        for entities this summary is done with head/tail concat
-        for document structure nodes this summary is done via a separate encoder model
-        """
-        raise NotImplementedError()
