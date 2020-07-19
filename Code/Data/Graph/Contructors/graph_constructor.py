@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 from Code.Data.Graph.context_graph import ContextGraph
+from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 from Code.Data.Text.data_sample import DataSample
 
 
@@ -15,11 +16,13 @@ class GraphConstructor(ABC):
     """
 
     @abstractmethod
-    def append(self, existing_graph:Union[None, ContextGraph], data_sample: DataSample) -> ContextGraph:
+    def append(self, existing_graph:Union[None, ContextGraph], data_sample: DataSample,
+               context_span_hierarchy: TokenSpanHierarchy) -> ContextGraph:
         raise NotImplementedError()
 
     def create_graph_from_data_sample(self, data_sample: DataSample):
-        return self.append(None, data_sample)
+        context_span_hierarchy = TokenSpanHierarchy(data_sample.context.token_sequence)
+        return self.append(None, data_sample, context_span_hierarchy)
 
 
 class IncompatibleGraphContructionOrder(Exception):

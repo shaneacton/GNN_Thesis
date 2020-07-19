@@ -1,23 +1,19 @@
-import copy
 import os
 from typing import List, Set, Dict
 
 import graphviz
 import torch
-from torch_geometric.data import Data
 
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Graph.Nodes.span_node import SpanNode
-from Code.Data.Graph.State.state_set import StateSet
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
-from Code.Training import device
 
 
 class ContextGraph:
 
     """
-    Directed graph
+    Directed graph constructed from a tokensequence and construction config
     """
 
     def __init__(self):
@@ -32,97 +28,6 @@ class ContextGraph:
 
         self.label: torch.Tensor = None
         self.query: torch.Tensor = None
-
-    @property
-    def edge_index(self):
-        """
-        converts edges into connection info for pytorch geometric
-        """
-        index = [[], []]  # [[from_ids],[to_ids]]
-        for edge in self.ordered_edges:
-            for from_to in range(2):
-                index[from_to].append(edge[from_to])
-                if not edge.directed:  # adds returning direction
-                    index[from_to].append(edge[1-from_to])
-        return index
-
-    @property
-    def edge_types(self):
-        edge_types = []
-        for edge in self.ordered_edges:
-            edge_types.append(edge.get_type_tensor())
-            if not edge.directed:  # adds returning directions type
-                edge_types.append(edge.get_type_tensor())
-        return edge_types
-
-    @property
-    def data(self):
-        """
-        converts this graph into data ready to be fed into pytorch geometric
-        """
-        # data_point = Data(**self.named_state_vecs)
-        data_point = Data(**self.state_set.get_named_state_tensors())
-        data_point.num_nodes = len(self.ordered_nodes)
-        return data_point
-
-    @property
-    def state_set(self):
-        """creates a state set object containing current and optionally - starting, previous states"""
-        ss = StateSet(StateSet.CONTEXT)
-        ss.add_states_from_named_vecs(self.named_state_vecs)
-        ss.initialise_states()
-        return ss
-
-    @property
-    def named_state_vecs(self) -> Dict[str, torch.Tensor]:
-        """groups and concats the node states"""
-        states_dict: Dict[str, List[torch.Tensor]] = {}
-        for node in self.ordered_nodes:  # in order traversal
-            """ collects state from nodes and groups states by state_name"""
-            states = node.states_tensors
-            for state_name in states.keys():
-                if not state_name in states_dict:
-                    states_dict[state_name] = []
-                states_dict[state_name].append(states[state_name])
-
-        states_dict: Dict[str, torch.Tensor]
-        for state_name in states_dict.keys():
-            """concats node states"""
-            states_dict[state_name] = self.pad_and_combine(states_dict[state_name])
-
-        edge_types = torch.stack(self.edge_types, dim=0)
-        edge_index = torch.tensor(self.edge_index).to(device)
-
-        states_dict["edge_types"] = edge_types
-        states_dict["edge_index"] = edge_index
-        states_dict["query"] = self.query
-        states_dict["label"] = self.label
-
-        return states_dict
-
-    @staticmethod
-    def pad_and_combine(vecs: List[torch.Tensor], pad_dim=-1):
-        """
-        pads dim to equal size, concats along batch dim
-        :param pad_dim: the padding dim which contains differing lengths
-        :return: batched seqs
-        """
-        pad_dim = pad_dim if pad_dim != -1 else vecs[0].dim() -1
-        longest_seq = max([vec.size(pad_dim) for vec in vecs])
-
-        sizes = list(vecs[0].size())
-        sizes = [sizes[i] for i in range(len(sizes)) if i != pad_dim]  # the hetro sizes which aren't the pad dim
-
-        def zeros(curr_len):
-            zero_sizes = copy.deepcopy(sizes)
-            zero_sizes.insert(pad_dim, longest_seq-curr_len)
-            return torch.zeros(*zero_sizes).to(device).long()
-
-        pad = lambda vec: torch.cat([vec, zeros(vec.size(pad_dim))], dim=pad_dim) \
-            if vec.size(pad_dim) < longest_seq else vec
-
-        vecs = [pad(vec) for vec in vecs]
-        return torch.cat(vecs, dim=0)
 
     def get_nodes_of_type(self, type):
         return [self.ordered_nodes[id] for id in self.typed_nodes[type]]

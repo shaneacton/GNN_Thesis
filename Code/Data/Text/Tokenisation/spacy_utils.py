@@ -5,9 +5,9 @@ from spacy.tokens.doc import Doc
 import en_core_web_sm
 import neuralcoref
 
+from Code.Config import configuration
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
-# from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 
 nlp = en_core_web_sm.load()
 neuralcoref.add_to_pipe(nlp)
@@ -52,7 +52,7 @@ def get_spacy_sentences(tok_seq, spacy_processed_doc=None):
 
     for sent in spacy_sents:
         exact_match = tok_seq.get_token_span_from_chars(sent.start_char, sent.end_char)
-        sentence = DocumentExtract(tok_seq, exact_match, DocumentExtract.SENTENCE, sent)
+        sentence = DocumentExtract(tok_seq, exact_match, configuration.SENTENCE, sent)
         sentences.append(sentence)
 
     return sentences

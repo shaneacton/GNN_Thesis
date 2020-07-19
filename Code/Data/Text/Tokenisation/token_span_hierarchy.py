@@ -63,21 +63,25 @@ class TokenSpanHierarchy:
     def __getitem__(self, item) -> Union[List[DocumentExtract], TokenSequence]:
         if item == 0:
             return self.token_sequence
-        if item == 1:  # words
-            entities = "entity" in config.word_nodes
-            corefs = "coref" in config.word_nodes
-
-            if entities and not corefs:
-                return self.entities
-            if entities and corefs:
-                return self.entities_and_corefs
-            raise Exception()
+        if item == 1:
+            return self.words
         if item == 2:
             return self.sentences
         if item == 3:
             return self.passages
         if item == 4:
             return [self.full_document]
+
+    @property
+    def words(self):
+        entities = "entity" in config.word_nodes
+        corefs = "coref" in config.word_nodes
+
+        if entities and not corefs:
+            return self.entities
+        if entities and corefs:
+            return self.entities_and_corefs
+        raise Exception()
 
     @property
     def entities(self) -> List[EntitySpan]:  # ordered, non unique

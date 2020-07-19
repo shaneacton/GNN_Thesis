@@ -1,3 +1,4 @@
+from Code.Config import configuration
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Models import tail_concatinator
 
@@ -12,11 +13,8 @@ class EntitySpan(DocumentExtract):
         or a candidate entity wrt: a multiple choice question
     """
 
-    ENTITY = "entity"
-    COREF = "coref"
-
     def __init__(self, token_sequence, token_indexes, spacy_span, is_coref=False):
-        super().__init__(token_sequence, token_indexes, DocumentExtract.WORD, spacy_span)
+        super().__init__(token_sequence, token_indexes, configuration.WORD, spacy_span)
         self.is_coref = is_coref
 
     def __repr__(self):
@@ -30,6 +28,6 @@ class EntitySpan(DocumentExtract):
         return super().get_embedding(sequence_reduction)
 
     def get_subtype(self):
-        return self.COREF if self.is_coref else self.ENTITY
+        return configuration.COREF if self.is_coref else configuration.ENTITY
 
 

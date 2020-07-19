@@ -1,17 +1,15 @@
 Todo:
-1: refactor token sequence, move functions to utils
-1: remove span information such as entities and sentences from token sequence.
- 1.1: move this info into the context graph
-2: develop hierarchy in context graph where L0 is tokens, L1 is objects eg entities, L2 is sentences, L3 is passages, L4 is documents
- 2.1: abstract sequential, and window edges to operate on L0,1,2
-3: store token sequence in context graph
+1: Create Graph embedder
+ 1.1 should contain the trainable weights for document summarisers
+ 1.2 should contain the weights for the contextual encoder so the embedder can be shipped without needing dependancies
+ 1.3 make fine tuning the contextual embedder optional
+2: Give document constructor ability to create token nodes
+
+3: store token span hierarchy in context graph
 4: implement context graph gnn
 4: graph config json to define context graph construction methods
 5: start with live conversions - work on saving later
 
-1: save context graphs instead of datapoints
- 1.1: have GraphDataset load up context graphs and convert them into geometric datapoints on the fly
- 1.2: during datapoint creation, sequence summarisation can be done online to make state sizes consistent across graphs
 2. implement online summarisation system
  2.2 seq+query coattention then self attentive-pooling can summarise docs in query aware way
  2.3 full transformer models can be used for doc summarisation

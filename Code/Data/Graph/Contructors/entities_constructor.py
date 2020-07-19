@@ -15,15 +15,13 @@ class EntitiesConstructor(GraphConstructor):
     links the comentions of each entity
     """
 
-    def append(self, existing_graph, data_sample) -> ContextGraph:
+    def append(self, existing_graph, data_sample, context_span_hierarchy: TokenSpanHierarchy) -> ContextGraph:
         if existing_graph and len(existing_graph.constructs) != 0:
             raise IncompatibleGraphContructionOrder(existing_graph, self, "entities contruction must be bottom of stack")
 
         graph = ContextGraph()
-        tok_seq = data_sample.context.token_sequence
-        span_hierarchy = TokenSpanHierarchy(tok_seq)
 
-        entities = span_hierarchy.entities
+        entities = context_span_hierarchy.entities
         entity_nodes = [EntityNode(ent) for ent in entities]
         node_ids = graph.add_nodes(entity_nodes)
         entity_clusters: Dict[Tuple[str], Tuple[int]] = {}  # maps a token list to a set of node ids's who represent these tokens
