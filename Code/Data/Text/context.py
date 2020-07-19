@@ -57,7 +57,7 @@ class Context:
         return full_embeddings
 
     def get_answer_span_vec(self, start_char_id, end_char_id):
-        sub_token_span = self.token_sequence.get_token_span_from_chars(start_char_id, end_char_id, subtokens=True)
+        sub_token_span = self.token_sequence.get_word_token_span_from_chars(start_char_id, end_char_id, subtokens=True)
         sub_token_span = list(sub_token_span)
         return torch.tensor(sub_token_span).view(1, 2).to(device)
 

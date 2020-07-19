@@ -37,7 +37,7 @@ class Text:
 
     @property
     def clean(self):
-        return " ".join(self.token_sequence.raw_tokens)
+        return " ".join(self.token_sequence.raw_word_tokens)
 
     def get_embedding(self, sequence_reduction=None):
         """

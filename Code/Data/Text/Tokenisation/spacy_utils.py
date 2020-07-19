@@ -21,7 +21,7 @@ def get_spacy_entities(tok_seq, spacy_processed_doc=None) -> List[EntitySpan]:
     entities = []
 
     for ent in processed.ents:
-        exact_match = tok_seq.get_token_span_from_chars(ent.start_char, ent.end_char)
+        exact_match = tok_seq.get_word_token_span_from_chars(ent.start_char, ent.end_char, subtokens=True)
         entity = EntitySpan(tok_seq, exact_match, ent)
         entities.append(entity)
 
@@ -34,7 +34,7 @@ def get_spacy_coreferences(tok_seq, entities, spacy_processed_doc=None):
 
     corefs = {}
     for cluster in clusters:
-        token_matches = [tok_seq.get_token_span_from_chars(mention.start_char, mention.end_char)
+        token_matches = [tok_seq.get_word_token_span_from_chars(mention.start_char, mention.end_char, subtokens=True)
                          for mention in cluster.mentions]
         entities = [EntitySpan(tok_seq, token_matches[i], cluster.mentions[i], is_coref=i > 0)
                     for i in range(len(token_matches))]
@@ -51,7 +51,7 @@ def get_spacy_sentences(tok_seq, spacy_processed_doc=None):
     sentences = []
 
     for sent in spacy_sents:
-        exact_match = tok_seq.get_token_span_from_chars(sent.start_char, sent.end_char)
+        exact_match = tok_seq.get_word_token_span_from_chars(sent.start_char, sent.end_char, subtokens=True)
         sentence = DocumentExtract(tok_seq, exact_match, configuration.SENTENCE, sent)
         sentences.append(sentence)
 

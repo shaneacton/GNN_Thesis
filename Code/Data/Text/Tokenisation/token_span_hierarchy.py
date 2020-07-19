@@ -1,6 +1,6 @@
 from typing import List, Dict, Union
 
-from Code.Config import config
+from Code.Config import config, configuration
 from Code.Data.Text.Tokenisation import tokenisation_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
@@ -73,6 +73,10 @@ class TokenSpanHierarchy:
             return [self.full_document]
 
     @property
+    def tokens(self):
+        return self.token_sequence.subtokens
+
+    @property
     def words(self):
         entities = "entity" in config.word_nodes
         corefs = "coref" in config.word_nodes
@@ -105,7 +109,7 @@ class TokenSpanHierarchy:
             [self._entities_and_corefs.extend([ent] + (self.corefs[ent] if ent in self.corefs else [])) for ent in self.entities]
             # todo sort which exploits nearly sortedness
             self._entities_and_corefs = sorted(self._entities_and_corefs,
-                                     key=lambda ent: 0.5 * (ent.token_indexes[0] + ent.token_indexes[1]))
+                                               key=lambda ent: 0.5 * (ent.subtoken_indexes[0] + ent.subtoken_indexes[1]))
 
         return self._entities_and_corefs
 
@@ -117,7 +121,7 @@ class TokenSpanHierarchy:
 
     @property
     def full_document(self):
-        return DocumentExtract(self.token_sequence, (0, len(self.token_sequence.raw_tokens)), DocumentExtract.DOC)
+        return DocumentExtract(self.token_sequence, (0, len(self.token_sequence.raw_subtokens)), configuration.DOCUMENT)
 
     @property
     def passages(self):

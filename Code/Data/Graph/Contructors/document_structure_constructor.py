@@ -46,7 +46,11 @@ class DocumentStructureConstructor(GraphConstructor):
             containeD_spans = context_span_hierarchy[level_indices[i]]
             containeR_spans : List[DocumentExtract] = context_span_hierarchy[level_indices[i+1]]
 
-            contain_map = context_span_hierarchy.match_heirarchical_span_seqs(containeR_spans, containeD_spans)
+            try:
+                contain_map = context_span_hierarchy.match_heirarchical_span_seqs(containeR_spans, containeD_spans)
+            except Exception as e:
+                print("failed matching", configuration.LEVELS[i], "to", configuration.LEVELS[i+1])
+                raise e
 
             for containeR in containeR_spans:  # container will never be a token sequence
                 node_type = get_node_type(containeR)

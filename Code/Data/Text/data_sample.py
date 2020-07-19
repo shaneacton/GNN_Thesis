@@ -28,7 +28,7 @@ class DataSample:
 
     @property
     def title_and_peek(self):
-        peek = "_".join(self.context.passages[0].token_sequence.raw_tokens[:4])
+        peek = "_".join(self.context.passages[0].token_sequence.raw_word_tokens[:4])
         return self.title + ("_" if self.title else "") + peek
 
     def add_question(self, question : Question):

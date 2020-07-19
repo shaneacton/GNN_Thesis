@@ -1,9 +1,9 @@
 from typing import List, Tuple
 
+from Code.Config import configuration
 from Code.Data.Text.Tokenisation import spacy_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
-# from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 from Code.Models import basic_tokeniser, tokeniser
 
 
@@ -12,13 +12,13 @@ def get_passages(tok_seq) -> List[DocumentExtract]:
     text_passages = tok_seq.text_obj.raw_text.split(Context.PASSAGE_BREAK_STRING)
     passages = []
     for text in text_passages:
-        matches = find_string_in_tokens(tok_seq, text)
+        matches = find_string_in_subtokens(tok_seq, text)
         if len(matches) > 1:
             raise Exception("duplicate passage in token seq")
 
         # +1 to include one of the passage sep tokens for alignment reasons
-        match = (matches[0][0], min(matches[0][1] + 1, len(tok_seq.raw_tokens)))
-        passage = DocumentExtract(tok_seq, match, DocumentExtract.PASSAGE)
+        match = (matches[0][0], min(matches[0][1] + 1, len(tok_seq.raw_subtokens)))
+        passage = DocumentExtract(tok_seq, match, configuration.PARAGRAPH)
         passages.append(passage)
 
     return passages
@@ -67,7 +67,7 @@ def find_string_in_tokens(tok_seq, string):
     tokenises the given string, and searches for matches in the token sequence
     :returns the (start,end ids) of the string in the tok seq
     """
-    return find_seq_in_seq(tok_seq.raw_tokens, basic_tokeniser(string))
+    return find_seq_in_seq(tok_seq.raw_word_tokens, basic_tokeniser(string))
 
 
 def find_string_in_subtokens(tok_seq, string):

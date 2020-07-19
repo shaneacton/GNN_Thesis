@@ -25,7 +25,7 @@ class Configuration:
     def __init__(self):
 
         self.word_nodes = [ENTITY, COREF]
-        self.structure_nodes = [WORD, SENTENCE]  # elements from DocumentExtrac.levels
+        self.structure_nodes = [WORD, SENTENCE, PARAGRAPH, DOCUMENT]  # elements from DocumentExtrac.levels
 
         self.structure_connections = {
             TOKEN: {CONNECTION_TYPE: WINDOW, WINDOW_SIZE: 20},
@@ -42,7 +42,6 @@ class Configuration:
             from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
             constructors.append(EntitiesConstructor)
         if "coref" in self.word_nodes:
-            print("adding coref const")
             from Code.Data.Graph.Contructors.coreference_constructor import CoreferenceConstructor
             constructors.append(CoreferenceConstructor)
         if len(self.structure_nodes) != 1:  # if only one level included - no need for hierarchal structure

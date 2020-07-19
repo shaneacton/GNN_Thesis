@@ -29,14 +29,12 @@ class CoreferenceConstructor(GraphConstructor):
             raise Exception("Failed to add coref nodes\n\n"+repr(e) + "\n\nexisting nodes:", existing_graph.ordered_nodes, "text ents")
 
         corefs = context_span_hierarchy.corefs
-        print("corefs:",corefs)
         for node in entity_nodes:
             ent = node.token_span
             if ent not in corefs.keys():
                 continue  # no corefs for this entity
 
             coref_nodes = [EntityNode(coref_ent) for coref_ent in corefs[ent]]
-            print("coref nodes:",coref_nodes)
             #remove corefs which are already linked by SAME edge
             coref_nodes = [node for node in coref_nodes if node not in existing_graph.node_id_map]
             ids = existing_graph.add_nodes(coref_nodes)

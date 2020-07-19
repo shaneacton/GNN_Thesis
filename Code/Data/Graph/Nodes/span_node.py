@@ -17,7 +17,7 @@ class SpanNode(Node, ABC):
         super().__init__(subtype=subtype)
 
     def get_node_viz_text(self):
-        text = self.token_span.text + "\n" + repr(self.token_span.token_indexes)
+        text = self.token_span.text + "\n" + repr(self.token_span.subtoken_indexes)
         return "\n".join(textwrap.wrap(text, 16))
 
     def __eq__(self, other):

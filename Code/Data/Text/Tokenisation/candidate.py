@@ -12,13 +12,13 @@ class Candidate(TokenSpan):
         or a candidate entity wrt: a multiple choice question
     """
 
-    def __init__(self, token_sequence, token_indexes, spacy_entity):
-        super().__init__(token_sequence, token_indexes, spacy_entity)
+    def __init__(self, token_sequence, subtoken_indexes, spacy_entity):
+        super().__init__(token_sequence, subtoken_indexes, spacy_entity)
 
     def __repr__(self):
         text = self.spacy_span.text
         label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span.label_ else ""
-        span = ":S" + repr(self.token_indexes)
+        span = ":S" + repr(self.subtoken_indexes)
         return "Candidate ~ " + text + label + span
 
     def get_embedding(self, sequence_reduction=tail_concatinator):
