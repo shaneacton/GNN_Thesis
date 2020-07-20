@@ -16,13 +16,16 @@ class GraphConstructor(ABC):
     """
 
     @abstractmethod
-    def append(self, existing_graph:Union[None, ContextGraph], data_sample: DataSample,
-               context_span_hierarchy: TokenSpanHierarchy) -> ContextGraph:
+    def _append(self, existing_graph: ContextGraph) -> ContextGraph:
         raise NotImplementedError()
+
+    def add_construct(self, existing_graph: ContextGraph):
+        existing_graph.constructs.append(type(self))
 
     def create_graph_from_data_sample(self, data_sample: DataSample):
         context_span_hierarchy = TokenSpanHierarchy(data_sample.context.token_sequence)
-        return self.append(None, data_sample, context_span_hierarchy)
+        graph = ContextGraph(data_sample, context_span_hierarchy)
+        return self._append(graph)
 
 
 class IncompatibleGraphContructionOrder(Exception):

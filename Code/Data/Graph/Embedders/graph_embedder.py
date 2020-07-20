@@ -1,6 +1,6 @@
 from torch import nn
-from torch_geometric.data import Data
 
+from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Models import embedder
 
@@ -38,5 +38,5 @@ class GraphEmbedder(nn.Module):
                 edge_types.append(edge.get_type_tensor())
         return edge_types
 
-    def forward(self, graph: ContextGraph)-> Data:
+    def forward(self, graph: ContextGraph) -> GraphEncoding:
         pass

@@ -1,23 +1,18 @@
-from typing import Union
-
 from Code.Config import config, configuration
 from Code.Data.Graph.Contructors.document_structure_constructor import DocumentStructureConstructor
 from Code.Data.Graph.Edges.window_edge import WindowEdge
 from Code.Data.Graph.context_graph import ContextGraph
-from Code.Data.Text.Tokenisation import TokenSpanHierarchy
-from Code.Data.Text.data_sample import DataSample
 
 
 class WindowEdgeConstructor(DocumentStructureConstructor):
 
-    def append(self, existing_graph: Union[None, ContextGraph], data_sample: DataSample,
-               context_span_hierarchy: TokenSpanHierarchy) -> ContextGraph:
+    def _append(self, existing_graph: ContextGraph) -> ContextGraph:
 
         level_indices = self.level_indices
         for level_id in level_indices:
-            self.connect_level(existing_graph, context_span_hierarchy, level_id)
+            self.connect_level(existing_graph, existing_graph.span_hierarchy, level_id)
 
-        existing_graph.constructs.append(type(self))
+        self.add_construct(existing_graph)
         return existing_graph
 
     def connect_level(self, existing_graph, context_span_hierarchy, level_id):
@@ -39,6 +34,12 @@ class WindowEdgeConstructor(DocumentStructureConstructor):
 
     @staticmethod
     def _connect(existing_graph: ContextGraph, spans, window_size, max_connections, level_id):
+        """
+        generic window connection method.
+        connects nodes on the same level with each other in an optional window size
+        when max connections != -1, only the first m_c subsequent nodes will be connected
+        setting max connections to 1 makes the connections sequential only
+        """
         edges = []
         level_name = configuration.LEVELS[level_id]
         type = config.structure_connections[level_name][configuration.CONNECTION_TYPE]

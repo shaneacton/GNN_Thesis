@@ -1,5 +1,6 @@
 # word types
 ENTITY = "entity"
+UNIQUE_ENTITY = "unique_entity"
 COREF = "coref"
 
 # structure node types
@@ -17,21 +18,30 @@ WINDOW = "window"  # fully connects nodes which are within a max distance of eac
 SEQUENTIAL = "sequential"  # connects nodes to the next node at its structure level, within optional max distance
 WINDOW_SIZE = "window_size"
 
+# extra
+QUERY = "query"
+CANDIDATE = "candidate"
+
 
 class Configuration:
 
     def __init__(self):
 
-        self.word_nodes = [ENTITY, COREF]
-        self.structure_nodes = [TOKEN, WORD]
+        self.word_nodes = [ENTITY, COREF, UNIQUE_ENTITY]  # types of word nodes to use
+        self.structure_nodes = [WORD, SENTENCE]  # which structure levels to make nodes for
+        self.extra_nodes = []
 
+        # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
-            TOKEN: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
+            TOKEN: {CONNECTION_TYPE: WINDOW, WINDOW_SIZE: 6},
             WORD: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             SENTENCE: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             PARAGRAPH: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             DOCUMENT: {CONNECTION_TYPE: None, WINDOW_SIZE: -1},
         }
+
+    def has_keyword(self, word:str):
+        return word in self.word_nodes or word in self.structure_nodes or word in self.extra_nodes
 
     @property
     def use_words(self):
@@ -41,7 +51,7 @@ class Configuration:
     def use_tokens(self):
         return TOKEN in self.structure_nodes
 
-    def getGraphConstructor(self):
+    def get_graph_constructor(self):
         from Code.Data.Graph.Contructors.compound_graph_constructor import CompoundGraphConstructor
         constructors = []
         if self.use_tokens:

@@ -7,7 +7,9 @@ import torch
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Graph.Nodes.span_node import SpanNode
+from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
+from Code.Data.Text.data_sample import DataSample
 
 
 class ContextGraph:
@@ -16,7 +18,7 @@ class ContextGraph:
     Directed graph constructed from a tokensequence and construction config
     """
 
-    def __init__(self):
+    def __init__(self, data_sample, span_hierarchy):
         self.ordered_nodes: List[Node] = []
         self.node_id_map: Dict[Node, int] = {}  # shortcut to get node id from node ref
         self.span_nodes: Dict[TokenSpan, int] = {}  # maps text segs (eg entities/sentences) to nodes
@@ -26,8 +28,8 @@ class ContextGraph:
         self.ordered_edges: List[EdgeRelation] = []
         self.constructs: List[type] = []  # record of the contruction process used
 
-        self.label: torch.Tensor = None
-        self.query: torch.Tensor = None
+        self.data_sample: DataSample = data_sample
+        self.span_hierarchy: TokenSpanHierarchy = span_hierarchy
 
     def get_nodes_of_type(self, type):
         return [self.ordered_nodes[id] for id in self.typed_nodes[type]]

@@ -17,8 +17,7 @@ class CoreferenceConstructor(GraphConstructor):
     links the new coreference nodes to the existing graph
     """
 
-    def append(self, existing_graph: Union[None, ContextGraph], data_sample: DataSample,
-               context_span_hierarchy: TokenSpanHierarchy) -> ContextGraph:
+    def _append(self, existing_graph: ContextGraph) -> ContextGraph:
 
         if not existing_graph or EntitiesConstructor not in existing_graph.constructs:
             raise IncompatibleGraphContructionOrder(existing_graph, self, "Entities must be graphed before coreferences")
@@ -28,7 +27,7 @@ class CoreferenceConstructor(GraphConstructor):
         except Exception as e:
             raise Exception("Failed to add coref nodes\n\n"+repr(e) + "\n\nexisting nodes:", existing_graph.ordered_nodes, "text ents")
 
-        corefs = context_span_hierarchy.corefs
+        corefs = existing_graph.span_hierarchy.corefs
         for node in entity_nodes:
             ent = node.token_span
             if ent not in corefs.keys():
@@ -40,9 +39,9 @@ class CoreferenceConstructor(GraphConstructor):
             ids = existing_graph.add_nodes(coref_nodes)
             ent_node_id = existing_graph.node_id_map[node]
 
-            edges = [SameEntityEdge(ent_node_id, coref_id, is_coref=True) for coref_id in ids]
+            edges = [SameEntityEdge(ent_node_id, coref_id, to_coref=True) for coref_id in ids]
             existing_graph.add_edges(edges)
 
-        existing_graph.constructs.append(type(self))
+        self.add_construct(existing_graph)
         return existing_graph
             

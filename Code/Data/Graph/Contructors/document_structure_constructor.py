@@ -33,25 +33,20 @@ class DocumentStructureConstructor(GraphConstructor):
         level_indices = sorted(level_indices)
         return level_indices
 
-    def append(self, existing_graph: Union[None, ContextGraph], data_sample: DataSample,
-               context_span_hierarchy: TokenSpanHierarchy) -> ContextGraph:
-
-        if not existing_graph:
-            existing_graph = ContextGraph()
+    def _append(self, existing_graph: ContextGraph) -> ContextGraph:
         level_indices = self.level_indices
-
-        print("based on config", config.structure_nodes, "level indices=", level_indices)
+        print("structuring graph based on config", config.structure_nodes, "level indices=", level_indices)
 
         for i in range(len(level_indices) - 1):
             """
             loops through each container span, creates a node for it and each of its contained spans, 
             then connects the nodes via a DocumentEdge
             """
-            containeD_spans = context_span_hierarchy[level_indices[i]]
-            containeR_spans : List[DocumentExtract] = context_span_hierarchy[level_indices[i+1]]
+            containeD_spans = existing_graph.span_hierarchy[level_indices[i]]
+            containeR_spans : List[DocumentExtract] = existing_graph.span_hierarchy[level_indices[i+1]]
 
             try:
-                contain_map = context_span_hierarchy.match_heirarchical_span_seqs(containeR_spans, containeD_spans)
+                contain_map = existing_graph.span_hierarchy.match_heirarchical_span_seqs(containeR_spans, containeD_spans)
             except Exception as e:
                 print("failed matching", configuration.LEVELS[level_indices[i]], "to",
                       configuration.LEVELS[level_indices[i+1]])
@@ -73,6 +68,7 @@ class DocumentStructureConstructor(GraphConstructor):
                     edge_subtype = DocumentEdge.get_x2y_edge_type(containeR.level, containeD.level)
                     existing_graph.add_edge(DocumentEdge(Rid, Did, edge_subtype))
 
+        self.add_construct(existing_graph)
         return existing_graph
 
 
@@ -94,6 +90,6 @@ if __name__ == "__main__":
         if i >= 5:
             break
 
-        graph = const.append(None, sample)
+        graph = const._append(None, sample)
         print("num nodes:", len(graph.ordered_nodes))
         graph.render_graph(sample.title_and_peek, reader.datset_name)

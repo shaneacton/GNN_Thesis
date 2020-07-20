@@ -1,10 +1,8 @@
-from typing import Union, List
+from typing import List
 
 from Code.Config import config
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.context_graph import ContextGraph
-from Code.Data.Text.Tokenisation import TokenSpanHierarchy
-from Code.Data.Text.data_sample import DataSample
 
 
 class CompoundGraphConstructor(GraphConstructor):
@@ -16,11 +14,10 @@ class CompoundGraphConstructor(GraphConstructor):
     def type(self):
         return ",".join([repr(const) for const in self.constructors])
 
-    def append(self, _existing_graph: Union[None, ContextGraph], data_sample: DataSample, context_span_hierarchy: TokenSpanHierarchy) -> ContextGraph:
-        existing_graph = ContextGraph()
+    def _append(self, existing_graph: ContextGraph) -> ContextGraph:
         for const_type in self.constructors:
             constructor: GraphConstructor = const_type()
-            existing_graph = constructor.append(existing_graph, data_sample, context_span_hierarchy)
+            existing_graph = constructor._append(existing_graph)
             if not existing_graph:
                 raise Exception()
 
@@ -28,7 +25,7 @@ class CompoundGraphConstructor(GraphConstructor):
 
 
 if __name__ == "__main__":
-    cgc = config.getGraphConstructor()
+    cgc = config.get_graph_constructor()
     from Datasets.Readers.squad_reader import SQuADDatasetReader
     from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
 
