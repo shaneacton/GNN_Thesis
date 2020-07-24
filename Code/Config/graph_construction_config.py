@@ -19,14 +19,15 @@ SEQUENTIAL = "sequential"  # connects nodes to the next node at its structure le
 WINDOW_SIZE = "window_size"  # an optional arg for both window and seq
 GLOBAL = "global"  # connects to all other nodes
 
-# extra
-QUERY = "query"  # dictates whether or not to include query nodes of any kind
-CANDIDATE = "candidate"
-
 # query stucture
 QUERY_TOKENS = "query_tokens"  # Longformer style query tokens connected to all context tokens
 QUERY_ENTITIES = "query_entities"  # connected to context entity nodes of same string values
 QUERY_SENTENCE = "query_sentence"  # one node for the whole query
+
+# source types
+CONTEXT = "context"
+QUERY = "query"
+CANDIDATE = "candidate"
 
 
 class GraphConstructionConfig:
@@ -48,7 +49,7 @@ class GraphConstructionConfig:
             DOCUMENT: {CONNECTION_TYPE: None, WINDOW_SIZE: -1},
         }
 
-        self.extra_nodes = [QUERY]
+        self.extra_nodes = []
         self.query_node_types = [QUERY_TOKENS, QUERY_SENTENCE]
 
         self.query_connections = {
@@ -56,7 +57,7 @@ class GraphConstructionConfig:
             QUERY_SENTENCE: [SENTENCE]
         }
 
-        self.context_max_chars = 80
+        self.context_max_chars = 50
 
     def has_keyword(self, word:str):
         return word in self.word_nodes or word in self.structure_nodes or word in self.extra_nodes
@@ -89,7 +90,7 @@ class GraphConstructionConfig:
         from Code.Data.Graph.Contructors.window_edge_constructor import WindowEdgeConstructor
         constructors.append(WindowEdgeConstructor)
 
-        if QUERY in self.extra_nodes:
+        if len(self.query_node_types):
             from Code.Data.Graph.Contructors.query_constructor import QueryConstructor
             constructors.append(QueryConstructor)
 

@@ -32,10 +32,6 @@ class TokenSpan:
     def subtokens(self):
         return self.token_sequence.raw_subtokens[self.subtoken_indexes[0]: self.subtoken_indexes[1]]
 
-    @property
-    def subtoken_embedding_ids(self):
-        return indexer(self.subtokens)
-
     def __repr__(self):
         label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span and self.spacy_span.label_ else ""
         span = ":S" + repr(self.subtoken_indexes)

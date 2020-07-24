@@ -1,27 +1,20 @@
 Todo:
-1: expand graph construction
- 1.1 add support for candidate and query entity nodes / graph construction
- 1.2 swap out spacy coref for something better
- 1.4 AMR
-
 1: Create Graph embedder
  1.1 should contain the trainable weights for document summarisers
  1.2 should contain the weights for the contextual encoder so the embedder can be shipped without needing dependancies
  1.3 make fine tuning the contextual embedder optional
+ 1.4 query aware embeddings
+ 1.5 self attentive-pooling to summarise docs/passages/sents
 
-3: store token span hierarchy in context graph
+1: expand graph construction
+ 1.1 add support for candidate and query entity nodes
+ 1.2 swap out spacy coref for something better
+ 1.4 AMR
+
+
 4: implement context graph gnn
 4: graph config json to define context graph construction methods
-5: start with live conversions - work on saving later
 
-2. implement online summarisation system
- 2.2 seq+query coattention then self attentive-pooling can summarise docs in query aware way
- 2.3 full transformer models can be used for doc summarisation
-3. rework state system
- 3.1 state could be implemented via a multiplexer graph layer which stores every state mat using {state_name: vec} map
- 3.2 state communications could be defined eg current_state, starting_state -> current_state
- 3.3 acts as a graph where communication is edges and states are nodes
- 3.4 concat is used for state combination when multiple inputs are detected
 
 5: Make bert tokeniser cased
 6: add in returning edges for the directed edges

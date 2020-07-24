@@ -68,7 +68,7 @@ class EntitiesConstructor(GraphConstructor):
     @staticmethod
     def get_entity_nodes(existing_graph):
         entities = existing_graph.span_hierarchy.entities
-        entity_nodes = [EntityNode(ent) for ent in entities]
+        entity_nodes = [EntityNode(ent, graph_construction_config.CONTEXT) for ent in entities]
         return entity_nodes
 
     @staticmethod

@@ -39,4 +39,4 @@ class GraphEmbedder(nn.Module):
         return edge_types
 
     def forward(self, graph: ContextGraph) -> GraphEncoding:
-        pass
+        embedded_context_sequence = graph.data_sample.context.token_sequence

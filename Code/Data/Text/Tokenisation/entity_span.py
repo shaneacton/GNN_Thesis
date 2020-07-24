@@ -24,9 +24,6 @@ class EntitySpan(DocumentExtract):
         span = ":S" + repr(self.subtoken_indexes)
         return text + coref + label + span
 
-    def get_embedding(self, sequence_reduction=tail_concatinator):
-        return super().get_embedding(sequence_reduction)
-
     def get_subtype(self):
         return graph_construction_config.COREF if self.is_coref else graph_construction_config.ENTITY
 
