@@ -5,7 +5,7 @@ from spacy.tokens.doc import Doc
 import en_core_web_sm
 import neuralcoref
 
-from Code.Config import configuration
+from Code.Config import graph_construction_config
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
 
@@ -52,7 +52,7 @@ def get_spacy_sentences(tok_seq, spacy_processed_doc=None):
 
     for sent in spacy_sents:
         exact_match = tok_seq.get_word_token_span_from_chars(sent.start_char, sent.end_char, subtokens=True)
-        sentence = DocumentExtract(tok_seq, exact_match, configuration.SENTENCE, sent)
+        sentence = DocumentExtract(tok_seq, exact_match, graph_construction_config.SENTENCE, sent)
         sentences.append(sentence)
 
     return sentences

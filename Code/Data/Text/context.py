@@ -2,6 +2,7 @@ from typing import List, Union
 
 import torch
 
+from Code.Config import gcc
 from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 from Code.Data.Text.passage import Passage
 from Code.Data.Text.text import Text
@@ -42,7 +43,9 @@ class Context:
         return [passage.raw_text for passage in self.passages]
 
     def get_full_context(self):
-        return Context.PASSAGE_BREAK_STRING.join(self.get_all_text_pieces())
+        full_context = Context.PASSAGE_BREAK_STRING.join(self.get_all_text_pieces())
+        full_context = full_context if gcc.context_max_chars == -1 else full_context[:gcc.context_max_chars]
+        return full_context
 
     def get_context_embedding(self):
         """

@@ -2,7 +2,6 @@ import os
 from typing import List, Set, Dict
 
 import graphviz
-import torch
 
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.Nodes.node import Node
@@ -31,8 +30,17 @@ class ContextGraph:
         self.data_sample: DataSample = data_sample
         self.span_hierarchy: TokenSpanHierarchy = span_hierarchy
 
+    @property
+    def query_token_sequence(self):
+        # todo multiple questions?
+        return self.data_sample.questions[0].token_sequence
+
     def get_nodes_of_type(self, type):
         return [self.ordered_nodes[id] for id in self.typed_nodes[type]]
+
+    def get_context_node_ids_at_level(self, level: str):
+        spans = self.span_hierarchy[level]
+        return [self.span_nodes[span] for span in spans]
 
     def add_nodes(self, entity_nodes: List[Node]):
         ids = []
@@ -76,9 +84,3 @@ class ContextGraph:
 
         path = os.path.join('/home/shane/Documents/Thesis/Viz/', graph_folder, graph_name)
         dot.render(path, view=False, format="png")
-
-    def set_label(self, label: torch.Tensor):
-        self.label = label
-
-    def set_query(self, query: torch.Tensor):
-        self.query = query

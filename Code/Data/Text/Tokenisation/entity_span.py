@@ -1,4 +1,4 @@
-from Code.Config import configuration
+from Code.Config import graph_construction_config
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Models import tail_concatinator
 
@@ -14,7 +14,7 @@ class EntitySpan(DocumentExtract):
     """
 
     def __init__(self, token_sequence, subtoken_indexes, spacy_span, is_coref=False):
-        super().__init__(token_sequence, subtoken_indexes, configuration.WORD, spacy_span)
+        super().__init__(token_sequence, subtoken_indexes, graph_construction_config.WORD, spacy_span)
         self.is_coref = is_coref
 
     def __repr__(self):
@@ -28,6 +28,6 @@ class EntitySpan(DocumentExtract):
         return super().get_embedding(sequence_reduction)
 
     def get_subtype(self):
-        return configuration.COREF if self.is_coref else configuration.ENTITY
+        return graph_construction_config.COREF if self.is_coref else graph_construction_config.ENTITY
 
 

@@ -1,11 +1,15 @@
 from typing import List
 
-from Code.Config import config
+from Code.Config import gcc
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.context_graph import ContextGraph
 
 
 class CompoundGraphConstructor(GraphConstructor):
+
+    """
+    passes a graph through multiple constructors in order
+    """
 
     def __init__(self, constructors: List[type]):
         self.constructors = constructors
@@ -25,7 +29,7 @@ class CompoundGraphConstructor(GraphConstructor):
 
 
 if __name__ == "__main__":
-    cgc = config.get_graph_constructor()
+    cgc = gcc.get_graph_constructor()
     from Datasets.Readers.squad_reader import SQuADDatasetReader
     from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
 

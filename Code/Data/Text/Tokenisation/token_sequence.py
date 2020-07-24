@@ -88,6 +88,9 @@ class TokenSequence:
     def __hash__(self):
         return self.text_obj.__hash__()
 
+    def __len__(self):
+        return len(self.raw_subtokens)
+
 
 
 

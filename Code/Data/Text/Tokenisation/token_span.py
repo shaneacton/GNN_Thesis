@@ -2,7 +2,7 @@ from typing import Tuple
 
 from spacy.tokens.span import Span
 
-from Code.Models import tail_concatinator, indexer
+from Code.Models import indexer
 
 
 class TokenSpan:

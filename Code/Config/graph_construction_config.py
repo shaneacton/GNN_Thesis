@@ -16,29 +16,47 @@ LEVELS = [TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT]
 CONNECTION_TYPE = "connection_type"
 WINDOW = "window"  # fully connects nodes which are within a max distance of each other
 SEQUENTIAL = "sequential"  # connects nodes to the next node at its structure level, within optional max distance
-WINDOW_SIZE = "window_size"
+WINDOW_SIZE = "window_size"  # an optional arg for both window and seq
+GLOBAL = "global"  # connects to all other nodes
 
 # extra
-QUERY = "query"
+QUERY = "query"  # dictates whether or not to include query nodes of any kind
 CANDIDATE = "candidate"
 
+# query stucture
+QUERY_TOKENS = "query_tokens"  # Longformer style query tokens connected to all context tokens
+QUERY_ENTITIES = "query_entities"  # connected to context entity nodes of same string values
+QUERY_SENTENCE = "query_sentence"  # one node for the whole query
 
-class Configuration:
+
+class GraphConstructionConfig:
 
     def __init__(self):
 
-        self.word_nodes = [ENTITY, COREF, UNIQUE_ENTITY]  # types of word nodes to use
-        self.structure_nodes = [WORD, SENTENCE]  # which structure levels to make nodes for
-        self.extra_nodes = []
+        self.word_nodes = [ENTITY]  # types of word nodes to use
+        # empty for no filters. filters us OR not AND when combined.
+        # This means filters [CANDIDATE, QUERY] allows which are either candidates or queries
+        self.word_node_filters = []
+        self.structure_nodes = [TOKEN, WORD, SENTENCE]  # which structure levels to make nodes for
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
-            TOKEN: {CONNECTION_TYPE: WINDOW, WINDOW_SIZE: 6},
+            TOKEN: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: 6},
             WORD: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             SENTENCE: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             PARAGRAPH: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             DOCUMENT: {CONNECTION_TYPE: None, WINDOW_SIZE: -1},
         }
+
+        self.extra_nodes = [QUERY]
+        self.query_node_types = [QUERY_TOKENS, QUERY_SENTENCE]
+
+        self.query_connections = {
+            QUERY_TOKENS: [TOKEN],
+            QUERY_SENTENCE: [SENTENCE]
+        }
+
+        self.context_max_chars = 80
 
     def has_keyword(self, word:str):
         return word in self.word_nodes or word in self.structure_nodes or word in self.extra_nodes
@@ -70,6 +88,10 @@ class Configuration:
 
         from Code.Data.Graph.Contructors.window_edge_constructor import WindowEdgeConstructor
         constructors.append(WindowEdgeConstructor)
+
+        if QUERY in self.extra_nodes:
+            from Code.Data.Graph.Contructors.query_constructor import QueryConstructor
+            constructors.append(QueryConstructor)
 
         cgc = CompoundGraphConstructor(constructors)
         return cgc

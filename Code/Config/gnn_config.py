@@ -1,0 +1,4 @@
+
+class GNNConfig:
+
+    pass

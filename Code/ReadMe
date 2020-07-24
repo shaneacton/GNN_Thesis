@@ -2,7 +2,6 @@ Todo:
 1: expand graph construction
  1.1 add support for candidate and query entity nodes / graph construction
  1.2 swap out spacy coref for something better
- 1.3 hierarchical unique entity nodes
  1.4 AMR
 
 1: Create Graph embedder

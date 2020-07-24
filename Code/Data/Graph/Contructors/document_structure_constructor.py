@@ -1,6 +1,6 @@
 from typing import Union, Type, List
 
-from Code.Config import config, configuration
+from Code.Config import gcc, graph_construction_config
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Edges.document_edge import DocumentEdge
 from Code.Data.Graph.Nodes.document_structure_node import DocumentStructureNode
@@ -29,13 +29,13 @@ class DocumentStructureConstructor(GraphConstructor):
 
     @property
     def level_indices(self):
-        level_indices = [configuration.LEVELS.index(level) for level in config.structure_nodes]
+        level_indices = [graph_construction_config.LEVELS.index(level) for level in gcc.structure_nodes]
         level_indices = sorted(level_indices)
         return level_indices
 
     def _append(self, existing_graph: ContextGraph) -> ContextGraph:
         level_indices = self.level_indices
-        print("structuring graph based on config", config.structure_nodes, "level indices=", level_indices)
+        print("structuring graph based on config", gcc.structure_nodes, "level indices=", level_indices)
 
         for i in range(len(level_indices) - 1):
             """
@@ -48,8 +48,8 @@ class DocumentStructureConstructor(GraphConstructor):
             try:
                 contain_map = existing_graph.span_hierarchy.match_heirarchical_span_seqs(containeR_spans, containeD_spans)
             except Exception as e:
-                print("failed matching", configuration.LEVELS[level_indices[i]], "to",
-                      configuration.LEVELS[level_indices[i+1]])
+                print("failed matching", graph_construction_config.LEVELS[level_indices[i]], "to",
+                      graph_construction_config.LEVELS[level_indices[i + 1]])
                 raise e
 
             # print("contain map:", contain_map)

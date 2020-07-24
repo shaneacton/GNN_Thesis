@@ -1,6 +1,6 @@
 from typing import List, Dict, Union
 
-from Code.Config import config, configuration
+from Code.Config import gcc, graph_construction_config
 from Code.Data.Text.Tokenisation import tokenisation_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
@@ -63,7 +63,9 @@ class TokenSpanHierarchy:
 
         return mapping
 
-    def __getitem__(self, item) -> Union[List[DocumentExtract], TokenSequence]:
+    def __getitem__(self, item) -> List[DocumentExtract]:
+        if isinstance(item, str):
+            return self[graph_construction_config.LEVELS.index(item)]
         if item == 0:
             return self.tokens
         if item == 1:
@@ -81,8 +83,8 @@ class TokenSpanHierarchy:
 
     @property
     def words(self):
-        entities = "entity" in config.word_nodes
-        corefs = "coref" in config.word_nodes
+        entities = "entity" in gcc.word_nodes
+        corefs = "coref" in gcc.word_nodes
 
         if entities and not corefs:
             return self.entities
@@ -124,7 +126,7 @@ class TokenSpanHierarchy:
 
     @property
     def full_document(self):
-        return DocumentExtract(self.token_sequence, (0, len(self.token_sequence.raw_subtokens)), configuration.DOCUMENT)
+        return DocumentExtract(self.token_sequence, (0, len(self.token_sequence.raw_subtokens)), graph_construction_config.DOCUMENT)
 
     @property
     def passages(self):

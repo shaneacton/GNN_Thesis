@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from Code.Config import configuration
+from Code.Config import graph_construction_config
 from Code.Data.Text.Tokenisation import spacy_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
@@ -18,7 +18,7 @@ def get_passages(tok_seq) -> List[DocumentExtract]:
 
         # +1 to include one of the passage sep tokens for alignment reasons
         match = (matches[0][0], min(matches[0][1] + 1, len(tok_seq.raw_subtokens)))
-        passage = DocumentExtract(tok_seq, match, configuration.PARAGRAPH)
+        passage = DocumentExtract(tok_seq, match, graph_construction_config.PARAGRAPH)
         passages.append(passage)
 
     return passages
