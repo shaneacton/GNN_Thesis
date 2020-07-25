@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Union
 
+from Code.Config import gcc
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 from Code.Data.Text.data_sample import DataSample
@@ -24,7 +24,7 @@ class GraphConstructor(ABC):
 
     def create_graph_from_data_sample(self, data_sample: DataSample):
         context_span_hierarchy = TokenSpanHierarchy(data_sample.context.token_sequence)
-        graph = ContextGraph(data_sample, context_span_hierarchy)
+        graph = ContextGraph(data_sample, context_span_hierarchy, gcc=gcc)
         return self._append(graph)
 
 

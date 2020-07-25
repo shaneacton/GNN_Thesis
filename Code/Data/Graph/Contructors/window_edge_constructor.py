@@ -1,4 +1,4 @@
-from Code.Config import gcc, graph_construction_config
+from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.document_structure_constructor import DocumentStructureConstructor
 from Code.Data.Graph.Edges.window_edge import WindowEdge
 from Code.Data.Graph.context_graph import ContextGraph
@@ -8,7 +8,7 @@ class WindowEdgeConstructor(DocumentStructureConstructor):
 
     def _append(self, existing_graph: ContextGraph) -> ContextGraph:
 
-        level_indices = self.level_indices
+        level_indices = self.level_indices(existing_graph)
         for level_id in level_indices:
             self.connect_level(existing_graph, existing_graph.span_hierarchy, level_id)
 
@@ -17,13 +17,13 @@ class WindowEdgeConstructor(DocumentStructureConstructor):
 
     def connect_level(self, existing_graph, context_span_hierarchy, level_id):
         spans = context_span_hierarchy[level_id]
-        level_name = graph_construction_config.LEVELS[level_id]
-        connection_config = gcc.structure_connections[level_name]
+        level_name = construction.LEVELS[level_id]
+        connection_config = existing_graph.gcc.structure_connections[level_name]
         
-        window_size = connection_config[graph_construction_config.WINDOW_SIZE]
-        if connection_config[graph_construction_config.CONNECTION_TYPE] == graph_construction_config.SEQUENTIAL:
+        window_size = connection_config[construction.WINDOW_SIZE]
+        if connection_config[construction.CONNECTION_TYPE] == construction.SEQUENTIAL:
             self.connect_level_sequentially(existing_graph, spans, window_size, level_id)
-        if connection_config[graph_construction_config.CONNECTION_TYPE] == graph_construction_config.WINDOW:
+        if connection_config[construction.CONNECTION_TYPE] == construction.WINDOW:
             self.connect_level_in_window(existing_graph, spans, window_size, level_id)
 
     def connect_level_sequentially(self, existing_graph: ContextGraph, spans, window_size, level_id):
@@ -41,8 +41,8 @@ class WindowEdgeConstructor(DocumentStructureConstructor):
         setting max connections to 1 makes the connections sequential only
         """
         edges = []
-        level_name = graph_construction_config.LEVELS[level_id]
-        type = gcc.structure_connections[level_name][graph_construction_config.CONNECTION_TYPE]
+        level_name = construction.LEVELS[level_id]
+        type = existing_graph.gcc.structure_connections[level_name][construction.CONNECTION_TYPE]
         for i in range(len(spans) - 1):
             span1 = spans[i]
 

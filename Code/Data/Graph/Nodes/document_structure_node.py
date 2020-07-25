@@ -16,3 +16,6 @@ class DocumentStructureNode(SpanNode):
         if self.token_span.level == graph_construction_config.SENTENCE:
             return super().get_node_viz_text()
         return repr(self.token_span.level)
+
+    def get_structure_level(self):
+        return self.token_span.level

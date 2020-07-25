@@ -16,3 +16,6 @@ class QueryNode(SpanNode):
     def get_node_viz_text(self):
         text = "QUERY: " + self.token_span.text
         return "\n".join(textwrap.wrap(text, 16))
+
+    def get_structure_level(self):
+        return self.subtype

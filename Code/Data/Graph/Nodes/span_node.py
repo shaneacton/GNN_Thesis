@@ -1,5 +1,5 @@
 import textwrap
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Text.Tokenisation.token_span import TokenSpan

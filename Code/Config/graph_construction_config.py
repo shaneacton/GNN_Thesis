@@ -38,7 +38,7 @@ class GraphConstructionConfig:
         # empty for no filters. filters us OR not AND when combined.
         # This means filters [CANDIDATE, QUERY] allows which are either candidates or queries
         self.word_node_filters = []
-        self.structure_nodes = [TOKEN, WORD, SENTENCE]  # which structure levels to make nodes for
+        self.context_structure_nodes = [TOKEN, WORD, SENTENCE]  # which structure levels to make nodes for
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
@@ -52,23 +52,27 @@ class GraphConstructionConfig:
         self.extra_nodes = []
         self.query_node_types = [QUERY_TOKENS, QUERY_SENTENCE]
 
-        self.query_connections = {
+        self.query_connections = {  # defines how the query nodes connect to the context
             QUERY_TOKENS: [TOKEN],
             QUERY_SENTENCE: [SENTENCE]
         }
 
         self.context_max_chars = 50
 
+    @property
+    def all_structure_levels(self):
+        return self.context_structure_nodes + self.query_node_types
+
     def has_keyword(self, word:str):
-        return word in self.word_nodes or word in self.structure_nodes or word in self.extra_nodes
+        return word in self.word_nodes or word in self.context_structure_nodes or word in self.extra_nodes
 
     @property
     def use_words(self):
-        return WORD in self.structure_nodes
+        return WORD in self.context_structure_nodes
 
     @property
     def use_tokens(self):
-        return TOKEN in self.structure_nodes
+        return TOKEN in self.context_structure_nodes
 
     def get_graph_constructor(self):
         from Code.Data.Graph.Contructors.compound_graph_constructor import CompoundGraphConstructor
@@ -83,7 +87,7 @@ class GraphConstructionConfig:
             if COREF in self.word_nodes:
                 from Code.Data.Graph.Contructors.coreference_constructor import CoreferenceConstructor
                 constructors.append(CoreferenceConstructor)
-        if len(self.structure_nodes) != 1:  # if only one level included - no need for hierarchal structure
+        if len(self.context_structure_nodes) != 1:  # if only one level included - no need for hierarchal structure
             from Code.Data.Graph.Contructors.document_structure_constructor import DocumentStructureConstructor
             constructors.append(DocumentStructureConstructor)
 

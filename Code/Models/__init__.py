@@ -14,7 +14,7 @@ with torch.no_grad():
         bert_tokeniser = CustomBertTokenizer.from_pretrained("bert-base-uncased")
         bert_model = BertModel.from_pretrained("bert-base-uncased").to(device)
 
-        basic_tokeniser = lambda string: basic_bert_tokeniser.tokenize(string)
+        basic_tokeniser = lambda string: basic_bert_tokeniser.tokenize(string)  # no subtoken splitting
         subtoken_mapper = lambda string: bert_tokeniser.tokenize(string)[1]
         tokeniser = lambda string: bert_tokeniser.tokenize(string)[0]
 
