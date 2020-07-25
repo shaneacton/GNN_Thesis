@@ -13,14 +13,15 @@ class SpanNode(Node, ABC):
         super().__init__(subtype=subtype, source=source)
 
     def get_node_viz_text(self):
-        text = self.token_span.text + "\n" + repr(self.token_span.subtoken_indexes)
-        return "\n".join(textwrap.wrap(text, 16))
+        text = "QUERY: " if self.source == construction.QUERY else ""
+        text += self.token_span.text + "\n" + repr(self.token_span.subtoken_indexes)
+        return "\n".join(textwrap.wrap(text, 24))
 
     def __eq__(self, other):
-        return self.token_span == other.token_span
+        return self.token_span == other.token_span and type(self) == type(other)
 
     def __hash__(self):
-        return hash(self.token_span)
+        return hash(self.token_span) + 11 * hash(type(self))
 
     def __repr__(self):
         return super(SpanNode, self).__repr__() + " - '" + repr(self.token_span) + "'"

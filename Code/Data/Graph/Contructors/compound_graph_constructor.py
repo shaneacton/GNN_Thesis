@@ -49,6 +49,8 @@ if __name__ == "__main__":
 
         embedder = gec.get_graph_embedder(gcc)
         embedding = embedder(graph)
+
+        # print("embedder:", embedder)
         print("embedding:", embedding)
         # print("sample:", sample)
         # print("num nodes:", len(graph.ordered_nodes))

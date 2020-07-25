@@ -35,13 +35,16 @@ class TokenSpan:
     def __repr__(self):
         label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span and self.spacy_span.label_ else ""
         span = ":S" + repr(self.subtoken_indexes)
-        return self.text + label + span
+        return repr(type(self)) + " " + self.text + label + span
 
-    def __eq__(self, other):
+    def span_match(self, other):
         return self.token_sequence == other.token_sequence and self.subtoken_indexes == other.subtoken_indexes
 
+    def __eq__(self, other):
+        return self.span_match(other) and type(self) == type(other)
+
     def __hash__(self):
-        return self.token_sequence.__hash__() + 7 * self.subtoken_indexes.__hash__()
+        return self.token_sequence.__hash__() + 7 * self.subtoken_indexes.__hash__() + 3 * hash(type(self))
 
     def distance(self, other_entity):
         """

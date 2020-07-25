@@ -5,10 +5,10 @@ from Code.Data.Text.Tokenisation.entity_span import EntitySpan
 
 class EntityNode(SpanNode):
 
-    def __init__(self, entity: EntitySpan, subtype=None):
+    def __init__(self, entity: EntitySpan, source=construction.CONTEXT, subtype=None):
         if not subtype:
             subtype = entity.get_subtype()
-        super().__init__(entity, subtype=subtype)
+        super().__init__(entity, subtype=subtype, source=source)
 
     @property
     def is_coref(self):

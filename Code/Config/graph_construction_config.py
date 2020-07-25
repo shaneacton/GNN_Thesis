@@ -20,8 +20,8 @@ WINDOW_SIZE = "window_size"  # an optional arg for both window and seq
 GLOBAL = "global"  # connects to all other nodes
 
 # query stucture
-QUERY_TOKENS = "query_tokens"  # Longformer style query tokens connected to all context tokens
-QUERY_ENTITIES = "query_entities"  # connected to context entity nodes of same string values
+QUERY_TOKEN = "query_token"  # Longformer style query tokens connected to all context tokens
+QUERY_ENTITY = "query_entity"  # connected to context entity nodes of same string values
 QUERY_SENTENCE = "query_sentence"  # one node for the whole query
 
 # source types
@@ -34,11 +34,11 @@ class GraphConstructionConfig:
 
     def __init__(self):
 
-        self.word_nodes = [ENTITY]  # types of word nodes to use
+        self.word_nodes = [ENTITY, COREF]  # types of word nodes to use
         # empty for no filters. filters us OR not AND when combined.
         # This means filters [CANDIDATE, QUERY] allows which are either candidates or queries
         self.word_node_filters = []
-        self.context_structure_nodes = [TOKEN, WORD, SENTENCE]  # which structure levels to make nodes for
+        self.context_structure_nodes = [TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT]  # which structure levels to make nodes for
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
@@ -50,10 +50,11 @@ class GraphConstructionConfig:
         }
 
         self.extra_nodes = []
-        self.query_node_types = [QUERY_TOKENS, QUERY_SENTENCE]
+        self.query_node_types = [QUERY_TOKEN, QUERY_ENTITY, QUERY_SENTENCE]
 
         self.query_connections = {  # defines how the query nodes connect to the context
-            QUERY_TOKENS: [TOKEN],
+            QUERY_TOKEN: [TOKEN],
+            QUERY_ENTITY: [WORD],
             QUERY_SENTENCE: [SENTENCE]
         }
 

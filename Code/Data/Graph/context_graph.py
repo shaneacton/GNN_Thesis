@@ -50,7 +50,7 @@ class ContextGraph:
             ids.append(self.add_node(node))
         return ids
 
-    def add_node(self, node):
+    def add_node(self, node: Node):
         if node in self.node_id_map.keys():
             return self.node_id_map[node]
         else:

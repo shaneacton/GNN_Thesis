@@ -35,7 +35,7 @@ class TokenSpanHierarchy:
 
     @staticmethod
     def match_heirarchical_span_seqs(containing_spans: List[DocumentExtract], contained_spans: List[DocumentExtract]) -> Dict[
-        TokenSpan, List[TokenSpan]]:
+        DocumentExtract, List[DocumentExtract]]:
         """
         inputs 2 sorted span sequences such as a list of sentences and entities or passages and sentences
         each list should be in order of appearance in text

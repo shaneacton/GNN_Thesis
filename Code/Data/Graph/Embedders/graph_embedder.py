@@ -2,6 +2,7 @@ from typing import List, Dict
 
 import torch
 from torch import nn
+from torch.nn import ModuleDict
 
 from Code.Config import gec, GraphEmbeddingConfig
 from Code.Config import graph_construction_config as construction
@@ -27,6 +28,12 @@ class GraphEmbedder(nn.Module):
         self.gec: GraphEmbeddingConfig = gec
         self.token_embedder: TokenSequenceEmbedder = embedder
         self.sequence_summarisers: Dict[str, SequenceSummariser] = {}  # maps structure level to a sequence summariser
+
+        self.summarisers: ModuleDict = None
+
+    def on_create_finished(self):
+        """called after all summarisers added to register the modules"""
+        self.summarisers = ModuleDict(self.sequence_summarisers)
 
     @staticmethod
     def edge_index(graph: ContextGraph):
@@ -102,7 +109,7 @@ class GraphEmbedder(nn.Module):
         structure_level = node.get_structure_level()
         token_embeddings = self.get_embedded_elements_in_span(full_embedded_sequence, node.token_span)
 
-        if structure_level == construction.TOKEN or structure_level == construction.QUERY_TOKENS:
+        if structure_level == construction.TOKEN or structure_level == construction.QUERY_TOKEN:
             """no summariser needed"""
             if token_embeddings.size(1) != 1:
                 """token nodes should have exactly 1 seq elem"""

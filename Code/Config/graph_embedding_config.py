@@ -16,7 +16,7 @@ class GraphEmbeddingConfig:
             construction.PARAGRAPH: HEAD_AND_TAIL_CAT,
             construction.DOCUMENT: HEAD_AND_TAIL_CAT,
 
-            construction.QUERY_ENTITIES: HEAD_AND_TAIL_CAT,
+            construction.QUERY_ENTITY: HEAD_AND_TAIL_CAT,
             construction.QUERY_SENTENCE: HEAD_AND_TAIL_CAT
         }
 
@@ -33,10 +33,11 @@ class GraphEmbeddingConfig:
         from Code.Config import GraphConstructionConfig
         gcc: GraphConstructionConfig = gcc
         for structure_level in gcc.all_structure_levels:
-            if structure_level == construction.TOKEN or structure_level == construction.QUERY_TOKENS:
+            if structure_level == construction.TOKEN or structure_level == construction.QUERY_TOKEN:
                 continue
             graph_embedder.sequence_summarisers[structure_level] = self.get_sequence_embedder(structure_level)
 
+        graph_embedder.on_create_finished()
         return graph_embedder
 
     def get_sequence_embedder(self, structure_level):

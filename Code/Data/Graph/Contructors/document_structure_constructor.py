@@ -10,16 +10,17 @@ from Code.Data.Graph.Nodes.token_node import TokenNode
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
-from Code.Data.Text.Tokenisation.token_span import TokenSpan
+from Code.Data.Text.Tokenisation.token import Token
 
 
 def get_node_type(span) -> Type[SpanNode]:
     if isinstance(span, EntitySpan):
         return EntityNode
+    if isinstance(span, Token):
+        return TokenNode
     if isinstance(span, DocumentExtract):
         return DocumentStructureNode
-    if isinstance(span, TokenSpan):
-        return TokenNode
+
     raise Exception("cannot find type of span: " + repr(type(span)) + "-" +repr(span))
 
 
@@ -37,7 +38,7 @@ class DocumentStructureConstructor(GraphConstructor):
             loops through each container span, creates a node for it and each of its contained spans, 
             then connects the nodes via a DocumentEdge
             """
-            containeD_spans = existing_graph.span_hierarchy[level_indices[i]]
+            containeD_spans : List[DocumentExtract] = existing_graph.span_hierarchy[level_indices[i]]
             containeR_spans : List[DocumentExtract] = existing_graph.span_hierarchy[level_indices[i+1]]
 
             try:

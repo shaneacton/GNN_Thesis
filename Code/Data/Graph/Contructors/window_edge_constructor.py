@@ -2,6 +2,7 @@ from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.document_structure_constructor import DocumentStructureConstructor
 from Code.Data.Graph.Edges.window_edge import WindowEdge
 from Code.Data.Graph.context_graph import ContextGraph
+from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 
 
 class WindowEdgeConstructor(DocumentStructureConstructor):
@@ -15,7 +16,7 @@ class WindowEdgeConstructor(DocumentStructureConstructor):
         self.add_construct(existing_graph)
         return existing_graph
 
-    def connect_level(self, existing_graph, context_span_hierarchy, level_id):
+    def connect_level(self, existing_graph, context_span_hierarchy: TokenSpanHierarchy, level_id):
         spans = context_span_hierarchy[level_id]
         level_name = construction.LEVELS[level_id]
         connection_config = existing_graph.gcc.structure_connections[level_name]

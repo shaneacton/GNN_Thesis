@@ -12,5 +12,11 @@ class DocumentExtract(TokenSpan):
     def get_subtype(self):
         return self.level
 
+    def __eq__(self, other):
+        return super(DocumentExtract, self).__eq__(other) and self.level == other.level
+
+    def __hash__(self):
+        return super().__hash__() + 5 * hash(self.level)
+
 
 
