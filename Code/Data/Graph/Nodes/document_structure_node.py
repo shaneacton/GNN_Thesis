@@ -19,3 +19,5 @@ class DocumentStructureNode(SpanNode):
 
     def get_structure_level(self):
         return self.token_span.level
+
+

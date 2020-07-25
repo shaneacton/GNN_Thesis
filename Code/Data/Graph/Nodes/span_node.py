@@ -1,15 +1,16 @@
 import textwrap
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
+from Code.Config import graph_construction_config as construction
 
 
 class SpanNode(Node, ABC):
 
-    def __init__(self, token_span: TokenSpan, subtype=None):
+    def __init__(self, token_span: TokenSpan, source=construction.CONTEXT, subtype=None):
         self.token_span = token_span
-        super().__init__(subtype=subtype)
+        super().__init__(subtype=subtype, source=source)
 
     def get_node_viz_text(self):
         text = self.token_span.text + "\n" + repr(self.token_span.subtoken_indexes)
@@ -20,3 +21,6 @@ class SpanNode(Node, ABC):
 
     def __hash__(self):
         return hash(self.token_span)
+
+    def __repr__(self):
+        return super(SpanNode, self).__repr__() + " - '" + repr(self.token_span) + "'"

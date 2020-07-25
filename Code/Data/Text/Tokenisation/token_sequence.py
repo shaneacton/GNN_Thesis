@@ -91,6 +91,8 @@ class TokenSequence:
     def __len__(self):
         return len(self.raw_subtokens)
 
+    def __repr__(self):
+        return "Token Sequence: " + repr(self.raw_subtokens)
 
 
 

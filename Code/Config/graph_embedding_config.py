@@ -12,17 +12,17 @@ class GraphEmbeddingConfig:
 
         self.span_summarisation_methods = {
             construction.WORD: HEAD_AND_TAIL_CAT,
-            construction.SENTENCE: SELF_ATTENTIVE_POOLING,
-            construction.PARAGRAPH: SELF_ATTENTIVE_POOLING,
-            construction.DOCUMENT: SELF_ATTENTIVE_POOLING,
+            construction.SENTENCE: HEAD_AND_TAIL_CAT,
+            construction.PARAGRAPH: HEAD_AND_TAIL_CAT,
+            construction.DOCUMENT: HEAD_AND_TAIL_CAT,
 
             construction.QUERY_ENTITIES: HEAD_AND_TAIL_CAT,
-            construction.QUERY_SENTENCE: SELF_ATTENTIVE_POOLING
+            construction.QUERY_SENTENCE: HEAD_AND_TAIL_CAT
         }
 
     def get_graph_embedder(self, gcc):
         from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
-        graph_embedder = GraphEmbedder()
+        graph_embedder = GraphEmbedder(self)
 
         from Code.Models import token_embedder
         from Code.Data.Graph.Embedders.token_embedder import TokenSequenceEmbedder
@@ -33,7 +33,9 @@ class GraphEmbeddingConfig:
         from Code.Config import GraphConstructionConfig
         gcc: GraphConstructionConfig = gcc
         for structure_level in gcc.all_structure_levels:
-            graph_embedder.node_embedders[structure_level] = self.get_sequence_embedder(structure_level)
+            if structure_level == construction.TOKEN or structure_level == construction.QUERY_TOKENS:
+                continue
+            graph_embedder.sequence_summarisers[structure_level] = self.get_sequence_embedder(structure_level)
 
         return graph_embedder
 

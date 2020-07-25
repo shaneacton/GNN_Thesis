@@ -1,6 +1,6 @@
 from typing import List
 
-from Code.Config import gcc
+from Code.Config import gcc, gec
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.context_graph import ContextGraph
 
@@ -46,6 +46,10 @@ if __name__ == "__main__":
             break
 
         graph = cgc.create_graph_from_data_sample(data_sample=sample)
+
+        embedder = gec.get_graph_embedder(gcc)
+        embedding = embedder(graph)
+        print("embedding:", embedding)
         # print("sample:", sample)
         # print("num nodes:", len(graph.ordered_nodes))
         graph.render_graph(sample.title_and_peek, reader.datset_name)

@@ -2,6 +2,7 @@ import textwrap
 
 from Code.Data.Graph.Nodes.span_node import SpanNode
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
+from Code.Config import graph_construction_config as construction
 
 
 class QueryNode(SpanNode):
@@ -11,7 +12,7 @@ class QueryNode(SpanNode):
     """
 
     def __init__(self, token_span: TokenSpan, subtype):
-        super().__init__(token_span, subtype=subtype)
+        super().__init__(token_span, subtype=subtype, source=construction.QUERY)
 
     def get_node_viz_text(self):
         text = "QUERY: " + self.token_span.text

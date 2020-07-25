@@ -26,3 +26,6 @@ class GraphFeature(ABC):
     def get_type_tensor(self):
         type_id = type_map.get_id_from_type(self.get_type())
         return torch.tensor([type_id]).to(device)
+
+    def __repr__(self):
+        return repr(type(self)) + ": " + self.subtype

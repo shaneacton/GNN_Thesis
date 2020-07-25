@@ -32,8 +32,6 @@ class DocumentStructureConstructor(GraphConstructor):
 
     def _append(self, existing_graph: ContextGraph) -> ContextGraph:
         level_indices = self.level_indices(existing_graph)
-        print("structuring graph based on config", existing_graph.gcc.context_structure_nodes, "level indices=", level_indices)
-
         for i in range(len(level_indices) - 1):
             """
             loops through each container span, creates a node for it and each of its contained spans, 
