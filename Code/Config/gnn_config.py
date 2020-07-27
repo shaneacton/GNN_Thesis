@@ -34,9 +34,6 @@ class GNNConfig:
                 DISTINCT_WEIGHT_REPEATS: 1,
                 LAYER_ARGS : {ACTIVATION_TYPE: nn.ReLU, PROPAGATION_TYPE: SAGEConv, POOL_TYPE: TopKPooling,
                 POOL_ARGS: {POOL_RATIO: 0.8}}
-            },
-            {
-
             }
         ]
 
