@@ -5,9 +5,9 @@ from Code.Data.Graph.Nodes.document_structure_node import DocumentStructureNode
 from Code.Data.Graph.Nodes.entity_node import EntityNode
 from Code.Data.Graph.Nodes.token_node import TokenNode
 from Code.Data.Graph.context_graph import ContextGraph
-from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
+from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
 
 
 class QueryConstructor(GraphConstructor):

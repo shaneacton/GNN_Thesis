@@ -1,5 +1,5 @@
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
-from Code.Models import tail_concatinator
+from Code.Data import tail_concatinator
 
 
 class Candidate(TokenSpan):

@@ -53,9 +53,9 @@ class GraphConstructionConfig:
         self.query_node_types = [QUERY_TOKEN, QUERY_ENTITY, QUERY_SENTENCE]
 
         self.query_connections = {  # defines how the query nodes connect to the context
-            QUERY_TOKEN: [TOKEN],
-            QUERY_ENTITY: [WORD],
-            QUERY_SENTENCE: [SENTENCE]
+            QUERY_TOKEN: [WORD],
+            QUERY_ENTITY: [SENTENCE],
+            QUERY_SENTENCE: [PARAGRAPH]
         }
 
         self.context_max_chars = 50

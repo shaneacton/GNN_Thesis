@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from Code.Config import gcc
 from Code.Data.Graph.context_graph import ContextGraph
-from Code.Data.Text.Tokenisation import TokenSpanHierarchy
+from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
 from Code.Data.Text.data_sample import DataSample
 
 

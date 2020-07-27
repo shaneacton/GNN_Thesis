@@ -5,7 +5,7 @@ import torch
 from Code.Data.Text.Answers.answer import Answer
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Data.Text.text import Text
-from Code.Models import tail_concatinator
+from Code.Data import tail_concatinator
 
 
 class Answers:

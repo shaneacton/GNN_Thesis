@@ -11,9 +11,10 @@ from Code.Data.Graph.Embedders.sequence_summariser import SequenceSummariser
 from Code.Data.Graph.Embedders.token_embedder import TokenSequenceEmbedder
 from Code.Data.Graph.Nodes.span_node import SpanNode
 from Code.Data.Graph.context_graph import ContextGraph
-from Code.Data.Text.Tokenisation import TokenSequence
+from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
-from Code.Models import embedder
+from Code.Data import embedder
+from Code.Training import device
 
 
 class GraphEmbedder(nn.Module):
@@ -36,7 +37,7 @@ class GraphEmbedder(nn.Module):
         self.summarisers = ModuleDict(self.sequence_summarisers)
 
     @staticmethod
-    def edge_index(graph: ContextGraph):
+    def edge_index(graph: ContextGraph) -> torch.Tensor:
         """
         converts edges into connection info for pytorch geometric
         """
@@ -46,7 +47,7 @@ class GraphEmbedder(nn.Module):
                 index[from_to].append(edge[from_to])
                 if not edge.directed:  # adds returning direction
                     index[from_to].append(edge[1-from_to])
-        return index
+        return torch.tensor(index).to(device=device)
 
     @staticmethod
     def edge_types(graph: ContextGraph):

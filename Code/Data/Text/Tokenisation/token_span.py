@@ -2,8 +2,6 @@ from typing import Tuple
 
 from spacy.tokens.span import Span
 
-from Code.Models import indexer
-
 
 class TokenSpan:
 

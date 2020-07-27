@@ -1,6 +1,5 @@
 from Code.Config import graph_construction_config
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
-from Code.Models import tail_concatinator
 
 
 class EntitySpan(DocumentExtract):

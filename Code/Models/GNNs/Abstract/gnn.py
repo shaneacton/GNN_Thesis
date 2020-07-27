@@ -1,7 +1,6 @@
 from torch import nn
 from torch_geometric.data import Batch
 
-from Code.Data.Graph.State.state_set import StateSet
 from Code.Models.GNNs.Abstract.graph_layer import GraphLayer
 
 
@@ -19,6 +18,3 @@ class GNN(nn.Module):
         data_args = data.__dict__
         present_args = {arg: data_args[arg] for arg in layer_args if arg in data_args.keys()}
         return present_args
-
-    def get_state_set_from_batch(self, data: Batch):
-        ss = StateSet(StateSet.CONTEXT)

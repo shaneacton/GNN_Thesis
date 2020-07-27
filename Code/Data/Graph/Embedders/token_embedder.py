@@ -3,7 +3,7 @@ from typing import Callable, List
 import torch
 from torch import nn
 
-from Code.Data.Text.Tokenisation import TokenSequence
+from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 
 
 class TokenSequenceEmbedder(nn.Module):

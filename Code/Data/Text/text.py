@@ -4,7 +4,7 @@ from math import ceil
 import torch
 
 from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
-from Code.Models import embedder
+from Code.Data import embedder
 
 
 class Text:

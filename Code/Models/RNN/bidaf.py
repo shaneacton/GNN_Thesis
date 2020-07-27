@@ -2,7 +2,7 @@ from torch.nn import LSTM
 
 from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
-from Code.Models import embedded_size
+from Code.Data import embedded_size
 from Code.Models.Layers.attention_flow import AttentionFlow
 from Code.Models.Layers.seq2cand import Seq2Cand
 from Code.Models.Layers.seq2span_flow import Seq2SpanFlow

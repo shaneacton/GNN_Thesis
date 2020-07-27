@@ -2,7 +2,7 @@ from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.document_structure_constructor import DocumentStructureConstructor
 from Code.Data.Graph.Edges.window_edge import WindowEdge
 from Code.Data.Graph.context_graph import ContextGraph
-from Code.Data.Text.Tokenisation import TokenSpanHierarchy
+from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
 
 
 class WindowEdgeConstructor(DocumentStructureConstructor):

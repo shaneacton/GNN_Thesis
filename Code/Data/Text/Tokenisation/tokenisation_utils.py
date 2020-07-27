@@ -4,7 +4,7 @@ from Code.Config import graph_construction_config
 from Code.Data.Text.Tokenisation import spacy_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
-from Code.Models import basic_tokeniser, tokeniser
+from Code.Data import tokeniser, basic_tokeniser
 
 
 def get_passages(tok_seq) -> List[DocumentExtract]:

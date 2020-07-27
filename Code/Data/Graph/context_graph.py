@@ -7,8 +7,8 @@ from Code.Config import GraphConstructionConfig
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Graph.Nodes.span_node import SpanNode
-from Code.Data.Text.Tokenisation import TokenSpanHierarchy
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
+from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
 from Code.Data.Text.data_sample import DataSample
 
 

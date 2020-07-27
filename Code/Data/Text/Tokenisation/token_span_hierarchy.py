@@ -1,4 +1,4 @@
-from typing import List, Dict, Union
+from typing import List, Dict
 
 from Code.Config import gcc, graph_construction_config
 from Code.Data.Text.Tokenisation import tokenisation_utils
@@ -6,7 +6,6 @@ from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
 from Code.Data.Text.Tokenisation.spacy_utils import get_spacy_sentences, get_spacy_coreferences
 from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
-from Code.Data.Text.Tokenisation.token_span import TokenSpan
 from Code.Data.Text.Tokenisation.tokenisation_utils import get_passages
 
 

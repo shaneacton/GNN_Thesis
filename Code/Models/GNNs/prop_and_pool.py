@@ -34,7 +34,6 @@ class PropAndPool(GNN):
 
     def forward(self, data: Batch):
         kwargs = self.get_required_kwargs_from_batch(data, self.prop_module)
-        state_set = self.get_state_set_from_batch(data)
 
         try:
             _, outs = self.prop_module(**kwargs)
@@ -42,7 +41,7 @@ class PropAndPool(GNN):
             print("failed to prop through", self.prop_module, "with kwargs:",kwargs)
             raise e
         """sum all the (cat(gmp, gap)) outputs from each module layer"""
-        outs = [cat([gmp(x_i, batch), gap(x_i, batch)], dim=1) for x_i, _, _, batch  in outs]
+        outs = [cat([gmp(x_i, batch), gap(x_i, batch)], dim=1) for x_i, _, _, batch in outs]
         x = outs[0]
         for i in range(1, len(outs)):
             x += outs[i]

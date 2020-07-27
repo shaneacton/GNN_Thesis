@@ -106,7 +106,11 @@ class GraphLayer(MessagePassing):
     def clean_loops(self,edge_index, kwargs, num_nodes):
         edge_types = kwargs["edge_types"] if "edge_types" in kwargs else None
 
-        edge_index, edge_types = remove_self_loops(edge_index, edge_attr=edge_types)
+        try:
+            edge_index, edge_types = remove_self_loops(edge_index, edge_attr=edge_types)
+        except Exception as e:
+            print("error cleaning loops in edge indiex:",edge_index, "kwargs:",kwargs)
+            raise e
         edge_index, edge_types = add_self_loops(edge_index, num_nodes=num_nodes, edge_weight=edge_types)
         kwargs["edge_types"] = edge_types
         return edge_index

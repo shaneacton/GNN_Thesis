@@ -24,7 +24,7 @@ class GraphEmbeddingConfig:
         from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
         graph_embedder = GraphEmbedder(self)
 
-        from Code.Models import token_embedder
+        from Code.Data import token_embedder
         from Code.Data.Graph.Embedders.token_embedder import TokenSequenceEmbedder
         token_embedder: TokenSequenceEmbedder = TokenSequenceEmbedder(token_embedder=token_embedder)
 
