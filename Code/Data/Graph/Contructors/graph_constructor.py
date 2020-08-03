@@ -27,6 +27,9 @@ class GraphConstructor(ABC):
         graph = ContextGraph(data_sample, context_span_hierarchy, gcc=gcc)
         return self._append(graph)
 
+    def __call__(self, data_sample: DataSample):
+        return self.create_graph_from_data_sample(data_sample)
+
 
 class IncompatibleGraphContructionOrder(Exception):
 

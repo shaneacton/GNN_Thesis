@@ -1,13 +1,16 @@
 from Code.Config import graph_construction_config as construction
 
 # sequence summary functions
+from Code.Config.config import Config
+
 HEAD_AND_TAIL_CAT = "head_and_tail_cat"
 SELF_ATTENTIVE_POOLING = "self_attentive_pooling"
 
 
-class GraphEmbeddingConfig:
+class GraphEmbeddingConfig(Config):
 
     def __init__(self):
+        super().__init__()
         self.use_query_aware_context_vectors = False
 
         self.span_summarisation_methods = {

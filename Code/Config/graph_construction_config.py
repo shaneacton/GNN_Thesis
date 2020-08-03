@@ -1,4 +1,6 @@
 # word types
+from Code.Config.config import Config
+
 ENTITY = "entity"
 UNIQUE_ENTITY = "unique_entity"
 COREF = "coref"
@@ -30,10 +32,11 @@ QUERY = "query"
 CANDIDATE = "candidate"
 
 
-class GraphConstructionConfig:
+class GraphConstructionConfig(Config):
 
     def __init__(self):
 
+        super().__init__()
         self.word_nodes = [ENTITY, COREF]  # types of word nodes to use
         # empty for no filters. filters us OR not AND when combined.
         # This means filters [CANDIDATE, QUERY] allows which are either candidates or queries

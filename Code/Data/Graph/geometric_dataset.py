@@ -5,13 +5,6 @@ from typing import List
 import torch
 from torch_geometric.data import Data, Dataset, DataLoader
 
-from Code.Data.Graph.Contructors.compound_graph_constructor import CompoundGraphConstructor
-from Code.Data.Graph.Contructors.coreference_constructor import CoreferenceConstructor
-from Code.Data.Graph.Contructors.document_node_constructor import DocumentNodeConstructor
-from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
-from Code.Data.Graph.Contructors.passage_constructor import PassageConstructor
-from Code.Data.Graph.Contructors.sentence_contructor import SentenceConstructor
-from Code.Data.Graph.Contructors.sequential_entity_linker import SequentialEntityLinker
 from Code.Models.GNNs.prop_and_pool import PropAndPool
 from Code.Training import device
 from Datasets.Batching.batch_reader import BatchReader
@@ -115,10 +108,7 @@ class GraphDataset(Dataset):
 
 
 if __name__ == "__main__":
-    cgc = CompoundGraphConstructor([EntitiesConstructor, SequentialEntityLinker, CoreferenceConstructor,
-                                    SentenceConstructor, PassageConstructor, DocumentNodeConstructor])
-    # cgc = CompoundGraphConstructor([EntitiesConstructor, CoreferenceConstructor, SentenceConstructor,
-    #                                 DocumentNodeConstructor])
+
     from Datasets.Readers.squad_reader import SQuADDatasetReader
     from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
 

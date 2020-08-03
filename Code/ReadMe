@@ -1,36 +1,51 @@
 Todo:
-1: Create Graph embedder
- 1.1 should contain the trainable weights for document summarisers
- 1.2 should contain the weights for the contextual encoder so the embedder can be shipped without needing dependancies
- 1.3 make fine tuning the contextual embedder optional
- 1.4 query aware embeddings
- 1.5 self attentive-pooling to summarise docs/passages/sents
 
-1: expand graph construction
- 1.1 add support for candidate entity nodes
- 1.2 swap out spacy coref for something better
- 1.4 AMR
- 1.5 decouple with spacy tokens
+*convert all query  ops to use a token heirarchy
+
+* Graph embedder
+     * should contain the trainable weights for document summarisers
+     * make fine tuning the contextual embedder optional
+     * query aware embeddings
+     * self attentive-pooling to summarise docs/passages/sents
+     * edge feature encodings. an embedder for subtype info
+
+* Graph construction
+     * add support for candidate entity nodes
+     * swap out spacy coref for something better
+     * AMR
+     * decouple with spacy tokens
+     * make type a param not class type. when special classes are created - they pass a rep of their class type to type
+        * this allows for generic edges and nodes which can still be given distinct types/subtypes
+
+* GNNs
+    * implement attention based aggregation
+    * Edge features
+         * rework edge type switching to use configurable edge groups
+              * separate options for type, subtype, direction
+              * edge features can be incorporated via embed and concat | or layer switching
+              * can declare exceptions to these rules eg switch(type, subtype) + embed(QueryEdge:"sent2sent")
+         * fine tunable edge feature embedder
+         * append edge features/embeddings to message along feature dim
+         * config system to group edge types/ features.
+         * make generic heirarchical layer switching module
+            * can be reused for task switching later
+         * for layer switching, define global/dependant layer-size ratio system.
+            Total bandwidth is given, and preserved, but split among global and dependant. eg g:0.8,d:0.2
+         * if layer switching is on for multiple feature levels eg type and subtype - switching must be heirarchical
+
+     * node type switches update function much like edge type switches message function
+
+* config summary graphs
+    * graph construction summary graphs
+        * can include embedding information
+    * gnn layer switching summary graphs
+    * gnn summary graph which doesn't include switching info. just layers, types, sizes. like cdn diagram
 
 
-4: implement context graph gnn
-4: graph config json to define context graph construction methods
 
 
-5: Make bert tokeniser cased
-6: add in returning edges for the directed edges
-7: come up with system to allow for grouping certain edge types under 1 relational layer.
- 8.1 edge groups should behave as single edge type
- 8.2 another option to have split groups on subtype/direction
- 8.3 feature where subtypes are ignored by type splitting, but fed to gnns as edge weights
- 8.4 option to add universal message function which is used in tandem with edge type specific functions
- 7.5 closest node window edge vs full window edge
-9: map back to node/edge type during gnn passes - save type:id mappings per datsaset
- 9.1: node type switches update function
- 9.2: edge type switches message function
-10: Edge weights which are fed into the message passing via concatenation as other state such as query.
-
-
+* Make bert tokeniser cased
+* add in returning edges for the directed edges
 
 NLP Libs:
 Spacy - ineffective
