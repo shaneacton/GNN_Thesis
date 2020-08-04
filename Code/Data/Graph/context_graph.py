@@ -10,6 +10,7 @@ from Code.Data.Graph.Nodes.span_node import SpanNode
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
 from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
 from Code.Data.Text.data_sample import DataSample
+from Code.Config import graph_construction_config as construction
 
 
 class ContextGraph:
@@ -24,6 +25,7 @@ class ContextGraph:
         self.node_id_map: Dict[Node, int] = {}  # shortcut to get node id from node ref
         self.span_nodes: Dict[TokenSpan, int] = {}  # maps text segs (eg entities/sentences) to nodes
         self.typed_nodes: Dict[type, Set[int]] = {}  # maps node type to all nodes of that type
+        self.query_nodes: Set[int] = set() # collection of nodes which have source=query
 
         self.unique_edges: Set[EdgeRelation] = set()
         self.ordered_edges: List[EdgeRelation] = []
@@ -31,11 +33,19 @@ class ContextGraph:
 
         self.data_sample: DataSample = data_sample
         self.span_hierarchy: TokenSpanHierarchy = span_hierarchy
+        self._query_span_hierarchy: TokenSpanHierarchy = None
+
 
     @property
     def query_token_sequence(self):
         # todo multiple questions?
         return self.data_sample.questions[0].token_sequence
+
+    @property
+    def query_span_hierarchy(self):
+        if not self._query_span_hierarchy:
+            self._query_span_hierarchy = TokenSpanHierarchy(self.query_token_sequence)
+        return self._query_span_hierarchy
 
     def get_nodes_of_type(self, type):
         return [self.ordered_nodes[id] for id in self.typed_nodes[type]]
@@ -64,6 +74,10 @@ class ContextGraph:
 
             if isinstance(node, SpanNode):
                 self.span_nodes[node.token_span] = id
+
+            if node.source == construction.QUERY:
+                self.query_nodes.add(id)
+
             return id
 
     def add_edges(self, edges):
@@ -73,16 +87,3 @@ class ContextGraph:
         if edge not in self.unique_edges:
             self.unique_edges.add(edge)
             self.ordered_edges.append(edge)
-
-    def render_graph(self, graph_name, graph_folder):
-        dot = graphviz.Digraph(comment='The Round Table')
-        dot.graph_attr.update({'rankdir': 'LR'})
-
-        name = lambda i: "Node(" + repr(i) +")"
-        for i, node in enumerate(self.ordered_nodes):
-            dot.node(name(i), node.get_node_viz_text())
-        for edge in self.unique_edges:
-            dot.edge(name(edge[0]), name(edge[1]), label=edge.get_label())
-
-        path = os.path.join('/home/shane/Documents/Thesis/Viz/', graph_folder, graph_name)
-        dot.render(path, view=False, format="png")

@@ -1,7 +1,4 @@
 Todo:
-
-*convert all query  ops to use a token heirarchy
-
 * Graph embedder
      * should contain the trainable weights for document summarisers
      * make fine tuning the contextual embedder optional

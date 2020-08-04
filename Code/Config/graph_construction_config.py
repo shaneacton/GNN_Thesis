@@ -23,7 +23,7 @@ GLOBAL = "global"  # connects to all other nodes
 
 # query stucture
 QUERY_TOKEN = "query_token"  # Longformer style query tokens connected to all context tokens
-QUERY_ENTITY = "query_entity"  # connected to context entity nodes of same string values
+QUERY_WORD = "query_word"  # connected to context entity nodes of same string values
 QUERY_SENTENCE = "query_sentence"  # one node for the whole query
 
 # source types
@@ -53,11 +53,12 @@ class GraphConstructionConfig(Config):
         }
 
         self.extra_nodes = []
-        self.query_node_types = [QUERY_TOKEN, QUERY_ENTITY, QUERY_SENTENCE]
+        self.query_node_types = [QUERY_TOKEN, QUERY_WORD, QUERY_SENTENCE]
+        self.fully_connect_query_nodes = False
 
         self.query_connections = {  # defines how the query nodes connect to the context
             QUERY_TOKEN: [WORD],
-            QUERY_ENTITY: [SENTENCE],
+            QUERY_WORD: [SENTENCE],
             QUERY_SENTENCE: [PARAGRAPH]
         }
 

@@ -66,26 +66,3 @@ class DocumentStructureConstructor(GraphConstructor):
 
         self.add_construct(existing_graph)
         return existing_graph
-
-
-if __name__ == "__main__":
-    from Datasets.Readers.squad_reader import SQuADDatasetReader
-    from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
-
-    sq_reader = SQuADDatasetReader("SQuAD")
-    qangaroo_reader = QUangarooDatasetReader("wikihop")
-
-    reader = qangaroo_reader
-    # reader = sq_reader
-
-    samples = reader.get_dev_set()
-
-    const = DocumentStructureConstructor()
-
-    for i, sample in enumerate(samples):
-        if i >= 5:
-            break
-
-        graph = const._append(None, sample)
-        print("num nodes:", len(graph.ordered_nodes))
-        graph.render_graph(sample.title_and_peek, reader.datset_name)

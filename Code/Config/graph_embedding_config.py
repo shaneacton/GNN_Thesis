@@ -19,7 +19,7 @@ class GraphEmbeddingConfig(Config):
             construction.PARAGRAPH: HEAD_AND_TAIL_CAT,
             construction.DOCUMENT: HEAD_AND_TAIL_CAT,
 
-            construction.QUERY_ENTITY: HEAD_AND_TAIL_CAT,
+            construction.QUERY_WORD: HEAD_AND_TAIL_CAT,
             construction.QUERY_SENTENCE: HEAD_AND_TAIL_CAT
         }
 

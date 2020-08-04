@@ -1,3 +1,5 @@
+from Viz.graph_visualiser import render_graph
+
 if __name__ == "__main__":
     from Datasets.Readers.squad_reader import SQuADDatasetReader
     from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
@@ -22,4 +24,4 @@ if __name__ == "__main__":
         ds_out = gnn(graph)
         print("gnn", gnn, "out:", ds_out, "\n------------------\n")
 
-        graph.render_graph(sample.title_and_peek, reader.datset_name)
+        render_graph(graph, sample.title_and_peek, reader.datset_name)

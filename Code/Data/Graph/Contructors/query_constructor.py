@@ -7,7 +7,6 @@ from Code.Data.Graph.Nodes.token_node import TokenNode
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
-from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
 
 
 class QueryConstructor(GraphConstructor):
@@ -16,8 +15,12 @@ class QueryConstructor(GraphConstructor):
             self.add_sentence_query_node(existing_graph)
         if construction.QUERY_TOKEN in existing_graph.gcc.query_node_types:
             self.add_token_query_nodes(existing_graph)
-        if construction.QUERY_ENTITY in existing_graph.gcc.query_node_types:
+        if construction.QUERY_WORD in existing_graph.gcc.query_node_types:
             self.add_entity_query_nodes(existing_graph)
+
+        if existing_graph.gcc.fully_connect_query_nodes:
+            self.connect_query_nodes(existing_graph)
+
 
         self.add_construct(existing_graph)
         return existing_graph
@@ -33,14 +36,17 @@ class QueryConstructor(GraphConstructor):
             self.create_and_connect_query_node(existing_graph, query_token, construction.QUERY_TOKEN)
 
     def add_entity_query_nodes(self, existing_graph):
-        query_seq = existing_graph.query_token_sequence
-        query_span_hierarchy = TokenSpanHierarchy(query_seq)
-        ents = query_span_hierarchy.entities_and_corefs if construction.COREF in existing_graph.gcc.word_nodes \
-            else query_span_hierarchy.entities
+        ents = existing_graph.query_span_hierarchy.entities_and_corefs \
+            if construction.COREF in existing_graph.gcc.word_nodes \
+            else existing_graph.query_span_hierarchy.entities
+
         for ent_span in ents:
-            self.create_and_connect_query_node(existing_graph, ent_span, construction.QUERY_ENTITY)
+            self.create_and_connect_query_node(existing_graph, ent_span, construction.QUERY_WORD)
 
     def create_and_connect_query_node(self, existing_graph, query_span, query_level):
+        """
+        :param query_level: {QUERY_TOKEN, QUERY_WORD, QUERY_SENTENCE}
+        """
         query_node = self.create_query_node(query_span, query_level)
         query_id = existing_graph.add_node(query_node)
         connection_levels = existing_graph.gcc.query_connections[query_level]
@@ -71,7 +77,15 @@ class QueryConstructor(GraphConstructor):
             token_node = TokenNode(query_span, source=construction.QUERY)
             return token_node
 
-        if query_level == construction.QUERY_ENTITY:
+        if query_level == construction.QUERY_WORD:
             ent_node = EntityNode(query_span, source=construction.QUERY)
             return ent_node
 
+    def connect_query_nodes(self, existing_graph):
+        """fully connects all query nodes together"""
+        for node_id_a in existing_graph.query_nodes:
+            for node_id_b in existing_graph.query_nodes:
+                if node_id_a == node_id_b:
+                    continue
+                edge = QueryEdge(node_id_a, node_id_b, construction.QUERY, construction.QUERY)
+                existing_graph.add_edge(edge)
