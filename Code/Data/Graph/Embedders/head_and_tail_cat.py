@@ -11,10 +11,10 @@ class HeadAndTailCat(SequenceSummariser):
         super().__init__()
         self.feature_reducer: nn.Module = None
 
-    def summarise(self, embedded_sequence: torch.Tensor):
-        if self.feature_reducer is None:
-            feature_size = embedded_sequence.size(2)
-            self.feature_reducer = nn.Linear(feature_size*2, feature_size).to(device=device)
+    def _init_layers(self, feature_size):
+        self.feature_reducer = nn.Linear(feature_size * 2, feature_size).to(device=device)
+
+    def _summarise(self, embedded_sequence: torch.Tensor):
         batch_size = embedded_sequence.size(0)
 
         cat_seq = torch.cat([embedded_sequence[:,0,:], embedded_sequence[:,-1,:]], dim=1)

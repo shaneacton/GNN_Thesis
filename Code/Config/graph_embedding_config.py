@@ -3,8 +3,10 @@ from Code.Config import graph_construction_config as construction
 # sequence summary functions
 from Code.Config.config import Config
 
+SUMMARISER_NAME = "summariser_name"
 HEAD_AND_TAIL_CAT = "head_and_tail_cat"
 SELF_ATTENTIVE_POOLING = "self_attentive_pooling"
+NUM_LAYERS = "num_layers"
 
 
 class GraphEmbeddingConfig(Config):
@@ -15,7 +17,8 @@ class GraphEmbeddingConfig(Config):
 
         self.span_summarisation_methods = {
             construction.WORD: HEAD_AND_TAIL_CAT,
-            construction.SENTENCE: HEAD_AND_TAIL_CAT,
+            construction.SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING,
+                                    NUM_LAYERS: 3},
             construction.PARAGRAPH: HEAD_AND_TAIL_CAT,
             construction.DOCUMENT: HEAD_AND_TAIL_CAT,
 
@@ -44,10 +47,15 @@ class GraphEmbeddingConfig(Config):
         return graph_embedder
 
     def get_sequence_embedder(self, structure_level):
-        method = self.span_summarisation_methods[structure_level]
+        method_conf = self.span_summarisation_methods[structure_level]
+        if isinstance(method_conf, str):
+            method = method_conf
+        else:
+            method = method_conf[SUMMARISER_NAME]
+
         if method == HEAD_AND_TAIL_CAT:
             from Code.Data.Graph.Embedders.head_and_tail_cat import HeadAndTailCat
             return HeadAndTailCat()
         if method == SELF_ATTENTIVE_POOLING:
             from Code.Data.Graph.Embedders.self_attentive_pool import SelfAttentivePool
-            return SelfAttentivePool()
+            return SelfAttentivePool(method_conf[NUM_LAYERS])

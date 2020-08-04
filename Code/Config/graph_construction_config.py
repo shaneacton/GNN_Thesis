@@ -41,7 +41,7 @@ class GraphConstructionConfig(Config):
         # empty for no filters. filters us OR not AND when combined.
         # This means filters [CANDIDATE, QUERY] allows which are either candidates or queries
         self.word_node_filters = []
-        self.context_structure_nodes = [TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT]  # which structure levels to make nodes for
+        self.context_structure_nodes = [TOKEN, WORD, SENTENCE, PARAGRAPH]  # which structure levels to make nodes for
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
