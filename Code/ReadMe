@@ -1,13 +1,18 @@
 Todo:
+* change graph encoding to inherit Batch instead of Data
+* rework graph layers to work with graph encodings as first class citizens
+
 * Graph embedder
-     * should contain the trainable weights for document summarisers
-     * make fine tuning the contextual embedder optional
      * query aware embeddings
-     * self attentive-pooling to summarise docs/passages/sents
+     * positional encodings
+     * make fine tuning the contextual embedder optional
      * edge feature encodings. an embedder for subtype info
+     * more sophisticated attentive summarisation, possibly utilising sliding window att to pretransform a sequence
+        before using self attentive pooling
 
 * Graph construction
      * add support for candidate entity nodes
+     * node filters to allow for word nodes be filtered by query words
      * swap out spacy coref for something better
      * AMR
      * decouple with spacy tokens
@@ -15,6 +20,7 @@ Todo:
         * this allows for generic edges and nodes which can still be given distinct types/subtypes
 
 * GNNs
+    * rework layer system to use message/aggregate/update modules which can be swapped around
     * implement attention based aggregation
     * Edge features
          * rework edge type switching to use configurable edge groups

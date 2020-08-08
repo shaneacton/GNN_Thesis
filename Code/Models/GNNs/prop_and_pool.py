@@ -6,9 +6,9 @@ from torch_geometric.nn import TopKPooling, SAGEConv
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 
 from Code.Data.Graph import example_batch
-from Code.Models.GNNs.Abstract.gnn import GNN
-from Code.Models.GNNs.Abstract.graph_module import GraphModule
-from Code.Models.GNNs.CustomLayers.prop_and_pool_layer import PropAndPoolLayer
+from Code.Models.GNNs.gnn import GNN
+from Code.Models.GNNs.Layers.graph_module import GraphModule
+from Code.Models.GNNs.Layers.CustomLayers.prop_and_pool_layer import PropAndPoolLayer
 from Code.Training import device
 
 

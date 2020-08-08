@@ -1,10 +1,5 @@
 from abc import ABC
 
-import torch
-
-from Code.Data.Graph import type_map
-from Code.Training import device
-
 
 class GraphFeature(ABC):
 
@@ -22,10 +17,6 @@ class GraphFeature(ABC):
         only some nodes/edges have subtypes
         """
         return type(self), self.subtype
-
-    def get_type_tensor(self):
-        type_id = type_map.get_id_from_type(self.get_type())
-        return torch.tensor([type_id]).to(device)
 
     def __repr__(self):
         return repr(type(self)) + ": " + self.subtype

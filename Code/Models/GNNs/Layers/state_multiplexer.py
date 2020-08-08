@@ -3,7 +3,7 @@ from typing import Type, List
 from torch_geometric.nn import MessagePassing
 
 from Code.Data.Graph.State.state_set import StateSet
-from Code.Models.GNNs.Abstract.graph_layer import GraphLayer
+from Code.Models.GNNs.Layers.graph_layer import GraphLayer
 
 
 class StateMultiplexer(GraphLayer):

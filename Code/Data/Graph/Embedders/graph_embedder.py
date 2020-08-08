@@ -6,10 +6,12 @@ from torch.nn import ModuleDict
 
 from Code.Config import gec, GraphEmbeddingConfig
 from Code.Config import graph_construction_config as construction
+from Code.Data.Graph import TypeMap
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.Embedders.sequence_summariser import SequenceSummariser
 from Code.Data.Graph.Embedders.token_embedder import TokenSequenceEmbedder
 from Code.Data.Graph.Nodes.span_node import SpanNode
+from Code.Data.Graph.Types.types import Types
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
@@ -32,6 +34,8 @@ class GraphEmbedder(nn.Module):
 
         self.summarisers: ModuleDict = None
 
+        self.type_map = TypeMap()  # maps node/edge types to ids
+
     def on_create_finished(self):
         """called after all summarisers added to register the modules"""
         self.summarisers = ModuleDict(self.sequence_summarisers)
@@ -47,16 +51,23 @@ class GraphEmbedder(nn.Module):
                 index[from_to].append(edge[from_to])
                 if not edge.directed:  # adds returning direction
                     index[from_to].append(edge[1-from_to])
-        return torch.tensor(index).to(device=device)
+        return torch.tensor(index).to(device)
 
-    @staticmethod
-    def edge_types(graph: ContextGraph):
+    def edge_types(self, graph: ContextGraph) -> torch.Tensor:
         edge_types = []
         for edge in graph.ordered_edges:
-            edge_types.append(edge.get_type_tensor())
+            type_id = self.type_map.get_id(edge)
+            edge_types.append(type_id)
             if not edge.directed:  # adds returning directions type
-                edge_types.append(edge.get_type_tensor())
-        return edge_types
+                edge_types.append(type_id)
+        return torch.tensor(edge_types).to(device)
+
+    def node_types(self, graph: ContextGraph) -> torch.Tensor:
+        node_types = []
+        for node in graph.ordered_nodes:
+            type_id = self.type_map.get_id(node)
+            node_types.append(type_id)
+        return torch.tensor(node_types).to(device)
 
     def use_query(self, graph: ContextGraph):
         has_query_nodes = len(graph.gcc.query_node_types) > 0
@@ -76,7 +87,7 @@ class GraphEmbedder(nn.Module):
             query_sequence: TokenSequence = graph.query_token_sequence
             embedded_query_sequence: torch.Tensor = self.token_embedder(query_sequence)
 
-        if self.use_query_summary_vec:
+        if self.use_query_summary_vec(graph):
             # must map the query embedded sequence into a single embedded summary element
             query_summary: torch.Tensor = self.get_query_vec_summary(embedded_query_sequence)
 
@@ -99,7 +110,11 @@ class GraphEmbedder(nn.Module):
         self.check_dimensions(node_features, graph)
         features = torch.cat(node_features, dim=0).view(len(node_features), -1)
 
-        encoding = GraphEncoding(graph, self.gec, x=features, edge_index=self.edge_index(graph))
+        node_types = self.node_types(graph)
+        edge_types = self.edge_types(graph)
+        types = Types(self.type_map, node_types, edge_types)
+
+        encoding = GraphEncoding(graph, self.gec, types, x=features, edge_index=self.edge_index(graph))
         return encoding
 
     def get_node_embedding(self, full_embedded_sequence: torch.Tensor, node: SpanNode):
@@ -123,7 +138,10 @@ class GraphEmbedder(nn.Module):
         return embedder(token_embeddings)
 
     def get_query_vec_summary(self, embedded_query_sequence: torch.Tensor):
-        return self.sequence_summarisers[construction.QUERY_SENTENCE](embedded_query_sequence)
+        if not construction.QUERY_SENTENCE in self.sequence_summarisers:
+            raise Exception(construction.QUERY_SENTENCE + " not in summarisers list" )
+        summariser = self.sequence_summarisers[construction.QUERY_SENTENCE]
+        return summariser(embedded_query_sequence)
 
     @staticmethod
     def get_embedded_elements_in_span(full_embedded_sequence: torch.Tensor, span: TokenSpan):

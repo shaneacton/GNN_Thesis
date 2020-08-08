@@ -3,7 +3,7 @@ from typing import Union, List
 from torch import nn
 from torch_geometric.nn import SAGPooling, TopKPooling, SAGEConv, GATConv
 
-from Code.Models.GNNs.Abstract.graph_layer import GraphLayer
+from Code.Models.GNNs.Layers.graph_layer import GraphLayer
 
 
 class PropAndPoolLayer(GraphLayer):

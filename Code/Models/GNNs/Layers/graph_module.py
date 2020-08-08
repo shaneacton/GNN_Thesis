@@ -4,8 +4,8 @@ import torch
 from torch_geometric.nn import TopKPooling, SAGEConv, MessagePassing
 
 from Code.Data import Graph
-from Code.Models.GNNs.Abstract.graph_layer import GraphLayer
-from Code.Models.GNNs.CustomLayers.prop_and_pool_layer import PropAndPoolLayer
+from Code.Models.GNNs.Layers.graph_layer import GraphLayer
+from Code.Models.GNNs.Layers.CustomLayers.prop_and_pool_layer import PropAndPoolLayer
 from Code.Training import device
 
 from torch import nn

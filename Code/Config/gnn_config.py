@@ -26,8 +26,7 @@ class GNNConfig(Config):
 
         super().__init__()
         from torch import nn
-        from torch_geometric.nn import TopKPooling, SAGEConv
-        from Code.Models.GNNs.CustomLayers.prop_and_pool_layer import PropAndPoolLayer
+        from torch_geometric.nn import SAGEConv
 
         self.layers = [
             # {

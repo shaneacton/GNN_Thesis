@@ -1,12 +1,8 @@
-from typing import Union, Tuple, Dict
-
 import torch
 from torch_geometric.data import Batch, Data
 
-from Code.Data.Graph.type_map import TypeMap
+from Code.Data.Graph.Types.type_map import TypeMap
 from Code.Training import device
-
-type_map = TypeMap()
 
 batch_size = 3
 

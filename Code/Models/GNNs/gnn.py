@@ -1,7 +1,7 @@
 from torch import nn
 from torch_geometric.data import Batch
 
-from Code.Models.GNNs.Abstract.graph_layer import GraphLayer
+from Code.Models.GNNs.Layers.graph_layer import GraphLayer
 
 
 class GNN(nn.Module):

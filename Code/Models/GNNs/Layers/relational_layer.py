@@ -3,7 +3,7 @@ from typing import List, Type, Any, Dict
 import torch
 from torch import Tensor, tensor
 
-from Code.Models.GNNs.Abstract.graph_layer import GraphLayer
+from Code.Models.GNNs.Layers.graph_layer import GraphLayer
 from Code.Training import device
 
 

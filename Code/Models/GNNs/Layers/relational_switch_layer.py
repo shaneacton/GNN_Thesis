@@ -5,8 +5,8 @@ from torch import nn, Tensor
 from torch_geometric.nn import SAGEConv, MessagePassing
 
 from Code.Data.Graph import example_batch
-from Code.Models.GNNs.Abstract.graph_layer import GraphLayer
-from Code.Models.GNNs.Abstract.relational_layer import RelationalLayer
+from Code.Models.GNNs.Layers.graph_layer import GraphLayer
+from Code.Models.GNNs.Layers.relational_layer import RelationalLayer
 from Code.Training import device
 
 

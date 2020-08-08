@@ -37,15 +37,20 @@ class GraphConstructionConfig(Config):
     def __init__(self):
 
         super().__init__()
+        # {ENTITY, COREF, UNIQUE_ENTITY}
         self.word_nodes = [ENTITY, COREF]  # types of word nodes to use
+
         # empty for no filters. filters us OR not AND when combined.
         # This means filters [CANDIDATE, QUERY] allows which are either candidates or queries
         self.word_node_filters = []
-        self.context_structure_nodes = [TOKEN, WORD, SENTENCE, PARAGRAPH]  # which structure levels to make nodes for
+
+        # which structure levels to make nodes for
+        # {TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT}
+        self.context_structure_nodes = [WORD]
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
-            TOKEN: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: 6},
+            TOKEN: {CONNECTION_TYPE: WINDOW, WINDOW_SIZE: 3},
             WORD: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             SENTENCE: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             PARAGRAPH: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
@@ -53,16 +58,16 @@ class GraphConstructionConfig(Config):
         }
 
         self.extra_nodes = []
-        self.query_node_types = [QUERY_TOKEN, QUERY_WORD, QUERY_SENTENCE]
         self.fully_connect_query_nodes = False
+        self.query_node_types = []
 
         self.query_connections = {  # defines how the query nodes connect to the context
-            QUERY_TOKEN: [WORD],
+            QUERY_TOKEN: [TOKEN],
             QUERY_WORD: [SENTENCE],
             QUERY_SENTENCE: [PARAGRAPH]
         }
 
-        self.context_max_chars = 50
+        self.context_max_chars = 6000
 
     @property
     def all_structure_levels(self):
