@@ -59,7 +59,7 @@ class ContextGNN(GNN):
             in_features = layer_features
         self.layer_list = nn.ModuleList(self.layers).to(device)  # registers modules with pytorch and moves to device
 
-    def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample]):
+    def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample]) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
         if isinstance(input, GraphEncoding):
             return self._forward(input)
@@ -73,7 +73,7 @@ class ContextGNN(GNN):
             raise Exception()
         return self._forward(data)
 
-    def _forward(self, data: GraphEncoding):
+    def _forward(self, data: GraphEncoding) -> GraphEncoding:
         # format of graph layers forward: (x, edge_index, batch, **kwargs)
         # get x, autodetect feature count
         # init layers based on detected in_features and init args
@@ -83,14 +83,12 @@ class ContextGNN(GNN):
             self.init_layers(in_features)
 
         for layer in self.layers:
-            kwargs = self.get_required_kwargs_from_batch(data, layer)
-
             # try:
-            out = layer(**kwargs)
+            data = layer(data)
             # except Exception as e:
             #     print("failed to prop through", layer, "with kwargs:", kwargs)
             #     raise e
 
             # print("layer",layer,"output:",out)
 
-        return out
+        return data

@@ -4,6 +4,7 @@ import torch
 from torch_geometric.nn import TopKPooling, SAGEConv, MessagePassing
 
 from Code.Data import Graph
+from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Models.GNNs.Layers.graph_layer import GraphLayer
 from Code.Models.GNNs.Layers.CustomLayers.prop_and_pool_layer import PropAndPoolLayer
 from Code.Training import device
@@ -79,32 +80,20 @@ class GraphModule(GraphLayer):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x, edge_index, batch, **kwargs):
-        edge_index = self.clean_loops(edge_index, kwargs, x.size(0))
-        kwargs = self.get_kwargs_with_defaults(kwargs)
-        kwargs.update({"batch":batch, "x":x, "edge_index": edge_index})
-
-        all_outputs = []
+    def forward(self, data: GraphEncoding):
+        all_graph_states = []
         for layer in self.layer:
             """passes x through each item in the seq block and optionally records intermediate outputs"""
 
-            x = layer(**kwargs)
+            data = layer(data)
+            x = data.x
             if self.return_all_outputs:
-                all_outputs.append(x)
-
-            if isinstance(x, tuple):
-                x, edge_index, edge_types, batch = x
-                kwargs["edge_index"] = edge_index
-                kwargs["edge_types"] = edge_types
-                kwargs["batch"] = batch
-
-            kwargs["x"] = x
-            # print("found layer", layer, "in module, providing:", kwargs)
+                all_graph_states.append(x)
 
         if self.return_all_outputs:
-            # print("returning:",(x, all_outputs))
-            return x, all_outputs
-        return x
+            # print("returning:",(x, all_graph_states))
+            return data, all_graph_states
+        return data
 
 
 if __name__ == "__main__":
