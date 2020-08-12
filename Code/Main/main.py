@@ -1,5 +1,6 @@
-from torch_geometric.nn import GATConv
+from torch import nn
 
+from Code.Models.GNNs.Layers.new_layer import NewLayer
 from Code.Training import device
 from Viz.graph_visualiser import render_graph
 
@@ -19,12 +20,17 @@ if __name__ == "__main__":
     constructor = gcc.get_graph_constructor()
     gnn = configs.get_gnn()
 
+    layer = NewLayer([768, 5]).to(device)
+
+    gnn.layers = [layer]
+    gnn.layer_list = nn.ModuleList(gnn.layers)
+
     for i, sample in enumerate(samples):
         if i >= 3:
             break
 
         graph = constructor(sample)
-        render_graph(graph, sample.title_and_peek, reader.datset_name)
+        # render_graph(graph, sample.title_and_peek, reader.datset_name)
 
         ds_out = gnn(graph)
         print("gnn", gnn, "out:", ds_out, "\n----------------------------------------------------------\n"*2)

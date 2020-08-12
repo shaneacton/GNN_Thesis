@@ -11,14 +11,14 @@ from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 class GraphLayer(MessagePassing):
     """wrapper around a propagation layer such as SAGEConv, GATConv etc"""
 
-    def __init__(self, sizes: List[int], layer_type:Type[MessagePassing], activation_type=None, layer_args=None, init_layer=True):
+    def __init__(self, sizes: List[int], layer_type: Type[MessagePassing], activation_type=None, layer_args=None, init_layer=True):
         super().__init__()
         self.layer_type = layer_type
         self.sizes = sizes
         self.layer_args = layer_args if layer_args else {}
 
         if init_layer:
-            self.layer = self.initialise_layer()
+            self.layer: MessagePassing = self.initialise_layer()
         else:
             self.layer = None
         self.activation = activation_type() if activation_type else None
@@ -53,6 +53,9 @@ class GraphLayer(MessagePassing):
         all += ["edge_index", "edge_types", "batch"]
         return list(set(all))  # returns a list of unique args which are used through this layers propagation
 
+    def get_method_arg_names(self, method):
+        return inspect.getfullargspec(method)[0]
+
     def get_base_layer_message_arg_names(self):
         return inspect.getfullargspec(self.get_layer().message)[0]
 
@@ -85,11 +88,22 @@ class GraphLayer(MessagePassing):
     @staticmethod
     def get_needed_args(accepted_args, available_args):
         """returns all of the available args which are accepted"""
+        # print("getting needed args:",accepted_args, "from:",available_args)
         return {arg: available_args[arg] for arg in available_args.keys() if arg in accepted_args}
 
-    def message(self, x_j: Tensor, kwargs: Dict[str, Any]):
+    def message(self, x_i: Tensor, x_j: Tensor, size_i: Tensor, size_j: Tensor, edge_index_i: Tensor,
+                edge_index_j: Tensor, kwargs: Dict[str, Any]):
+
+        #  the following variables have just been created by pytorch geometric - inject them into our kwargs obj
+        kwargs["x_i"] = x_i
+        kwargs["x_j"] = x_j
+        kwargs["size_i"] = size_i
+        kwargs["size_j"] = size_j
+        kwargs["edge_index_i"] = edge_index_i
+        kwargs["edge_index_j"] = edge_index_j
+
         needed_args = self.get_needed_args(self.get_base_layer_message_arg_names(), kwargs)
-        return self.layer.message(x_j, **needed_args)
+        return self.layer.message(**needed_args)
 
     def update(self, inputs, kwargs: Dict[str, Any]):
         needed_args = self.get_needed_args(self.get_base_layer_update_arg_names(), kwargs)
@@ -100,36 +114,38 @@ class GraphLayer(MessagePassing):
         return only the params of the data object which are needed by the given layer
         """
         layer_args = self.get_base_layer_all_arg_names()  # needed
+        # print("searching for args:",layer_args, "in",data.__dict__)
         data_args = data.__dict__  # given
         present_args = {arg: data_args[arg] for arg in layer_args if arg in data_args.keys()}
         return present_args
 
     def prepare_args(self, data: GraphEncoding):
+        self.clean_loops(data)
+
         kwargs = self.get_required_kwargs_from_batch(data)
-        edge_index = self.clean_loops(kwargs, data.x.size(0))
         kwargs = self.get_kwargs_with_defaults(kwargs)
-        return edge_index, kwargs
+        kwargs["edge_types"] = data.edge_types
+        kwargs["node_types"] = data.node_types
+
+        return kwargs
 
     def forward(self, data: GraphEncoding):
-        edge_index, kwargs = self.prepare_args(data)
+        kwargs = self.prepare_args(data)
 
-        print("propping args:", kwargs)
-        x = self.propagate(edge_index, x=data.x, kwargs=kwargs)
+        # print("propping args:", kwargs)
+        x = self.propagate(data.edge_index, x=data.x, kwargs=kwargs)
         if self.activation:
             x = self.activation(x)
         data.x = x
         return data
 
     @staticmethod
-    def clean_loops(kwargs, num_nodes):
-        edge_types = kwargs["edge_types"] if "edge_types" in kwargs else None
-        edge_index = kwargs["edge_index"]
-
+    def clean_loops(data: GraphEncoding):
+        print("cleaning. index:", data.edge_index.size(), "types:", data.edge_types.size())
         try:
-            edge_index, edge_types = remove_self_loops(edge_index, edge_attr=edge_types)
+            data.edge_index, data.types.edge_types = remove_self_loops(data.edge_index, edge_attr=data.edge_types)
         except Exception as e:
-            print("error cleaning loops in edge indiex:",edge_index, "kwargs:",kwargs)
+            print("error cleaning loops in edge index:",data.edge_index, "data:", data)
             raise e
-        edge_index, edge_types = add_self_loops(edge_index, num_nodes=num_nodes, edge_weight=edge_types)
-        kwargs["edge_types"] = edge_types
-        return edge_index
+        data.edge_index, data.types.edge_types = add_self_loops(data.edge_index, num_nodes=data.x.size(0), edge_weight=data.edge_types)
+        print("after cleaning. index:", data.edge_index.size(), "types:", data.edge_types.size())

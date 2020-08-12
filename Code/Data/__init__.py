@@ -32,7 +32,6 @@ string_indexer = lambda string: token_indexer(tokeniser(string))
 embedder = lambda info: string_embedder(info) if isinstance(info,str) else token_embedder(info)
 embedded_size = list(embedder("test").size())[2]
 
-
 def tail_concatinator(seq_embedding, cat_dim=2):
     seq_head = seq_embedding[:,0:1,:]
     num_el = seq_embedding.size(1)

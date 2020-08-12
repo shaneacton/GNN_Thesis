@@ -2,7 +2,6 @@ from typing import Union, Tuple, Dict
 
 import torch
 
-from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.graph_feature import GraphFeature
 
 

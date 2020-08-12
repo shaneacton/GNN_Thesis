@@ -20,3 +20,11 @@ class GraphEncoding(Data):
         self.gec: GraphEmbeddingConfig = gec  # the config used to embed the given graph
         self.graph: ContextGraph = graph
         self.batch: torch.Tensor = torch.tensor([0] * kwargs['x'].size(0)).to(device)
+
+    @property
+    def node_types(self):
+        return self.types.node_types
+
+    @property
+    def edge_types(self):
+        return self.types.edge_types

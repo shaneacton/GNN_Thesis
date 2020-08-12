@@ -1,4 +1,6 @@
 # gnn layer types
+from torch_geometric.nn import GATConv
+
 from Code.Config.config import Config
 
 PROP_AND_POOL = "prop_and_pool"
@@ -38,7 +40,7 @@ class GNNConfig(Config):
             #     POOL_ARGS: {POOL_RATIO: 0.8}}
             # }
             {
-                LAYER_TYPE: SAGEConv,
+                LAYER_TYPE: GATConv,
                 NUM_FEATURES: 400,
                 SAME_WEIGHT_REPEATS: 1,
                 DISTINCT_WEIGHT_REPEATS: 1,

@@ -34,7 +34,8 @@ class GraphEmbedder(nn.Module):
 
         self.summarisers: ModuleDict = None
 
-        self.type_map = TypeMap()  # maps node/edge types to ids
+        self.node_type_map = TypeMap()  # maps node types to ids
+        self.edge_type_map = TypeMap()  # maps edge types to ids
 
     def on_create_finished(self):
         """called after all summarisers added to register the modules"""
@@ -56,7 +57,7 @@ class GraphEmbedder(nn.Module):
     def edge_types(self, graph: ContextGraph) -> torch.Tensor:
         edge_types = []
         for edge in graph.ordered_edges:
-            type_id = self.type_map.get_id(edge)
+            type_id = self.edge_type_map.get_id(edge)
             edge_types.append(type_id)
             if not edge.directed:  # adds returning directions type
                 edge_types.append(type_id)
@@ -65,7 +66,7 @@ class GraphEmbedder(nn.Module):
     def node_types(self, graph: ContextGraph) -> torch.Tensor:
         node_types = []
         for node in graph.ordered_nodes:
-            type_id = self.type_map.get_id(node)
+            type_id = self.node_type_map.get_id(node)
             node_types.append(type_id)
         return torch.tensor(node_types).to(device)
 
@@ -112,7 +113,7 @@ class GraphEmbedder(nn.Module):
 
         node_types = self.node_types(graph)
         edge_types = self.edge_types(graph)
-        types = Types(self.type_map, node_types, edge_types)
+        types = Types(self.node_type_map, self.edge_type_map, node_types, edge_types)
 
         encoding = GraphEncoding(graph, self.gec, types, x=features, edge_index=self.edge_index(graph))
         return encoding
