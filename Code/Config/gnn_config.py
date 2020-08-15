@@ -48,6 +48,8 @@ class GNNConfig(Config):
             }
         ]
 
+        self.relations_basis_count = 3
+
     def get_gnn_with_constructor_embedder(self, constructor, embedder):
         from Code.Models.GNNs.context_gnn import ContextGNN
         from Code.Training import device

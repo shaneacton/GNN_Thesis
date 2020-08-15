@@ -3,10 +3,9 @@ from Code.Models.GNNs.LayerModules.layer_module import LayerModule
 
 class MessageModule(LayerModule):
 
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, channels):
         super().__init__()
-        self.out_channels = out_channels
-        self.in_channels = in_channels
+        self.channels = channels
 
     def forward(self, edge_index_i, x_i, x_j, size_i, **kwargs):
         """

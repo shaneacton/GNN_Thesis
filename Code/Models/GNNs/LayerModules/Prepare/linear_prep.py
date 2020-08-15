@@ -1,6 +1,6 @@
 from torch import nn
 
-from Code.Models.GNNs.LayerModules.prepare_module import PrepareModule
+from Code.Models.GNNs.LayerModules.Prepare.prepare_module import PrepareModule
 
 
 class LinearPrep(PrepareModule):

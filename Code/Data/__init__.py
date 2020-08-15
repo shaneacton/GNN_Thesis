@@ -9,6 +9,7 @@ with torch.no_grad():
     embedder_type = "bert"
 
     if embedder_type == "bert":
+        print("initialising bert")
         basic_bert_tokeniser = BasicTokenizer()
         bert_tokeniser = CustomBertTokenizer.from_pretrained("bert-base-uncased")
 
@@ -21,6 +22,8 @@ with torch.no_grad():
         token_indexer = lambda tokens: torch.Tensor(bert_tokeniser.convert_tokens_to_ids(tokens)).reshape(1, -1) \
             .type(torch.LongTensor).to(device)
         token_embedder = lambda tokens: bert_model.embeddings(token_indexer(tokens))
+
+        print("bert initialised")
 
 
 

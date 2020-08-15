@@ -10,7 +10,7 @@ from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.data_sample import DataSample
 from Code.Models.GNNs.gnn import GNN
-from Code.Models.GNNs.Layers.graph_module import GraphModule
+from Code.Models.GNNs.graph_module import GraphModule
 from Code.Training import device
 
 

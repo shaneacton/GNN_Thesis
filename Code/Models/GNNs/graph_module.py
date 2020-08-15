@@ -44,7 +44,7 @@ class GraphModule(GraphLayer):
             raise Exception()
         if len(sizes) != 3:
             raise Exception("please provide input,hidden,output sizes")
-        super().__init__(sizes, GraphModule)
+        super().__init__(sizes)
 
     @property
     def hidden_size(self):

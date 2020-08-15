@@ -46,7 +46,7 @@ class GraphConstructionConfig(Config):
 
         # which structure levels to make nodes for
         # {TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT}
-        self.context_structure_nodes = [WORD]
+        self.context_structure_nodes = [TOKEN, WORD]
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
@@ -59,15 +59,15 @@ class GraphConstructionConfig(Config):
 
         self.extra_nodes = []
         self.fully_connect_query_nodes = False
-        self.query_node_types = []
+        self.query_node_types = [QUERY_WORD, QUERY_SENTENCE]
 
         self.query_connections = {  # defines how the query nodes connect to the context
-            QUERY_TOKEN: [TOKEN],
-            QUERY_WORD: [SENTENCE],
-            QUERY_SENTENCE: [PARAGRAPH]
+            QUERY_TOKEN: [WORD],
+            QUERY_WORD: [WORD],
+            QUERY_SENTENCE: [WORD]
         }
 
-        self.context_max_chars = 6000
+        self.context_max_chars = 400
 
     @property
     def all_structure_levels(self):

@@ -1,6 +1,8 @@
 Todo:
 * change graph encoding to inherit Batch instead of Data
-* rework graph layers to work with graph encodings as first class citizens
+* bug in graph construction - word to token not getting every link
+* wire up the new module system to be configurable
+    * should be able to use multiple message modules
 
 * Graph embedder
      * query aware embeddings
@@ -21,14 +23,13 @@ Todo:
 
 * GNNs
     * rework layer system to use message/aggregate/update modules which can be swapped around
-    * implement attention based aggregation
     * Edge features
          * rework edge type switching to use configurable edge groups
               * separate options for type, subtype, direction
               * edge features can be incorporated via embed and concat | or layer switching
               * can declare exceptions to these rules eg switch(type, subtype) + embed(QueryEdge:"sent2sent")
          * fine tunable edge feature embedder
-         * append edge features/embeddings to message along feature dim
+            * append edge features/embeddings to message along feature dim
          * config system to group edge types/ features.
          * make generic heirarchical layer switching module
             * can be reused for task switching later

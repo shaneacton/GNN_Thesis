@@ -3,10 +3,10 @@ from typing import Union, List
 from torch import nn
 from torch_geometric.nn import SAGPooling, TopKPooling, SAGEConv, GATConv
 
-from Code.Models.GNNs.Layers.graph_layer import GraphLayer
+from Code.Models.GNNs.Layers.base_graph_layer import BaseGraphLayer
 
 
-class PropAndPoolLayer(GraphLayer):
+class PropAndPoolLayer(BaseGraphLayer):
     """
     does one step of propagation then one pool
     """
@@ -15,7 +15,7 @@ class PropAndPoolLayer(GraphLayer):
         super().__init__(sizes, PropAndPoolLayer)
         prop_args = prop_args if prop_args else {}
         pool_args = pool_args if pool_args else {}
-        self.prop = GraphLayer(sizes, prop_type, activation_type=activation_type, layer_args=prop_args)
+        self.prop = BaseGraphLayer(sizes, prop_type, activation_type=activation_type, layer_args=prop_args)
         self.pool = pool_type(sizes[1], **pool_args)
 
     def get_layer(self):
