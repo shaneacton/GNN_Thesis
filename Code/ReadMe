@@ -1,12 +1,13 @@
 Todo:
 * change graph encoding to inherit Batch instead of Data
 * bug in graph construction - word to token not getting every link
-* wire up the new module system to be configurable
-    * should be able to use multiple message modules
+
 
 * Graph embedder
      * query aware embeddings
-     * positional encodings
+     * relative positional encodings
+        * fix level/source confusion
+
      * make fine tuning the contextual embedder optional
      * edge feature encodings. an embedder for subtype info
      * more sophisticated attentive summarisation, possibly utilising sliding window att to pretransform a sequence
@@ -22,30 +23,25 @@ Todo:
         * this allows for generic edges and nodes which can still be given distinct types/subtypes
 
 * GNNs
-    * rework layer system to use message/aggregate/update modules which can be swapped around
-    * Edge features
-         * rework edge type switching to use configurable edge groups
-              * separate options for type, subtype, direction
-              * edge features can be incorporated via embed and concat | or layer switching
-              * can declare exceptions to these rules eg switch(type, subtype) + embed(QueryEdge:"sent2sent")
-         * fine tunable edge feature embedder
-            * append edge features/embeddings to message along feature dim
-         * config system to group edge types/ features.
-         * make generic heirarchical layer switching module
-            * can be reused for task switching later
-         * for layer switching, define global/dependant layer-size ratio system.
-            Total bandwidth is given, and preserved, but split among global and dependant. eg g:0.8,d:0.2
-         * if layer switching is on for multiple feature levels eg type and subtype - switching must be heirarchical
+    * wire up the new module system to be configurable
+        * should be able to use multiple message modules
+        * activations and regularisers
+    * create output models
+        * candidate selection
+        * span prediction
+    * bake in residual connections transformer style
+    * make generic hierarchical layer switching module
+        * basic is layer dependants + 1 layer agnostic
+        * can be reused for task switching later
 
-     * node type switches update function much like edge type switches message function
-
-* config summary graphs
+* config summary graphs for visualisation
     * graph construction summary graphs
         * can include embedding information
     * gnn layer switching summary graphs
     * gnn summary graph which doesn't include switching info. just layers, types, sizes. like cdn diagram
+     * make fine tuning the contextual embedder optional
 
-
+* render sparse adjacency matrices
 
 
 * Make bert tokeniser cased

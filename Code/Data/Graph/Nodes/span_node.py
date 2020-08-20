@@ -12,6 +12,10 @@ class SpanNode(Node, ABC):
         self.token_span = token_span
         super().__init__(subtype=subtype, source=source)
 
+    @property
+    def level(self):
+        return self.token_span.level
+
     def get_node_viz_text(self):
         text = "QUERY: " if self.source == construction.QUERY else ""
         text += self.token_span.text + "\n" + repr(self.token_span.subtoken_indexes)

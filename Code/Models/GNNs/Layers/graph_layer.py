@@ -21,11 +21,11 @@ class GraphLayer(BaseGraphLayer):
         self.update_module: UpdateModule = UpdateModule()
 
     def get_all_arg_names(self):
-        """gets all the arguments that this layer would need throughout its prop"""
+        """gets all the arguments that this layer may need throughout its prop"""
         all = self.get_method_arg_names(self.preparation_module.forward)
         all += self.get_method_arg_names(self.message_module.forward)
         all += self.get_method_arg_names(self.update_module.forward)
-        all += ["edge_index", "edge_types", "batch"]
+        all += ["edge_index", "edge_types", "batch", "graph", "encoding"]
         return list(set(all))  # returns a list of unique args which are used through this layers propagation
 
     def prepare(self, data: GraphEncoding):

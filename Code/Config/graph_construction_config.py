@@ -21,15 +21,15 @@ SEQUENTIAL = "sequential"  # connects nodes to the next node at its structure le
 WINDOW_SIZE = "window_size"  # an optional arg for both window and seq
 GLOBAL = "global"  # connects to all other nodes
 
-# query stucture
-QUERY_TOKEN = "query_token"  # Longformer style query tokens connected to all context tokens
-QUERY_WORD = "query_word"  # connected to context entity nodes of same string values
-QUERY_SENTENCE = "query_sentence"  # one node for the whole query
-
 # source types
 CONTEXT = "context"
 QUERY = "query"
 CANDIDATE = "candidate"
+
+# query structure
+QUERY_TOKEN = QUERY + "_" + TOKEN  # Longformer style query tokens connected to all context tokens
+QUERY_WORD = QUERY + "_" + WORD  # connected to context entity nodes of same string values
+QUERY_SENTENCE = QUERY + "_" + SENTENCE  # one node for the whole query
 
 
 class GraphConstructionConfig(Config):
@@ -59,19 +59,19 @@ class GraphConstructionConfig(Config):
 
         self.extra_nodes = []
         self.fully_connect_query_nodes = False
-        self.query_node_types = [QUERY_WORD, QUERY_SENTENCE]
+        self.query_structure_nodes = [QUERY_WORD, QUERY_SENTENCE]
 
-        self.query_connections = {  # defines how the query nodes connect to the context
+        self.query_connections = {  # defines how the query nodes connect to the context. [GLOBAL] option
             QUERY_TOKEN: [WORD],
             QUERY_WORD: [WORD],
             QUERY_SENTENCE: [WORD]
         }
 
-        self.context_max_chars = 400
+        self.context_max_chars = 50
 
     @property
     def all_structure_levels(self):
-        return self.context_structure_nodes + self.query_node_types
+        return self.context_structure_nodes + self.query_structure_nodes
 
     def has_keyword(self, word:str):
         return word in self.word_nodes or word in self.context_structure_nodes or word in self.extra_nodes
@@ -104,7 +104,7 @@ class GraphConstructionConfig(Config):
         from Code.Data.Graph.Contructors.window_edge_constructor import WindowEdgeConstructor
         constructors.append(WindowEdgeConstructor)
 
-        if len(self.query_node_types):
+        if len(self.query_structure_nodes):
             from Code.Data.Graph.Contructors.query_constructor import QueryConstructor
             constructors.append(QueryConstructor)
 

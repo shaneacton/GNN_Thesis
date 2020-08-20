@@ -11,16 +11,15 @@ from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 class QueryConstructor(GraphConstructor):
     def _append(self, existing_graph: ContextGraph) -> ContextGraph:
-        if construction.QUERY_SENTENCE in existing_graph.gcc.query_node_types:
+        if construction.QUERY_SENTENCE in existing_graph.gcc.query_structure_nodes:
             self.add_sentence_query_node(existing_graph)
-        if construction.QUERY_TOKEN in existing_graph.gcc.query_node_types:
+        if construction.QUERY_TOKEN in existing_graph.gcc.query_structure_nodes:
             self.add_token_query_nodes(existing_graph)
-        if construction.QUERY_WORD in existing_graph.gcc.query_node_types:
+        if construction.QUERY_WORD in existing_graph.gcc.query_structure_nodes:
             self.add_entity_query_nodes(existing_graph)
 
         if existing_graph.gcc.fully_connect_query_nodes:
             self.connect_query_nodes(existing_graph)
-
 
         self.add_construct(existing_graph)
         return existing_graph
@@ -45,7 +44,7 @@ class QueryConstructor(GraphConstructor):
 
     def create_and_connect_query_node(self, existing_graph, query_span, query_level):
         """
-        :param query_level: {QUERY_TOKEN, QUERY_WORD, QUERY_SENTENCE}
+        :param query_level: {TOKEN, WORD, SENTENCE}
         """
         query_node = self.create_query_node(query_span, query_level)
         query_id = existing_graph.add_node(query_node)

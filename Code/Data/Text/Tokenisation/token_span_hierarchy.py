@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from Code.Config import gcc, graph_construction_config
 from Code.Data.Text.Tokenisation import tokenisation_utils
@@ -32,6 +32,9 @@ class TokenSpanHierarchy:
         self._sentences: List[DocumentExtract] = None
         self._passages: List[DocumentExtract] = None
 
+        # maps level_id to a mapping from node to position id in that levels seq
+        self._sequence_positions: Dict[int, Dict[DocumentExtract, int]] = {}
+
     @staticmethod
     def match_heirarchical_span_seqs(containing_spans: List[DocumentExtract], contained_spans: List[DocumentExtract]) -> Dict[
         DocumentExtract, List[DocumentExtract]]:
@@ -62,8 +65,31 @@ class TokenSpanHierarchy:
 
         return mapping
 
-    def __getitem__(self, item) -> List[DocumentExtract]:
+    def sequence_position(self, span: DocumentExtract):
+        """returns the positions of the span in the sequence at its span eg: token, word, sentence"""
+        level_id = graph_construction_config.LEVELS.index(self.strip_query(span.level))
+        if level_id not in self._sequence_positions:
+            self.find_sequence_positions(level_id)
+
+        lev = self._sequence_positions[level_id]
+        if span not in lev.keys():
+            raise Exception(repr(span) + "("+repr(hash(span))+")" + ", " + span.level + " not in sequence at " + span.level + " ("+repr(level_id) + "):\n" +
+                            "\n".join([repr(s) + "("+repr(hash(s))+")" + ", " + s.level for s in lev.keys()]))
+        return lev[span]
+
+    def find_sequence_positions(self, level_id):
+        positions: Dict[DocumentExtract, int] = {}
+        sequence = self[level_id]
+
+        i = 0
+        for elm in sequence:
+            positions[elm] = i
+            i += 1
+        self._sequence_positions[level_id] = positions
+
+    def __getitem__(self, item: Union[str, int]) -> List[DocumentExtract]:
         if isinstance(item, str):
+            self.strip_query(item)
             return self[graph_construction_config.LEVELS.index(item)]
         if item == 0:
             return self.tokens
@@ -75,6 +101,12 @@ class TokenSpanHierarchy:
             return self.passages
         if item == 4:
             return [self.full_document]
+
+    def strip_query(self, level):
+        if graph_construction_config.QUERY in level:
+            # a token span heirarchy is agnostic of source
+            level = level.split(graph_construction_config.QUERY + "_")[1]
+        return level
 
     @property
     def tokens(self):

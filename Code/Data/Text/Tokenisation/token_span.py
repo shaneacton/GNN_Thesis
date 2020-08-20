@@ -12,14 +12,14 @@ class TokenSpan:
 
     def __init__(self, token_sequence, subtoken_indexes, spacy_span: Span=None):
         # todo candidate subclass
-        self.spacy_span : Span = spacy_span
+        self.spacy_span: Span = spacy_span
         self.token_sequence = token_sequence
         self.subtoken_indexes: Tuple[int] = subtoken_indexes
         self.level = type(self)
 
     @property
     def text(self):
-        return self.spacy_span.text if self.spacy_span else self.token_sequence.get_text_from_subspan(self.subtoken_indexes)
+        return self.token_sequence.get_text_from_subspan(self.subtoken_indexes)
 
     @property
     def tokens(self):
@@ -31,9 +31,8 @@ class TokenSpan:
         return self.token_sequence.raw_subtokens[self.subtoken_indexes[0]: self.subtoken_indexes[1]]
 
     def __repr__(self):
-        label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span and self.spacy_span.label_ else ""
         span = ":S" + repr(self.subtoken_indexes)
-        return repr(type(self)) + " " + self.text + label + span
+        return repr(type(self)) + " " + self.text + span
 
     def span_match(self, other):
         return self.token_sequence == other.token_sequence and self.subtoken_indexes == other.subtoken_indexes

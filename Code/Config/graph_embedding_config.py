@@ -26,6 +26,17 @@ class GraphEmbeddingConfig(Config):
             construction.QUERY_SENTENCE: HEAD_AND_TAIL_CAT
         }
 
+        self.relative_embeddings_window_per_level = {
+            construction.TOKEN: 20,
+            construction.WORD: 10,
+            construction.SENTENCE: 5,
+            construction.PARAGRAPH: 3,
+
+            construction.QUERY_TOKEN: 20,
+            construction.QUERY_WORD: 10,
+            construction.QUERY_SENTENCE: 5,
+        }
+
     def get_graph_embedder(self, gcc):
         from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
         graph_embedder = GraphEmbedder(self)

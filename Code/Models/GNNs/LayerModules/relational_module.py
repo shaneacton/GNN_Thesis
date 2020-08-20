@@ -15,7 +15,7 @@ class RelationalModule(LayerModule):
     """
 
     def __init__(self, in_channels, out_channels, num_bases):
-        super().__init__()
+        LayerModule.__init__(self)
         self.num_bases = num_bases
         self.out_channels = out_channels
         self.in_channels = in_channels
@@ -55,7 +55,7 @@ class RelationalModule(LayerModule):
         Projects each type to a point in the basis space
         thus each type gets a unique transformation using only num_bases transformation primitives
 
-        :returns (E/N, i, o) vector which has switched the transformation in dim0 based on node/dege types
+        :returns (E/N, i, o) vector which has switched the transformation in dim0 based on node/edge types
         """
 
         self.handle_types(types)

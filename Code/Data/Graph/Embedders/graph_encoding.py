@@ -2,7 +2,6 @@ import torch
 from torch_geometric.data import Data
 
 from Code.Config import GraphEmbeddingConfig
-from Code.Data.Graph import TypeMap
 from Code.Data.Graph.Types.types import Types
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Training import device
@@ -20,6 +19,7 @@ class GraphEncoding(Data):
         self.gec: GraphEmbeddingConfig = gec  # the config used to embed the given graph
         self.graph: ContextGraph = graph
         self.batch: torch.Tensor = torch.tensor([0] * kwargs['x'].size(0)).to(device)
+        self.set_positional_window_sizes()
 
     @property
     def node_types(self):
@@ -28,3 +28,8 @@ class GraphEncoding(Data):
     @property
     def edge_types(self):
         return self.types.edge_types
+
+    def set_positional_window_sizes(self):
+        """these values cannot be set at graph construction time since the window size should be independent"""
+        for pos in self.graph.node_positions:
+            pos.window_size = self.gec.relative_embeddings_window_per_level[pos.sequence_level]

@@ -55,6 +55,8 @@ class BaseGraphLayer(MessagePassing):
         kwargs = self.get_required_kwargs_from_batch(data)
         kwargs["edge_types"] = data.edge_types
         kwargs["node_types"] = data.node_types
+        kwargs["encoding"] = data
+        kwargs["graph"] = data.graph
 
         return kwargs
 

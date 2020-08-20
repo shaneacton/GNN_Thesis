@@ -1,3 +1,5 @@
+import time
+
 import torch
 from transformers import BertModel, BasicTokenizer
 
@@ -10,6 +12,7 @@ with torch.no_grad():
 
     if embedder_type == "bert":
         print("initialising bert")
+        start = time.time()
         basic_bert_tokeniser = BasicTokenizer()
         bert_tokeniser = CustomBertTokenizer.from_pretrained("bert-base-uncased")
 
@@ -23,7 +26,7 @@ with torch.no_grad():
             .type(torch.LongTensor).to(device)
         token_embedder = lambda tokens: bert_model.embeddings(token_indexer(tokens))
 
-        print("bert initialised")
+        print("bert initialised in", (time.time()-start), "secs")
 
 
 
