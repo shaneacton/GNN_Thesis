@@ -9,6 +9,3 @@ class QueryEdge(EdgeRelation):
         self.query_level = query_level
         self.context_level = context_level
 
-    def get_label(self):
-        return self.subtype
-

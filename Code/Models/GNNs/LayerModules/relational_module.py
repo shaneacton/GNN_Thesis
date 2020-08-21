@@ -34,7 +34,7 @@ class RelationalModule(LayerModule):
         max_id = max_id.item()
 
         num_new_types = max_id - self.max_type_id
-        if num_new_types == 0:
+        if num_new_types <= 0:
             return
         new_weights = torch.Tensor(num_new_types, self.num_bases).to(device)
         if self.coefficients is not None:  # must concat these new weights onto the old weights

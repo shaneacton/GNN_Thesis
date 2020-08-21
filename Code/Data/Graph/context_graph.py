@@ -24,6 +24,7 @@ class ContextGraph:
         self.span_nodes: Dict[TokenSpan, int] = {}  # maps text segs (eg entities/sentences) to nodes
         self.typed_nodes: Dict[type, Set[int]] = {}  # maps node type to all nodes of that type
         self.query_nodes: Set[int] = set() # collection of nodes which have source=query
+        self.candidate_nodes: Set[int] = set()
 
         self.unique_edges: Set[EdgeRelation] = set()
         self.ordered_edges: List[EdgeRelation] = []
@@ -41,7 +42,7 @@ class ContextGraph:
         return self.data_sample.questions[0].token_sequence
 
     @property
-    def query_span_hierarchy(self):
+    def query_span_hierarchy(self) -> TokenSpanHierarchy:
         if not self._query_span_hierarchy:
             self._query_span_hierarchy = TokenSpanHierarchy(self.query_token_sequence)
         return self._query_span_hierarchy
@@ -53,9 +54,13 @@ class ContextGraph:
         spans = self.span_hierarchy[level]
         return [self.span_nodes[span] for span in spans]
 
-    def add_nodes(self, entity_nodes: List[Node]):
+    def get_query_node_ids_at_level(self, level: str):
+        spans = self.query_span_hierarchy[level]
+        return [self.span_nodes[span] for span in spans]
+
+    def add_nodes(self, nodes: List[Node]):
         ids = []
-        for node in entity_nodes:
+        for node in nodes:
             ids.append(self.add_node(node))
         return ids
 
@@ -73,17 +78,22 @@ class ContextGraph:
 
             if isinstance(node, SpanNode):
                 self.span_nodes[node.token_span] = id
-                if node.source == construction.QUERY:
-                    pos_id = self.query_span_hierarchy.sequence_position(node.token_span)
-                else:
-                    pos_id = self.span_hierarchy.sequence_position(node.token_span)
-                position = NodePosition(node.source, node.level, pos_id)
-                self.node_positions.append(position)
+                if node.source != construction.CANDIDATE:
+                    if node.source == construction.QUERY:
+                        pos_id = self.query_span_hierarchy.sequence_position(node.token_span)
+                    elif node.source == construction.CONTEXT:
+                        pos_id = self.span_hierarchy.sequence_position(node.token_span)
+
+                    position = NodePosition(node.source, node.level, pos_id)
+                    self.node_positions.append(position)
             else:
                 self.node_positions.append(None)
 
             if node.source == construction.QUERY:
                 self.query_nodes.add(id)
+
+            if node.source == construction.CANDIDATE:
+                self.candidate_nodes.add(id)
 
             return id
 

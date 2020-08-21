@@ -29,6 +29,11 @@ def get_node_colour(node: Node):
         if isinstance(node, DocumentStructureNode):
             return "darkgreen"
         return "green"
+    if node.source == construction.CANDIDATE:
+        return "orange"
+
+    # is context
+
     if isinstance(node, TokenNode):
         return "cadetblue1"
     if isinstance(node, EntityNode):

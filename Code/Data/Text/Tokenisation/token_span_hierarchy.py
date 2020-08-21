@@ -89,7 +89,7 @@ class TokenSpanHierarchy:
 
     def __getitem__(self, item: Union[str, int]) -> List[DocumentExtract]:
         if isinstance(item, str):
-            self.strip_query(item)
+            item = self.strip_query(item)
             return self[graph_construction_config.LEVELS.index(item)]
         if item == 0:
             return self.tokens

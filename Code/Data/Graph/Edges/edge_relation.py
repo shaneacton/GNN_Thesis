@@ -38,6 +38,5 @@ class EdgeRelation(GraphFeature, ABC):
     def get_type(self):
         return super(EdgeRelation, self).get_type() + (self.direction,)
 
-    @abstractmethod
     def get_label(self):
-        raise NotImplementedError()
+        return self.subtype

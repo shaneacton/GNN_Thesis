@@ -67,6 +67,9 @@ class GraphConstructionConfig(Config):
             QUERY_SENTENCE: [WORD]
         }
 
+        self.use_candidate_nodes = True
+        self.candidate_connections = [WORD]
+
         self.context_max_chars = 50
 
     @property
@@ -107,6 +110,10 @@ class GraphConstructionConfig(Config):
         if len(self.query_structure_nodes):
             from Code.Data.Graph.Contructors.query_constructor import QueryConstructor
             constructors.append(QueryConstructor)
+
+        if self.use_candidate_nodes:
+            from Code.Data.Graph.Contructors.candidates_constructor import CandidatesConstructor
+            constructors.append(CandidatesConstructor)
 
         cgc = CompoundGraphConstructor(constructors)
         return cgc
