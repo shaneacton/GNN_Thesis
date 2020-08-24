@@ -30,6 +30,7 @@ class GNNConfig(Config):
         super().__init__()
         from torch import nn
         from torch_geometric.nn import SAGEConv
+        from torch_geometric.nn import RGCNConv
 
         self.layers = [
             # {

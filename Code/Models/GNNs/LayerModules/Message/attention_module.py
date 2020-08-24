@@ -1,7 +1,8 @@
 import torch
-from torch.nn import Parameter
-from torch_geometric.utils import softmax
 import torch.nn.functional as F
+from torch.nn import Parameter
+from torch_geometric.nn.inits import glorot
+from torch_geometric.utils import softmax
 
 from Code.Models.GNNs.LayerModules.Message.message_module import MessageModule
 from Code.Models.GNNs.LayerModules.Message.relational_message import RelationalMessage
@@ -42,6 +43,10 @@ class AttentionModule(MessageModule):
 
         if use_edgewise_transformations:
             self.edgewise_transformations = RelationalMessage(channels, channels, num_bases)
+
+    def reset_parameters(self):
+        if self.att:
+            glorot(self.att)
 
     def get_attention_scoring_matrix(self, edge_types):
         if self.use_relational_scoring:

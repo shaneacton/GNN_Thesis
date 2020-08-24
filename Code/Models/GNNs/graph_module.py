@@ -25,26 +25,28 @@ class GraphModule(GraphLayer):
     a module needs no input layer if there are hidden layers, and the in_size==hidden_size
     """
 
-    def __init__(self, sizes: List[int], layer_type: Type[MessagePassing], num_hidden_layers, num_hidden_repeats=1,
+    def __init__(self, sizes: List[int], layer_type: Type[MessagePassing], distinct_weight_repeats, same_weight_repeats=1,
                  repeated_layer_args=None, return_all_outputs=False):
         """
         :param sizes: [in_size, hidden_size, out_size]
-        :param num_hidden_layers: number of unique hidden layers which each get their own weight params
-        :param num_hidden_repeats: number of times to recurrently pass through the hidden layers.
+        :param distinct_weight_repeats: number of unique hidden layers which each get their own weight params
+        :param same_weight_repeats: number of times to recurrently pass through the hidden layers.
         Increasing this increases the number of layers the input passes through without increasing
         the trainable num params
         """
 
         self.repeated_layer_args = repeated_layer_args if repeated_layer_args else {}
-        self.num_hidden_repeats = num_hidden_repeats
-        self.num_hidden_layers = num_hidden_layers
+        self.same_weight_repeats = same_weight_repeats
+        self.distinct_weight_repeats = distinct_weight_repeats
         self.repeated_layer_type = layer_type
         self.return_all_outputs = return_all_outputs
-        if num_hidden_layers and not num_hidden_repeats:
+        if distinct_weight_repeats and not same_weight_repeats:
             raise Exception()
         if len(sizes) != 3:
             raise Exception("please provide input,hidden,output sizes")
         super().__init__(sizes)
+
+        self.module = self.initialise_module()
 
     @property
     def hidden_size(self):
@@ -54,8 +56,8 @@ class GraphModule(GraphLayer):
         for layer in self.layer:
             return layer
 
-    def initialise_layer(self):
-        has_hidden = self.num_hidden_layers > 0
+    def initialise_module(self):
+        has_hidden = self.distinct_weight_repeats > 0
 
         needs_output = self.hidden_size != self.output_size
 
@@ -71,18 +73,19 @@ class GraphModule(GraphLayer):
                 if "activation_type" in self.repeated_layer_args:
                     activation_type = self.repeated_layer_args.pop("activation_type")
 
-                return GraphLayer(sizes, self.repeated_layer_type, activation_type=activation_type,
-                                  layer_args=self.repeated_layer_args)
+                # return GraphLayer(sizes, self.repeated_layer_type, activation_type=activation_type,
+                #                   layer_args=self.repeated_layer_args)
+                return GraphLayer(sizes)
 
         layers = [new_layer(self.input_size, self.hidden_size)] if needs_input else []
-        layers += [new_layer(self.hidden_size, self.hidden_size) for _ in range(self.num_hidden_layers)] * self.num_hidden_repeats
+        layers += [new_layer(self.hidden_size, self.hidden_size) for _ in range(self.distinct_weight_repeats)] * self.same_weight_repeats
         layers += [new_layer(self.hidden_size, self.output_size)] if needs_output else []
 
         return nn.Sequential(*layers)
 
     def forward(self, data: GraphEncoding):
         all_graph_states = []
-        for layer in self.layer:
+        for layer in self.module:
             """passes x through each item in the seq block and optionally records intermediate outputs"""
 
             data = layer(data)
@@ -100,7 +103,7 @@ if __name__ == "__main__":
     torch.manual_seed(0)
 
     pnp_args = {"prop_type": SAGEConv, "pool_type": TopKPooling, "pool_args": {"ratio":0.8}}
-    pnp = GraphModule([3, 128, 128], PropAndPoolLayer, 2, num_hidden_repeats=1, repeated_layer_args=pnp_args,
+    pnp = GraphModule([3, 128, 128], PropAndPoolLayer, 2, same_weight_repeats=1, repeated_layer_args=pnp_args,
                       return_all_outputs=True).to(device)
     print(pnp)
     print(pnp.num_params)

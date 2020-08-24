@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
         ds_out = gnn(graph)
         print("out:", ds_out)
-        print("x:", ds_out.x.size(), "\n----------------------------------------------------------\n"*2)
+        print("x out:", ds_out.x.size(), "\n----------------------------------------------------------\n"*2)
 
 
     print("gnn", gnn)

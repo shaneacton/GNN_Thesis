@@ -8,4 +8,4 @@ class RelationalPrep(RelationalModule, PrepareModule):
 
     def forward(self, x: torch.Tensor, node_types: torch.Tensor):
         # print("rel prep. x:", x.size(), "node_types", node_types.size())
-        return super().forward(x, node_types)
+        return RelationalModule.forward(self, x, node_types)

@@ -2,6 +2,7 @@ import torch
 from torch import nn
 
 from Code.Models.GNNs.OutputModules.output_model import OutputModel
+from Code.Training import device
 
 
 class NodeSelection(OutputModel):
@@ -16,9 +17,10 @@ class NodeSelection(OutputModel):
         if node_ids is None:
             node_ids = self.get_node_ids(data)
         if not isinstance(node_ids, torch.Tensor):
-            node_ids = torch.tensor(data.graph.ordered_nodes)
+            print("node ids:",node_ids)
+            node_ids = torch.tensor(node_ids).to(device)
 
-        choices = torch.index_select(data.x, dim=0, node_ids=node_ids)
+        choices = torch.index_select(data.x, 0,node_ids)
         print("x:",data.x,"choices:", choices.size())
         probabilities = self.probability_mapper(choices)
         data.x = self.softmax(probabilities)

@@ -5,4 +5,4 @@ class CandidateSelection(NodeSelection):
 
     def get_node_ids(self, data):
         """return the node ids of each candidate"""
-        return data.graph.candidate_nodes
+        return list(data.graph.candidate_nodes)

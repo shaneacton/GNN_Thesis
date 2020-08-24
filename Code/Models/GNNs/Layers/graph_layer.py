@@ -55,9 +55,11 @@ class GraphLayer(BaseGraphLayer):
         return self.update_module(inputs, **needed_args)
 
     def forward(self, data: GraphEncoding):
+        print("layer received:", data.x)
         kwargs = self.prepare(data)
         x = data.x
-        print("x:", x.size())
+        print("passing through, ", self, "x:", x.size())
+        print("x after prep:", x)
 
         x = self.propagate(data.edge_index, x=x, kwargs=kwargs)
 

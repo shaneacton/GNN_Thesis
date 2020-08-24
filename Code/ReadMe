@@ -29,6 +29,7 @@ Todo:
         * should be able to use multiple message modules
         * activations and regularisers
     * extract GNN construction from GNN into a GNN Constructor
+    * add biases and reset params to all graph layers
     * bake in residual connections transformer style
     * make generic hierarchical layer switching module
         * basic is layer dependants + 1 layer agnostic

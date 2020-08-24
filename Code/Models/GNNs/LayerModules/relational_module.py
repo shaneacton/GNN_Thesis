@@ -1,4 +1,5 @@
 import torch
+from torch_geometric.nn.inits import glorot, uniform
 
 from Code.Models.GNNs.LayerModules.layer_module import LayerModule
 from torch.nn import Parameter
@@ -23,7 +24,14 @@ class RelationalModule(LayerModule):
         self.coefficients = None  # ~ (num_relations, num_bases)
         self.basis = Parameter(torch.Tensor(num_bases, in_channels, out_channels))
 
+        self.bias = Parameter(torch.Tensor(out_channels))
+
         self.max_type_id = -1
+
+    def reset_parameters(self):
+        size = self.num_bases * self.in_channels
+        uniform(size, self.basis)
+        uniform(size, self.bias)
 
     def handle_types(self, types: torch.Tensor):
         """
@@ -37,6 +45,7 @@ class RelationalModule(LayerModule):
         if num_new_types <= 0:
             return
         new_weights = torch.Tensor(num_new_types, self.num_bases).to(device)
+        uniform(self.num_bases * self.in_channels, self.basis)
         if self.coefficients is not None:  # must concat these new weights onto the old weights
             old_weights = self.coefficients.data
             new_weights = torch.cat([old_weights, new_weights], dim=0)
@@ -59,6 +68,8 @@ class RelationalModule(LayerModule):
         """
 
         self.handle_types(types)
+        print("coeffs:", self.coefficients)
+        # print("basis:", self.basis)
         rel_w = torch.matmul(self.coefficients, self.basis.view(self.num_bases, -1))
         # after matmul, each col in rel_w is a linear combination of the basis vectors
         rel_w = rel_w.view(self.num_relations, self.in_channels, self.out_channels)
@@ -72,7 +83,8 @@ class RelationalModule(LayerModule):
         """
         rel_w = self.get_relational_weights(types)
 
-        # print("w:",w.size(), "x:", x.size(), "x unsqueezed:", x.unsqueeze(1).size())
+        print("w:",rel_w.size(), "x:", x.size(), "x unsqueezed:", x.unsqueeze(1).size())
+        print("rel_w:",rel_w)
         # general bmm ~ (b,n,m) * (b,m,p) = (b,n,p)
         # (E/N, 1, f) * (E/N, i, o) = (E/N, 1, o)
         out = torch.bmm(x.unsqueeze(1), rel_w).squeeze(-2)  # (E/N, o)
