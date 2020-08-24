@@ -28,10 +28,15 @@ class RelationalModule(LayerModule):
 
         self.max_type_id = -1
 
+        self.reset_parameters()
+
+
     def reset_parameters(self):
         size = self.num_bases * self.in_channels
         uniform(size, self.basis)
         uniform(size, self.bias)
+        if self.coefficients is not None:
+            uniform(size, self.coefficients)
 
     def handle_types(self, types: torch.Tensor):
         """
@@ -45,7 +50,7 @@ class RelationalModule(LayerModule):
         if num_new_types <= 0:
             return
         new_weights = torch.Tensor(num_new_types, self.num_bases).to(device)
-        uniform(self.num_bases * self.in_channels, self.basis)
+        uniform(self.num_bases * self.in_channels, new_weights)
         if self.coefficients is not None:  # must concat these new weights onto the old weights
             old_weights = self.coefficients.data
             new_weights = torch.cat([old_weights, new_weights], dim=0)

@@ -20,10 +20,10 @@ if __name__ == "__main__":
     constructor = gcc.get_graph_constructor()
     gnn = configs.get_gnn()
 
-    layer = GraphLayer([768, 400]).to(device)
-
-    gnn.layers = [layer]
-    gnn.layer_list = nn.ModuleList(gnn.layers)
+    # layer = GraphLayer([768, 400]).to(device)
+    #
+    # gnn.layers = [layer]
+    # gnn.layer_list = nn.ModuleList(gnn.layers)
 
     for i, sample in enumerate(samples):
         if i >= 3:

@@ -44,8 +44,10 @@ class AttentionModule(MessageModule):
         if use_edgewise_transformations:
             self.edgewise_transformations = RelationalMessage(channels, channels, num_bases)
 
+        self.reset_parameters()
+
     def reset_parameters(self):
-        if self.att:
+        if "att" in self.__dict__:
             glorot(self.att)
 
     def get_attention_scoring_matrix(self, edge_types):
@@ -68,6 +70,7 @@ class AttentionModule(MessageModule):
         # print("x_j:", x_j.size(), "x_i:", x_i.size())
         # x_i ~ (E, heads, head_channels)
         cat = torch.cat([x_i, x_j], dim=-1)  # (E, heads, 2 * head_channels)
+        print("att forward x_j=",x_j)
         att = self.get_attention_scoring_matrix(edge_types)
         alpha = (cat * att)  # (E, heads, 2 * head_channels)
         # print("cat:", cat.size(), "alph:", alpha.size())
