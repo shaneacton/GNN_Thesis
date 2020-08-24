@@ -14,21 +14,21 @@ Todo:
         before using self attentive pooling
 
 * Graph construction
-     * add support for candidate entity nodes
-     * node filters to allow for word nodes be filtered by query words
      * swap out spacy coref for something better
-     * AMR
+     * node filters to allow for word nodes be filtered by query words
      * decouple with spacy tokens
+     * AMR
      * make type a param not class type. when special classes are created - they pass a rep of their class type to type
         * this allows for generic edges and nodes which can still be given distinct types/subtypes
 
 * GNNs
-    * wire up the new module system to be configurable
-        * should be able to use multiple message modules
-        * activations and regularisers
     * create output models
         * candidate selection
         * span prediction
+    * wire up the new module system to be configurable
+        * should be able to use multiple message modules
+        * activations and regularisers
+    * extract GNN construction from GNN into a GNN Constructor
     * bake in residual connections transformer style
     * make generic hierarchical layer switching module
         * basic is layer dependants + 1 layer agnostic

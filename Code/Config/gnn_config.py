@@ -2,6 +2,7 @@
 from torch_geometric.nn import GATConv
 
 from Code.Config.config import Config
+from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
 
 PROP_AND_POOL = "prop_and_pool"
 
@@ -47,6 +48,10 @@ class GNNConfig(Config):
                 LAYER_ARGS: {ACTIVATION_TYPE: nn.ReLU}
             }
         ]
+
+        self.output_layer = {
+            LAYER_TYPE: CandidateSelection,
+        }
 
         self.relations_basis_count = 3
 

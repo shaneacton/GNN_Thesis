@@ -33,10 +33,12 @@ if __name__ == "__main__":
         render_graph(graph, sample.title_and_peek, reader.datset_name)
 
         ds_out = gnn(graph)
-        print("out:", ds_out, "\n----------------------------------------------------------\n"*2)
+        print("out:", ds_out)
+        print("x:", ds_out.x.size(), "\n----------------------------------------------------------\n"*2)
+
 
     print("gnn", gnn)
-    print("num params in layer:", layer.num_params)
+    # print("num params in layer:", layer.num_params)
 
 
 # if __name__ == "__main__":

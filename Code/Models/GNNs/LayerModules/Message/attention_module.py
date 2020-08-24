@@ -65,9 +65,9 @@ class AttentionModule(MessageModule):
         cat = torch.cat([x_i, x_j], dim=-1)  # (E, heads, 2 * head_channels)
         att = self.get_attention_scoring_matrix(edge_types)
         alpha = (cat * att)  # (E, heads, 2 * head_channels)
-        print("cat:", cat.size(), "alph:", alpha.size())
+        # print("cat:", cat.size(), "alph:", alpha.size())
         alpha = alpha.sum(dim=-1)  # (E, heads)
-        print("alph aft sum:", alpha.size())
+        # print("alph aft sum:", alpha.size())
 
         alpha = F.leaky_relu(alpha, self.negative_slope)
         alpha = softmax(alpha, edge_index_i, size_i)
@@ -75,4 +75,5 @@ class AttentionModule(MessageModule):
         # Sample attention coefficients stochastically.
         alpha = F.dropout(alpha, p=self.dropout, training=self.training)
 
-        return x_j * alpha.view(-1, self.heads, 1)
+        x_j =  x_j * alpha.view(-1, self.heads, 1)
+        return x_j.view(-1, self.heads * self.head_channels)

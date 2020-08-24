@@ -57,6 +57,10 @@ class ContextGNN(GNN):
                                 repeated_layer_args=layer_conf[gnn_config.LAYER_ARGS])
             self.layers.append(layer)
             in_features = layer_features
+
+        out_type = self.gnnc.output_layer[gnn_config.LAYER_TYPE]
+        self.layers.append(out_type(in_features))
+        print("adding output layer:",self.layers[-1])
         self.layer_list = nn.ModuleList(self.layers).to(device)  # registers modules with pytorch and moves to device
 
     def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample]) -> GraphEncoding:
