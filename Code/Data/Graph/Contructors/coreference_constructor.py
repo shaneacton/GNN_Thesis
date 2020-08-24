@@ -21,6 +21,10 @@ class CoreferenceConstructor(GraphConstructor):
         if not existing_graph or EntitiesConstructor not in existing_graph.constructs:
             raise IncompatibleGraphContructionOrder(existing_graph, self, "Entities must be graphed before coreferences")
 
+        if EntityNode not in existing_graph.typed_nodes:
+            print("warning -- no entities detected on graph after entity extraction")
+            return existing_graph
+
         try:
             entity_nodes: List[EntityNode] = existing_graph.get_nodes_of_type(EntityNode)
         except Exception as e:

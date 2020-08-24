@@ -51,10 +51,7 @@ class ContextGNN(GNN):
         for layer_conf in self.gnnc.layers:
             layer_features = layer_conf[gnn_config.NUM_FEATURES]
 
-            layer = GraphModule([in_features, layer_features, layer_features], layer_conf[gnn_config.LAYER_TYPE],
-                                layer_conf[gnn_config.DISTINCT_WEIGHT_REPEATS],
-                                same_weight_repeats=layer_conf[gnn_config.SAME_WEIGHT_REPEATS],
-                                repeated_layer_args=layer_conf[gnn_config.LAYER_ARGS])
+            layer = GraphModule([in_features, layer_features, layer_features], layer_conf)
             self.layers.append(layer)
             in_features = layer_features
 

@@ -70,7 +70,7 @@ class GraphConstructionConfig(Config):
         self.use_candidate_nodes = True
         self.candidate_connections = [WORD]
 
-        self.context_max_chars = 50
+        self.context_max_chars = 500
 
     @property
     def all_structure_levels(self):

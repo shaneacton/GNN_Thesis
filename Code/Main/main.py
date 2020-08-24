@@ -20,21 +20,24 @@ if __name__ == "__main__":
     constructor = gcc.get_graph_constructor()
     gnn = configs.get_gnn()
 
+
     # layer = GraphLayer([768, 400]).to(device)
     #
     # gnn.layers = [layer]
     # gnn.layer_list = nn.ModuleList(gnn.layers)
 
     for i, sample in enumerate(samples):
-        if i >= 3:
+        if i < 0:
+            continue
+        if i >= 1:
             break
 
         graph = constructor(sample)
-        render_graph(graph, sample.title_and_peek, reader.datset_name)
+        # render_graph(graph, sample.title_and_peek + repr(i), reader.datset_name)
 
         ds_out = gnn(graph)
-        print("out:", ds_out)
-        print("x out:", ds_out.x.size(), "\n----------------------------------------------------------\n"*2)
+        # print("out:", ds_out)
+        print("y' out:", ds_out.x.view(-1), "\n----------------------------------------------------------\n"*2)
 
 
     print("gnn", gnn)

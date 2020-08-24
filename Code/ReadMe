@@ -22,15 +22,13 @@ Todo:
         * this allows for generic edges and nodes which can still be given distinct types/subtypes
 
 * GNNs
-    * create output models
-        * candidate selection
-        * span prediction
     * wire up the new module system to be configurable
         * should be able to use multiple message modules
         * activations and regularisers
-    * extract GNN construction from GNN into a GNN Constructor
     * add biases and reset params to all graph layers
     * bake in residual connections transformer style
+    * create output models
+        * span prediction
     * make generic hierarchical layer switching module
         * basic is layer dependants + 1 layer agnostic
         * can be reused for task switching later

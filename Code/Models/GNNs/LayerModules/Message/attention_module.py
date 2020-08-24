@@ -6,6 +6,7 @@ from torch_geometric.utils import softmax
 
 from Code.Models.GNNs.LayerModules.Message.message_module import MessageModule
 from Code.Models.GNNs.LayerModules.Message.relational_message import RelationalMessage
+from Code.Models.GNNs.LayerModules.relational_module import RelationalModule
 
 
 class AttentionModule(MessageModule):
@@ -37,12 +38,12 @@ class AttentionModule(MessageModule):
 
         if use_relational_scoring:
             # learned function to score connections differently depending on edge type
-            self.relational_attention = RelationalMessage(heads, 2 * self.head_channels, num_bases)
+            self.relational_attention = RelationalModule(heads, 2 * self.head_channels, num_bases)
         else:
             self.att = Parameter(torch.Tensor(1, heads, 2 * self.head_channels))
 
         if use_edgewise_transformations:
-            self.edgewise_transformations = RelationalMessage(channels, channels, num_bases)
+            self.edgewise_transformations = RelationalMessage(channels, num_bases)
 
         self.reset_parameters()
 
@@ -70,7 +71,6 @@ class AttentionModule(MessageModule):
         # print("x_j:", x_j.size(), "x_i:", x_i.size())
         # x_i ~ (E, heads, head_channels)
         cat = torch.cat([x_i, x_j], dim=-1)  # (E, heads, 2 * head_channels)
-        print("att forward x_j=",x_j)
         att = self.get_attention_scoring_matrix(edge_types)
         alpha = (cat * att)  # (E, heads, 2 * head_channels)
         # print("cat:", cat.size(), "alph:", alpha.size())

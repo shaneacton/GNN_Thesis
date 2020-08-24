@@ -30,7 +30,6 @@ class RelationalModule(LayerModule):
 
         self.reset_parameters()
 
-
     def reset_parameters(self):
         size = self.num_bases * self.in_channels
         uniform(size, self.basis)
@@ -73,8 +72,6 @@ class RelationalModule(LayerModule):
         """
 
         self.handle_types(types)
-        print("coeffs:", self.coefficients)
-        # print("basis:", self.basis)
         rel_w = torch.matmul(self.coefficients, self.basis.view(self.num_bases, -1))
         # after matmul, each col in rel_w is a linear combination of the basis vectors
         rel_w = rel_w.view(self.num_relations, self.in_channels, self.out_channels)
@@ -88,8 +85,7 @@ class RelationalModule(LayerModule):
         """
         rel_w = self.get_relational_weights(types)
 
-        print("w:",rel_w.size(), "x:", x.size(), "x unsqueezed:", x.unsqueeze(1).size())
-        print("rel_w:",rel_w)
+        # print("w:",rel_w.size(), "x:", x.size(), "x unsqueezed:", x.unsqueeze(1).size(), "types:", types.size())
         # general bmm ~ (b,n,m) * (b,m,p) = (b,n,p)
         # (E/N, 1, f) * (E/N, i, o) = (E/N, 1, o)
         out = torch.bmm(x.unsqueeze(1), rel_w).squeeze(-2)  # (E/N, o)
