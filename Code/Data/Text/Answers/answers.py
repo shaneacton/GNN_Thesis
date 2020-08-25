@@ -33,6 +33,9 @@ class Answers:
     def get_answer_type(self):
         return type(self.correct_answers[0])
 
+    def get_output_model(self):
+        return self.correct_answers[0].get_output_model()
+
     def get_candidates_embedding(self):
         if self.get_answer_type() == CandidateAnswer:
             return torch.cat([cand.get_embedding(tail_concatinator) for cand in self.answer_candidates], dim=1)

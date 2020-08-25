@@ -24,7 +24,7 @@ class NodeSelection(OutputModel):
         print("x:",data.x.size(), "choices:", choices.size())
         probabilities = self.probability_mapper(choices)
         # print("x before:", data.x)
-        data.x = self.softmax(probabilities)
+        data.x = self.softmax(probabilities).view(-1)
         # print("x after:", data.x)
         return data
 

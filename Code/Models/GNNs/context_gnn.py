@@ -1,3 +1,4 @@
+import time
 from typing import List, Union
 
 from torch import nn
@@ -42,12 +43,24 @@ class ContextGNN(GNN):
         self.layers: List[GraphModule] = []
         self.layer_list = None
 
+        self.output_model = None
+
     @property
     def gnnc(self):
         return self.configs.gnnc
 
+    def init_model(self, data_sample: DataSample):
+        encoding: GraphEncoding = self.get_graph_encoding(data_sample)
+        in_features = encoding.x.size(-1)
+
+        out_features = self.init_layers(in_features)
+        self.init_output_model(data_sample, out_features)
+
     def init_layers(self, in_features):
-        """creates layers based on the gnn config provided as well as the sampled in features size"""
+        """
+        creates layers based on the gnn config provided as well as the sampled in features size.
+        returns the number of features in the last layer for the output layer
+        """
         for layer_conf in self.gnnc.layers:
             layer_features = layer_conf[gnn_config.NUM_FEATURES]
 
@@ -55,24 +68,37 @@ class ContextGNN(GNN):
             self.layers.append(layer)
             in_features = layer_features
 
-        out_type = self.gnnc.output_layer[gnn_config.LAYER_TYPE]
-        self.layers.append(out_type(in_features))
-        # print("adding output layer:",self.layers[-1])
         self.layer_list = nn.ModuleList(self.layers).to(device)  # registers modules with pytorch and moves to device
+        return in_features
+
+    def init_output_model(self, data_sample: DataSample, in_features):
+        out_type = data_sample.get_output_model()
+        self.output_model = out_type(in_features).to(device)
 
     def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample]) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
+        return self._forward(self.get_graph_encoding(input))
+
+    def get_graph_encoding(self, input: Union[ContextGraph, GraphEncoding, DataSample]) -> GraphEncoding:
         if isinstance(input, GraphEncoding):
-            return self._forward(input)
+            return input
         data = None
         if isinstance(input, ContextGraph):
             data: GraphEncoding = self.embedder(input)
         if isinstance(input, DataSample):
+            construction_start_time = time.time()
             graph = self.constructor(input)
+            encoding_start_time = time.time()
+            construction_time = encoding_start_time - construction_start_time
             data: GraphEncoding = self.embedder(graph)
+            encoding_time = time.time() - encoding_start_time
+
+            print("construction time:", construction_time, "embedding time:",encoding_time, "total:",
+                  (construction_time + encoding_time))
+
         if not data:
             raise Exception()
-        return self._forward(data)
+        return data
 
     def _forward(self, data: GraphEncoding) -> GraphEncoding:
         # format of graph layers forward: (x, edge_index, batch, **kwargs)
@@ -80,8 +106,9 @@ class ContextGNN(GNN):
         # init layers based on detected in_features and init args
         # print("cgnn operating on:",data,"\nx=",data.x)
         if self.layer_list is None:
-            in_features = data.x[0].size(-1)
-            self.init_layers(in_features)
+            # gnn layers have not been initialised yet
+            self.init_model(data.graph.data_sample)
+
         data.layer = 0
         next_layer = 0
         for layer in self.layers:
@@ -94,6 +121,8 @@ class ContextGNN(GNN):
             next_layer = max(next_layer, data.layer)
             data.layer = next_layer
 
-            # print("layer",layer,"output:",out)
+            # print("layer",layer,"output:",data.x.size())
+
+        data = self.output_model(data)
 
         return data
