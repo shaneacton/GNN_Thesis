@@ -90,9 +90,14 @@ class GraphModule(nn.Module):
         all_graph_states = []
         for layer in self.module:
             """passes x through each item in the seq block and optionally records intermediate outputs"""
+            next_layer = data.layer + 1
 
-            data = layer(data)
+            data = layer(data)  # may or may not increase the layer
             x = data.x
+
+            next_layer = max(next_layer, data.layer)
+            data.layer = next_layer
+
             if self.return_all_outputs:
                 all_graph_states.append(x)
 

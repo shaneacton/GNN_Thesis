@@ -6,6 +6,7 @@ from torch import nn
 from Code.Config import GraphEmbeddingConfig, GraphConstructionConfig
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Nodes.node_position import NodePosition, incompatible
+from Code.Training import device
 
 
 class RelativePositionEmbedder(nn.Module):
@@ -29,12 +30,15 @@ class RelativePositionEmbedder(nn.Module):
         sources = [construction.CONTEXT] * len(context_levels) + [construction.QUERY] * len(query_levels)
         levels = context_levels + query_levels
 
+        # print("levels:", levels, "sources:",sources)
+
         for l in range(len(levels)):
             # registers all node positions anticipated
             level = levels[l]
             source = sources[l]
 
             window_size = self.gec.relative_embeddings_window_per_level[level]
+            # print("level:", level, "source:",source, "window_size:",window_size)
             for i in range(-window_size, window_size):
                 position = NodePosition(source, level, i, window_size)
                 self.pos_to_id_map[position] = self.next_id
@@ -43,5 +47,13 @@ class RelativePositionEmbedder(nn.Module):
         self.embeddings = nn.Embedding(self.next_id, self.num_features)
 
     def forward(self, relative_positions: List[NodePosition]):
-        position_ids = torch.tensor([self.pos_to_id_map[pos] for pos in relative_positions])
+        try:
+            position_ids = torch.tensor([self.pos_to_id_map[pos] for pos in relative_positions]).to(device)
+        except Exception as ex:
+            print("map:",self.pos_to_id_map)
+            for pos in relative_positions:
+                if pos in self.pos_to_id_map:
+                    continue
+                print("pos:", pos, "in:", (pos in self.pos_to_id_map))
+            raise ex
         return self.embeddings(position_ids)

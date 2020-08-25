@@ -1,4 +1,5 @@
 from Code.Config import GraphEmbeddingConfig
+from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
 
 
 class NodePosition:
@@ -6,7 +7,7 @@ class NodePosition:
     def __init__(self, source, sequence_level, sequence_id, window_size=-1):
         self.window_size = window_size
         self.source = source
-        self.sequence_level = sequence_level  # an identifier for which sequence this node is in (token,sentence, etc)
+        self.sequence_level = TokenSpanHierarchy.strip_query(sequence_level)  # an identifier for which sequence this node is in (token,sentence, etc)
         self.sequence_id = sequence_id  # the abs/rel position of this node in the relevant sequence
 
     def __sub__(self, other):
@@ -30,6 +31,10 @@ class NodePosition:
     def __eq__(self, other):
         return self.source == other.source and self.sequence_level == other.sequence_level \
                and self.sequence_id == other.sequence_id
+
+    def __repr__(self):
+        return "Node Pos: {source=" + repr(self.source) + ", sequence_level=" + repr(self.sequence_level) + ", sequence_id=" \
+               + repr(self.sequence_id)
 
 
 incompatible = NodePosition(None, None, -1, -1)

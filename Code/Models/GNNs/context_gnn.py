@@ -57,7 +57,7 @@ class ContextGNN(GNN):
 
         out_type = self.gnnc.output_layer[gnn_config.LAYER_TYPE]
         self.layers.append(out_type(in_features))
-        print("adding output layer:",self.layers[-1])
+        # print("adding output layer:",self.layers[-1])
         self.layer_list = nn.ModuleList(self.layers).to(device)  # registers modules with pytorch and moves to device
 
     def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample]) -> GraphEncoding:
@@ -82,13 +82,17 @@ class ContextGNN(GNN):
         if self.layer_list is None:
             in_features = data.x[0].size(-1)
             self.init_layers(in_features)
-
+        data.layer = 0
+        next_layer = 0
         for layer in self.layers:
             # try:
-            data = layer(data)
+            next_layer = max(next_layer + 1, data.layer)
+            data = layer(data)  # may or may not increase the layer count
             # except Exception as e:
             #     print("failed to prop through", layer, "with kwargs:", kwargs)
             #     raise e
+            next_layer = max(next_layer, data.layer)
+            data.layer = next_layer
 
             # print("layer",layer,"output:",out)
 

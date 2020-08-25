@@ -57,6 +57,7 @@ class BaseGraphLayer(MessagePassing):
         kwargs["node_types"] = data.node_types
         kwargs["encoding"] = data
         kwargs["graph"] = data.graph
+        kwargs["layer"] = data.layer
 
         return kwargs
 

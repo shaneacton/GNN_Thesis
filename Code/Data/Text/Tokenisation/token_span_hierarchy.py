@@ -102,7 +102,10 @@ class TokenSpanHierarchy:
         if item == 4:
             return [self.full_document]
 
-    def strip_query(self, level):
+    @staticmethod
+    def strip_query(level):
+        if level is None:
+            return level
         if graph_construction_config.QUERY in level:
             # a token span heirarchy is agnostic of source
             level = level.split(graph_construction_config.QUERY + "_")[1]

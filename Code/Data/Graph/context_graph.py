@@ -86,6 +86,8 @@ class ContextGraph:
 
                     position = NodePosition(node.source, node.level, pos_id)
                     self.node_positions.append(position)
+                else:
+                    self.node_positions.append(None)
             else:
                 self.node_positions.append(None)
 

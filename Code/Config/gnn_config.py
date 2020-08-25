@@ -1,6 +1,9 @@
 # gnn layer types
+from torch_geometric.nn import GATConv
 
 from Code.Config.config import Config
+from Code.Models.GNNs.LayerModules.Prepare.linear_prep import LinearPrep
+from Code.Models.GNNs.LayerModules.Prepare.prepare_module import PrepareModule
 
 PROP_AND_POOL = "prop_and_pool"
 
@@ -45,6 +48,8 @@ class GNNConfig(Config):
         from Code.Models.GNNs.LayerModules.update_module import UpdateModule
         from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
 
+        self.relations_basis_count = 3
+
         self.layers = [
             # {
             #     LAYER_TYPE: PropAndPoolLayer,
@@ -62,14 +67,18 @@ class GNNConfig(Config):
             #     LAYER_ARGS: {ACTIVATION_TYPE: nn.ReLU}
             # }
             # ,
+
             {
-                PREPARATION_MODULES: [{MODULE_TYPE: RelationalPrep, NUM_BASES: 3}],
+                PREPARATION_MODULES: [
+                    # {MODULE_TYPE: RelationalPrep, NUM_BASES: 3}
+                    {MODULE_TYPE: LinearPrep}
+                ],
                 MESSAGE_MODULES: [
                     {MODULE_TYPE: AttentionModule, HEADS: 8}],
                 UPDATE_MODULES: [{MODULE_TYPE: UpdateModule}],
 
                 NUM_FEATURES: 400,
-                SAME_WEIGHT_REPEATS: 3,
+                SAME_WEIGHT_REPEATS: 12,
                 DISTINCT_WEIGHT_REPEATS: 1,
             }
         ]
@@ -78,7 +87,6 @@ class GNNConfig(Config):
             LAYER_TYPE: CandidateSelection,
         }
 
-        self.relations_basis_count = 3
 
     def get_gnn_with_constructor_embedder(self, constructor, embedder):
         from Code.Models.GNNs.context_gnn import ContextGNN

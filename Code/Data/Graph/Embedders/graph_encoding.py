@@ -19,6 +19,7 @@ class GraphEncoding(Data):
         self.graph: ContextGraph = graph
         self.batch: torch.Tensor = torch.tensor([0] * kwargs['x'].size(0)).to(device)
         self.set_positional_window_sizes()
+        self.layer = 0
 
     @property
     def node_types(self):
@@ -31,4 +32,6 @@ class GraphEncoding(Data):
     def set_positional_window_sizes(self):
         """these values cannot be set at graph construction time since the window size should be independent"""
         for pos in self.graph.node_positions:
+            if not pos:
+                continue
             pos.window_size = self.gec.relative_embeddings_window_per_level[pos.sequence_level]

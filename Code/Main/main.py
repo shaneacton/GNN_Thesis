@@ -1,3 +1,5 @@
+import math
+
 from torch import nn
 
 from Code.Models.GNNs.Layers.graph_layer import GraphLayer
@@ -20,12 +22,6 @@ if __name__ == "__main__":
     constructor = gcc.get_graph_constructor()
     gnn = configs.get_gnn()
 
-
-    # layer = GraphLayer([768, 400]).to(device)
-    #
-    # gnn.layers = [layer]
-    # gnn.layer_list = nn.ModuleList(gnn.layers)
-
     for i, sample in enumerate(samples):
         if i < 0:
             continue
@@ -36,7 +32,10 @@ if __name__ == "__main__":
         # render_graph(graph, sample.title_and_peek + repr(i), reader.datset_name)
 
         ds_out = gnn(graph)
-        # print("out:", ds_out)
+        print("out:", ds_out)
+        num_edges = ds_out.edge_index.size(1)
+        num_nodes = ds_out.node_types.size(0)
+        print("num_nodes:", num_nodes, "num edges:", num_edges, " scale fac:", math.log(num_edges, num_nodes))
         print("y' out:", ds_out.x.view(-1), "\n----------------------------------------------------------\n"*2)
 
 

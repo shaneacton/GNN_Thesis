@@ -25,7 +25,7 @@ class AttentionModule(MessageModule):
     """
 
     def __init__(self, channels, heads=1, negative_slope=0.2, dropout=0, num_bases=1,
-                 use_relational_scoring=True, use_edgewise_transformations=True):
+                 use_relational_scoring=False, use_edgewise_transformations=False):
         super().__init__(channels)
         self.use_edgewise_transformations = use_edgewise_transformations
         self.use_relational_scoring = use_relational_scoring
@@ -57,8 +57,14 @@ class AttentionModule(MessageModule):
         else:
             return self.att  # (1, heads, 2 * head_channels)
 
-    def forward(self, edge_index_i, x_i, x_j, size_i, edge_types):
+    def forward(self, edge_index_i, edge_index_j, x_i, x_j, size_i, edge_types, layer, encoding):
         # x_j ~ (E, channels)
+
+        # add positional embeddings
+        if layer == 0:
+            # pos embeddings used to score edge messages, as well as to augment them
+            print("adding in positional embeddings")
+            x_j += self.get_positional_embeddings(edge_index_i, edge_index_j, encoding)
 
         if self.use_edgewise_transformations:
             # transforms each message in an edge aware manner
@@ -83,5 +89,7 @@ class AttentionModule(MessageModule):
         # Sample attention coefficients stochastically.
         alpha = F.dropout(alpha, p=self.dropout, training=self.training)
 
-        x_j =  x_j * alpha.view(-1, self.heads, 1)
-        return x_j.view(-1, self.heads * self.head_channels)
+        x_j = x_j * alpha.view(-1, self.heads, 1)
+        x_j = x_j.view(-1, self.heads * self.head_channels)
+
+        return x_j
