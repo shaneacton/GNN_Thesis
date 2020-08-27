@@ -1,12 +1,10 @@
-from Code.Config import GraphEmbeddingConfig
-from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
-
 
 class NodePosition:
 
     def __init__(self, source, sequence_level, sequence_id, window_size=-1):
         self.window_size = window_size
         self.source = source
+        from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
         self.sequence_level = TokenSpanHierarchy.strip_query(sequence_level)  # an identifier for which sequence this node is in (token,sentence, etc)
         self.sequence_id = sequence_id  # the abs/rel position of this node in the relevant sequence
 

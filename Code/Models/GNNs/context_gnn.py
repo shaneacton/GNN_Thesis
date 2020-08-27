@@ -18,16 +18,7 @@ from Code.Training import device
 class ContextGNN(GNN):
 
     """
-    takes in context graphs as inputs
-    dynamically creates graph layers as needed based off edge types and state communications
-    """
-
-    """
-    Plan: 
-    get basic pipeline working with only current state updates, no special or previous/starting states
-    add in support for previous/starting states - using state multiplexer
-    move all encoder params into the CG-GNN with options to fine tune or not
-    save/loading of cg-gnn with encoders
+    takes in context graphs as inputs, outputs graph encoding
     """
 
     def __init__(self, constructor: GraphConstructor, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None):
@@ -72,6 +63,8 @@ class ContextGNN(GNN):
         return in_features
 
     def init_output_model(self, data_sample: DataSample, in_features):
+        # self.output_model = None
+        # return
         out_type = data_sample.get_output_model()
         self.output_model = out_type(in_features).to(device)
 
@@ -93,8 +86,8 @@ class ContextGNN(GNN):
             data: GraphEncoding = self.embedder(graph)
             encoding_time = time.time() - encoding_start_time
 
-            print("construction time:", construction_time, "embedding time:",encoding_time, "total:",
-                  (construction_time + encoding_time))
+            # print("construction time:", construction_time, "embedding time:",encoding_time, "total:",
+            #       (construction_time + encoding_time))
 
         if not data:
             raise Exception()
@@ -123,6 +116,7 @@ class ContextGNN(GNN):
 
             # print("layer",layer,"output:",data.x.size())
 
-        data = self.output_model(data)
+        if self.output_model:
+            data = self.output_model(data)
 
         return data

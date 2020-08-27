@@ -71,7 +71,7 @@ class Text:
         return self.raw_text.__hash__()
 
     @staticmethod
-    def get_windowed_embeddings(tokens):
+    def get_windowed_embeddings(tokens, embedder=embedder):
         """
         breaks the text up into appropriately sized and even chunks
         looks ahead and behind these chunks when contextually embedding

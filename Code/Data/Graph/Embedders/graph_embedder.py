@@ -135,6 +135,8 @@ class GraphEmbedder(nn.Module):
                                 + "\n full seq:" + repr(full_embedded_sequence.size()))
             return token_embeddings
 
+        if structure_level not in self.sequence_summarisers:
+            raise Exception(repr(node) + " structure level not in " + repr(list(self.sequence_summarisers.keys())))
         embedder = self.sequence_summarisers[structure_level]
         return embedder(token_embeddings)
 

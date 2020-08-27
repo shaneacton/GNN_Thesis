@@ -14,7 +14,7 @@ from Datasets.Readers.squad_reader import SQuADDatasetReader
 ce_loss = nn.CrossEntropyLoss()
 
 MAX_BATCHES = -1
-PRINT_BATCH_EVERY = 1
+PRINT_BATCH_EVERY = 5
 
 
 def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
@@ -26,6 +26,7 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
     for epoch in range(num_epochs):
         epoch_start_time = time.time()
         total_loss = 0
+        rolling_average = -1
         for i, batch in enumerate(batch_reader.get_batches()):
             # print(batch)
             if i >= MAX_BATCHES and MAX_BATCHES != -1:
@@ -36,27 +37,38 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
                 if optimizer is None:
                     # gnn must see a data sample to initialise. optim must wait
                     gnn.init_model(sample)
+                    # print("initialising optim with ps:", gnn.parameters())
                     optimizer = optim.Adam(gnn.parameters(), lr=learning_rate)
 
                 optimizer.zero_grad()
                 forward_start_time = time.time()
-                output = gnn(sample)
+                try:
+                    output = gnn(sample)
+                except Exception as e:
+                    print(e)
+                    continue
                 y = output.x
                 forward_time = time.time() - forward_start_time
-                print("y:", y.size(), "forward time:", forward_time)
 
                 if batch.get_answer_type() == ExtractedAnswer:
                     loss = get_span_loss(y, batch)
                 if batch.get_answer_type() == CandidateAnswer:
                     loss = get_candidate_loss(y, batch)
 
-                    backwards_start_time = time.time()
-                    loss.backward()
-                    optimizer.step()
-                    backwards_time = time.time() - backwards_start_time
-                    total_loss += loss.item()
-                    if i % PRINT_BATCH_EVERY == 0 and PRINT_BATCH_EVERY != -1:
-                        print("batch", i, "loss", loss / batch.batch_size, "backwards time:",backwards_time)
+                backwards_start_time = time.time()
+                loss.backward()
+                optimizer.step()
+                backwards_time = time.time() - backwards_start_time
+                loss_val = float(loss.item())
+                total_loss += loss_val
+                if rolling_average == -1:
+                    rolling_average = loss_val
+                else:
+                    a = 0.95
+                    rolling_average = a * rolling_average + (1-a) * loss_val
+                if i % PRINT_BATCH_EVERY == 0 and PRINT_BATCH_EVERY != -1:
+                    print("y:", y.size(), "forward time:", forward_time, "backwards time:", backwards_time)
+                    print("batch", i, "loss", loss_val / batch.batch_size, "rolling loss:",rolling_average)
 
 
         e_time = time.time() - epoch_start_time
@@ -75,7 +87,7 @@ def get_span_loss(output, batch: Batch):
 
 def get_candidate_loss(output, batch: Batch):
     answers = batch.get_answers_tensor()
-    print("answers:", answers.size())
+    # print("answers:", answers.size())
     output = output.view(1, -1)
     return ce_loss(output, answers)
 

@@ -5,7 +5,6 @@ from Code.Data.Text.Tokenisation import tokenisation_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
 from Code.Data.Text.Tokenisation.spacy_utils import get_spacy_sentences, get_spacy_coreferences
-from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 from Code.Data.Text.Tokenisation.tokenisation_utils import get_passages
 
 
@@ -22,7 +21,7 @@ class TokenSpanHierarchy:
     level 4 is documents
     """
 
-    def __init__(self, tok_seq: TokenSequence):
+    def __init__(self, tok_seq):
         self.token_sequence = tok_seq
 
         self._entities: List[EntitySpan] = None

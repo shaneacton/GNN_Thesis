@@ -4,6 +4,7 @@ import torch
 from torch import nn
 
 from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
+from Code.Data.Text.text import Text
 
 
 class TokenSequenceEmbedder(nn.Module):
@@ -21,7 +22,7 @@ class TokenSequenceEmbedder(nn.Module):
     def get_embedded_sequence(self, seq: TokenSequence):
         tokens = seq.raw_subtokens
         if self.token_embedder:
-            return self.token_embedder(tokens)
+            return Text.get_windowed_embeddings(tokens, self.token_embedder)
 
         indexes = self.token_indexer(seq.raw_subtokens)
         return self.index_embedder(indexes)

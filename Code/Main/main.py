@@ -25,7 +25,7 @@ if __name__ == "__main__":
     for i, sample in enumerate(samples):
         if i < 0:
             continue
-        if i >= 1:
+        if i >= 6:
             break
 
         graph = constructor(sample)

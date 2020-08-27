@@ -2,8 +2,6 @@
 from torch_geometric.nn import GATConv
 
 from Code.Config.config import Config
-from Code.Models.GNNs.LayerModules.Prepare.linear_prep import LinearPrep
-from Code.Models.GNNs.LayerModules.Prepare.prepare_module import PrepareModule
 
 PROP_AND_POOL = "prop_and_pool"
 
@@ -47,6 +45,10 @@ class GNNConfig(Config):
         from Code.Models.GNNs.LayerModules.Prepare.relational_prep import RelationalPrep
         from Code.Models.GNNs.LayerModules.update_module import UpdateModule
         from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
+        from Code.Models.GNNs.LayerModules.Message.linear_message import LinearMessage
+        from Code.Models.GNNs.LayerModules.Prepare.linear_prep import LinearPrep
+        from Code.Models.GNNs.LayerModules.Prepare.prepare_module import PrepareModule
+        from Code.Models.GNNs.LayerModules.Message.message_module import MessageModule
 
         self.relations_basis_count = 3
 
@@ -73,12 +75,13 @@ class GNNConfig(Config):
                     # {MODULE_TYPE: RelationalPrep, NUM_BASES: 3}
                     {MODULE_TYPE: LinearPrep}
                 ],
-                MESSAGE_MODULES: [
-                    {MODULE_TYPE: AttentionModule, HEADS: 8}],
-                UPDATE_MODULES: [{MODULE_TYPE: UpdateModule}],
+                MESSAGE_MODULES:
+                    # [{MODULE_TYPE: AttentionModule, HEADS: 8}],
+                [{MODULE_TYPE: MessageModule}],
 
+                UPDATE_MODULES: [{MODULE_TYPE: UpdateModule}],
                 NUM_FEATURES: 400,
-                SAME_WEIGHT_REPEATS: 12,
+                SAME_WEIGHT_REPEATS: 1,
                 DISTINCT_WEIGHT_REPEATS: 1,
             }
         ]
@@ -86,7 +89,6 @@ class GNNConfig(Config):
         self.output_layer = {
             LAYER_TYPE: CandidateSelection,
         }
-
 
     def get_gnn_with_constructor_embedder(self, constructor, embedder):
         from Code.Models.GNNs.context_gnn import ContextGNN

@@ -21,7 +21,7 @@ class NodeSelection(OutputModel):
             node_ids = torch.tensor(node_ids).to(device)
 
         choices = torch.index_select(data.x, 0,node_ids)
-        print("x:",data.x.size(), "choices:", choices.size())
+        # print("x:",data.x.size(), "choices:", choices.size())
         probabilities = self.probability_mapper(choices)
         # print("x before:", data.x)
         data.x = self.softmax(probabilities).view(-1)
