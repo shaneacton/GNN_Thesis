@@ -1,18 +1,16 @@
-from torch import nn
-
 from Code.Models.GNNs.LayerModules.Message.message_module import MessageModule
+from Code.Models.GNNs.LayerModules.linear_module import LinearModule
 
 
-class LinearMessage(MessageModule):
+class LinearMessage(MessageModule, LinearModule):
 
-    def __init__(self, channels):
-        super().__init__(channels)
-        self.lin = nn.Linear(channels, channels)
+    def __init__(self, channels, num_linear_layers, activation_type, dropout_ratio):
+        MessageModule.__init__(self, channels, activation_type, dropout_ratio)
+        self.num_linear_layers = num_linear_layers
+        self.projection = self.get_linear_sequence(channels, channels)
 
-    def forward(self, edge_index_i, edge_index_j, x_i, x_j, size_i, encoding, **kwargs):
+    def forward(self, x_j):
         """
-        :param edge_index_i: (E)
         :param x_i: (E, in_channels)
-        :param x_j: (E, in_channels)
         """
-        return self.lin(x_j)
+        return self.projection(x_j)

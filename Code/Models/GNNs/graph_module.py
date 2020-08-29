@@ -2,7 +2,7 @@ from typing import List
 
 from torch import nn
 
-from Code.Config import gnn_config
+from Code.Config import gnn_config, GNNConfig
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Models.GNNs.Layers.graph_layer import GraphLayer
 from Code.Models.GNNs.Layers.layer_constructor import LayerConstructor
@@ -21,7 +21,7 @@ class GraphModule(nn.Module):
     a module needs no input layer if there are hidden layers, and the in_size==hidden_size
     """
 
-    def __init__(self, sizes: List[int], layer_conf):
+    def __init__(self, sizes: List[int], layer_conf, gnnc: GNNConfig):
         """
         :param sizes: [in_size, hidden_size, out_size]
         :param distinct_weight_repeats: number of unique hidden layers which each get their own weight params
@@ -30,6 +30,7 @@ class GraphModule(nn.Module):
         the trainable num params
         """
 
+        self.gnnc = gnnc
         self.same_weight_repeats = layer_conf[gnn_config.SAME_WEIGHT_REPEATS]
         self.distinct_weight_repeats = layer_conf[gnn_config.DISTINCT_WEIGHT_REPEATS]
         self.return_all_outputs = False
@@ -39,7 +40,7 @@ class GraphModule(nn.Module):
             raise Exception("please provide input,hidden,output sizes")
         self.sizes = sizes
         self.layer_conf = layer_conf
-        super().__init__()
+        nn.Module.__init__(self)
 
         self.module = self.initialise_module()
 
@@ -71,14 +72,7 @@ class GraphModule(nn.Module):
 
         def new_layer(in_size, out_size):
             sizes = [in_size, out_size]
-            activation_type=None
-            # if "activation_type" in self.repeated_layer_args:
-            #     activation_type = self.repeated_layer_args.pop("activation_type")
-
-            # return GraphLayer(sizes, self.repeated_layer_type, activation_type=activation_type,
-            #                   layer_args=self.repeated_layer_args)
-
-            return layer_constructor.get_layer(sizes, self.layer_conf)
+            return layer_constructor.get_layer(sizes, self.layer_conf, self.gnnc.global_params)
 
         layers = [new_layer(self.input_size, self.hidden_size)] if needs_input else []
         layers += [new_layer(self.hidden_size, self.hidden_size) for _ in range(self.distinct_weight_repeats)] * self.same_weight_repeats

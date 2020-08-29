@@ -1,11 +1,11 @@
-from typing import List, Dict, Any, Type
+from typing import List, Dict, Any
 
 from torch import Tensor, nn
 
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Models.GNNs.LayerModules.Message.message_module import MessageModule
 from Code.Models.GNNs.LayerModules.Prepare.prepare_module import PrepareModule
-from Code.Models.GNNs.LayerModules.update_module import UpdateModule
+from Code.Models.GNNs.LayerModules.Update.update_module import UpdateModule
 from Code.Models.GNNs.Layers.base_graph_layer import BaseGraphLayer
 
 
@@ -14,7 +14,7 @@ class GraphLayer(BaseGraphLayer):
     def __init__(self, sizes: List[int], prep_modules: List[PrepareModule], message_modules: List[MessageModule],
                  update_modules: List[UpdateModule]):
 
-        super().__init__(sizes)
+        BaseGraphLayer.__init__(self, sizes)
         self.preparation_modules: List[PrepareModule] = prep_modules
         self.message_modules: List[MessageModule] = message_modules
         self.update_modules: List[UpdateModule] = update_modules

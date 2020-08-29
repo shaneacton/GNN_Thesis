@@ -15,8 +15,8 @@ class RelationalModule(LayerModule):
     allows different nodes and edges to use distinct learned functions
     """
 
-    def __init__(self, in_channels, out_channels, num_bases):
-        LayerModule.__init__(self)
+    def __init__(self, in_channels, out_channels, num_bases, activation_type, dropout_ratio):
+        LayerModule.__init__(self, activation_type, dropout_ratio)
         self.num_bases = num_bases
         self.out_channels = out_channels
         self.in_channels = in_channels

@@ -55,7 +55,7 @@ class ContextGNN(GNN):
         for layer_conf in self.gnnc.layers:
             layer_features = layer_conf[gnn_config.NUM_FEATURES]
 
-            layer = GraphModule([in_features, layer_features, layer_features], layer_conf)
+            layer = GraphModule([in_features, layer_features, layer_features], layer_conf, self.gnnc)
             self.layers.append(layer)
             in_features = layer_features
 

@@ -14,7 +14,7 @@ from Datasets.Readers.squad_reader import SQuADDatasetReader
 ce_loss = nn.CrossEntropyLoss()
 
 MAX_BATCHES = -1
-PRINT_BATCH_EVERY = 5
+PRINT_BATCH_EVERY = 10
 
 
 def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
@@ -45,7 +45,7 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
                 try:
                     output = gnn(sample)
                 except Exception as e:
-                    print(e)
+                    print("Error in forward:", e)
                     continue
                 y = output.x
                 forward_time = time.time() - forward_start_time
@@ -64,10 +64,11 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
                 if rolling_average == -1:
                     rolling_average = loss_val
                 else:
-                    a = 0.95
+                    a = 0.98
                     rolling_average = a * rolling_average + (1-a) * loss_val
                 if i % PRINT_BATCH_EVERY == 0 and PRINT_BATCH_EVERY != -1:
-                    print("y:", y.size(), "forward time:", forward_time, "backwards time:", backwards_time)
+                    print("y:", y, "shape:", y.size())
+                    print("forward time:", forward_time, "backwards time:", backwards_time)
                     print("batch", i, "loss", loss_val / batch.batch_size, "rolling loss:",rolling_average)
 
 

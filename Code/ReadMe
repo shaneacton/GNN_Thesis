@@ -1,16 +1,14 @@
 Todo:
-* training loop
-    * loss, optimiser etc
 * change graph encoding to inherit Batch instead of Data
 * bug in graph construction - word to token not getting every link
-* returning edges type id issue
+* switch super to explicit class in module system
+* returning edges type-id issue
 * create config save/load system
     * create configs for Longformer, Big Bird, HDE
 
 
 * Graph embedder
      * query aware embeddings
-
      * make fine tuning the contextual embedder optional
      * edge feature encodings. an embedder for subtype info
      * more sophisticated attentive summarisation, possibly utilising sliding window att to pretransform a sequence
@@ -25,8 +23,8 @@ Todo:
         * this allows for generic edges and nodes which can still be given distinct types/subtypes
 
 * GNNs
-    * wire up the new module system to be configurable
-        * activations and regularisers
+    * configurable activations and regularisers
+    * allow no message module in a graph layer, bypassing the prop call
     * add biases and reset params to all graph layers
     * bake in residual connections transformer style
     * create output models
@@ -35,6 +33,7 @@ Todo:
     * make generic hierarchical layer switching module
         * basic is layer dependants + 1 layer agnostic
         * can be reused for task switching later
+    * switch additive attention for dot-product
 
 * config summary graphs for visualisation
     * graph construction summary graphs

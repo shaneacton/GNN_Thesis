@@ -1,8 +1,6 @@
-# gnn layer types
-from torch_geometric.nn import GATConv
-
 from Code.Config.config import Config
 
+# gnn layer types
 PROP_AND_POOL = "prop_and_pool"
 
 # layer options
@@ -24,6 +22,11 @@ HEADS = "heads"
 
 # layer args
 ACTIVATION_TYPE = "activation_type"
+ACTIVATION_ARGS = "activation_args"
+NEGATIVE_SLOPE = "negative_slope"  # for Leaky_Relu
+DROPOUT_RATIO = "dropout_ratio"
+NUM_LINEAR_LAYERS = "num_linear_layers"
+
 
 # prop and pool args
 PROPAGATION_TYPE = "prop_type"
@@ -38,48 +41,33 @@ class GNNConfig(Config):
 
         super().__init__()
         from torch import nn
-        from torch_geometric.nn import SAGEConv
-        from torch_geometric.nn import RGCNConv
-        from Code.Models.GNNs.LayerModules.Message.attention_module import AttentionModule
-        from Code.Models.GNNs.LayerModules.Message.relational_message import RelationalMessage
-        from Code.Models.GNNs.LayerModules.Prepare.relational_prep import RelationalPrep
-        from Code.Models.GNNs.LayerModules.update_module import UpdateModule
+        from Code.Models.GNNs.LayerModules.Update.update_module import UpdateModule
         from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
-        from Code.Models.GNNs.LayerModules.Message.linear_message import LinearMessage
         from Code.Models.GNNs.LayerModules.Prepare.linear_prep import LinearPrep
-        from Code.Models.GNNs.LayerModules.Prepare.prepare_module import PrepareModule
         from Code.Models.GNNs.LayerModules.Message.message_module import MessageModule
+        from Code.Models.GNNs.LayerModules.Message.attention_module import AttentionModule
+        from Code.Models.GNNs.LayerModules.Update.linear_update import LinearUpdate
+        from torch_geometric.nn import GATConv
 
         self.relations_basis_count = 3
 
-        self.layers = [
-            # {
-            #     LAYER_TYPE: PropAndPoolLayer,
-            #     NUM_FEATURES: 400,
-            #     SAME_WEIGHT_REPEATS: 1,
-            #     DISTINCT_WEIGHT_REPEATS: 1,
-            #     LAYER_ARGS : {ACTIVATION_TYPE: nn.ReLU, PROPAGATION_TYPE: SAGEConv, POOL_TYPE: TopKPooling,
-            #     POOL_ARGS: {POOL_RATIO: 0.8}}
-            # }
-            # {
-            #     LAYER_TYPE: GATConv,
-            #     NUM_FEATURES: 400,
-            #     SAME_WEIGHT_REPEATS: 1,
-            #     DISTINCT_WEIGHT_REPEATS: 1,
-            #     LAYER_ARGS: {ACTIVATION_TYPE: nn.ReLU}
-            # }
-            # ,
+        self.global_params = {
+            ACTIVATION_TYPE: nn.ReLU,
+            DROPOUT_RATIO: 0.5,
+        }
 
+        self.layers = [
             {
                 PREPARATION_MODULES: [
                     # {MODULE_TYPE: RelationalPrep, NUM_BASES: 3}
-                    {MODULE_TYPE: LinearPrep}
+                    {MODULE_TYPE: LinearPrep, NUM_LINEAR_LAYERS: 1}
                 ],
                 MESSAGE_MODULES:
-                    # [{MODULE_TYPE: AttentionModule, HEADS: 8}],
-                [{MODULE_TYPE: MessageModule}],
+                    [{MODULE_TYPE: AttentionModule, HEADS: 8,
+                      ACTIVATION_TYPE: nn.LeakyReLU, ACTIVATION_ARGS: {NEGATIVE_SLOPE: 0.2}}],
+                # [{MODULE_TYPE: MessageModule}],
 
-                UPDATE_MODULES: [{MODULE_TYPE: UpdateModule}],
+                UPDATE_MODULES: [{MODULE_TYPE: LinearUpdate, NUM_LINEAR_LAYERS: 1}],
                 NUM_FEATURES: 400,
                 SAME_WEIGHT_REPEATS: 1,
                 DISTINCT_WEIGHT_REPEATS: 1,

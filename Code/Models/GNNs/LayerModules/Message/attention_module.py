@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch import nn
 from torch.nn import Parameter
 from torch_geometric.nn.inits import glorot
 from torch_geometric.utils import softmax
@@ -21,16 +22,16 @@ class AttentionModule(MessageModule):
         this is opposed to GAT where params scale with headcount
 
     :parameter use_relational_scoring whether or not to switch the scoring functions based on edge type
-    :parameter use_edgewise_transformations whether or not to transform edge messages in a
+    :parameter use_edgewise_retransformations whether or not to transform edge messages in a
     """
 
-    def __init__(self, channels, heads=1, negative_slope=0.2, dropout=0, num_bases=1,
-                 use_relational_scoring=False, use_edgewise_transformations=False):
-        super().__init__(channels)
-        self.use_edgewise_transformations = use_edgewise_transformations
+    def __init__(self, channels, activation_type, dropout_ratio, heads=1, activation_kwargs=None, num_bases=1,
+                use_relational_scoring=False, use_edgewise_retransformations=False):
+
+        MessageModule.__init__(self, channels, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
+        self.use_edgewise_transformations = use_edgewise_retransformations
         self.use_relational_scoring = use_relational_scoring
-        self.negative_slope = negative_slope
-        self.dropout = dropout
+
         self.heads = heads
         self.head_channels = channels // heads
         if heads * self.head_channels != channels:
@@ -42,7 +43,7 @@ class AttentionModule(MessageModule):
         else:
             self.att = Parameter(torch.Tensor(1, heads, 2 * self.head_channels))
 
-        if use_edgewise_transformations:
+        if use_edgewise_retransformations:
             self.edgewise_transformations = RelationalMessage(channels, num_bases)
 
         self.reset_parameters()
@@ -63,7 +64,7 @@ class AttentionModule(MessageModule):
         # add positional embeddings
         if layer == 0:
             # pos embeddings used to score edge messages, as well as to augment them
-            print("adding in positional embeddings")
+            # print("adding in positional embeddings")
             x_j += self.get_positional_embeddings(edge_index_i, edge_index_j, encoding)
 
         if self.use_edgewise_transformations:
@@ -83,11 +84,12 @@ class AttentionModule(MessageModule):
         alpha = alpha.sum(dim=-1)  # (E, heads)
         # print("alph aft sum:", alpha.size())
 
-        alpha = F.leaky_relu(alpha, self.negative_slope)
+        # alpha = F.leaky_relu(alpha, self.negative_slope)
+        alpha = self.activate(alpha)
         alpha = softmax(alpha, edge_index_i, size_i)
 
         # Sample attention coefficients stochastically.
-        alpha = F.dropout(alpha, p=self.dropout, training=self.training)
+        alpha = self.dropout(alpha)
 
         x_j = x_j * alpha.view(-1, self.heads, 1)
         x_j = x_j.view(-1, self.heads * self.head_channels)
