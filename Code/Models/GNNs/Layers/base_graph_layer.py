@@ -5,36 +5,15 @@ from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import remove_self_loops, add_self_loops
 
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+from Code.Models.GNNs.gnn_component import GNNComponent
 
 
-class BaseGraphLayer(MessagePassing):
+class BaseGraphLayer(GNNComponent, MessagePassing):
     """wrapper around a propagation layer such as SAGEConv, GATConv etc"""
 
-    def __init__(self, sizes: List[int]):
-        super().__init__()
-        self.sizes = sizes
-
-    @property
-    def input_size(self):
-        return self.sizes[0]
-
-    @property
-    def output_size(self):
-        return self.sizes[-1]
-
-    @property
-    def num_params(self):
-        return sum(p.numel() for p in self.parameters())
-
-    @staticmethod
-    def get_method_arg_names(method):
-        return inspect.getfullargspec(method)[0]
-
-    @staticmethod
-    def get_needed_args(accepted_args, available_args):
-        """returns all of the available args which are accepted"""
-        # print("getting needed args:",accepted_args, "from:",available_args)
-        return {arg: available_args[arg] for arg in available_args.keys() if arg in accepted_args}
+    def __init__(self, sizes: List[int], activation_type=None, dropout_ratio=None, activation_kwargs=None):
+        GNNComponent.__init__(self, sizes, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
+        MessagePassing.__init__(self)
 
     def get_all_arg_names(self):
         raise NotImplementedError()

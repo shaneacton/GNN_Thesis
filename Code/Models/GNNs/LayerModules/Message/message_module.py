@@ -9,8 +9,7 @@ from Code.Training import device
 class MessageModule(LayerModule):
 
     def __init__(self, channels, activation_type, dropout_ratio, activation_kwargs=None):
-        LayerModule.__init__(self, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
-        self.channels = channels
+        LayerModule.__init__(self, [channels] ,activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
         self._relative_positional_embedder = None
 
     def get_relative_positional_embedder(self, gcc, gec):

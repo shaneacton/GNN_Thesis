@@ -4,11 +4,11 @@ from torch import nn
 
 from Code.Config import gnn_config, GNNConfig
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
-from Code.Models.GNNs.Layers.graph_layer import GraphLayer
 from Code.Models.GNNs.Layers.layer_constructor import LayerConstructor
+from Code.Models.GNNs.gnn_component import GNNComponent
 
 
-class GraphModule(nn.Module):
+class GraphModule(GNNComponent):
 
     """
     a structure to repeat any graph_layer which takes in_size and out_size args
@@ -21,7 +21,7 @@ class GraphModule(nn.Module):
     a module needs no input layer if there are hidden layers, and the in_size==hidden_size
     """
 
-    def __init__(self, sizes: List[int], layer_conf, gnnc: GNNConfig):
+    def __init__(self, sizes: List[int], layer_conf, gnnc: GNNConfig, activation_type=None, dropout_ratio=None, activation_kwargs=None):
         """
         :param sizes: [in_size, hidden_size, out_size]
         :param distinct_weight_repeats: number of unique hidden layers which each get their own weight params
@@ -38,23 +38,10 @@ class GraphModule(nn.Module):
             raise Exception()
         if len(sizes) != 3:
             raise Exception("please provide input,hidden,output sizes")
-        self.sizes = sizes
         self.layer_conf = layer_conf
-        nn.Module.__init__(self)
+        GNNComponent.__init__(self, sizes, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
 
         self.module = self.initialise_module()
-
-    @property
-    def input_size(self):
-        return self.sizes[0]
-
-    @property
-    def output_size(self):
-        return self.sizes[-1]
-
-    @property
-    def hidden_size(self):
-        return self.sizes[1]
 
     def get_layer(self):
         for layer in self.layer:

@@ -12,9 +12,9 @@ from Code.Models.GNNs.Layers.base_graph_layer import BaseGraphLayer
 class GraphLayer(BaseGraphLayer):
 
     def __init__(self, sizes: List[int], prep_modules: List[PrepareModule], message_modules: List[MessageModule],
-                 update_modules: List[UpdateModule]):
+                 update_modules: List[UpdateModule], activation_type=None, dropout_ratio=None, activation_kwargs=None):
 
-        BaseGraphLayer.__init__(self, sizes)
+        BaseGraphLayer.__init__(self, sizes, activation_type, dropout_ratio, activation_kwargs)
         self.preparation_modules: List[PrepareModule] = prep_modules
         self.message_modules: List[MessageModule] = message_modules
         self.update_modules: List[UpdateModule] = update_modules

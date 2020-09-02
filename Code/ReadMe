@@ -1,7 +1,6 @@
 Todo:
 * change graph encoding to inherit Batch instead of Data
 * bug in graph construction - word to token not getting every link
-* switch super to explicit class in module system
 * returning edges type-id issue
 * create config save/load system
     * create configs for Longformer, Big Bird, HDE

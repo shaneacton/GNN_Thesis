@@ -104,13 +104,11 @@ class ContextGNN(GNN):
 
         data.layer = 0
         next_layer = 0
+        
         for layer in self.layers:
-            # try:
             next_layer = max(next_layer + 1, data.layer)
             data = layer(data)  # may or may not increase the layer count
-            # except Exception as e:
-            #     print("failed to prop through", layer, "with kwargs:", kwargs)
-            #     raise e
+
             next_layer = max(next_layer, data.layer)
             data.layer = next_layer
 
@@ -120,3 +118,5 @@ class ContextGNN(GNN):
             data = self.output_model(data)
 
         return data
+
+
