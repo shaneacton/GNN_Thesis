@@ -6,23 +6,22 @@ import torch.nn.functional as F
 from torch import nn
 
 
-class GNNComponent(nn.Module):
+class GNNComponent:
 
     def __init__(self, sizes: List[int], activation_type, dropout_ratio, activation_kwargs=None):
-        nn.Module.__init__(self)
         self.sizes = sizes
         self.dropout_ratio = dropout_ratio
 
         if not activation_type:
-            print("no activation type for", self)
+            # print("no activation type for", self)
             return
 
         self.activation = GenericActivation(activation_type, activation_kwargs)
         # print("comp:", self, "act:", self.activation)
         self.activate = lambda x: self.activation(x)
 
-    def dropout(self, vector: torch.Tensor):
-        return F.dropout(vector, self.dropout_ratio, self.training)
+    def dropout(self, vector: torch.Tensor, training):
+        return F.dropout(vector, self.dropout_ratio, training)
 
     @staticmethod
     def get_method_arg_names(method):
@@ -34,9 +33,9 @@ class GNNComponent(nn.Module):
         # print("getting needed args:",accepted_args, "from:",available_args)
         return {arg: available_args[arg] for arg in available_args.keys() if arg in accepted_args}
 
-    @property
-    def num_params(self):
-        return sum(p.numel() for p in self.parameters())
+    # @property
+    # def num_params(self):
+    #     return sum(p.numel() for p in self.parameters())
 
     @property
     def input_size(self):

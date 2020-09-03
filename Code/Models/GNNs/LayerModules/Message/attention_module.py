@@ -87,7 +87,7 @@ class AttentionModule(MessageModule):
         alpha = softmax(alpha, edge_index_i, size_i)
 
         # Sample attention coefficients stochastically.
-        alpha = self.dropout(alpha)
+        alpha = self.dropout(alpha, self.training)
 
         x_j = x_j * alpha.view(-1, self.heads, 1)
         x_j = x_j.view(-1, self.heads * self.head_channels)

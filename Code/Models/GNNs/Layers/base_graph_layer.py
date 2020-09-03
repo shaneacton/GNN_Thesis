@@ -1,5 +1,4 @@
-import inspect
-from typing import List, Type
+from typing import List
 
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import remove_self_loops, add_self_loops
@@ -12,8 +11,8 @@ class BaseGraphLayer(GNNComponent, MessagePassing):
     """wrapper around a propagation layer such as SAGEConv, GATConv etc"""
 
     def __init__(self, sizes: List[int], activation_type=None, dropout_ratio=None, activation_kwargs=None):
-        GNNComponent.__init__(self, sizes, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
         MessagePassing.__init__(self)
+        GNNComponent.__init__(self, sizes, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
 
     def get_all_arg_names(self):
         raise NotImplementedError()

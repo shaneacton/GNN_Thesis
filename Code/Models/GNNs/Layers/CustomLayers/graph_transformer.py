@@ -44,14 +44,12 @@ class GraphTransformer(GraphLayer):
     def forward(self, data):
         data, x = self.multi_headed_attention(data, return_after_prep=True)
 
-        x = x + self.dropout(data.x)  # residual
+        x = x + self.dropout(data.x, self.training)  # residual
         x = self.norm1(x)
 
-        print("act:", self.activate)
-        print("action:", self.activation)
         data.x = self.activate(self.linear1(x))
-        data.x = self.linear2(self.dropout(data.x))
-        x = x + self.dropout(data.x)
+        data.x = self.linear2(self.dropout(data.x, self.training))
+        x = x + self.dropout(data.x, self.training)
 
         data.x = self.norm2(x)
 

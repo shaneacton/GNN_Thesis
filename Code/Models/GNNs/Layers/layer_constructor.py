@@ -68,9 +68,3 @@ class LayerConstructor:
         args["out_channels"] = sizes[1]
         args["channels"] = sizes[1]
         return args
-
-if __name__ == "__main__":
-    const = LayerConstructor()
-    conf = GNNConfig()
-    args = conf.layers[0]
-    const.get_layer_from_type([5, 8], args)

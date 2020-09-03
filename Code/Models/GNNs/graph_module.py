@@ -8,7 +8,7 @@ from Code.Models.GNNs.Layers.layer_constructor import LayerConstructor
 from Code.Models.GNNs.gnn_component import GNNComponent
 
 
-class GraphModule(GNNComponent):
+class GraphModule(GNNComponent, nn.Module):
 
     """
     a structure to repeat any graph_layer which takes in_size and out_size args
@@ -24,8 +24,6 @@ class GraphModule(GNNComponent):
     def __init__(self, sizes: List[int], layer_conf, gnnc: GNNConfig, activation_type=None, dropout_ratio=None, activation_kwargs=None):
         """
         :param sizes: [in_size, hidden_size, out_size]
-        :param distinct_weight_repeats: number of unique hidden layers which each get their own weight params
-        :param same_weight_repeats: number of times to recurrently pass through the hidden layers.
         Increasing this increases the number of layers the input passes through without increasing
         the trainable num params
         """
@@ -39,6 +37,8 @@ class GraphModule(GNNComponent):
         if len(sizes) != 3:
             raise Exception("please provide input,hidden,output sizes")
         self.layer_conf = layer_conf
+
+        nn.Module.__init__(self)
         GNNComponent.__init__(self, sizes, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
 
         self.module = self.initialise_module()

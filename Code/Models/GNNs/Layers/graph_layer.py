@@ -32,7 +32,7 @@ class GraphLayer(BaseGraphLayer):
         for message_module in self.message_modules:
             all.extend(self.get_method_arg_names(message_module.forward))
         for update_module in self.update_modules:
-            print("update:",update_module)
+            # print("update:",update_module)
             all.extend(self.get_method_arg_names(update_module.forward))
         all += ["edge_index", "edge_types", "batch", "graph", "encoding"]
         return list(set(all))  # returns a list of unique args which are used through this layers propagation
