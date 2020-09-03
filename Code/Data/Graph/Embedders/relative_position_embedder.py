@@ -23,6 +23,10 @@ class RelativePositionEmbedder(nn.Module):
         self.init_embeddings()
 
     def init_embeddings(self):
+        """
+        trains a separate embedding for relative positions at different levels, eg sent2sent or token2token
+        loops through every possible relative position input to get total number of embeddings needed
+        """
         context_levels = self.gcc.context_structure_nodes
         query_levels = [x.split("query_")[1] for x in self.gcc.query_structure_nodes]
 

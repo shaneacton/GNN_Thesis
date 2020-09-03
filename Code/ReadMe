@@ -1,4 +1,6 @@
 Todo:
+* accuracy test function for wikihop
+* activations in pooling
 * change graph encoding to inherit Batch instead of Data
 * bug in graph construction - word to token not getting every link
 * returning edges type-id issue
@@ -14,9 +16,9 @@ Todo:
         before using self attentive pooling
 
 * Graph construction
+     * decouple with spacy tokens
      * swap out spacy coref for something better
      * node filters to allow for word nodes be filtered by query words
-     * decouple with spacy tokens
      * AMR
      * make type a param not class type. when special classes are created - they pass a rep of their class type to type
         * this allows for generic edges and nodes which can still be given distinct types/subtypes

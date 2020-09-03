@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from Code.Data.Graph.Embedders.sequence_summariser import SequenceSummariser
+from Code.Data.Graph.Embedders.Summarisers.sequence_summariser import SequenceSummariser
 from Code.Training import device
 
 

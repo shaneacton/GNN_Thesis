@@ -8,6 +8,9 @@ HEAD_AND_TAIL_CAT = "head_and_tail_cat"
 SELF_ATTENTIVE_POOLING = "self_attentive_pooling"
 NUM_LAYERS = "num_layers"
 
+NODE_TYPES = "node_types"
+EDGE_TYPES = "edge_types"
+
 
 class GraphEmbeddingConfig(Config):
 
@@ -42,7 +45,7 @@ class GraphEmbeddingConfig(Config):
         graph_embedder = GraphEmbedder(self)
 
         from Code.Data import token_embedder
-        from Code.Data.Graph.Embedders.token_embedder import TokenSequenceEmbedder
+        from Code.Data.Graph.Embedders.token_sequence_embedder import TokenSequenceEmbedder
         token_embedder: TokenSequenceEmbedder = TokenSequenceEmbedder(token_embedder=token_embedder)
 
         graph_embedder.token_embedder = token_embedder
@@ -65,8 +68,8 @@ class GraphEmbeddingConfig(Config):
             method = method_conf[SUMMARISER_NAME]
 
         if method == HEAD_AND_TAIL_CAT:
-            from Code.Data.Graph.Embedders.head_and_tail_cat import HeadAndTailCat
+            from Code.Data.Graph.Embedders.Summarisers.head_and_tail_cat import HeadAndTailCat
             return HeadAndTailCat()
         if method == SELF_ATTENTIVE_POOLING:
-            from Code.Data.Graph.Embedders.self_attentive_pool import SelfAttentivePool
+            from Code.Data.Graph.Embedders.Summarisers.self_attentive_pool import SelfAttentivePool
             return SelfAttentivePool(method_conf[NUM_LAYERS])

@@ -1,9 +1,5 @@
 import math
 
-from torch import nn
-
-from Code.Models.GNNs.Layers.graph_layer import GraphLayer
-from Code.Training import device
 from Viz.graph_visualiser import render_graph
 
 if __name__ == "__main__":
@@ -29,7 +25,7 @@ if __name__ == "__main__":
             break
 
         graph = constructor(sample)
-        # render_graph(graph, sample.title_and_peek + repr(i), reader.datset_name)
+        render_graph(graph, sample.title_and_peek + repr(i), reader.datset_name)
 
         ds_out = gnn(graph)
         print("out:", ds_out)

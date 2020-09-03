@@ -46,7 +46,7 @@ class GraphConstructionConfig(Config):
 
         # which structure levels to make nodes for
         # {TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT}
-        self.context_structure_nodes = [TOKEN, SENTENCE]
+        self.context_structure_nodes = [TOKEN, WORD, SENTENCE]
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
@@ -68,9 +68,9 @@ class GraphConstructionConfig(Config):
         }
 
         self.use_candidate_nodes = True
-        self.candidate_connections = [TOKEN]
+        self.candidate_connections = [WORD]
 
-        self.context_max_chars = 7000
+        self.context_max_chars = -1
 
     @property
     def all_structure_levels(self):

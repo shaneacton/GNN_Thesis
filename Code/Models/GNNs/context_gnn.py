@@ -47,6 +47,9 @@ class ContextGNN(GNN):
         out_features = self.init_layers(in_features)
         self.init_output_model(data_sample, out_features)
 
+        # to initialise all sample dependant/ dynamically created params, before being passed to the optimiser
+        self.forward(data_sample)
+
     def init_layers(self, in_features):
         """
         creates layers based on the gnn config provided as well as the sampled in features size.
