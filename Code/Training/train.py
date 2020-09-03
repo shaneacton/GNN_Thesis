@@ -43,11 +43,11 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
 
                 optimizer.zero_grad()
                 forward_start_time = time.time()
-                try:
-                    output = gnn(sample)
-                except Exception as e:
-                    print("Error in forward:", e)
-                    continue
+                # try:
+                output = gnn(sample)
+                # except Exception as e:
+                #     print("Error in forward:", e)
+                #     continue
                 y = output.x
                 forward_time = time.time() - forward_start_time
 

@@ -1,6 +1,5 @@
 from typing import List, Set, Dict, Union
 
-from Code.Config import GraphConstructionConfig
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.Nodes.node import Node
@@ -17,8 +16,10 @@ class ContextGraph:
     Directed graph constructed from a tokensequence and construction config
     """
 
-    def __init__(self, data_sample, span_hierarchy, gcc: GraphConstructionConfig):
-        self.gcc = gcc  # the construction config which was used to create this context graph
+    def __init__(self, data_sample, span_hierarchy, gcc):
+        from Code.Config import GraphConstructionConfig
+
+        self.gcc: GraphConstructionConfig = gcc  # the construction config which was used to create this context graph
         self.ordered_nodes: List[Node] = []
         self.node_id_map: Dict[Node, int] = {}  # shortcut to get node id from node ref
         self.span_nodes: Dict[TokenSpan, int] = {}  # maps text segs (eg entities/sentences) to nodes

@@ -2,12 +2,11 @@ from typing import List
 
 from torch import nn
 
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
-from Code.Models.GNNs.LayerModules.Message.attention_module import AttentionModule
 from Code.Models.GNNs.LayerModules.Prepare.linear_prep import LinearPrep
 from Code.Models.GNNs.LayerModules.Prepare.prepare_module import PrepareModule
 from Code.Models.GNNs.LayerModules.Update.linear_update import LinearUpdate
 from Code.Models.GNNs.Layers.graph_layer import GraphLayer
+from Code.Training import device
 
 
 class GraphTransformer(GraphLayer):
@@ -27,10 +26,14 @@ class GraphTransformer(GraphLayer):
         else:
             # must map to the desired features
             prep = LinearPrep(self.input_size, self.output_size, 1, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
-        attention = AttentionModule(self.output_size, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
-        update = LinearUpdate(self.output_size, 1, activation_type, dropout_ratio, activation_kwargs=activation_kwargs, heads=heads)
 
-        self.multi_headed_attention = GraphLayer(sizes, [prep], [attention], [update])
+        prep.to(device)
+
+        from Code.Models.GNNs.LayerModules.Message.attention_module import AttentionModule
+        attention = AttentionModule(self.output_size, activation_type, dropout_ratio, activation_kwargs=activation_kwargs, heads=heads).to(device)
+        update_module = LinearUpdate(self.output_size, 1, activation_type, dropout_ratio, activation_kwargs=activation_kwargs).to(device)
+
+        self.multi_headed_attention = GraphLayer(sizes, [prep], [attention], [update_module])
         self.norm1 = nn.LayerNorm(self.output_size)
 
         self.linear1 = nn.Linear(self.output_size, self.output_size)
@@ -38,14 +41,16 @@ class GraphTransformer(GraphLayer):
 
         self.norm2 = nn.LayerNorm(self.output_size)
 
-    def forward(self, data: GraphEncoding) -> GraphEncoding:
-        x = data.x
-        data = self.multi_headed_attention(data)
+    def forward(self, data):
+        data, x = self.multi_headed_attention(data, return_after_prep=True)
 
         x = x + self.dropout(data.x)  # residual
         x = self.norm1(x)
 
-        data.x = self.linear2(self.dropout(self.activate(self.linear1(x))))
+        print("act:", self.activate)
+        print("action:", self.activation)
+        data.x = self.activate(self.linear1(x))
+        data.x = self.linear2(self.dropout(data.x))
         x = x + self.dropout(data.x)
 
         data.x = self.norm2(x)

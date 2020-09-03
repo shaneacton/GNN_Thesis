@@ -1,6 +1,4 @@
 import torch
-import torch.nn.functional as F
-from torch import nn
 from torch.nn import Parameter
 from torch_geometric.nn.inits import glorot
 from torch_geometric.utils import softmax
@@ -39,12 +37,12 @@ class AttentionModule(MessageModule):
 
         if use_relational_scoring:
             # learned function to score connections differently depending on edge type
-            self.relational_attention = RelationalModule(heads, 2 * self.head_channels, num_bases)
+            self.relational_attention = RelationalModule(heads, 2 * self.head_channels, num_bases, activation_type, dropout_ratio)
         else:
             self.att = Parameter(torch.Tensor(1, heads, 2 * self.head_channels))
 
         if use_edgewise_retransformations:
-            self.edgewise_transformations = RelationalMessage(channels, num_bases)
+            self.edgewise_transformations = RelationalMessage(channels, num_bases, activation_type, dropout_ratio)
 
         self.reset_parameters()
 

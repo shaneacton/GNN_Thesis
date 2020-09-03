@@ -10,23 +10,16 @@ class GNNComponent(nn.Module):
 
     def __init__(self, sizes: List[int], activation_type, dropout_ratio, activation_kwargs=None):
         nn.Module.__init__(self)
-        self.sizes = None
-
-        self.activation = None
-        self.activate = None
-
-        self.dropout_ratio = None
-
-        self.init_gnn_component(sizes, activation_type, dropout_ratio, activation_kwargs=None)
-
-    def init_gnn_component(self, sizes: List[int], activation_type, dropout_ratio, activation_kwargs=None):
         self.sizes = sizes
-
-        if activation_type:
-            self.activation = GenericActivation(activation_type, activation_kwargs)
-            self.activate = lambda x: self.activation(x)
-
         self.dropout_ratio = dropout_ratio
+
+        if not activation_type:
+            print("no activation type for", self)
+            return
+
+        self.activation = GenericActivation(activation_type, activation_kwargs)
+        # print("comp:", self, "act:", self.activation)
+        self.activate = lambda x: self.activation(x)
 
     def dropout(self, vector: torch.Tensor):
         return F.dropout(vector, self.dropout_ratio, self.training)
@@ -79,7 +72,7 @@ class GenericActivation(nn.Module):
         self.activation_kwargs = activation_kwargs if activation_kwargs else {}
         self.activation_type = activation_type
 
-        self.activation = activation_type()
+        self.activation_function = activation_type()
 
     def forward(self, vec):
-        return self.activation(vec, **self.activation_kwargs)
+        return self.activation_function(vec, **self.activation_kwargs)

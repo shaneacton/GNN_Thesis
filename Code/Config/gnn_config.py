@@ -47,6 +47,8 @@ class GNNConfig(Config):
         from Code.Models.GNNs.LayerModules.Message.message_module import MessageModule
         from Code.Models.GNNs.LayerModules.Message.attention_module import AttentionModule
         from Code.Models.GNNs.LayerModules.Update.linear_update import LinearUpdate
+        from Code.Models.GNNs.Layers.CustomLayers.graph_transformer import GraphTransformer
+
         from torch_geometric.nn import GATConv
 
         self.relations_basis_count = 3
@@ -57,20 +59,27 @@ class GNNConfig(Config):
         }
 
         self.layers = [
+            # {
+            #     PREPARATION_MODULES: [
+            #         # {MODULE_TYPE: RelationalPrep, NUM_BASES: 3}
+            #         {MODULE_TYPE: LinearPrep, NUM_LINEAR_LAYERS: 1}
+            #     ],
+            #     MESSAGE_MODULES:
+            #         [{MODULE_TYPE: AttentionModule, HEADS: 8,
+            #           ACTIVATION_TYPE: nn.LeakyReLU, ACTIVATION_ARGS: {NEGATIVE_SLOPE: 0.2}}],
+            #     # [{MODULE_TYPE: MessageModule}],
+            #
+            #     UPDATE_MODULES: [{MODULE_TYPE: LinearUpdate, NUM_LINEAR_LAYERS: 1}],
+            #     NUM_FEATURES: 400,
+            #     SAME_WEIGHT_REPEATS: 1,
+            #     DISTINCT_WEIGHT_REPEATS: 1
+            # }
             {
-                PREPARATION_MODULES: [
-                    # {MODULE_TYPE: RelationalPrep, NUM_BASES: 3}
-                    {MODULE_TYPE: LinearPrep, NUM_LINEAR_LAYERS: 1}
-                ],
-                MESSAGE_MODULES:
-                    [{MODULE_TYPE: AttentionModule, HEADS: 8,
-                      ACTIVATION_TYPE: nn.LeakyReLU, ACTIVATION_ARGS: {NEGATIVE_SLOPE: 0.2}}],
-                # [{MODULE_TYPE: MessageModule}],
-
-                UPDATE_MODULES: [{MODULE_TYPE: LinearUpdate, NUM_LINEAR_LAYERS: 1}],
+                LAYER_TYPE: GraphTransformer,
+                HEADS: 8,
                 NUM_FEATURES: 400,
                 SAME_WEIGHT_REPEATS: 1,
-                DISTINCT_WEIGHT_REPEATS: 1,
+                DISTINCT_WEIGHT_REPEATS: 1
             }
         ]
 

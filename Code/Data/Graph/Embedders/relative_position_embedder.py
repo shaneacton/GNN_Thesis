@@ -3,7 +3,6 @@ from typing import Dict, List
 import torch
 from torch import nn
 
-from Code.Config import GraphEmbeddingConfig, GraphConstructionConfig
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Nodes.node_position import NodePosition, incompatible
 from Code.Training import device
@@ -11,7 +10,7 @@ from Code.Training import device
 
 class RelativePositionEmbedder(nn.Module):
 
-    def __init__(self, num_features, gcc: GraphConstructionConfig, gec: GraphEmbeddingConfig):
+    def __init__(self, num_features, gcc, gec):
         super().__init__()
         self.gcc = gcc
         self.gec = gec
