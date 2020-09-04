@@ -79,7 +79,7 @@ class ContextGraph:
 
             if isinstance(node, SpanNode):
                 self.span_nodes[node.token_span] = id
-                if node.source != construction.CANDIDATE:
+                if node.source != construction.CANDIDATE and node.level != construction.DOCUMENT:
                     if node.source == construction.QUERY:
                         pos_id = self.query_span_hierarchy.sequence_position(node.token_span)
                     elif node.source == construction.CONTEXT:

@@ -79,7 +79,7 @@ class GNNConfig(Config):
                 HEADS: 8,
                 NUM_FEATURES: 400,
                 SAME_WEIGHT_REPEATS: 1,
-                DISTINCT_WEIGHT_REPEATS: 1
+                DISTINCT_WEIGHT_REPEATS: 4
             }
         ]
 

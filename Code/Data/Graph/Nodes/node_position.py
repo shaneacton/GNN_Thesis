@@ -1,3 +1,5 @@
+from Code.Config import graph_construction_config as construction
+
 
 class NodePosition:
 
@@ -7,6 +9,9 @@ class NodePosition:
         from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
         self.sequence_level = TokenSpanHierarchy.strip_query(sequence_level)  # an identifier for which sequence this node is in (token,sentence, etc)
         self.sequence_id = sequence_id  # the abs/rel position of this node in the relevant sequence
+
+        if sequence_level == construction.DOCUMENT:
+            raise Exception("document nodes cannot have positions")
 
     def __sub__(self, other):
         """the difference between two node positions is a relative node positions"""

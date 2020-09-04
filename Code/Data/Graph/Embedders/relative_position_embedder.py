@@ -28,6 +28,8 @@ class RelativePositionEmbedder(nn.Module):
         loops through every possible relative position input to get total number of embeddings needed
         """
         context_levels = self.gcc.context_structure_nodes
+        # doc nodes don't have positional encodings
+        context_levels = [lev for lev in context_levels if lev != construction.DOCUMENT]
         query_levels = [x.split("query_")[1] for x in self.gcc.query_structure_nodes]
 
         sources = [construction.CONTEXT] * len(context_levels) + [construction.QUERY] * len(query_levels)

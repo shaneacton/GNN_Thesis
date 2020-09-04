@@ -39,7 +39,7 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
                     gnn.init_model(sample)
                     # print("initialising optim with ps:", gnn.parameters())
                     optimizer = optim.Adam(gnn.parameters(), lr=learning_rate)
-                    # print(gnn)
+                    print(gnn)
 
                 optimizer.zero_grad()
                 forward_start_time = time.time()

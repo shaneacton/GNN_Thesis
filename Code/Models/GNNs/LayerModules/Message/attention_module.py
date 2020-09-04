@@ -58,7 +58,6 @@ class AttentionModule(MessageModule):
 
     def forward(self, edge_index_i, edge_index_j, x_i, x_j, size_i, edge_types, layer, encoding):
         # x_j ~ (E, channels)
-
         # add positional embeddings
         if layer == 0:
             # pos embeddings used to score edge messages, as well as to augment them

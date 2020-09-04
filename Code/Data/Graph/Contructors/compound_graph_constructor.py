@@ -24,6 +24,10 @@ class CompoundGraphConstructor(GraphConstructor):
             if not existing_graph:
                 raise Exception()
 
+        if existing_graph.gcc.max_edges != -1 and len(existing_graph.ordered_edges) > existing_graph.gcc.max_edges:
+            raise Exception("data sample created too many edeges ("+str(len(existing_graph.ordered_edges))+
+                            ") with this gcc (max = "+str(existing_graph.gcc.max_edges)+"). Discard it")
+
         return existing_graph
 
 
