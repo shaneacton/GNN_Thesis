@@ -58,7 +58,7 @@ class GraphDataset(Dataset):
 
     def get_data_objects(self) -> List[Data]:
 
-        for batch in self.batch_text_reader.get_batches():
+        for batch in self.batch_text_reader.get_all_batches():
             for batch_item in batch.batch_items:
                 try:
                     graph = self.graph_constructor.create_graph_from_data_sample(batch_item.data_sample)
@@ -94,7 +94,7 @@ class GraphDataset(Dataset):
             upper bound
             real length may be lower if some data points fail conversion
             """
-            for count, _ in enumerate(self.batch_text_reader.get_batches()):
+            for count, _ in enumerate(self.batch_text_reader.get_all_batches()):
                 pass
             return count
 

@@ -2,10 +2,11 @@ import time
 
 from torch import optim, nn
 
-from Code.Config import configs
+from Code.Config import configs, eval_conf
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
 from Code.Models.GNNs.context_gnn import ContextGNN
+from Code.Training.test import test_model
 from Datasets.Batching.batch import Batch
 from Datasets.Batching.batch_reader import BatchReader
 from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
@@ -13,24 +14,40 @@ from Datasets.Readers.squad_reader import SQuADDatasetReader
 
 ce_loss = nn.CrossEntropyLoss()
 
-MAX_BATCHES = -1
-PRINT_BATCH_EVERY = 25
+PRINT_BATCH_EVERY = min(eval_conf.print_batch_every, eval_conf.max_train_batches)
+if PRINT_BATCH_EVERY == -1:
+    PRINT_BATCH_EVERY = eval_conf.print_batch_every
 
 
-def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
+def train_model(batch_reader: BatchReader, gnn: ContextGNN):
     gnn.train()
     num_epochs = 10
 
     optimizer = None
 
+    skipped_batches_from = 0
+
     for epoch in range(num_epochs):
         epoch_start_time = time.time()
         total_loss = 0
         rolling_average = -1
-        for i, batch in enumerate(batch_reader.get_batches()):
-            # print(batch)
-            if i >= MAX_BATCHES and MAX_BATCHES != -1:
+
+        i = 0  # number of batches used so far
+        # print("batches:", list(batch_reader.get_all_batches()))
+
+        for b, batch in enumerate(batch_reader.get_train_batches()):
+            # b ~ the batch id
+
+            if b < skipped_batches_from:
+                # last epoch was cut short by max_batches, continue where it left off
+                continue
+
+            if i >= eval_conf.max_train_batches != -1:
+                # this epoch has hit its max_batches
+                # print("skipping batches from", b, "in epoch", epoch)
+                skipped_batches_from = b
                 break
+
             for batch_item in batch.batch_items:
                 sample = batch_item.data_sample
 
@@ -38,7 +55,7 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
                     # gnn must see a data sample to initialise. optim must wait
                     gnn.init_model(sample)
                     # print("initialising optim with ps:", gnn.parameters())
-                    optimizer = optim.Adam(gnn.parameters(), lr=learning_rate)
+                    optimizer = optim.Adam(gnn.parameters(), lr=eval_conf.learning_rate_base)
                     print(gnn)
 
                 optimizer.zero_grad()
@@ -46,7 +63,7 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
                 try:
                     output = gnn(sample)
                 except Exception as e:
-                    print("Error in forward:", e)
+                    # print("Error in forward:", e)
                     continue
                 y = output.x
                 forward_time = time.time() - forward_start_time
@@ -72,12 +89,17 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN, learning_rate=1e-3):
                     print("forward time:", forward_time, "backwards time:", backwards_time)
                     print("batch", i, "loss", loss_val / batch.batch_size, "rolling loss:\t",rolling_average, "\n")
 
+                i += 1
+                skipped_batches_from = 0  # has not skipped
+
         e_time = time.time() - epoch_start_time
         num_samples = i * batch.batch_size
         sample_time = e_time / num_samples
         sample_loss = total_loss / num_samples
         print("e", epoch, "loss per sample:", sample_loss, "time:", e_time,
               "time per sample:", sample_time, "num samples:", num_samples)
+
+        accuracy = test_model(qangaroo_batch_reader, gnn)
 
 
 def get_span_loss(output, batch: Batch):
