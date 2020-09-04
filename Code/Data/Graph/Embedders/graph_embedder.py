@@ -80,12 +80,14 @@ class GraphEmbedder(nn.Module):
 
     def forward(self, graph: ContextGraph) -> GraphEncoding:
         context_sequence: TokenSequence = graph.data_sample.context.token_sequence
+        # print("running graph embedder on context:", context_sequence)
         embedded_context_sequence: torch.Tensor = self.token_embedder(context_sequence)
 
         node_features: List[torch.Tensor] = [None] * len(graph.ordered_nodes)
 
         if self.use_query:
             query_sequence: TokenSequence = graph.query_token_sequence
+            # print("running graph embedder on query:",query_sequence)
             embedded_query_sequence: torch.Tensor = self.token_embedder(query_sequence)
 
         if self.use_query_summary_vec(graph):

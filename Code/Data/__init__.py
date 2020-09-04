@@ -6,27 +6,26 @@ from transformers import BertModel, BasicTokenizer
 from Code.Data.Text.Tokenisation.bert_tokeniser import CustomBertTokenizer
 from Code.Training import device
 
-with torch.no_grad():
 
-    embedder_type = "bert"
+embedder_type = "bert"
 
-    if embedder_type == "bert":
-        print("initialising bert")
-        start = time.time()
-        basic_bert_tokeniser = BasicTokenizer()
-        bert_tokeniser = CustomBertTokenizer.from_pretrained("bert-base-uncased")
+if embedder_type == "bert":
+    print("initialising bert")
+    start = time.time()
+    basic_bert_tokeniser = BasicTokenizer()
+    bert_tokeniser = CustomBertTokenizer.from_pretrained("bert-base-uncased")
 
-        bert_model = BertModel.from_pretrained("bert-base-uncased").to(device)
+    bert_model = BertModel.from_pretrained("bert-base-uncased").to(device)
 
-        basic_tokeniser = lambda string: basic_bert_tokeniser.tokenize(string)  # no subtoken splitting
-        subtoken_mapper = lambda string: bert_tokeniser.tokenize(string)[1]
+    basic_tokeniser = lambda string: basic_bert_tokeniser.tokenize(string)  # no subtoken splitting
+    subtoken_mapper = lambda string: bert_tokeniser.tokenize(string)[1]
 
-        tokeniser = lambda string: bert_tokeniser.tokenize(string)[0]
-        token_indexer = lambda tokens: torch.Tensor(bert_tokeniser.convert_tokens_to_ids(tokens)).reshape(1, -1) \
-            .type(torch.LongTensor).to(device)
-        token_embedder = lambda tokens: bert_model.embeddings(token_indexer(tokens))
+    tokeniser = lambda string: bert_tokeniser.tokenize(string)[0]
+    token_indexer = lambda tokens: torch.Tensor(bert_tokeniser.convert_tokens_to_ids(tokens)).reshape(1, -1) \
+        .type(torch.LongTensor).to(device)
+    token_embedder = lambda tokens: bert_model(token_indexer(tokens))[0]
 
-        print("bert initialised in", (time.time()-start), "secs")
+    print("bert initialised in", (time.time()-start), "secs")
 
 
 

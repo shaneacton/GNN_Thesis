@@ -48,7 +48,7 @@ class ContextGNN(GNN):
         self.init_output_model(data_sample, out_features)
 
         # to initialise all sample dependant/ dynamically created params, before being passed to the optimiser
-        self.forward(data_sample)
+        self.forward(encoding)
 
     def init_layers(self, in_features):
         """

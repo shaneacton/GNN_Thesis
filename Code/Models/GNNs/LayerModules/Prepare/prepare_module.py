@@ -1,8 +1,7 @@
+from Code.Config import graph_embedding_config
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.Embedders.type_embedder import TypeEmbedder
 from Code.Models.GNNs.LayerModules.layer_module import LayerModule
-from Code.Config import graph_embedding_config
-from Code.Training import device
 
 
 class PrepareModule(LayerModule):

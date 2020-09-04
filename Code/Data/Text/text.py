@@ -84,6 +84,7 @@ class Text:
 
         effective_embeddings = []
         for w in range(num_windows):
+            # print("w=",w)
             even_start, even_end = w * even_chunk_size, (w+1) * even_chunk_size
 
             overlap_start, overlap_end = even_start - overlap, even_end + overlap
