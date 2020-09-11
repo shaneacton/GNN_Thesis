@@ -1,3 +1,5 @@
+from typing import List
+
 import torch
 from torch import nn
 
@@ -11,9 +13,9 @@ class SelfAttentivePool(SequenceSummariser):
     # todo implement scaled dot product attention
     # todo multiheaded
 
-    def __init__(self, num_layers):
+    def __init__(self, num_layers, sizes: List[int], activation_type, dropout_ratio):
         # reduces feature dims to 1 over num_layers linear layers. used to do weighted sum over sequence elements
-        super().__init__()
+        SequenceSummariser.__init__(self, sizes, activation_type, dropout_ratio)
         self.num_layers = num_layers
         self.attention_scorer: nn.Sequential = None
         self.softmax = None
@@ -30,7 +32,13 @@ class SelfAttentivePool(SequenceSummariser):
             size = max(int(size), 1)  # last layer maps to 1 feature - the attention score
             layer_sizes.append(size)
 
-        layers = [nn.Linear(layer_sizes[i], layer_sizes[i + 1]) for i in range(self.num_layers)]
+        linear_layers = [nn.Linear(layer_sizes[i], layer_sizes[i + 1]) for i in range(self.num_layers)]
+
+        layers = [linear_layers[0]]
+        for i in range(1, len(linear_layers)):
+            layers.append(self.activation)
+            layers.append(linear_layers[i])
+
         self.softmax = nn.Softmax(dim=1)
         self.attention_scorer = nn.Sequential(*layers).to(device)
 

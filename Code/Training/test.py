@@ -16,7 +16,7 @@ def test_model(batch_reader: BatchReader, gnn: ContextGNN):
     with torch.no_grad():
 
         for b, batch in enumerate(batch_reader.get_test_batches()):
-            if b > eval_conf.max_test_batches:
+            if count > eval_conf.max_test_batches:
                 break
 
             for batch_item in batch.batch_items:

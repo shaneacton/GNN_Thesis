@@ -1,0 +1,37 @@
+// The Round Table
+digraph {
+	graph [rankdir=LR]
+	"Node(0)" [label="English (1, 2)" fillcolor=deepskyblue4 style=filled]
+	"Node(1)" [label="Normans (4, 6)" fillcolor=deepskyblue4 style=filled]
+	"Node(2)" [label="French (10, 11)" fillcolor=deepskyblue4 style=filled]
+	"Node(3)" [label="Normans/Normanz (12, 17)" fillcolor=deepskyblue4 style=filled]
+	"Node(4)" [label="Normant (20, 22)" fillcolor=deepskyblue4 style=filled]
+	"Node(5)" [label="French (24, 25)" fillcolor=deepskyblue4 style=filled]
+	"Node(6)" [label="Old Low Franconian
+Nortmann (33, 40)" fillcolor=deepskyblue4 style=filled]
+	"Node(7)" [label="Northman (41, 43)" fillcolor=deepskyblue4 style=filled]
+	"Node(8)" [label="Norse Norðmaðr (48, 54)" fillcolor=deepskyblue4 style=filled]
+	"Node(9)" [label="Latinized (55, 57)" fillcolor=deepskyblue4 style=filled]
+	"Node(10)" [label="Nortmannus (59, 62)" fillcolor=deepskyblue4 style=filled]
+	"Node(11)" [label="Normannus (63, 65)" fillcolor=deepskyblue4 style=filled]
+	"Node(12)" [label="Nordmannus (67, 70)" fillcolor=deepskyblue4 style=filled]
+	"Node(13)" [label="Medieval Latin, 9th
+century (73, 78)" fillcolor=deepskyblue4 style=filled]
+	"Node(14)" [label="Norseman, Viking (82,
+86)" fillcolor=deepskyblue4 style=filled]
+	"Node(4)" -> "Node(5)" [label=SEQUENTIAL]
+	"Node(5)" -> "Node(6)" [label=SEQUENTIAL]
+	"Node(12)" -> "Node(13)" [label=SEQUENTIAL]
+	"Node(13)" -> "Node(14)" [label=SEQUENTIAL]
+	"Node(2)" -> "Node(3)" [label=SEQUENTIAL]
+	"Node(2)" -> "Node(5)" [label=comention]
+	"Node(8)" -> "Node(9)" [label=SEQUENTIAL]
+	"Node(9)" -> "Node(10)" [label=SEQUENTIAL]
+	"Node(1)" -> "Node(2)" [label=SEQUENTIAL]
+	"Node(3)" -> "Node(4)" [label=SEQUENTIAL]
+	"Node(7)" -> "Node(8)" [label=SEQUENTIAL]
+	"Node(11)" -> "Node(12)" [label=SEQUENTIAL]
+	"Node(6)" -> "Node(7)" [label=SEQUENTIAL]
+	"Node(10)" -> "Node(11)" [label=SEQUENTIAL]
+	"Node(0)" -> "Node(1)" [label=SEQUENTIAL]
+}

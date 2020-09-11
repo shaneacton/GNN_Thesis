@@ -1,3 +1,5 @@
+from torch import nn
+
 from Code.Config import graph_construction_config as construction
 
 # sequence summary functions
@@ -69,7 +71,7 @@ class GraphEmbeddingConfig(Config):
 
         if method == HEAD_AND_TAIL_CAT:
             from Code.Data.Graph.Embedders.Summarisers.head_and_tail_cat import HeadAndTailCat
-            return HeadAndTailCat()
+            return HeadAndTailCat([], nn.ReLU, 0)
         if method == SELF_ATTENTIVE_POOLING:
             from Code.Data.Graph.Embedders.Summarisers.self_attentive_pool import SelfAttentivePool
-            return SelfAttentivePool(method_conf[NUM_LAYERS])
+            return SelfAttentivePool(method_conf[NUM_LAYERS], [], nn.ReLU, 0)

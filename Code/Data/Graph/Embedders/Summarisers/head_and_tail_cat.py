@@ -1,3 +1,5 @@
+from typing import List
+
 import torch
 from torch import nn
 
@@ -7,8 +9,8 @@ from Code.Training import device
 
 class HeadAndTailCat(SequenceSummariser):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, sizes: List[int], activation_type, dropout_ratio):
+        SequenceSummariser.__init__(self, sizes, activation_type, dropout_ratio)
         self.feature_reducer: nn.Module = None
 
     def _init_layers(self, feature_size):
