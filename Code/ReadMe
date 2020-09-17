@@ -53,3 +53,21 @@ NLP Libs:
 Spacy - ineffective
 StanfordNLP python wrapper has no coref
 
+
+Installs:
+ENV_NAME=gnn_env
+y
+conda create --name ${ENV_NAME} python=3.6
+conda activate ${ENV_NAME}
+
+pip install torch==1.6.0+cu101 torchvision==0.7.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html --user
+CUDA=cu101
+TORCH=1.6.0
+pip install torch-scatter==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-${TORCH}.html --user
+pip install torch-sparse==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-${TORCH}.html --user
+pip install torch-cluster==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-${TORCH}.html --user
+pip install torch-spline-conv==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-${TORCH}.html --user
+pip install torch-geometric --user
+pip install transformers --user
+pip install neuralcoref --user
+python -m spacy download en_core_web_sm

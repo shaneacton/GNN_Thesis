@@ -1,6 +1,7 @@
 import collections
 import os
 from abc import ABC
+from typing import Dict
 
 from transformers import PreTrainedTokenizer
 from transformers.tokenization_bert import VOCAB_FILES_NAMES, PRETRAINED_VOCAB_FILES_MAP, \
@@ -76,8 +77,8 @@ class CustomPreTrainedTokenizer(PreTrainedTokenizer, ABC):
             return all_tokens, subtoken_map
 
         added_tokens = list(self.added_tokens_encoder.keys()) + self.all_special_tokens
-        tokenized_text = split_on_tokens(added_tokens, text)
-        return tokenized_text
+        all_tokens, subtoken_map = split_on_tokens(added_tokens, text)
+        return all_tokens, subtoken_map
 
 
 class CustomBertTokenizer(CustomPreTrainedTokenizer):
@@ -94,6 +95,9 @@ class CustomBertTokenizer(CustomPreTrainedTokenizer):
         never_split: List of tokens which will never be split during tokenization. Only has an effect when
             do_wordpiece_only=False
     """
+
+    def get_vocab(self) -> Dict[str, int]:
+        return self.vocab
 
     vocab_files_names = VOCAB_FILES_NAMES
     pretrained_vocab_files_map = PRETRAINED_VOCAB_FILES_MAP
@@ -123,6 +127,8 @@ class CustomBertTokenizer(CustomPreTrainedTokenizer):
         super(CustomBertTokenizer, self).__init__(unk_token=unk_token, sep_token=sep_token,
                                             pad_token=pad_token, cls_token=cls_token,
                                             mask_token=mask_token, **kwargs)
+        self.vocab = load_vocab(vocab_file)
+
         self.max_len_single_sentence = self.max_len - 2  # take into account special tokens
         self.max_len_sentences_pair = self.max_len - 3  # take into account special tokens
 
@@ -130,7 +136,6 @@ class CustomBertTokenizer(CustomPreTrainedTokenizer):
             raise ValueError(
                 "Can't find a vocabulary file at path '{}'. To load the vocabulary from a Google pretrained "
                 "model use `tokenizer = BertTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)`".format(vocab_file))
-        self.vocab = load_vocab(vocab_file)
         self.ids_to_tokens = collections.OrderedDict(
             [(ids, tok) for tok, ids in self.vocab.items()])
         self.do_basic_tokenize = do_basic_tokenize
