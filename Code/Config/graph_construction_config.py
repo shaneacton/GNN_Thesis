@@ -46,11 +46,11 @@ class GraphConstructionConfig(Config):
 
         # which structure levels to make nodes for
         # {TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT}
-        self.context_structure_nodes = [TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT]
+        self.context_structure_nodes = [TOKEN, WORD, SENTENCE]
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
-            TOKEN: {CONNECTION_TYPE: WINDOW, WINDOW_SIZE: 5},
+            TOKEN: {CONNECTION_TYPE: WINDOW, WINDOW_SIZE: 3},
             WORD: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             SENTENCE: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
             PARAGRAPH: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
@@ -70,7 +70,7 @@ class GraphConstructionConfig(Config):
         self.use_candidate_nodes = True
         self.candidate_connections = [WORD, SENTENCE, PARAGRAPH, DOCUMENT]
 
-        self.context_max_chars = -1
+        self.context_max_chars = 150
         self.max_edges = 40000
 
     @property
