@@ -27,8 +27,13 @@ class CandidatesConstructor(GraphConstructor):
         connection_levels = existing_graph.gcc.candidate_connections
         if connection_levels == [construction.GLOBAL]:
             # connect to all context nodes
-            connection_levels = existing_graph.gcc.context_structure_nodes
+            connection_levels = existing_graph.gcc.context_structure_levels
         for connection_level in connection_levels:
+            if connection_level not in existing_graph.gcc.context_structure_levels:
+                raise Exception("cannot connect candidate nodes to context at " + connection_level +
+                                " level as this level is not being graphed in the context. Only gaphing: " +
+                                repr(existing_graph.gcc.context_structure_levels))
+
             # todo code reuse with query constructor. make generic extra-context constructor with context conn method
             context_ids = existing_graph.get_context_node_ids_at_level(connection_level)
             for node_id in node_ids:
@@ -36,7 +41,7 @@ class CandidatesConstructor(GraphConstructor):
                 existing_graph.add_edges(edges)
 
     def connect_to_query(self, existing_graph, node_ids):
-        connection_levels = existing_graph.gcc.query_structure_nodes
+        connection_levels = existing_graph.gcc.query_structure_levels
         for connection_level in connection_levels:
             # todo code reuse with query constructor. make generic extra-context constructor with context conn method
             query_ids = existing_graph.get_query_node_ids_at_level(connection_level)

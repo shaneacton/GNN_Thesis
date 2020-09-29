@@ -1,11 +1,11 @@
 from typing import List, Dict, Union
 
 from Code.Config import gcc, graph_construction_config
-from Code.Data.Text.Tokenisation import tokenisation_utils
+from Code.Data.Text.Tokenisation.Utils import tokenisation_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
-from Code.Data.Text.Tokenisation.spacy_utils import get_spacy_sentences, get_spacy_coreferences
-from Code.Data.Text.Tokenisation.tokenisation_utils import get_passages
+from Code.Data.Text.Tokenisation.Utils.spacy_utils import get_spacy_sentences
+from Code.Data.Text.Tokenisation.Utils.tokenisation_utils import get_passages, get_coreferences
 
 
 class TokenSpanHierarchy:
@@ -134,7 +134,7 @@ class TokenSpanHierarchy:
     @property
     def corefs(self) -> Dict[EntitySpan, List[EntitySpan]]:  # ordered, non unique
         if self._corefs is None:
-            self._corefs = get_spacy_coreferences(self.token_sequence, self.entities)
+            self._corefs = get_coreferences(self.token_sequence, self.entities)
         return self._corefs
 
     @property

@@ -1,7 +1,7 @@
 from typing import List
 
 from Code.Data.Text.Tokenisation.token import Token
-from Code.Data.Text.Tokenisation.tokenisation_utils import find_seq_in_seq
+from Code.Data.Text.Tokenisation.Utils.tokenisation_utils import find_seq_in_seq
 from Code.Data import subtoken_mapper, basic_tokeniser
 
 

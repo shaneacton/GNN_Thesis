@@ -71,3 +71,7 @@ pip install torch-geometric --user
 pip install transformers --user
 pip install neuralcoref --user
 python -m spacy download en_core_web_sm
+
+%% or visualisation
+sudo apt-get install graphviz
+pip install graphviz

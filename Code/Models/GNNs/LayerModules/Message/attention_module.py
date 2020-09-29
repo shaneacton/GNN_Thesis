@@ -11,6 +11,8 @@ from Code.Models.GNNs.LayerModules.relational_module import RelationalModule
 class AttentionModule(MessageModule):
 
     """
+    adapted from torch_geometric.nn GATConv and transformers.modeling_bert BertSelfAttention
+
     performs multi-headed attention in the message phase
 
     * Does not apply any linear transformations to the input if no edgewise transformation is applied
@@ -83,7 +85,7 @@ class AttentionModule(MessageModule):
 
         # alpha = F.leaky_relu(alpha, self.negative_slope)
         alpha = self.activate(alpha)
-        alpha = softmax(alpha, edge_index_i, size_i)
+        alpha = softmax(alpha, edge_index_i, num_nodes=size_i)
 
         # Sample attention coefficients stochastically.
         alpha = self.dropout(alpha, self.training)

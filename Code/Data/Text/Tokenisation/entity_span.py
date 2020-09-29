@@ -12,16 +12,17 @@ class EntitySpan(DocumentExtract):
         or a candidate entity wrt: a multiple choice question
     """
 
-    def __init__(self, token_sequence, subtoken_indexes, spacy_span, is_coref=False):
-        super().__init__(token_sequence, subtoken_indexes, graph_construction_config.WORD, spacy_span)
+    def __init__(self, token_sequence, subtoken_indexes, is_coref=False):
+        if is_coref:
+            raise Exception()
+        super().__init__(token_sequence, subtoken_indexes, graph_construction_config.WORD)
         self.is_coref = is_coref
 
     def __repr__(self):
-        text = self.spacy_span.text
         coref = "(coref)" if self.is_coref else ""
-        label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span.label_ else ""
+        word = self.token_sequence.text_obj.raw_text
         span = ":S" + repr(self.subtoken_indexes)
-        return text + coref + label + span
+        return coref + word + span
 
     def get_subtype(self):
         return graph_construction_config.COREF if self.is_coref else graph_construction_config.ENTITY

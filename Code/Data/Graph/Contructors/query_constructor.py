@@ -11,11 +11,11 @@ from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 class QueryConstructor(GraphConstructor):
     def _append(self, existing_graph: ContextGraph) -> ContextGraph:
-        if construction.QUERY_SENTENCE in existing_graph.gcc.query_structure_nodes:
+        if construction.QUERY_SENTENCE in existing_graph.gcc.query_structure_levels:
             self.add_sentence_query_node(existing_graph)
-        if construction.QUERY_TOKEN in existing_graph.gcc.query_structure_nodes:
+        if construction.QUERY_TOKEN in existing_graph.gcc.query_structure_levels:
             self.add_token_query_nodes(existing_graph)
-        if construction.QUERY_WORD in existing_graph.gcc.query_structure_nodes:
+        if construction.QUERY_WORD in existing_graph.gcc.query_structure_levels:
             self.add_entity_query_nodes(existing_graph)
 
         if existing_graph.gcc.fully_connect_query_nodes:
@@ -52,10 +52,10 @@ class QueryConstructor(GraphConstructor):
 
         if connection_levels == [construction.GLOBAL]:
             # connect to all context nodes
-            connection_levels = existing_graph.gcc.context_structure_nodes
+            connection_levels = existing_graph.gcc.context_structure_levels
 
         for connection_level in connection_levels:
-            if connection_level not in existing_graph.gcc.context_structure_nodes:
+            if connection_level not in existing_graph.gcc.context_structure_levels:
                 raise Exception("cannot connect " + query_level + " query node to " + connection_level +
                                 "context nodes as these nodes don't exist. Try adding in "
                                 + connection_level + " graph structuring")

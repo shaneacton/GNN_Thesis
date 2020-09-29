@@ -1,7 +1,5 @@
 from typing import Tuple
 
-from spacy.tokens.span import Span
-
 
 class TokenSpan:
 
@@ -10,9 +8,8 @@ class TokenSpan:
         it may span multiple tokens and subtokens
     """
 
-    def __init__(self, token_sequence, subtoken_indexes, spacy_span: Span=None):
+    def __init__(self, token_sequence, subtoken_indexes):
         # todo candidate subclass
-        self.spacy_span: Span = spacy_span
         self.token_sequence = token_sequence
         self.subtoken_indexes: Tuple[int] = subtoken_indexes
         self.level = type(self)

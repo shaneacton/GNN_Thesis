@@ -71,11 +71,11 @@ class GraphEmbedder(nn.Module):
         return torch.tensor(node_types).to(device)
 
     def use_query(self, graph: ContextGraph):
-        has_query_nodes = len(graph.gcc.query_structure_nodes) > 0
+        has_query_nodes = len(graph.gcc.query_structure_levels) > 0
         return self.use_query_summary_vec or has_query_nodes
 
     def use_query_summary_vec(self, graph: ContextGraph) -> bool:
-        query_sentence_node = construction.QUERY_SENTENCE in graph.gcc.query_structure_nodes
+        query_sentence_node = construction.QUERY_SENTENCE in graph.gcc.query_structure_levels
         return query_sentence_node or gec.use_query_aware_context_vectors
 
     def forward(self, graph: ContextGraph) -> GraphEncoding:

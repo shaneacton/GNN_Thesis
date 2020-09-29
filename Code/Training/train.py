@@ -36,10 +36,11 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
 
     skipped_batches_from = 0
 
+    rolling_average = -1
+
     for epoch in range(num_epochs):
         epoch_start_time = time.time()
         total_loss = 0
-        rolling_average = -1
 
         i = 0  # number of batches used so far
         # print("batches:", list(batch_reader.get_all_batches()))
@@ -91,7 +92,12 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
                 if rolling_average == -1:
                     rolling_average = loss_val
                 else:
-                    a = 0.998
+                    if i < 5:
+                        a = 0.9 # converge quickly on a rough average
+                    elif i < 50 and epoch == 0:
+                        a = 0.95  # converge quickly on a rough average
+                    else:
+                        a = 0.998
                     rolling_average = a * rolling_average + (1-a) * loss_val
                 if i % PRINT_BATCH_EVERY == 0 and PRINT_BATCH_EVERY != -1:
                     # print("y:", y, "shape:", y.size())
@@ -121,6 +127,7 @@ def get_candidate_loss(output, batch: Batch):
     answers = batch.get_answers_tensor()
     # print("answers:", answers.size())
     output = output.view(1, -1)
+    # print("answers:", answers, "\nout:", output, "\nloss:", ce_loss(output, answers))
     return ce_loss(output, answers)
 
 

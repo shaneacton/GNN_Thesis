@@ -27,10 +27,10 @@ class RelativePositionEmbedder(nn.Module):
         trains a separate embedding for relative positions at different levels, eg sent2sent or token2token
         loops through every possible relative position input to get total number of embeddings needed
         """
-        context_levels = self.gcc.context_structure_nodes
+        context_levels = self.gcc.context_structure_levels
         # doc nodes don't have positional encodings
         context_levels = [lev for lev in context_levels if lev != construction.DOCUMENT]
-        query_levels = [x.split("query_")[1] for x in self.gcc.query_structure_nodes]
+        query_levels = [x.split("query_")[1] for x in self.gcc.query_structure_levels]
 
         sources = [construction.CONTEXT] * len(context_levels) + [construction.QUERY] * len(query_levels)
         levels = context_levels + query_levels

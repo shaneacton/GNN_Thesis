@@ -27,7 +27,7 @@ def get_node_type(span) -> Type[SpanNode]:
 class DocumentStructureConstructor(GraphConstructor):
 
     def level_indices(self, existing_graph: ContextGraph):
-        level_indices = [construction.LEVELS.index(level) for level in existing_graph.gcc.context_structure_nodes]
+        level_indices = [construction.LEVELS.index(level) for level in existing_graph.gcc.context_structure_levels]
         level_indices = sorted(level_indices)
         return level_indices
 
