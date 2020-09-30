@@ -19,6 +19,9 @@ class ConfigSet(Config):
     def get_gnn(self):
         return self.gnnc.get_gnn(self.gcc, self.gec)
 
+    def get_graph_constructor(self):
+        return self.gcc.get_graph_constructor()
+
     def add_config(self, config: Config):
         from Code.Config import GNNConfig, GraphEmbeddingConfig, GraphConstructionConfig
         if isinstance(config, GraphConstructionConfig):
