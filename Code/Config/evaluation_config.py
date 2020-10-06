@@ -1,7 +1,10 @@
+from Code.Config.config import Config
 
-class EvaluationConfig:
+
+class EvaluationConfig(Config):
 
     def __init__(self):
+        super().__init__()
         self.learning_rate_base = 1e-2
         self.test_set_frac = 0.1
 

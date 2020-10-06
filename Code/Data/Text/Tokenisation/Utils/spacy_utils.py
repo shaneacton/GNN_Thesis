@@ -1,21 +1,41 @@
 from typing import List
 
 from spacy.tokens.doc import Doc
+
 import en_core_web_sm
 
 from Code.Config import graph_construction_config
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
 
-nlp = en_core_web_sm.load()
+try:
+    nlp = en_core_web_sm.load()
+except:
+    print("failed to load en_core_web_sm, trying in clisyer location")
+    import spacy
+    spacy.util.set_data_path('/home/sacton/.conda/envs/gnn_env/lib/python3.8/site-packages')
+    nlp = spacy.load('en_core_web_sm')
+
 loaded_neuralcoref = False
+
+last_processed_doc = None
+
+
+def get_processed(tok_seq):
+    global last_processed_doc
+
+    if not last_processed_doc or tok_seq not in last_processed_doc:
+        # not cached, must process
+        last_processed_doc = {tok_seq: nlp(tok_seq.text_obj.raw_text)}
+
+    return last_processed_doc[tok_seq]
 
 
 def get_spacy_entities(tok_seq, spacy_processed_doc=None) -> List[EntitySpan]:
     """
     uses the unprocessed text to perform NER using Spacy.
     """
-    processed: Doc = nlp(tok_seq.text_obj.raw_text) if not spacy_processed_doc else spacy_processed_doc
+    processed: Doc = get_processed(tok_seq) if not spacy_processed_doc else spacy_processed_doc
     entities = []
 
     for ent in processed.ents:
@@ -27,7 +47,7 @@ def get_spacy_entities(tok_seq, spacy_processed_doc=None) -> List[EntitySpan]:
 
 
 def get_spacy_sentences(tok_seq, spacy_processed_doc=None):
-    processed: Doc = nlp(tok_seq.text_obj.raw_text) if not spacy_processed_doc else spacy_processed_doc
+    processed: Doc = get_processed(tok_seq) if not spacy_processed_doc else spacy_processed_doc
     spacy_sents = processed.sents
     sentences = []
 

@@ -16,7 +16,7 @@ def get_neuralcoref_coreferences(tok_seq, entities: List[EntitySpan], spacy_proc
         spacy_processed_doc = None
         spacy_utils.loaded_neuralcoref = True
 
-    processed: Doc = nlp(tok_seq.text_obj.raw_text) if not spacy_processed_doc else spacy_processed_doc
+    processed: Doc = spacy_utils.get_processed(tok_seq) if not spacy_processed_doc else spacy_processed_doc
     clusters: List[Cluster] = processed._.coref_clusters
 
     corefs = {}

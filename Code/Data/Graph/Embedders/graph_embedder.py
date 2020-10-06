@@ -1,10 +1,11 @@
+import time
 from typing import List, Dict
 
 import torch
 from torch import nn
 from torch.nn import ModuleDict
 
-from Code.Config import gec, GraphEmbeddingConfig
+from Code.Config import gec, GraphEmbeddingConfig, sysconf
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph import TypeMap
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
@@ -81,13 +82,15 @@ class GraphEmbedder(nn.Module):
     def forward(self, graph: ContextGraph) -> GraphEncoding:
         context_sequence: TokenSequence = graph.data_sample.context.token_sequence
         # print("running graph embedder on context:", context_sequence)
+        context_seq_start = time.time()
         embedded_context_sequence: torch.Tensor = self.token_embedder(context_sequence)
+        if sysconf.print_times:
+            print("context token embedding took:", time.time() - context_seq_start, "s")
 
         node_features: List[torch.Tensor] = [None] * len(graph.ordered_nodes)
 
         if self.use_query:
             query_sequence: TokenSequence = graph.query_token_sequence
-            # print("running graph embedder on query:",query_sequence)
             embedded_query_sequence: torch.Tensor = self.token_embedder(query_sequence)
 
         if self.use_query_summary_vec(graph):
@@ -103,6 +106,7 @@ class GraphEmbedder(nn.Module):
 
             source_sequence = embedded_context_sequence if node.source == construction.CONTEXT \
                 else embedded_query_sequence
+
             try:
                 embedding = self.get_node_embedding(source_sequence, node)
             except Exception as e:
@@ -110,6 +114,7 @@ class GraphEmbedder(nn.Module):
                       + repr(graph.query_token_sequence))
                 raise e
             node_features[node_id] = embedding
+
         self.check_dimensions(node_features, graph)
         features = torch.cat(node_features, dim=0).view(len(node_features), -1)
 

@@ -1,5 +1,6 @@
 Todo:
-* accuracy test function for wikihop
+* make variant map use gcc rep not constructors rep
+
 * activations in pooling
 * change graph encoding to inherit Batch instead of Data
 * bug in graph construction - word to token not getting every link
@@ -71,6 +72,10 @@ pip install torch-geometric --user
 pip install transformers --user
 pip install neuralcoref --user
 python -m spacy download en_core_web_sm
+
+%%wikihop download
+wget https://drive.google.com/file/d/1ytVZ4AhubFDOEL7o7XrIRIyhU8g9wvKA/
+unzip unzip qangaroo_v1.1.zip  %% or download from their website
 
 %% or visualisation
 sudo apt-get install graphviz

@@ -11,7 +11,7 @@ sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 sys.path.append(os.path.join(dir_path_1, 'Datasets'))
 
-from Code.Config import configs, eval_conf
+from Code.Config import configs, eval_conf, sysconf
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
 from Code.Models.GNNs.context_gnn import ContextGNN
@@ -101,7 +101,8 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
                     rolling_average = a * rolling_average + (1-a) * loss_val
                 if i % PRINT_BATCH_EVERY == 0 and PRINT_BATCH_EVERY != -1:
                     # print("y:", y, "shape:", y.size())
-                    print("forward time:", forward_time, "backwards time:", backwards_time)
+                    if sysconf.print_times:
+                        print("forward time:", forward_time, "backwards time:", backwards_time)
                     print("batch", i, "loss", loss_val / batch.batch_size, "rolling loss:\t",rolling_average, "\n")
 
                 i += 1

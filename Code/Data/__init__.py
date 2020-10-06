@@ -28,7 +28,6 @@ if embedder_type == "bert":
     print("bert initialised in", (time.time()-start), "secs")
 
 
-
 indexer = lambda info: string_indexer(info) if isinstance(info,str) else token_indexer(info)
 string_embedder = lambda string: token_embedder(tokeniser(string))
 string_indexer = lambda string: token_indexer(tokeniser(string))
