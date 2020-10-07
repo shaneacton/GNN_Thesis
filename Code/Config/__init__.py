@@ -4,6 +4,7 @@ from Code.Config.gnn_config import GNNConfig
 from Code.Config.graph_construction_config import GraphConstructionConfig
 from Code.Config.graph_embedding_config import GraphEmbeddingConfig
 from Code.Config.system_config import SystemConfig
+from Code.Config.visualisation_config import VisualisationConfig
 
 gcc = GraphConstructionConfig()
 gec = GraphEmbeddingConfig()
@@ -13,3 +14,4 @@ configs = ConfigSet(configs=[gcc, gec, gnnc])
 
 eval_conf = EvaluationConfig()
 sysconf = SystemConfig()
+vizconf = VisualisationConfig()

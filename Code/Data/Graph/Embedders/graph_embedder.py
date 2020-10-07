@@ -16,7 +16,7 @@ from Code.Data.Graph.Types.types import Types
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
-from Code.Data import embedder
+from Code.Data.Text.pretrained_token_sequence_embedder import tokseq_embedder
 from Code.Training import device
 
 
@@ -30,7 +30,7 @@ class GraphEmbedder(nn.Module):
     def __init__(self, gec: GraphEmbeddingConfig):
         super().__init__()
         self.gec: GraphEmbeddingConfig = gec
-        self.token_embedder: TokenSequenceEmbedder = embedder
+        self.token_embedder: TokenSequenceEmbedder = tokseq_embedder()
         self.sequence_summarisers: Dict[str, SequenceSummariser] = {}  # maps structure level to a sequence summariser
 
         self.summarisers: ModuleDict = None

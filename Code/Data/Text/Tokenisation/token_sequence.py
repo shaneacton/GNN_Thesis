@@ -2,7 +2,7 @@ from typing import List
 
 from Code.Data.Text.Tokenisation.token import Token
 from Code.Data.Text.Tokenisation.Utils.tokenisation_utils import find_seq_in_seq
-from Code.Data import subtoken_mapper, basic_tokeniser
+from Code.Data.Text.pretrained_token_sequence_embedder import tokseq_embedder
 
 
 class TokenSequence:
@@ -21,9 +21,25 @@ class TokenSequence:
         self.token_subtoken_map = []  # value at index i is [start,end) subtoken id's for token i
         self.subtoken_token_map = {}  # stm[sub_id]=containing token_id
 
-        subtoken_map = subtoken_mapper(text_obj.raw_text)
-        for stm in subtoken_map:
-            self.add_word_token_and_subtokens(stm[0], stm[1])
+        self.generate_tokens_and_subtokens()
+
+    def generate_tokens_and_subtokens(self):
+        subtokens = tokseq_embedder().tokenise(self.text_obj.raw_text)
+
+        tokens = []
+        token_subtokens = []
+        for sub in subtokens:
+            if "##" in sub:
+                # continuation of current token
+                tokens[-1] += sub[2:]  # appends the split subtoken to the partial existing token
+                token_subtokens[-1].append(sub)
+            else:
+                # start of new token
+                tokens.append(sub)
+                token_subtokens.append([sub])
+
+        for i in range(len(tokens)):
+            self.add_word_token_and_subtokens(tokens[i], token_subtokens[i])
 
     @property
     def subtokens(self):
@@ -44,7 +60,11 @@ class TokenSequence:
     def get_text_from_subspan(self, span):
         return " ".join(self.raw_subtokens[span[0]:span[1]])
 
-    def add_word_token_and_subtokens(self, token: str, subtokens: str):
+    def add_word_token_and_subtokens(self, token: str, subtokens: List[str]):
+        """
+        :param token: the full word token
+        :param subtokens: a list of subtokens starting with ##
+        """
         num_preexisting_subtokens = len(self.raw_subtokens)
         num_preexisting_tokens = len(self.raw_word_tokens)
         self.raw_word_tokens.append(token)
@@ -74,7 +94,8 @@ class TokenSequence:
         returns the subtoken span if subs=true
         """
         sub_string = self.text_obj.raw_text[start_char_id: end_char_id]
-        matches = find_seq_in_seq(basic_tokeniser(self.text_obj.raw_text[:end_char_id]), basic_tokeniser(sub_string))
+        matches = find_seq_in_seq(tokseq_embedder().basic_tokeniser(self.text_obj.raw_text[:end_char_id]),
+                                  tokseq_embedder().basic_tokeniser(sub_string))
         # since the text was sheered at the end_char_id, final match must be accurate
         if not matches:
             raise Exception("Possible substring does not align with chars")

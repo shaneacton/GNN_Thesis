@@ -26,22 +26,9 @@ class Batch:
     def __len__(self):
         return len(self.batch_items)
 
-    def get_candidates_tensor(self):
-        return Batch.pad_and_combine([bi.question.get_candidates_embedding() for bi in self.batch_items])
-
-    def get_contexts_tensor(self):
-        return Batch.pad_and_combine([bi.data_sample.context.get_context_embedding() for bi in self.batch_items])
-
-    def get_queries_tensor(self):
-        return Batch.pad_and_combine([bi.question.get_embedding() for bi in self.batch_items])
-
     def get_answer_cand_index_tensor(self):
         """dim ~ (batch)"""
         return torch.cat([bi.question.get_answer_cand_index_vec() for bi in self.batch_items], dim=0)
-
-    def get_cqc_tensors(self):
-        return self.get_contexts_tensor(), self.get_queries_tensor(), \
-               (self.get_candidates_tensor() if self.get_answer_type() == CandidateAnswer else None)
 
     def get_answer_type(self):
         return self.batch_items[0].question.get_answer_type()

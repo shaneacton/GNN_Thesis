@@ -16,8 +16,8 @@ class ConfigSet(Config):
             for config in configs:
                 self.add_config(config)
 
-    def get_gnn(self):
-        return self.gnnc.get_gnn(self.gcc, self.gec)
+    def get_gnn(self, gcc=None):
+        return self.gnnc.get_gnn(gcc if gcc else self.gcc, self.gec)
 
     def get_graph_constructor(self):
         return self.gcc.get_graph_constructor()

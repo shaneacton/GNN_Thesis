@@ -1,11 +1,6 @@
 from typing import List, Union
 
-import torch
-
 from Code.Data.Text.Answers.answer import Answer
-from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
-from Code.Data.Text.text import Text
-from Code.Data import tail_concatinator
 
 
 class Answers:
@@ -35,11 +30,6 @@ class Answers:
 
     def get_output_model(self):
         return self.correct_answers[0].get_output_model()
-
-    def get_candidates_embedding(self):
-        if self.get_answer_type() == CandidateAnswer:
-            return torch.cat([cand.get_embedding(tail_concatinator) for cand in self.answer_candidates], dim=1)
-        raise Exception()
 
     def get_answer_cand_id(self):
         try:

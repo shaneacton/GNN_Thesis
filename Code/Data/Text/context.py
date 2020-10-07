@@ -47,18 +47,6 @@ class Context:
         full_context = full_context if gcc.context_max_chars == -1 else full_context[:gcc.context_max_chars]
         return full_context
 
-    def get_context_embedding(self):
-        """
-            since the embedding used may be contextual, and thus be constrained in length
-            each passage is embedded separately.
-        """
-        # todo possibly add in newlines between passages
-        embeddings = []
-        for passage in self.passages:
-            embeddings.append(passage.get_embedding())
-        full_embeddings = torch.cat(embeddings,dim=1)
-        return full_embeddings
-
     def get_answer_span_vec(self, start_char_id, end_char_id):
         sub_token_span = self.token_sequence.get_word_token_span_from_chars(start_char_id, end_char_id, subtokens=True)
         sub_token_span = list(sub_token_span)

@@ -20,6 +20,3 @@ class Candidate(TokenSpan):
         label = ("(" + self.spacy_span.label_ + ")") if self.spacy_span.label_ else ""
         span = ":S" + repr(self.subtoken_indexes)
         return "Candidate ~ " + text + label + span
-
-    def get_embedding(self, sequence_reduction=tail_concatinator):
-        return super().get_embedding(sequence_reduction)

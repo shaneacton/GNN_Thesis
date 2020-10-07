@@ -4,8 +4,6 @@ from Code.Config import graph_construction_config
 from Code.Data.Text.Tokenisation.Utils import spacy_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
-from Code.Data import tokeniser, basic_tokeniser
-
 
 USE_NEURAL_COREF = False
 if USE_NEURAL_COREF:
@@ -72,14 +70,6 @@ def find_seq_in_seq(seq: List[str], query: List[str]) -> List[Tuple[int,int]]:
             break
 
     return matches
-
-
-def find_string_in_tokens(tok_seq, string):
-    """
-    tokenises the given string, and searches for matches in the token sequence
-    :returns the (start,end ids) of the string in the tok seq
-    """
-    return find_seq_in_seq(tok_seq.raw_word_tokens, basic_tokeniser(string))
 
 
 def find_string_in_subtokens(tok_seq, string):

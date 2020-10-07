@@ -3,15 +3,25 @@ from math import ceil
 
 import torch
 
+from torch.multiprocessing import Pool, set_start_method
+try:
+    set_start_method('spawn')
+except RuntimeError:
+    pass
+
 from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
-from Code.Data import embedder
+
+_pool = None
+
+
+def pool():
+    global _pool
+    if _pool is None:
+        _pool = Pool()
+    return _pool
 
 
 class Text:
-
-    WRAP_TEXT_LENGTH = 150
-    MAX_TOKENS = 512 # todo get max num tokens dynamically
-    WINDOWED_EMBEDDINGS_OVERLAP = 50  # the amount a window looks in each direction
 
     CACHE_EMBEDDING = True
 
@@ -27,39 +37,8 @@ class Text:
         return self._token_sequence
 
     @property
-    def full_embedding(self):
-        if Text.CACHE_EMBEDDING:
-            if self._full_embedding is None:
-                self._full_embedding = self.get_embedding()
-            return self._full_embedding
-        else:
-            return self.get_embedding()
-
-    @property
     def clean(self):
         return " ".join(self.token_sequence.raw_word_tokens)
-
-    def get_embedding(self, sequence_reduction=None):
-        """
-            In the case where the text has more than the maximum number of tokens allowed by
-            the contextual embedder - the token sequence is split into overlapping windows
-            each of which is embedded separately and then combined
-        """
-
-        if not self._full_embedding:
-            tokens = self.token_sequence.raw_subtokens
-            if len(tokens) > Text.MAX_TOKENS:
-                full_embeddings = self.get_windowed_embeddings(tokens)
-            else:
-                full_embeddings = embedder(tokens)
-        else:
-            # stored in memory so it can be called multiple times with different reductions
-            # without re-embedding
-            full_embeddings = self._full_embedding
-
-        if sequence_reduction:
-            return sequence_reduction(full_embeddings)
-        return full_embeddings
 
     def __repr__(self):
         return "\n".join(textwrap.wrap(self.raw_text, Text.WRAP_TEXT_LENGTH))
@@ -71,34 +50,44 @@ class Text:
         return self.raw_text.__hash__()
 
     @staticmethod
-    def get_windowed_embeddings(tokens, embedder=embedder):
+    def get_windowed_embeddings(tokens, embedder, max_tokens, overlap):
         """
         breaks the text up into appropriately sized and even chunks
         looks ahead and behind these chunks when contextually embedding
         cuts off the look-ahead/behind and stitches embeddings together
         """
-        overlap=Text.WINDOWED_EMBEDDINGS_OVERLAP
-        max_window_length = Text.MAX_TOKENS - 2*overlap
+        max_window_length = max_tokens - 2*overlap
         num_windows = ceil(len(tokens) / max_window_length)
         even_chunk_size = len(tokens)//num_windows  # length of windows with no overlaps
+        print("num windows:", num_windows)
+
+        args = ((tokens, embedder, w, num_windows, even_chunk_size, overlap) for w in range(num_windows))
+        # calculates each windows embedding in parallel
+        # effective_embeddings = pool().starmap(Text.get_window_embeddings, args)
+        #
+        # pool().close()
+        # pool().join()
 
         effective_embeddings = []
-        for w in range(num_windows):
-            # print("w=",w)
-            even_start, even_end = w * even_chunk_size, (w+1) * even_chunk_size
-
-            overlap_start, overlap_end = even_start - overlap, even_end + overlap
-            overlap_start, overlap_end = max(overlap_start, 0), min(overlap_end, len(tokens))
-
-            full_embeddings = embedder(tokens[overlap_start:overlap_end])
-
-            used_start = overlap if w>0 else 0
-            used_end = -overlap if w<num_windows-1 else (overlap_end-overlap_start)
-            used_embeddings = full_embeddings[:,used_start:used_end,:]
-            effective_embeddings.append(used_embeddings)
+        for arg in args:
+            effective_embeddings.append(Text.get_window_embeddings(*arg))
 
         effective_embeddings = torch.cat(effective_embeddings, dim=1)
         if effective_embeddings.size(1) != len(tokens):
             raise Exception("Mismatch in getting windowed embeddings. given: " + str(len(tokens))
                             + " resulting: " + str(effective_embeddings.size()))
         return effective_embeddings
+
+    @staticmethod
+    def get_window_embeddings(tokens, embedder, w, num_windows, even_chunk_size, overlap):
+        even_start, even_end = w * even_chunk_size, (w + 1) * even_chunk_size
+
+        overlap_start, overlap_end = even_start - overlap, even_end + overlap
+        overlap_start, overlap_end = max(overlap_start, 0), min(overlap_end, len(tokens))
+
+        full_embeddings = embedder(tokens[overlap_start:overlap_end])
+
+        used_start = overlap if w > 0 else 0
+        used_end = -overlap if w < num_windows - 1 else (overlap_end - overlap_start)
+        used_embeddings = full_embeddings[:, used_start:used_end, :]
+        return used_embeddings

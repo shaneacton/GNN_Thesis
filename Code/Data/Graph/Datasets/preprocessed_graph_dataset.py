@@ -5,7 +5,7 @@ from typing import Iterator
 from Code.Config import configs
 from Code.Data.Graph.Datasets.graph_dataset import GraphDataset
 from Code.Data.Graph.context_graph import ContextGraph
-from Viz.graph_visualiser import render_graph
+from Viz.context_graph_visualiser import render_graph
 
 
 class PreprocessedGraphDataset(GraphDataset):

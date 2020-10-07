@@ -17,10 +17,6 @@ class Question(Text):
     def get_answer_type(self):
         return self.answers.get_answer_type()
 
-    def get_candidates_embedding(self):
-        emb = self.answers.get_candidates_embedding()
-        return emb
-
     def get_answer_cand_index_vec(self):
         id = self.answers.get_answer_cand_id()
         return torch.tensor([id]).to(device)
