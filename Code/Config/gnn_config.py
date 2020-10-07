@@ -1,6 +1,7 @@
 from Code.Config.config import Config
 
 # gnn layer types
+
 PROP_AND_POOL = "prop_and_pool"
 
 # layer options
@@ -41,15 +42,8 @@ class GNNConfig(Config):
 
         super().__init__()
         from torch import nn
-        from Code.Models.GNNs.LayerModules.Update.update_module import UpdateModule
         from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
-        from Code.Models.GNNs.LayerModules.Prepare.linear_prep import LinearPrep
-        from Code.Models.GNNs.LayerModules.Message.message_module import MessageModule
-        from Code.Models.GNNs.LayerModules.Message.attention_module import AttentionModule
-        from Code.Models.GNNs.LayerModules.Update.linear_update import LinearUpdate
         from Code.Models.GNNs.Layers.CustomLayers.graph_transformer import GraphTransformer
-
-        from torch_geometric.nn import GATConv
 
         self.relations_basis_count = 3
 
@@ -88,9 +82,11 @@ class GNNConfig(Config):
         }
 
     def get_gnn_with_constructor_embedder(self, constructor, embedder):
-        from Code.Models.GNNs.context_gnn import ContextGNN
+        from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
+        from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
+
         from Code.Training import device
-        gnn = ContextGNN(constructor, embedder, self).to(device=device)
+        gnn = ContextGAT(constructor, embedder, self).to(device=device)
         return gnn
 
     def get_gnn(self, gcc, gec):

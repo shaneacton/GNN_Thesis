@@ -59,7 +59,6 @@ class Text:
         max_window_length = max_tokens - 2*overlap
         num_windows = ceil(len(tokens) / max_window_length)
         even_chunk_size = len(tokens)//num_windows  # length of windows with no overlaps
-        print("num windows:", num_windows)
 
         args = ((tokens, embedder, w, num_windows, even_chunk_size, overlap) for w in range(num_windows))
         # calculates each windows embedding in parallel

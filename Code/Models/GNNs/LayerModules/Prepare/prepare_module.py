@@ -1,5 +1,4 @@
 from Code.Config import graph_embedding_config
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.Embedders.type_embedder import TypeEmbedder
 from Code.Models.GNNs.LayerModules.layer_module import LayerModule
 
@@ -23,7 +22,7 @@ class PrepareModule(LayerModule):
 
         return x
 
-    def add_node_type_embeddings(self, x, encoding: GraphEncoding):
+    def add_node_type_embeddings(self, x, encoding):
         type_embeddings = self.node_type_embedder(encoding.types.node_types)
         # print(self, "adding node type embs:", type_embeddings.size())
         x = x + type_embeddings

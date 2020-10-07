@@ -5,6 +5,8 @@ import time
 from torch import optim, nn
 
 # For importing project files
+from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -14,7 +16,7 @@ sys.path.append(os.path.join(dir_path_1, 'Datasets'))
 from Code.Config import configs, eval_conf, sysconf
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
-from Code.Models.GNNs.context_gnn import ContextGNN
+from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
 from Code.Training.test import test_model
 from Datasets.Batching.batch import Batch
 from Datasets.Batching.batch_reader import BatchReader

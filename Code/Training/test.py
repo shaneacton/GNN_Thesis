@@ -1,8 +1,7 @@
 import torch
-from sklearn.metrics import accuracy_score
 
 from Code.Config import eval_conf
-from Code.Models.GNNs.context_gnn import ContextGNN
+from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
 from Datasets.Batching.batch_reader import BatchReader
 import numpy as np
 
