@@ -2,13 +2,13 @@ from typing import List
 
 from spacy.tokens.doc import Doc
 
-import en_core_web_sm
 
 from Code.Config import graph_construction_config
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
 
 try:
+    import en_core_web_sm
     nlp = en_core_web_sm.load()
 except:
     print("failed to load en_core_web_sm, trying in clisyer location")
