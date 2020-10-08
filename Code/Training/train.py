@@ -5,8 +5,6 @@ import time
 from torch import optim, nn
 
 # For importing project files
-from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
