@@ -1,5 +1,6 @@
 import threading
 import time
+from typing import List
 
 import torch
 from transformers import BertTokenizer
@@ -38,10 +39,25 @@ class PretrainedTokenSequenceEmbedder:
             return self.bert_tokeniser.tokenize(string)
 
     def index(self, tokens):
-        # returns the emb ids
+        # returns the emb ids, handles batch of token lists or single token list
+        if isinstance(tokens[0], List):
+            # batch mode
+            batch_size = len(tokens)
+        else:
+            batch_size = 1
+            tokens = [tokens]
+
         if self.embedder_type == "bert":
-            return torch.Tensor(self.bert_tokeniser.convert_tokens_to_ids(tokens)).reshape(1, -1) \
-            .type(torch.LongTensor).to(device)
+
+            indexes = []
+            max_len = max([len(toks) for toks in tokens])
+            for i in range(batch_size):
+                ids = torch.Tensor(self.bert_tokeniser.convert_tokens_to_ids(tokens[i]))
+                ids = torch.cat([ids, torch.zeros(max_len-len(tokens[i]))])  # pad
+                indexes.append(ids)
+            indexes = torch.stack(indexes)
+
+        return indexes.reshape(batch_size, -1).type(torch.LongTensor).to(device)
 
     def embed(self, tokens):
         if self.embedder_type == "bert":
