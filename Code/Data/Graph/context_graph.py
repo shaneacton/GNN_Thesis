@@ -16,7 +16,7 @@ class ContextGraph:
     Directed graph constructed from a tokensequence and construction config
     """
 
-    def __init__(self, data_sample, span_hierarchy, gcc):
+    def __init__(self, data_sample, span_hierarchy, gcc, question=None):
         from Code.Config import GraphConstructionConfig
 
         self.gcc: GraphConstructionConfig = gcc  # the construction config which was used to create this context graph
@@ -37,10 +37,15 @@ class ContextGraph:
 
         self.node_positions: List[Union[NodePosition, None]] = []
 
+        if question is not None:
+            self.question_id = self.data_sample.questions.index(question)
+        else:
+            self.question_id = 0
+
     @property
     def query_token_sequence(self):
         # todo multiple questions?
-        return self.data_sample.questions[0].token_sequence
+        return self.data_sample.questions[self.question_id].token_sequence
 
     @property
     def query_span_hierarchy(self) -> TokenSpanHierarchy:

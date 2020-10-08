@@ -1,5 +1,5 @@
 from Code.Config import eval_conf
-from Datasets.Batching.batch import Batch
+from Datasets.Batching.samplebatch import SampleBatch
 from Datasets.Batching.batch_item import BatchItem
 from Datasets.Readers.data_reader import DataReader
 
@@ -57,7 +57,7 @@ class BatchReader:
             i += 1
 
     def get_all_batches(self):
-        batch = Batch(self.batch_size)
+        batch = SampleBatch(self.batch_size)
 
         i = 0
         for data_example in self.data_reader.get_data_samples(self.data_path):
@@ -65,5 +65,5 @@ class BatchReader:
                 batch.add_batch_item(BatchItem(data_example, question))
                 if len(batch) == self.batch_size:
                     yield batch
-                    batch = Batch(self.batch_size)
+                    batch = SampleBatch(self.batch_size)
                     i += 1

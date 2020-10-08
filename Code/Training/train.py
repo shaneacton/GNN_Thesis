@@ -16,7 +16,7 @@ from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
 from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
 from Code.Training.test import test_model
-from Datasets.Batching.batch import Batch
+from Datasets.Batching.samplebatch import SampleBatch
 from Datasets.Batching.batch_reader import BatchReader
 from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
 from Datasets.Readers.squad_reader import SQuADDatasetReader
@@ -58,55 +58,55 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
                 skipped_batches_from = b
                 break
 
-            for batch_item in batch.batch_items:
-                sample = batch_item.data_sample
-
-                if optimizer is None:
-                    # gnn must see a data sample to initialise. optim must wait
-                    gnn.init_model(sample)
-                    # print("initialising optim with ps:", gnn.parameters())
-                    optimizer = optim.Adam(gnn.parameters(), lr=eval_conf.learning_rate_base)
-                    print(gnn)
+            if optimizer is None:
+                # gnn must see a data sample to initialise. optim must wait
+                gnn.init_model(batch.data_sample)
+                # print("initialising optim with ps:", gnn.parameters())
+                optimizer = optim.Adam(gnn.parameters(), lr=eval_conf.learning_rate_base)
+                print(gnn)
 
                 optimizer.zero_grad()
-                forward_start_time = time.time()
-                try:
-                    output = gnn(sample)
-                except Exception as e:
-                    # print("Error in forward:", e)
-                    continue
-                y = output.x
-                forward_time = time.time() - forward_start_time
 
-                if batch.get_answer_type() == ExtractedAnswer:
-                    loss = get_span_loss(y, batch)
-                if batch.get_answer_type() == CandidateAnswer:
-                    loss = get_candidate_loss(y, batch)
+            forward_start_time = time.time()
+            # try:
+            output = gnn(batch)
+            # except Exception as e:
+            #     print("Error in forward:", e)
+            #     continue
+            y = output.x
 
-                backwards_start_time = time.time()
-                loss.backward()
-                optimizer.step()
-                backwards_time = time.time() - backwards_start_time
-                loss_val = float(loss.item())
-                total_loss += loss_val
-                if rolling_average == -1:
-                    rolling_average = loss_val
+            forward_time = time.time() - forward_start_time
+
+            if batch.get_answer_type() == ExtractedAnswer:
+                loss = get_span_loss(y, batch)
+            if batch.get_answer_type() == CandidateAnswer:
+                loss = get_candidate_loss(y, batch)
+
+
+            backwards_start_time = time.time()
+            loss.backward()
+            optimizer.step()
+            backwards_time = time.time() - backwards_start_time
+            loss_val = float(loss.item())
+            total_loss += loss_val
+            if rolling_average == -1:
+                rolling_average = loss_val
+            else:
+                if i < 5:
+                    a = 0.9 # converge quickly on a rough average
+                elif i < 50 and epoch == 0:
+                    a = 0.95  # converge quickly on a rough average
                 else:
-                    if i < 5:
-                        a = 0.9 # converge quickly on a rough average
-                    elif i < 50 and epoch == 0:
-                        a = 0.95  # converge quickly on a rough average
-                    else:
-                        a = 0.998
-                    rolling_average = a * rolling_average + (1-a) * loss_val
-                if i % PRINT_BATCH_EVERY == 0 and PRINT_BATCH_EVERY != -1:
-                    # print("y:", y, "shape:", y.size())
-                    if sysconf.print_times:
-                        print("forward time:", forward_time, "backwards time:", backwards_time)
-                    print("batch", i, "loss", loss_val / batch.batch_size, "rolling loss:\t",rolling_average, "\n")
+                    a = 0.998
+                rolling_average = a * rolling_average + (1-a) * loss_val
+            if i % PRINT_BATCH_EVERY == 0 and PRINT_BATCH_EVERY != -1:
+                # print("y:", y, "shape:", y.size())
+                if sysconf.print_times:
+                    print("forward time:", forward_time, "backwards time:", backwards_time)
+                print("batch", i, "loss", loss_val / batch.batch_size, "rolling loss:\t",rolling_average, "\n")
 
-                i += 1
-                skipped_batches_from = 0  # has not skipped
+            i += 1
+            skipped_batches_from = 0  # has not skipped
 
         e_time = time.time() - epoch_start_time
         num_samples = i * batch.batch_size
@@ -118,17 +118,17 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
         accuracy = test_model(qangaroo_batch_reader, gnn)
 
 
-def get_span_loss(output, batch: Batch):
+def get_span_loss(output, batch: SampleBatch):
     p1, p2 = output
     answers = batch.get_answers_tensor()
     return ce_loss(p1, answers[:,0]) + ce_loss(p2, answers[:,1])
 
 
-def get_candidate_loss(output, batch: Batch):
+def get_candidate_loss(output, batch: SampleBatch):
     answers = batch.get_answers_tensor()
-    # print("answers:", answers.size())
-    output = output.view(1, -1)
-    # print("answers:", answers, "\nout:", output, "\nloss:", ce_loss(output, answers))
+    # print("answers:", answers.size(), "output:", output.size())
+    # output = output.view(1, -1)
+    # print("answers:", answers, "\nout:", output)
     return ce_loss(output, answers)
 
 
@@ -141,8 +141,8 @@ if __name__ == "__main__":
     wikihop_path = QUangarooDatasetReader.dev_set_location("wikihop")
     squad_path = SQuADDatasetReader.dev_set_location()
 
-    qangaroo_batch_reader = BatchReader(qangaroo_reader, 1, wikihop_path)
-    squad_batch_reader = BatchReader(squad_reader, 1, squad_path)
+    qangaroo_batch_reader = BatchReader(qangaroo_reader, eval_conf.batch_size, wikihop_path)
+    squad_batch_reader = BatchReader(squad_reader, eval_conf.batch_size, squad_path)
 
     train_model(qangaroo_batch_reader, gnn)
     # train_model(squad_batch_reader, model)

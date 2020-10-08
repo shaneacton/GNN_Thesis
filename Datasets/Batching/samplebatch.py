@@ -9,7 +9,7 @@ from Code.Training import device
 from Datasets.Batching.batch_item import BatchItem
 
 
-class Batch:
+class SampleBatch:
 
     """
         a batch is a collection of data_examples with
@@ -19,6 +19,10 @@ class Batch:
     def __init__(self, batch_size):
         self.batch_size = batch_size
         self.batch_items: List[BatchItem] = []
+
+    @property
+    def data_sample(self):
+        return self.batch_items[0].data_sample
 
     def add_batch_item(self, batch_item: BatchItem):
         self.batch_items.append(batch_item)

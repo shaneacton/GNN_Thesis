@@ -65,36 +65,30 @@ class Text:
 
         batch_size = 5
         num_batches = ceil(num_windows/batch_size)
-        # print("num windows:", num_windows, "batch size:", batch_size, "num batches:", num_batches, "num tokens:", num_tokens)
         batches = [[] for _ in range(num_batches)]
         for w in range(num_windows):  # group the windows into batches
             window, overlap_start, overlap_end = Text.get_window_tokens(all_tokens, w, even_chunk_size, overlap)
             batch_num = w//batch_size
             batches[batch_num].append(window)
 
-        # print("batches:", "\n".join(["len: " + repr(len(batch)) + ": " + repr(batch) for batch in batches]))
         w=0
         effective_embeddings = []
         for b in range(num_batches):  # do batchwise encoding, then chop off overlaps
             batch: List[List[str]] = batches[b]
-            # print("batch:\n", "\n".join(["len: " + repr(len(bi)) + ": " + repr(bi) for bi in batch]))
             batch_embeddings = embedder(batch)  # is of shape (batch, padded_len, features)
             # need of shape (num_tokens, features)
             for i in range(len(batch)):
                 embs = batch_embeddings[i,:len(batch[i]),:]  # cut off padding
-                # print("batch",b, "i:", i, "embs:", embs.size())
                 # cut off overlaps
                 embs = Text.get_used_embeddings(embs, num_tokens, w, num_windows, even_chunk_size, overlap)
                 effective_embeddings.append(embs)
                 w += 1
 
         effective_embeddings = torch.cat(effective_embeddings)  # stitch embeddings back together
-        # print("eff embs:", effective_embeddings.size())
         if effective_embeddings.size(0) != len(all_tokens):
             raise Exception("Mismatch in getting windowed embeddings. given: " + str(len(all_tokens))
                             + " resulting: " + str(effective_embeddings.size()))
         effective_embeddings = effective_embeddings.view(1, num_tokens, -1)
-        # print("eff embs:", effective_embeddings.size())
         return effective_embeddings
 
     @staticmethod

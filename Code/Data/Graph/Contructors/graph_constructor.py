@@ -22,13 +22,15 @@ class GraphConstructor(ABC):
     def add_construct(self, existing_graph: ContextGraph):
         existing_graph.constructs.append(type(self))
 
-    def create_graph_from_data_sample(self, data_sample: DataSample):
+    def create_graph_from_data_sample(self, data_sample: DataSample, question):
         context_span_hierarchy = TokenSpanHierarchy(data_sample.context.token_sequence)
-        graph = ContextGraph(data_sample, context_span_hierarchy, gcc=gcc)
+        graph = ContextGraph(data_sample, context_span_hierarchy, gcc=gcc, question=question)
         return self._append(graph)
 
-    def __call__(self, data_sample: DataSample):
-        return self.create_graph_from_data_sample(data_sample)
+    def __call__(self, data_sample: DataSample, question=None):
+        if question is None:
+            question = data_sample.questions[0]
+        return self.create_graph_from_data_sample(data_sample, question)
 
 
 class IncompatibleGraphContructionOrder(Exception):

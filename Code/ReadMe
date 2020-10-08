@@ -1,5 +1,5 @@
 Todo:
-* make variant map use gcc rep not constructors rep
+* make variant map use gcc rep not constructors rep for offline context graphs
 
 * activations in pooling
 * change graph encoding to inherit Batch instead of Data

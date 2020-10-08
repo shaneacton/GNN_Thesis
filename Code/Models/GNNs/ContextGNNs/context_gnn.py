@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List, Union
 
 from torch import nn
+from torch_geometric.data import Batch
 
 from Code.Config import GNNConfig, gnn_config
 from Code.Config.config_set import ConfigSet
@@ -14,6 +15,7 @@ from Code.Data.Text.data_sample import DataSample
 from Code.Models.GNNs.gnn import GNN
 from Code.Models.GNNs.graph_module import GraphModule
 from Code.Training import device
+from Datasets.Batching.samplebatch import SampleBatch
 
 
 class ContextGNN(GNN, ABC):
@@ -63,7 +65,7 @@ class ContextGNN(GNN, ABC):
         out_type = data_sample.get_output_model()
         self.output_model = out_type(in_features).to(device)
 
-    def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample]) -> GraphEncoding:
+    def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample, SampleBatch]) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
         return self._forward(self.get_graph_encoding(input))
 
@@ -71,21 +73,31 @@ class ContextGNN(GNN, ABC):
         if isinstance(input, GraphEncoding):
             return input
         data = None
+        if isinstance(input, SampleBatch):
+            data: GraphEncoding = self.get_data_from_batch(input)
         if isinstance(input, ContextGraph):
             data: GraphEncoding = self.embedder(input)
         if isinstance(input, DataSample):
-            construction_start_time = time.time()
-            graph = self.constructor(input)
-            encoding_start_time = time.time()
-            construction_time = encoding_start_time - construction_start_time
-            data: GraphEncoding = self.embedder(graph)
-            encoding_time = time.time() - encoding_start_time
-
-            # print("construction time:", construction_time, "embedding time:",encoding_time, "total:",
-            #       (construction_time + encoding_time))
+            data: GraphEncoding = self.get_data_from_data_sample(input)
 
         if not data:
             raise Exception()
+        return data
+
+    def get_data_from_batch(self, batch: SampleBatch) -> GraphEncoding:
+        data_points = []
+        for batch_item in batch.batch_items:
+            data = self.get_data_from_data_sample(batch_item.data_sample, question=batch_item.question)
+            # print("data:", data)
+            data_points.append(data)
+        batch = Batch.from_data_list(data_points)
+        batch = GraphEncoding.from_geometric_batch(batch)
+        # print("batch:", batch)
+        return batch
+
+    def get_data_from_data_sample(self, sample, question=None) -> GraphEncoding:
+        graph = self.constructor(sample, question=question)
+        data: GraphEncoding = self.embedder(graph)
         return data
 
     @abstractmethod

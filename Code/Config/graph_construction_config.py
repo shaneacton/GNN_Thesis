@@ -72,7 +72,7 @@ class GraphConstructionConfig(Config):
         self.candidate_connections = [SENTENCE]
 
         self.context_max_chars = -1
-        self.max_edges = 80000
+        self.max_edges = 300000
 
     @property
     def all_structure_levels(self):
