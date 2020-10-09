@@ -1,11 +1,10 @@
-import time
 from abc import ABC, abstractmethod
-from typing import List, Union
+from typing import Union
 
 from torch import nn
 from torch_geometric.data import Batch
 
-from Code.Config import GNNConfig, gnn_config
+from Code.Config import GNNConfig
 from Code.Config.config_set import ConfigSet
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
@@ -13,7 +12,6 @@ from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.data_sample import DataSample
 from Code.Models.GNNs.gnn import GNN
-from Code.Models.GNNs.graph_module import GraphModule
 from Code.Training import device
 from Datasets.Batching.samplebatch import SampleBatch
 
@@ -87,9 +85,15 @@ class ContextGNN(GNN, ABC):
     def get_data_from_batch(self, batch: SampleBatch) -> GraphEncoding:
         data_points = []
         for batch_item in batch.batch_items:
-            data = self.get_data_from_data_sample(batch_item.data_sample, question=batch_item.question)
+            try:
+                data = self.get_data_from_data_sample(batch_item.data_sample, question=batch_item.question)
+            except Exception as e:
+                continue
             # print("data:", data)
             data_points.append(data)
+        if len(data_points) == 0:
+            raise Exception("failed to create any valid data points from batch with " + repr(len(batch.batch_items))
+                            + " items")
         batch = Batch.from_data_list(data_points)
         batch = GraphEncoding.from_geometric_batch(batch)
         # print("batch:", batch)
