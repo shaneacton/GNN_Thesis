@@ -1,3 +1,5 @@
+import copy
+
 
 class Metric:
 
@@ -23,6 +25,28 @@ class Metric:
     @property
     def last(self):
         return self.values[-1]
+
+    def __add__(self, other):
+        clone = copy.deepcopy(self)
+        if isinstance(other, int) or isinstance(other, float):
+            clone.rolling_average += other
+            for i in range(len(clone.values)):
+                clone.values[i] += other
+                return clone
+        if isinstance(other, Metric):
+            return self + other.rolling_average
+
+        raise Exception()
+
+    def __sub__(self, other):
+        return self + (other * -1)
+
+    def __mul__(self, other):
+        clone = copy.deepcopy(self)
+        clone.rolling_average *= other
+        for i in range(len(clone.values)):
+            clone.values[i] *= other
+        return clone
 
     def report(self, value, step=1):
         self.values.append(value)

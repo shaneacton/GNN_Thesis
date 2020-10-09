@@ -105,7 +105,13 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
                 # print("y:", y, "shape:", y.size())
                 print("\nbatch", b, loss_metric)
                 if sysconf.print_times:
-                    print("\t", forward_times, "\n", backwards_times, "\n", gnn.embedder.embedding_times, sep="\t")
+                    embedding_times = gnn.embedder.embedding_times
+                    # estimate of the total time spent not in encoding
+                    model_times = forward_times - embedding_times * y.size(0)
+                    model_times.name = "model time"
+                    total_times = model_times + backwards_times + embedding_times
+                    total_times.name = "total time"
+                    print("\t", model_times, "\n\t", backwards_times, "\n\t", embedding_times, "\n\t", total_times)
                 last_sample_printed_on = samples
 
             skipped_batches_from = 0  # has not skipped
