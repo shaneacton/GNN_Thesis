@@ -23,13 +23,12 @@ class GraphEmbeddingConfig(Config):
 
         self.span_summarisation_methods = {
             construction.WORD: HEAD_AND_TAIL_CAT,
-            construction.SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING,
-                                    NUM_LAYERS: 2},
+            construction.SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2},
             construction.PARAGRAPH: HEAD_AND_TAIL_CAT,
             construction.DOCUMENT: HEAD_AND_TAIL_CAT,
 
             construction.QUERY_WORD: HEAD_AND_TAIL_CAT,
-            construction.QUERY_SENTENCE: HEAD_AND_TAIL_CAT
+            construction.QUERY_SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2}
         }
 
         self.relative_embeddings_window_per_level = {

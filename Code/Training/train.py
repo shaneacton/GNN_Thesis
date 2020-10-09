@@ -1,12 +1,7 @@
 import os
 import sys
-import time
-
-import torch
-from torch import optim, nn
 
 # For importing project files
-from Code.Training import device
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -14,6 +9,13 @@ sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 sys.path.append(os.path.join(dir_path_1, 'Datasets'))
 
+
+import time
+
+import torch
+from torch import optim, nn
+
+from Code.Training import device
 from Code.Config import configs, eval_conf, sysconf
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
@@ -23,12 +25,13 @@ from Datasets.Batching.samplebatch import SampleBatch
 from Datasets.Batching.batch_reader import BatchReader
 from Datasets.Readers.qangaroo_reader import QUangarooDatasetReader
 from Datasets.Readers.squad_reader import SQuADDatasetReader
+from Code.Training.metric import Metric
 
 ce_loss = nn.CrossEntropyLoss()
 
-PRINT_BATCH_EVERY = min(eval_conf.print_batch_every, eval_conf.max_train_batches)
-if PRINT_BATCH_EVERY == -1:
-    PRINT_BATCH_EVERY = eval_conf.print_batch_every
+PRINT_EVERY_SAMPLES = min(eval_conf.print_stats_every_n_samples, eval_conf.max_train_batches)
+if PRINT_EVERY_SAMPLES == -1:
+    PRINT_EVERY_SAMPLES = eval_conf.print_stats_every_n_samples
 
 
 def train_model(batch_reader: BatchReader, gnn: ContextGNN):
@@ -39,13 +42,18 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
 
     skipped_batches_from = 0
 
-    rolling_average = -1
+    forward_times = Metric("forward times")
+    backwards_times = Metric("backwards times")
+    epoch_times = Metric("epoch times")
+
+    loss_metric = Metric("loss", print_step=True)
+
+    last_sample_printed_on = -PRINT_EVERY_SAMPLES
 
     for epoch in range(num_epochs):
         epoch_start_time = time.time()
-        total_loss = 0
 
-        i = 0  # number of batches used so far
+        i = 0  # number of batches used so far since skip
         # print("batches:", list(batch_reader.get_all_batches()))
 
         for b, batch in enumerate(batch_reader.get_train_batches()):
@@ -78,7 +86,7 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
                 continue
             y = output.x
 
-            forward_time = time.time() - forward_start_time
+            forward_times.report(time.time() - forward_start_time)
 
             if batch.get_answer_type() == ExtractedAnswer:
                 loss = get_span_loss(y, batch, gnn.last_batch_failures)
@@ -88,36 +96,24 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
             backwards_start_time = time.time()
             loss.backward()
             optimizer.step()
-            backwards_time = time.time() - backwards_start_time
-            loss_val = float(loss.item())
-            total_loss += loss_val
-            if rolling_average == -1:
-                rolling_average = loss_val
-            else:
-                if i < 5:
-                    a = 0.9 # converge quickly on a rough average
-                elif i < 50 and epoch == 0:
-                    a = 0.95  # converge quickly on a rough average
-                else:
-                    a = 0.998
-                rolling_average = a * rolling_average + (1-a) * loss_val
-            if i % PRINT_BATCH_EVERY == 0 and PRINT_BATCH_EVERY != -1:
-                # print("y:", y, "shape:", y.size())
-                if sysconf.print_times:
-                    print("forward time:", forward_time, "backwards time:", backwards_time)
-                print("batch", i, "loss", loss_val / batch.batch_size, "rolling loss:\t",rolling_average, "\n")
+            backwards_times.report(time.time() - backwards_start_time)
+            loss_metric.report(float(loss.item()))
 
+            samples = b * batch.batch_size
             i += 1
+            if samples - last_sample_printed_on >= PRINT_EVERY_SAMPLES and PRINT_EVERY_SAMPLES != -1:
+                # print("y:", y, "shape:", y.size())
+                print("\nbatch", b, loss_metric)
+                if sysconf.print_times:
+                    print("\t", forward_times, "\n", backwards_times, "\n", gnn.embedder.embedding_times, sep="\t")
+                last_sample_printed_on = samples
+
             skipped_batches_from = 0  # has not skipped
 
-        e_time = time.time() - epoch_start_time
-        num_samples = i * batch.batch_size
-        sample_time = e_time / num_samples
-        sample_loss = total_loss / num_samples
-        print("e", epoch, "loss per sample:", sample_loss, "time:", e_time,
-              "time per sample:", sample_time, "num samples:", num_samples)
+        epoch_times.report(time.time() - epoch_start_time)
+        print("-----------\te", epoch, "\t-----------------")
 
-        accuracy = test_model(qangaroo_batch_reader, gnn)
+        test_model(qangaroo_batch_reader, gnn)
 
 
 def get_span_loss(output, batch: SampleBatch):

@@ -13,5 +13,5 @@ class EvaluationConfig(Config):
         self.max_train_batches = 1001
         self.max_test_batches = 100
 
-        self.print_batch_every = 100
+        self.print_stats_every_n_samples = 50
 

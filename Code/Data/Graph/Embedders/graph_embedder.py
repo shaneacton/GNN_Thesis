@@ -18,6 +18,7 @@ from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
 from Code.Data.Text.pretrained_token_sequence_embedder import tokseq_embedder
 from Code.Training import device
+from Code.Training.metric import Metric
 
 
 class GraphEmbedder(nn.Module):
@@ -37,6 +38,8 @@ class GraphEmbedder(nn.Module):
 
         self.node_type_map = TypeMap()  # maps node types to ids
         self.edge_type_map = TypeMap()  # maps edge types to ids
+
+        self.embedding_times = Metric("embedding times")
 
     def on_create_finished(self):
         """called after all summarisers added to register the modules"""
@@ -82,10 +85,8 @@ class GraphEmbedder(nn.Module):
     def forward(self, graph: ContextGraph) -> GraphEncoding:
         context_sequence: TokenSequence = graph.data_sample.context.token_sequence
         # print("running graph embedder on context:", context_sequence)
-        context_seq_start = time.time()
+        start_time = time.time()
         embedded_context_sequence: torch.Tensor = self.token_embedder(context_sequence)
-        if sysconf.print_times:
-            print("context token embedding took:", time.time() - context_seq_start, "s")
 
         node_features: List[torch.Tensor] = [None] * len(graph.ordered_nodes)
 
@@ -123,6 +124,8 @@ class GraphEmbedder(nn.Module):
         types = Types(self.node_type_map, self.edge_type_map, node_types, edge_types)
 
         encoding = GraphEncoding(graph, self.gec, types, x=features, edge_index=self.edge_index(graph))
+
+        self.embedding_times.report(time.time() - start_time)
         return encoding
 
     def get_node_embedding(self, full_embedded_sequence: torch.Tensor, node: SpanNode):
