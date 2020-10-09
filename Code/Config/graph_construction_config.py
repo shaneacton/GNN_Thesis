@@ -50,10 +50,10 @@ class GraphConstructionConfig(Config):
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
-            TOKEN: {CONNECTION_TYPE: WINDOW, WINDOW_SIZE: 50},
+            TOKEN: {CONNECTION_TYPE: WINDOW, WINDOW_SIZE: 25},
             WORD: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: -1},
-            SENTENCE: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: 10},
-            PARAGRAPH: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: 10},
+            SENTENCE: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: 5},
+            PARAGRAPH: {CONNECTION_TYPE: SEQUENTIAL, WINDOW_SIZE: 5},
             DOCUMENT: {CONNECTION_TYPE: None, WINDOW_SIZE: -1},
         }
 

@@ -82,7 +82,6 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
             if batch.get_answer_type() == CandidateAnswer:
                 loss = get_candidate_loss(y, batch)
 
-
             backwards_start_time = time.time()
             loss.backward()
             optimizer.step()
