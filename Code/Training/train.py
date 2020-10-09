@@ -80,9 +80,13 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
 
             forward_start_time = time.time()
             try:
-                output = gnn(batch)
+                if batch.batch_size == 1:
+                    # bypass batching logic
+                    output = gnn(batch.data_sample)
+                else:
+                    output = gnn(batch)
             except Exception as e:
-                print("Error in forward:", e)
+                # print("Error in forward:", e)
                 continue
             y = output.x
 
@@ -111,6 +115,7 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
                     model_times.name = "model time"
                     total_times = model_times + backwards_times + embedding_times
                     total_times.name = "total time"
+                    total_times.print_total = True
                     print("\t", model_times, "\n\t", backwards_times, "\n\t", embedding_times, "\n\t", total_times)
                 last_sample_printed_on = samples
 
@@ -130,7 +135,7 @@ def get_span_loss(output, batch: SampleBatch):
 
 def get_candidate_loss(output, batch: SampleBatch, failures):
     answers = batch.get_answers_tensor()
-    if len(failures) > 0:
+    if failures is not None and len(failures) > 0:
         # had failures, must remove answers from failed samples
         batch_size = len(batch.batch_items)
         successes = set(list(range(batch_size))).difference(set(failures))

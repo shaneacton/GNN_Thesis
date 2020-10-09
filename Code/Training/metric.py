@@ -3,7 +3,9 @@ import copy
 
 class Metric:
 
-    def __init__(self, name: str, print_step=False):
+    def __init__(self, name: str, print_step=False, print_total=False, max_alpha=0.98):
+        self.max_alpha = max_alpha
+        self.print_total = print_total
         self.print_step = print_step
         self.name = name
         self.values = []
@@ -12,7 +14,7 @@ class Metric:
 
     @property
     def alpha(self):
-        return 1 - 1/ (len(self.values) + 1)
+        return min(1 - 1/ (len(self.values) + 1), self.max_alpha)
 
     @property
     def mean(self):
@@ -58,6 +60,7 @@ class Metric:
         self.t += step
 
     def __repr__(self):
-        return self.name + " av: " + repr(self.rolling_average) + " total: " + repr(self.total) \
-               + (" step: " + repr(self.t) if self.print_step else "")
+        return self.name + " av: " + repr(self.rolling_average) \
+                + (" total: " + repr(self.total) if self.print_total else "") \
+                + (" step: " + repr(self.t) if self.print_step else "")
 

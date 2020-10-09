@@ -5,16 +5,17 @@ from typing import List
 import torch
 from transformers import BertTokenizer
 
+from Code.Config import GraphEmbeddingConfig, gec
 from Code.Training import device
 
 
 class PretrainedTokenSequenceEmbedder:
 
-    def __init__(self, embedder_type):
+    def __init__(self, gec: GraphEmbeddingConfig):
         start = time.time()
 
-        self.embedder_type = embedder_type
-        if embedder_type == "bert":
+        self.gec = gec
+        if gec.token_embedder_type == "bert":
             from transformers import BertModel, BasicTokenizer
 
             print("initialising bert on thread", threading.current_thread().__class__.__name__,threading.current_thread().ident)
@@ -30,12 +31,12 @@ class PretrainedTokenSequenceEmbedder:
 
     def basic_tokeniser(self, string):
         # without splitting into subtokens
-        if self.embedder_type == "bert":
+        if self.gec.token_embedder_type == "bert":
             return self.basic_bert_tokeniser.tokenize(string)
 
     def tokenise(self, string):
         # with subtoken splitting
-        if self.embedder_type == "bert":
+        if self.gec.token_embedder_type == "bert":
             return self.bert_tokeniser.tokenize(string)
 
     def index(self, tokens):
@@ -47,7 +48,7 @@ class PretrainedTokenSequenceEmbedder:
             batch_size = 1
             tokens = [tokens]
 
-        if self.embedder_type == "bert":
+        if self.gec.token_embedder_type == "bert":
 
             indexes = []
             max_len = max([len(toks) for toks in tokens])
@@ -60,8 +61,20 @@ class PretrainedTokenSequenceEmbedder:
         return indexes.reshape(batch_size, -1).type(torch.LongTensor).to(device)
 
     def embed(self, tokens):
-        if self.embedder_type == "bert":
-            return self.bert_model(self.index(tokens))[0].detach()
+        ids = self.index(tokens)
+        if self.gec.token_embedder_type == "bert":
+            if self.gec.use_contextual_embeddings:
+                embedder = lambda x: self.bert_model(x)[0]
+            else:
+                embedder = self.bert_model.embeddings
+
+        if self.gec.fine_tune_token_embedder:
+            embs = embedder(ids)
+        else:
+            with torch.no_grad():
+                embs = embedder(ids)
+            embs.detach()
+        return embs
 
     def __call__(self, *args, **kwargs):
         return self.embed(*args)
@@ -72,5 +85,5 @@ _tokseq_embedder = None
 def tokseq_embedder():
     global _tokseq_embedder
     if _tokseq_embedder is None:
-        _tokseq_embedder = PretrainedTokenSequenceEmbedder("bert")
+        _tokseq_embedder = PretrainedTokenSequenceEmbedder(gec)
     return _tokseq_embedder

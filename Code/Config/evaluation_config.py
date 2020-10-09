@@ -5,7 +5,7 @@ class EvaluationConfig(Config):
 
     def __init__(self):
         super().__init__()
-        self.batch_size = 10
+        self.batch_size = 1
 
         self.learning_rate_base = 1e-2
         self.test_set_frac = 0.1

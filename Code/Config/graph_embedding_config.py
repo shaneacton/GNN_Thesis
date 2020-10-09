@@ -4,7 +4,6 @@ from Code.Config import graph_construction_config as construction
 
 # sequence summary functions
 from Code.Config.config import Config
-from Code.Data.Text.pretrained_token_sequence_embedder import tokseq_embedder
 
 SUMMARISER_NAME = "summariser_name"
 HEAD_AND_TAIL_CAT = "head_and_tail_cat"
@@ -42,15 +41,23 @@ class GraphEmbeddingConfig(Config):
             construction.QUERY_SENTENCE: 5,
         }
 
+        self.token_embedder_type = "bert"
+        self.use_contextual_embeddings = False
+        self.fine_tune_token_embedder = False
+
         self.max_bert_token_sequence = 500
         self.bert_window_overlap_tokens = 20
         self.max_token_embedding_threads = 4
+
+
 
     def get_graph_embedder(self, gcc):
         from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
         graph_embedder = GraphEmbedder(self)
 
         from Code.Data.Graph.Embedders.token_sequence_embedder import TokenSequenceEmbedder
+        from Code.Data.Text.pretrained_token_sequence_embedder import tokseq_embedder
+
         token_embedder: TokenSequenceEmbedder = TokenSequenceEmbedder(self, token_embedder=tokseq_embedder())
 
         graph_embedder.token_embedder = token_embedder

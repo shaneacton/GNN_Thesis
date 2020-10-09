@@ -14,10 +14,9 @@ class TokenSequenceEmbedder(nn.Module):
     wrapper around any pretrained contextual embedder such as bert
     """
 
-    def __init__(self, gec: GraphEmbeddingConfig, token_indexer=None, index_embedder=None, token_embedder=None, fine_tune_token_embedder=False):
+    def __init__(self, gec: GraphEmbeddingConfig, token_indexer=None, index_embedder=None, token_embedder=None):
         super().__init__()
         self.gec = gec
-        self.fine_tune_token_embedder = fine_tune_token_embedder
         self.token_embedder : PretrainedTokenSequenceEmbedder = token_embedder # raw tokens into embeddings
         self.token_indexer: Callable[[List[str]], List[torch.Tensor]] = token_indexer  # raw tokens into ids
         # converts token  ids to embedded vectors
@@ -34,7 +33,7 @@ class TokenSequenceEmbedder(nn.Module):
         return self.index_embedder(indexes)
 
     def forward(self, seq: TokenSequence):
-        if self.fine_tune_token_embedder:
+        if self.gec.fine_tune_token_embedder:
             return self.get_embedded_sequence(seq)
 
         with torch.no_grad():
