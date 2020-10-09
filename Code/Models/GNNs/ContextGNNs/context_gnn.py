@@ -6,6 +6,7 @@ from torch_geometric.data import Batch
 
 from Code.Config import GNNConfig
 from Code.Config.config_set import ConfigSet
+from Code.Config.gnn_config import ACTIVATION_TYPE, DROPOUT_RATIO, ACTIVATION_ARGS
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
@@ -23,7 +24,11 @@ class ContextGNN(GNN, ABC):
     """
 
     def __init__(self, constructor: GraphConstructor, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None):
-        super().__init__()
+        act_args = gnnc.global_params[ACTIVATION_ARGS] if ACTIVATION_ARGS in gnnc.global_params else None
+        act_type = gnnc.global_params[ACTIVATION_TYPE]
+        dropout = gnnc.global_params[DROPOUT_RATIO]
+        GNN.__init__(self, None, act_type, dropout, activation_kwargs=act_args)
+
         self.constructor: GraphConstructor = constructor
         self.configs: ConfigSet = configs
         if not self.configs:
@@ -47,8 +52,9 @@ class ContextGNN(GNN, ABC):
     def init_model(self, data_sample: DataSample):
         encoding: GraphEncoding = self.get_graph_encoding(data_sample)
         in_features = encoding.x.size(-1)
-
         out_features = self.init_layers(in_features)
+        self.sizes = [in_features, 1]
+
         self.layer_list = nn.ModuleList(self.layers).to(device)  # registers modules with pytorch and moves to device
         self.init_output_model(data_sample, out_features)
 

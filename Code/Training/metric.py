@@ -14,7 +14,11 @@ class Metric:
 
     @property
     def mean(self):
-        return sum(self.values) / len(self.values)
+        return self.total / len(self.values)
+
+    @property
+    def total(self):
+        return sum(self.values)
 
     @property
     def last(self):
@@ -30,6 +34,6 @@ class Metric:
         self.t += step
 
     def __repr__(self):
-        return self.name + " av: " + repr(self.rolling_average) + " mean: " + repr(self.mean) \
+        return self.name + " av: " + repr(self.rolling_average) + " total: " + repr(self.total) \
                + (" step: " + repr(self.t) if self.print_step else "")
 

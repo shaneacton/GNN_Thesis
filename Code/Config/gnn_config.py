@@ -1,7 +1,6 @@
 from Code.Config.config import Config
 
 # gnn layer types
-
 PROP_AND_POOL = "prop_and_pool"
 
 # layer options
@@ -84,6 +83,7 @@ class GNNConfig(Config):
     def get_gnn_with_constructor_embedder(self, constructor, embedder):
         from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
         from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
+        from Code.Models.GNNs.ContextGNNs.context_sage import ContextSAGE
 
         from Code.Training import device
         gnn = ContextGAT(constructor, embedder, self).to(device=device)
