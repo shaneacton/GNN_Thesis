@@ -38,6 +38,8 @@ class ContextGNN(GNN, ABC):
         self.layers = []
         self.layer_list: nn.Module = None
 
+        self.last_batch_failures = None
+
     @property
     def gnnc(self):
         return self.configs.gnnc
@@ -84,10 +86,13 @@ class ContextGNN(GNN, ABC):
 
     def get_data_from_batch(self, batch: SampleBatch) -> GraphEncoding:
         data_points = []
-        for batch_item in batch.batch_items:
+        self.last_batch_failures = []
+        for bi in range(len(batch.batch_items)):
+            batch_item = batch.batch_items[bi]
             try:
                 data = self.get_data_from_data_sample(batch_item.data_sample, question=batch_item.question)
             except Exception as e:
+                self.last_batch_failures.append(bi)
                 continue
             # print("data:", data)
             data_points.append(data)

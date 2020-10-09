@@ -2,9 +2,12 @@ import os
 import sys
 import time
 
+import torch
 from torch import optim, nn
 
 # For importing project files
+from Code.Training import device
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -78,9 +81,9 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
             forward_time = time.time() - forward_start_time
 
             if batch.get_answer_type() == ExtractedAnswer:
-                loss = get_span_loss(y, batch)
+                loss = get_span_loss(y, batch, gnn.last_batch_failures)
             if batch.get_answer_type() == CandidateAnswer:
-                loss = get_candidate_loss(y, batch)
+                loss = get_candidate_loss(y, batch, gnn.last_batch_failures)
 
             backwards_start_time = time.time()
             loss.backward()
@@ -123,8 +126,16 @@ def get_span_loss(output, batch: SampleBatch):
     return ce_loss(p1, answers[:,0]) + ce_loss(p2, answers[:,1])
 
 
-def get_candidate_loss(output, batch: SampleBatch):
+def get_candidate_loss(output, batch: SampleBatch, failures):
     answers = batch.get_answers_tensor()
+    if len(failures) > 0:
+        # had failures, must remove answers from failed samples
+        batch_size = len(batch.batch_items)
+        successes = set(list(range(batch_size))).difference(set(failures))
+        successes = torch.tensor(list(successes)).to(device)
+        answers = torch.index_select(answers, dim=0, index=successes)
+        # print("found failures:",failures, "successes:",successes)
+
     # print("answers:", answers.size(), "output:", output.size())
     # output = output.view(1, -1)
     # print("answers:", answers, "\nout:", output)
