@@ -21,9 +21,3 @@ class PrepareModule(LayerModule):
             return self.add_node_type_embeddings(x, encoding)
 
         return x
-
-    def add_node_type_embeddings(self, x, encoding):
-        type_embeddings = self.node_type_embedder(encoding.types.node_types)
-        # print(self, "adding node type embs:", type_embeddings.size())
-        x = x + type_embeddings
-        return x

@@ -42,7 +42,7 @@ class GraphEmbeddingConfig(Config):
         }
 
         self.token_embedder_type = "bert"
-        self.use_contextual_embeddings = False
+        self.use_contextual_embeddings = True
         self.fine_tune_token_embedder = False
 
         self.max_bert_token_sequence = 500

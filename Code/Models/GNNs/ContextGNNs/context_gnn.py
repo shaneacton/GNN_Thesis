@@ -24,19 +24,9 @@ class ContextGNN(GNN, ABC):
     """
 
     def __init__(self, constructor: GraphConstructor, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None):
-        act_args = gnnc.global_params[ACTIVATION_ARGS] if ACTIVATION_ARGS in gnnc.global_params else None
-        act_type = gnnc.global_params[ACTIVATION_TYPE]
-        dropout = gnnc.global_params[DROPOUT_RATIO]
-        GNN.__init__(self, None, act_type, dropout, activation_kwargs=act_args)
-
-        self.constructor: GraphConstructor = constructor
-        self.configs: ConfigSet = configs
-        if not self.configs:
-            self.configs = ConfigSet(config=gnnc)
-        elif not self.configs.gnnc:
-            self.configs.add_config(gnnc)
-
+        GNN.__init__(self, None, gnnc, configs)
         self.embedder: GraphEmbedder = embedder
+        self.constructor: GraphConstructor = constructor
 
         self.output_model = None
 
@@ -61,10 +51,6 @@ class ContextGNN(GNN, ABC):
         # to initialise all sample dependant/ dynamically created params, before being passed to the optimiser
         self.forward(encoding)
 
-    @abstractmethod
-    def init_layers(self, in_features) -> int:  # returns the feature num of the last layer
-        pass
-
     def init_output_model(self, data_sample: DataSample, in_features):
         # self.output_model = None
         # return
@@ -73,7 +59,8 @@ class ContextGNN(GNN, ABC):
 
     def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample, SampleBatch]) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
-        return self._forward(self.get_graph_encoding(input))
+        data = self.get_graph_encoding(input)
+        return self._forward(data)
 
     def get_graph_encoding(self, input: Union[ContextGraph, GraphEncoding, DataSample]) -> GraphEncoding:
         if isinstance(input, GraphEncoding):
@@ -125,6 +112,7 @@ class ContextGNN(GNN, ABC):
         # get x, autodetect feature count
         # init layers based on detected in_features and init args
         # print("cgnn operating on:",data,"\nx=",data.x)
+        data = GNN._forward(self, data)  # add type and abs pos embeddings
         if self.layer_list is None:
             # gnn layers have not been initialised yet
             self.init_model(data.graph.data_sample)

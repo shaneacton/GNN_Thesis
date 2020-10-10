@@ -30,10 +30,17 @@ class GraphEncoding(Batch):
         self.set_positional_window_sizes()
         self.layer = 0
 
+    @property
+    def positions(self):
+        if isinstance(self.graph, ContextGraph):
+            return self.graph.node_positions
+
     @staticmethod
     def from_geometric_batch(geo_batch: Batch):
         geo_args = geo_batch.__dict__
         geo_args["gec"] = geo_args["gec"][0]
+        geo_args["layer"] = geo_args["layer"][0]
+
         batch_encoding = GraphEncoding(**geo_args)
         return batch_encoding
 

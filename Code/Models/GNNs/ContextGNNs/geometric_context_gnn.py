@@ -11,6 +11,7 @@ class GeometricContextGNN(ContextGNN):
         self.layers.append(self.activation)
 
     def init_layers(self, in_features, layer_type: Type, num_layers=5) -> int:
+        ContextGNN.init_layers(self, in_features)
         for l in range(num_layers):
             self.add_layer(in_features, 300, layer_type)
             in_features = 300

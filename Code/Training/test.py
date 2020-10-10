@@ -30,9 +30,9 @@ def test_model(batch_reader: BatchReader, gnn: ContextGNN):
 
                 y = output.x
                 # print("y(", y.size(), "):", y)
-                total_chance += 1.0 / y.size(0)
+                total_chance += 1.0 / y.size(1)
 
-                predictions = np.argmax(y.cpu(), axis=0)
+                predictions = np.argmax(y.cpu(), axis=1)
 
                 answers = batch.get_answers_tensor()
 
