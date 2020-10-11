@@ -1,4 +1,5 @@
 import copy
+import math
 
 
 class Metric:
@@ -51,6 +52,9 @@ class Metric:
         return clone
 
     def report(self, value, step=1):
+        if math.isnan(value):
+            print("received", value, "val on", self.name, "metric")
+            return 
         self.values.append(value)
         if self.rolling_average == -1:
             self.rolling_average = value

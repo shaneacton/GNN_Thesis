@@ -85,17 +85,19 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
                     output = gnn(batch.data_sample)
                 else:
                     output = gnn(batch)
+
+                y = output.x
+
+                forward_times.report(time.time() - forward_start_time)
+
+                if batch.get_answer_type() == ExtractedAnswer:
+                    loss = get_span_loss(y, batch, gnn.last_batch_failures)
+                if batch.get_answer_type() == CandidateAnswer:
+                    loss = get_candidate_loss(y, batch, gnn.last_batch_failures)
+
             except Exception as e:
-                # print("Error in forward:", e)
                 continue
-            y = output.x
 
-            forward_times.report(time.time() - forward_start_time)
-
-            if batch.get_answer_type() == ExtractedAnswer:
-                loss = get_span_loss(y, batch, gnn.last_batch_failures)
-            if batch.get_answer_type() == CandidateAnswer:
-                loss = get_candidate_loss(y, batch, gnn.last_batch_failures)
 
             backwards_start_time = time.time()
             loss.backward()
@@ -159,8 +161,8 @@ if __name__ == "__main__":
     squad_reader = SQuADDatasetReader("SQuAD")
     qangaroo_reader = QUangarooDatasetReader("wikihop")
 
-    wikihop_path = QUangarooDatasetReader.dev_set_location("wikihop")
-    squad_path = SQuADDatasetReader.dev_set_location()
+    wikihop_path = QUangarooDatasetReader.train_set_location("wikihop")
+    squad_path = SQuADDatasetReader.train_set_location()
 
     qangaroo_batch_reader = BatchReader(qangaroo_reader, eval_conf.batch_size, wikihop_path)
     squad_batch_reader = BatchReader(squad_reader, eval_conf.batch_size, squad_path)

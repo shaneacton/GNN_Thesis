@@ -5,4 +5,4 @@ class VisualisationConfig(Config):
     def __init__(self):
         super().__init__()
 
-        self.max_context_graph_chars = 30
+        self.max_context_graph_chars = 40

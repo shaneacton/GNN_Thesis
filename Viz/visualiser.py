@@ -15,9 +15,8 @@ if __name__ == "__main__":
     reader = sq_reader
     samples = reader.get_dev_set()
 
-    construction_config = copy.deepcopy(gcc)
-    construction_config.context_max_chars = vizconf.max_context_graph_chars
-    constructor = construction_config.get_graph_constructor()
+    gcc.context_max_chars = vizconf.max_context_graph_chars
+    constructor = gcc.get_graph_constructor()
 
     for i, sample in enumerate(samples):
         if i < 0:

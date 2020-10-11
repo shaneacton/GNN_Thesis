@@ -26,13 +26,14 @@ def test_model(batch_reader: BatchReader, gnn: ContextGNN):
 
                 try:
                     output = gnn(sample)
+
+                    y = output.x
+                    # print("y(", y.size(), "):", y)
+                    answers = batch.get_answers_tensor()
                 except Exception as e:
-                    # print("Error in forward:", e)
                     continue
 
-                y = output.x
-                # print("y(", y.size(), "):", y)
-                answers = batch.get_answers_tensor()
+
 
                 if isinstance(y, Tuple):
                     p1, p2 = np.argmax(y[0].cpu(), axis=1), np.argmax(y[1].cpu(), axis=1)

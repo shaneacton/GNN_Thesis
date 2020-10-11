@@ -58,7 +58,7 @@ class GraphConstructionConfig(Config):
         }
 
         self.extra_nodes = []
-        self.fully_connect_query_nodes = False
+        self.fully_connect_query_nodes = True
         self.query_structure_levels = [QUERY_SENTENCE, QUERY_TOKEN]
 
         self.query_connections = {  # defines how the query nodes connect to the context. [GLOBAL] option
