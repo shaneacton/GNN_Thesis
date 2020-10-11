@@ -10,7 +10,8 @@ class CompoundGraphConstructor(GraphConstructor):
     passes a graph through multiple constructors in order
     """
 
-    def __init__(self, constructors: List[type]):
+    def __init__(self, constructors: List[type], gcc):
+        super().__init__(gcc)
         self.constructors = constructors
 
     @property
@@ -19,7 +20,7 @@ class CompoundGraphConstructor(GraphConstructor):
 
     def _append(self, existing_graph: ContextGraph) -> ContextGraph:
         for const_type in self.constructors:
-            constructor: GraphConstructor = const_type()
+            constructor: GraphConstructor = const_type(self.gcc)
             existing_graph = constructor._append(existing_graph)
             if not existing_graph:
                 raise Exception()

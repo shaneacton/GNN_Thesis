@@ -45,6 +45,9 @@ class GraphEmbeddingConfig(Config):
         self.use_contextual_embeddings = True
         self.fine_tune_token_embedder = False
 
+        self.use_absolute_positional_embeddings = True
+        self.num_positional_embeddings = 5000
+
         self.max_bert_token_sequence = 500
         self.bert_window_overlap_tokens = 20
         self.max_token_embedding_threads = 4

@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-from Code.Config import gcc
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
 from Code.Data.Text.data_sample import DataSample
@@ -15,6 +14,10 @@ class GraphConstructor(ABC):
     finally returning the newly appended to graph
     """
 
+    def __init__(self, gcc):
+        self.gcc = gcc
+
+
     @abstractmethod
     def _append(self, existing_graph: ContextGraph) -> ContextGraph:
         raise NotImplementedError()
@@ -24,7 +27,7 @@ class GraphConstructor(ABC):
 
     def create_graph_from_data_sample(self, data_sample: DataSample, question):
         context_span_hierarchy = TokenSpanHierarchy(data_sample.context.token_sequence)
-        graph = ContextGraph(data_sample, context_span_hierarchy, gcc=gcc, question=question)
+        graph = ContextGraph(data_sample, context_span_hierarchy, gcc=self.gcc, question=question)
         return self._append(graph)
 
     def __call__(self, data_sample: DataSample, question=None):

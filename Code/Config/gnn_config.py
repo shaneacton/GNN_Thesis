@@ -52,8 +52,6 @@ class GNNConfig(Config):
         }
 
         self.use_node_type_embeddings = True
-        self.use_absolute_positional_embeddings = True
-        self.num_positional_embeddings = 5000
 
         self.layers = [
             # {
@@ -88,9 +86,11 @@ class GNNConfig(Config):
         from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
         from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
         from Code.Models.GNNs.ContextGNNs.context_sage import ContextSAGE
+        from Code.Config import ConfigSet
 
         from Code.Training import device
-        gnn = ContextGAT(constructor, embedder, self).to(device=device)
+        configs = ConfigSet([constructor.gcc, embedder.gec])
+        gnn = ContextGAT(constructor, embedder, self, configs=configs).to(device=device)
         return gnn
 
     def get_gnn(self, gcc, gec):

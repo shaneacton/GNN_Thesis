@@ -17,7 +17,7 @@ class GraphEncoding(Batch):
 
     def __init__(self, graph: ContextGraph, gec, types: Types, batch=None, generate_batch=False, **kwargs):
         super().__init__(**kwargs)
-        self.types: Types = types
+        self.types: Union[Types, List[Types]] = types
         self.gec = gec  # the config used to embed the given graph
         self.graph: Union[ContextGraph, List[ContextGraph]] = graph
         if batch is not None and generate_batch:
@@ -30,11 +30,6 @@ class GraphEncoding(Batch):
         self.set_positional_window_sizes()
         self.layer = 0
 
-    @property
-    def positions(self):
-        if isinstance(self.graph, ContextGraph):
-            return self.graph.node_positions
-
     @staticmethod
     def from_geometric_batch(geo_batch: Batch):
         geo_args = geo_batch.__dict__
@@ -45,8 +40,23 @@ class GraphEncoding(Batch):
         return batch_encoding
 
     @property
+    def node_positions(self):
+        if isinstance(self.graph, ContextGraph):
+            return self.graph.node_positions
+        if isinstance(self.graph, List):
+            positions = []
+            for graph in self.graph:
+                positions.extend(graph.node_positions)
+            return positions
+        raise Exception()
+
+    @property
     def node_types(self):
-        return self.types.node_types
+        if isinstance(self.types, Types):
+            return self.types.node_types
+        if isinstance(self.types, List):
+            types = [types.node_types for types in self.types]
+            return torch.cat(types)
 
     @property
     def edge_types(self):

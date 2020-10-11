@@ -11,8 +11,8 @@ if __name__ == "__main__":
     sq_reader = SQuADDatasetReader("SQuAD")
     qangaroo_reader = QUangarooDatasetReader("wikihop")
 
-    reader = qangaroo_reader
-    # reader = sq_reader
+    # reader = qangaroo_reader
+    reader = sq_reader
     samples = reader.get_dev_set()
 
     construction_config = copy.deepcopy(gcc)

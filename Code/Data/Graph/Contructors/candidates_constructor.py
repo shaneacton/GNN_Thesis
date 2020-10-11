@@ -10,6 +10,9 @@ class CandidatesConstructor(GraphConstructor):
     def _append(self, existing_graph: ContextGraph) -> ContextGraph:
         # todo multiple questions
         candidates = existing_graph.data_sample.questions[0].answers.answer_candidates
+        if candidates is None:
+            print("no candidates, cannot add candidate nodes")
+            return existing_graph
         candidate_sequences = [cand.token_sequence for cand in candidates]
         candidate_spans = [TokenSpan(seq, (0, len(seq))) for seq in candidate_sequences]
         candidate_nodes = [CandidateNode(span) for span in candidate_spans]

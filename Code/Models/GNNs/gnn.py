@@ -1,13 +1,11 @@
-from abc import abstractmethod
 from typing import List
 
 from torch import nn
 
 from Code.Config import GNNConfig, ConfigSet, graph_embedding_config
 from Code.Config.gnn_config import ACTIVATION_ARGS, ACTIVATION_TYPE, DROPOUT_RATIO
-from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
-from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+from Code.Data.Graph.Embedders.position_embedder import PositionEmbedder
 from Code.Data.Graph.Embedders.type_embedder import TypeEmbedder
 from Code.Models.GNNs.gnn_component import GNNComponent
 
@@ -32,9 +30,15 @@ class GNN(GNNComponent, nn.Module):
         if self.configs.gnnc.use_node_type_embeddings:
             self.node_type_embedder = None
 
+        if configs.gec.use_absolute_positional_embeddings:
+            self.positional_embedder = None
+
     def init_layers(self, in_features) -> int:  # returns the feature num of the last layer
         if self.configs.gnnc.use_node_type_embeddings:
             self.node_type_embedder = TypeEmbedder(in_features, graph_feature_type=graph_embedding_config.NODE_TYPES)
+
+        if self.configs.gec.use_absolute_positional_embeddings:
+            self.positional_embedder = PositionEmbedder(in_features, self.configs.gcc, self.configs.gec)
 
     def add_node_type_embeddings(self, data: GraphEncoding):
         type_embeddings = self.node_type_embedder(data.types.node_types)
@@ -42,9 +46,19 @@ class GNN(GNNComponent, nn.Module):
         data.x = data.x + type_embeddings
         return data
 
+    def add_positional_embeddings(self, data: GraphEncoding):
+        # print("positions:", data.node_positions)
+        position_embeddings = self.positional_embedder(data.node_positions)
+        # print(self, "adding positional embs:", position_embeddings.size())
+        data.x = data.x + position_embeddings
+        return data
+
     def _forward(self, data: GraphEncoding) -> GraphEncoding:
         if self.configs.gnnc.use_node_type_embeddings:
             data = self.add_node_type_embeddings(data)
+
+        if self.configs.gec.use_absolute_positional_embeddings:
+            data = self.add_positional_embeddings(data)
         return data
 
 

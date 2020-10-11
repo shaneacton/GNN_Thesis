@@ -36,7 +36,6 @@ if PRINT_EVERY_SAMPLES == -1:
 
 def train_model(batch_reader: BatchReader, gnn: ContextGNN):
     gnn.train()
-    num_epochs = 10
 
     optimizer = None
 
@@ -50,7 +49,7 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
 
     last_sample_printed_on = -PRINT_EVERY_SAMPLES
 
-    for epoch in range(num_epochs):
+    for epoch in range(eval_conf.num_epochs):
         epoch_start_time = time.time()
 
         i = 0  # number of batches used so far since skip
@@ -162,4 +161,4 @@ if __name__ == "__main__":
     squad_batch_reader = BatchReader(squad_reader, eval_conf.batch_size, squad_path)
 
     train_model(qangaroo_batch_reader, gnn)
-    # train_model(squad_batch_reader, model)
+    # train_model(squad_batch_reader, gnn)

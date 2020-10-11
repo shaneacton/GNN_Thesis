@@ -1,64 +1,11 @@
-from typing import Dict, List
-
-import torch
-from torch import nn
-
-from Code.Config import graph_construction_config as construction
-from Code.Data.Graph.Nodes.node_position import NodePosition, incompatible
-from Code.Training import device
+from Code.Data.Graph.Embedders.position_embedder import PositionEmbedder
 
 
-class RelativePositionEmbedder(nn.Module):
+class RelativePositionEmbedder(PositionEmbedder):
 
     def __init__(self, num_features, gcc, gec):
-        super().__init__()
-        self.gcc = gcc
-        self.gec = gec
-        self.num_features = num_features
+        super().__init__(num_features, gcc, gec)
 
-        self.pos_to_id_map: Dict[NodePosition, int] = {incompatible: 0}
-        self.next_id = 1
-
-        self.embeddings = None
-        self.init_embeddings()
-
-    def init_embeddings(self):
-        """
-        trains a separate embedding for relative positions at different levels, eg sent2sent or token2token
-        loops through every possible relative position input to get total number of embeddings needed
-        """
-        context_levels = self.gcc.context_structure_levels
-        # doc nodes don't have positional encodings
-        context_levels = [lev for lev in context_levels if lev != construction.DOCUMENT]
-        query_levels = [x.split("query_")[1] for x in self.gcc.query_structure_levels]
-
-        sources = [construction.CONTEXT] * len(context_levels) + [construction.QUERY] * len(query_levels)
-        levels = context_levels + query_levels
-
-        # print("levels:", levels, "sources:",sources)
-
-        for l in range(len(levels)):
-            # registers all node positions anticipated
-            level = levels[l]
-            source = sources[l]
-
-            window_size = self.gec.relative_embeddings_window_per_level[level]
-            # print("level:", level, "source:",source, "window_size:",window_size)
-            for i in range(-window_size, window_size):
-                position = NodePosition(source, level, i, window_size)
-                self.pos_to_id_map[position] = self.next_id
-                self.next_id += 1
-
-        self.embeddings = nn.Embedding(self.next_id, self.num_features)
-
-    def forward(self, relative_positions: List[NodePosition]):
-        try:
-            position_ids = torch.tensor([self.pos_to_id_map[pos] for pos in relative_positions]).to(device)
-        except Exception as ex:
-            print("map:",self.pos_to_id_map)
-            for pos in relative_positions:
-                if pos in self.pos_to_id_map:
-                    continue
-                print("pos:", pos, "in:", (pos in self.pos_to_id_map))
-            raise ex
-        return self.embeddings(position_ids)
+    def get_expected_position_ids(self, level):
+        window_size = self.gec.relative_embeddings_window_per_level[level]
+        return range(-window_size, window_size)
