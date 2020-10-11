@@ -2,6 +2,7 @@ import os
 import sys
 
 # For importing project files
+from typing import Tuple
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -108,7 +109,9 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
                 # print("y:", y, "shape:", y.size())
                 print("\nbatch", b, loss_metric)
                 if sysconf.print_times:
-                    embedding_times = gnn.embedder.embedding_times * y.size(0)
+                    # some of the batch items may have failed
+                    batch_size = y[0].size(0) if isinstance(y, Tuple) else y.size(0)
+                    embedding_times = gnn.embedder.embedding_times * batch_size
                     # estimate of the total time spent not in encoding
                     model_times = forward_times - embedding_times
                     model_times.name = "model time"
@@ -123,12 +126,14 @@ def train_model(batch_reader: BatchReader, gnn: ContextGNN):
         epoch_times.report(time.time() - epoch_start_time)
         print("-----------\te", epoch, "\t-----------------")
 
-        test_model(qangaroo_batch_reader, gnn)
+        test_model(batch_reader, gnn)
 
 
-def get_span_loss(output, batch: SampleBatch):
+def get_span_loss(output, batch: SampleBatch, failures):
+    #todo implement failures for batching
     p1, p2 = output
     answers = batch.get_answers_tensor()
+    # print("p1:", p1, "p2:", p2, "ans:", answers)
     return ce_loss(p1, answers[:,0]) + ce_loss(p2, answers[:,1])
 
 
@@ -160,5 +165,5 @@ if __name__ == "__main__":
     qangaroo_batch_reader = BatchReader(qangaroo_reader, eval_conf.batch_size, wikihop_path)
     squad_batch_reader = BatchReader(squad_reader, eval_conf.batch_size, squad_path)
 
-    train_model(qangaroo_batch_reader, gnn)
-    # train_model(squad_batch_reader, gnn)
+    # train_model(qangaroo_batch_reader, gnn)
+    train_model(squad_batch_reader, gnn)

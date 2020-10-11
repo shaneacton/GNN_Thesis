@@ -1,4 +1,5 @@
 from Code.Data.Text.Answers.answers import Answer
+from Code.Models.GNNs.OutputModules.span_selection import SpanSelection
 
 
 class ExtractedAnswer(Answer):
@@ -19,4 +20,4 @@ class ExtractedAnswer(Answer):
         return self.raw_text + "\t\t- char ids : [" + repr(self.start_char_id) + ", " + repr(self.end_char_id) + "]"
 
     def get_output_model(self):
-        raise Exception()
+        return SpanSelection

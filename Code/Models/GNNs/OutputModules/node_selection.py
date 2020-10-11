@@ -11,11 +11,16 @@ class NodeSelection(OutputModel):
     """predicts a probability for all/subset of the nodes"""
 
     def __init__(self, in_features):
-        super().__init__()
+        super().__init__(in_features)
         self.probability_mapper = nn.Linear(in_features, 1)
         self.softmax = nn.Softmax(dim=0)
 
-    def forward(self, data, node_ids=None):
+    def forward(self, data, node_ids=None, inplace=True):
+        """
+        :param node_ids: optional override to which nodes are candidates
+        :param inplace: if  true, alters the datapoints x val. if false just returns the result
+        :return: data if inplace=true, else predictions
+        """
         if node_ids is None:
             batch_node_ids = self.get_batched_node_ids(data)
         if not isinstance(node_ids, torch.Tensor):
@@ -24,6 +29,7 @@ class NodeSelection(OutputModel):
             # must do final probability mapping separately due to differing classification node counts per batch item
             for graph_node_ids in batch_node_ids:
                 node_ids = torch.tensor(graph_node_ids).to(device)
+                # print("selecting node:", node_ids, "\nfrom", data.x.size())
                 choices = torch.index_select(data.x, 0, node_ids)
                 # print("choices:",choices.size())
                 probabilities = self.probability_mapper(choices).view(-1)
@@ -41,9 +47,12 @@ class NodeSelection(OutputModel):
             # print("x:",data.x.size(), "choices:", choices.size())
             # print("x before:", data.x)
             # print("probabilities", batchwise_probabilities.size(), batchwise_probabilities)
-            data.x = batchwise_probabilities
-            # print("x after:", data.x)
-            return data
+            if inplace:
+                data.x = batchwise_probabilities
+                # print("x after:", data.x)
+                return data
+            else:
+                return batchwise_probabilities
 
     def get_batched_node_ids(self, data):
         """

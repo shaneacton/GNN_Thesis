@@ -71,7 +71,7 @@ class GraphConstructionConfig(Config):
         # which context levels to connect to. automatically connected to all query nodes
         self.candidate_connections = [SENTENCE]
 
-        self.context_max_chars = 50
+        self.context_max_chars = -1
         self.max_edges = 300000
 
     @property
@@ -116,9 +116,8 @@ class GraphConstructionConfig(Config):
             from Code.Data.Graph.Contructors.query_constructor import QueryConstructor
             constructors.append(QueryConstructor)
 
-        if self.use_candidate_nodes:
-            from Code.Data.Graph.Contructors.candidates_constructor import CandidatesConstructor
-            constructors.append(CandidatesConstructor)
+        from Code.Data.Graph.Contructors.candidates_constructor import CandidatesConstructor
+        constructors.append(CandidatesConstructor)
 
         cgc = CompoundGraphConstructor(constructors, self)
         return cgc

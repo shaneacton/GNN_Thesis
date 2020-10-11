@@ -5,4 +5,6 @@ from torch import nn
 
 class OutputModel(nn.Module, ABC):
 
-    pass
+    def __init__(self, in_features):
+        super().__init__()
+        self.in_features = in_features

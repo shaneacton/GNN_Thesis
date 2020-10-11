@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch
 
 from Code.Config import eval_conf
@@ -30,22 +32,25 @@ def test_model(batch_reader: BatchReader, gnn: ContextGNN):
 
                 y = output.x
                 # print("y(", y.size(), "):", y)
-                total_chance += 1.0 / y.size(1)
-
-                predictions = np.argmax(y.cpu(), axis=1)
-
                 answers = batch.get_answers_tensor()
 
-                # print("predictions:", predictions)
-                # print("answers:", answers)
+                if isinstance(y, Tuple):
+                    p1, p2 = np.argmax(y[0].cpu(), axis=1), np.argmax(y[1].cpu(), axis=1)
+                    if p1 == answers[:, 0]:
+                        total_acc += 1
+                    if p2 == answers[:, 1]:
+                        total_acc += 1
+                    count += 2  # 2 per example
 
-                # acc = accuracy_score(answers.cpu(), predictions)
-                acc = 0
-                if answers == predictions:
-                    # print("+++++ correct:", answers, predictions, "++++++++++++++")
-                    acc = 1
-                total_acc += acc
-                count += 1
+                if not isinstance(y, Tuple):
+                    # chance not relevant in span selection
+                    total_chance += 1.0 / y.size(1)
+                    predictions = np.argmax(y.cpu(), axis=1)
+
+                    if answers == predictions:
+                        # print("+++++ correct:", answers, predictions, "++++++++++++++")
+                        total_acc += 1
+                    count += 1
 
     accuracy = total_acc / count
     chance = total_chance / count
