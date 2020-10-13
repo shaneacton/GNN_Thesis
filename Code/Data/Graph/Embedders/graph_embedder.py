@@ -5,12 +5,12 @@ import torch
 from torch import nn
 from torch.nn import ModuleDict
 
-from Code.Config import gec, GraphEmbeddingConfig, sysconf
+from Code.Config import gec, GraphEmbeddingConfig
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph import TypeMap
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.Embedders.Summarisers.sequence_summariser import SequenceSummariser
-from Code.Data.Graph.Embedders.token_sequence_embedder import TokenSequenceEmbedder
+from Code.Data.Text.token_sequence_embedder import TokenSequenceEmbedder
 from Code.Data.Graph.Nodes.span_node import SpanNode
 from Code.Data.Graph.Types.types import Types
 from Code.Data.Graph.context_graph import ContextGraph

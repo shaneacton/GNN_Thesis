@@ -15,7 +15,7 @@ class CandidatesConstructor(GraphConstructor):
             return existing_graph
         candidate_sequences = [cand.token_sequence for cand in candidates]
         candidate_spans = [TokenSpan(seq, (0, len(seq))) for seq in candidate_sequences]
-        candidate_nodes = [CandidateNode(span) for span in candidate_spans]
+        candidate_nodes = [CandidateNode(candidate_spans[s], s) for s in range(len(candidate_spans))]
 
         node_ids = existing_graph.add_nodes(candidate_nodes)
 

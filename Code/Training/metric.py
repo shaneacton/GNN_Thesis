@@ -4,7 +4,7 @@ import math
 
 class Metric:
 
-    def __init__(self, name: str, print_step=False, print_total=False, max_alpha=0.98):
+    def __init__(self, name: str, print_step=False, print_total=False, max_alpha=0.995):
         self.max_alpha = max_alpha
         self.print_total = print_total
         self.print_step = print_step

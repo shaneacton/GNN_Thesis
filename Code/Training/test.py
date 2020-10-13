@@ -33,8 +33,6 @@ def test_model(batch_reader: BatchReader, gnn: ContextGNN):
                 except Exception as e:
                     continue
 
-
-
                 if isinstance(y, Tuple):
                     p1, p2 = np.argmax(y[0].cpu(), axis=1), np.argmax(y[1].cpu(), axis=1)
                     if p1 == answers[:, 0]:

@@ -58,7 +58,7 @@ class GraphEmbeddingConfig(Config):
         from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
         graph_embedder = GraphEmbedder(self)
 
-        from Code.Data.Graph.Embedders.token_sequence_embedder import TokenSequenceEmbedder
+        from Code.Data.Text.token_sequence_embedder import TokenSequenceEmbedder
         from Code.Data.Text.pretrained_token_sequence_embedder import tokseq_embedder
 
         token_embedder: TokenSequenceEmbedder = TokenSequenceEmbedder(self, token_embedder=tokseq_embedder())
