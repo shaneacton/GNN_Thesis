@@ -1,10 +1,18 @@
 import itertools
+import os
+import sys
 import time
 from typing import Tuple
 
 import torch
 from pandas import np
-from transformers import LongformerConfig, LongformerModel, LongformerTokenizer
+from transformers import LongformerConfig, LongformerModel
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
+sys.path.append(dir_path_1)
+sys.path.append(os.path.join(dir_path_1, 'Code'))
+sys.path.append(os.path.join(dir_path_1, 'Datasets'))
 
 from Code.Config import eval_conf, configs, sysconf, gec
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
