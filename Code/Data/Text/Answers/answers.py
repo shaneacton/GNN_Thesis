@@ -28,9 +28,6 @@ class Answers:
     def get_answer_type(self):
         return type(self.correct_answers[0])
 
-    def get_output_model(self):
-        return self.correct_answers[0].get_output_model()
-
     def get_answer_cand_id(self):
         try:
             return self.answer_candidates.index(self.correct_answers[0])

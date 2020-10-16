@@ -21,6 +21,12 @@ class SampleBatch:
         self.batch_items: List[BatchItem] = []
 
     @property
+    def has_candidates(self):
+        q = self.batch_items[0].question
+        has_candidates = q.answers.answer_candidates is not None and len(q.answers.answer_candidates) > 0
+        return has_candidates
+
+    @property
     def data_sample(self):
         return self.batch_items[0].data_sample
 

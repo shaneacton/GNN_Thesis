@@ -85,6 +85,3 @@ class DataSample:
 
     def get_answer_type(self):
         return self.questions[0].get_answer_type()
-
-    def get_output_model(self):
-        return self.questions[0].answers.get_output_model()

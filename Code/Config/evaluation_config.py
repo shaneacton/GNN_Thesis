@@ -12,7 +12,7 @@ class EvaluationConfig(Config):
         self.test_set_frac = 0.1
 
         self.max_train_batches = 101
-        self.max_test_batches = 100
+        self.max_test_batches = 50
 
         self.print_stats_every_n_samples = 50
 

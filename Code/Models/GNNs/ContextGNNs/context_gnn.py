@@ -11,13 +11,17 @@ from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import ContextGraph
+from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Data.Text.data_sample import DataSample
+from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
+from Code.Models.GNNs.OutputModules.node_selection import NodeSelection
 from Code.Models.GNNs.gnn import GNN
+from Code.Models.context_nn import ContextNN
 from Code.Training import device
 from Datasets.Batching.samplebatch import SampleBatch
 
 
-class ContextGNN(GNN, ABC):
+class ContextGNN(GNN, ContextNN, ABC):
 
     """
     takes in context graphs as inputs, outputs graph encoding
@@ -25,6 +29,7 @@ class ContextGNN(GNN, ABC):
 
     def __init__(self, constructor: GraphConstructor, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None):
         GNN.__init__(self, None, gnnc, configs)
+        ContextNN.__init__(self)
         self.embedder: GraphEmbedder = embedder
         self.constructor: GraphConstructor = constructor
 
@@ -51,12 +56,6 @@ class ContextGNN(GNN, ABC):
         # to initialise all sample dependant/ dynamically created params, before being passed to the optimiser
         self.forward(encoding)
 
-    def init_output_model(self, data_sample: DataSample, in_features):
-        # self.output_model = None
-        # return
-        out_type = data_sample.get_output_model()
-        self.output_model = out_type(in_features).to(device)
-
     def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample, SampleBatch]) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
         data = self.get_graph_encoding(input)
@@ -67,23 +66,23 @@ class ContextGNN(GNN, ABC):
             return input
         data = None
         if isinstance(input, SampleBatch):
-            data: GraphEncoding = self.get_data_from_batch(input)
+            data: GraphEncoding = self.get_graph_from_batch(input)
         if isinstance(input, ContextGraph):
             data: GraphEncoding = self.embedder(input)
         if isinstance(input, DataSample):
-            data: GraphEncoding = self.get_data_from_data_sample(input)
+            data: GraphEncoding = self.get_graph_from_data_sample(input)
 
         if not data:
             raise Exception()
         return data
 
-    def get_data_from_batch(self, batch: SampleBatch) -> GraphEncoding:
+    def get_graph_from_batch(self, batch: SampleBatch) -> GraphEncoding:
         data_points = []
         self.last_batch_failures = []
         for bi in range(len(batch.batch_items)):
             batch_item = batch.batch_items[bi]
             try:
-                data = self.get_data_from_data_sample(batch_item.data_sample, question=batch_item.question)
+                data = self.get_graph_from_data_sample(batch_item.data_sample, question=batch_item.question)
             except Exception as e:
                 self.last_batch_failures.append(bi)
                 continue
@@ -97,7 +96,7 @@ class ContextGNN(GNN, ABC):
         # print("batch:", batch)
         return batch
 
-    def get_data_from_data_sample(self, sample, question=None) -> GraphEncoding:
+    def get_graph_from_data_sample(self, sample, question=None) -> GraphEncoding:
         graph = self.constructor(sample, question=question)
         data: GraphEncoding = self.embedder(graph)
         return data
@@ -133,5 +132,11 @@ class ContextGNN(GNN, ABC):
             data = self.output_model(data)
 
         return data
+
+    def get_output_model_type(self, data_sample: DataSample):
+        answer_type = data_sample.get_answer_type()
+        if answer_type == CandidateAnswer:
+            return CandidateSelection
+        return ContextNN.get_output_model_type(self, data_sample)
 
 

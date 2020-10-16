@@ -1,6 +1,5 @@
 Todo:
 
-* introduce positional embeddings to geoGNN
 * fix id problem in batches in output model
 * activations in pooling
 * bug in graph construction - word to token not getting every link

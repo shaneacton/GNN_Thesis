@@ -1,8 +1,9 @@
 from typing import List
 
 import torch
-from torch import nn
+from torch import nn, Tensor
 
+from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Models.GNNs.OutputModules.output_model import OutputModel
 from Code.Training import device
 
@@ -15,39 +16,31 @@ class NodeSelection(OutputModel):
         self.probability_mapper = nn.Linear(in_features, 1)
         self.softmax = nn.Softmax(dim=0)
 
-    def forward(self, data, node_ids=None, inplace=True):
+    def get_output_from_graph_encoding(self, data: GraphEncoding, **kwargs):
+        output_ids = self.get_output_ids_from_graph(data)
+        batchwise_probabilities = self.get_probabilities(data.x, output_ids)
+        return batchwise_probabilities
+
+    def get_output_from_tensor(self, x: Tensor, **kwargs):
+        if "output_ids" not in kwargs:
+            raise Exception("must provide ids of output elements")
+
+        output_ids = kwargs["output_ids"]
+        return self.get_probabilities(x.squeeze(), output_ids)
+
+    def get_probabilities(self, vec, output_ids):
         """
-        :param node_ids: optional override to which nodes are candidates
-        :param inplace: if  true, alters the datapoints x val. if false just returns the result
-        :return: data if inplace=true, else predictions
+        :param output_ids: which elements in vec can be picked as an output
         """
-        if node_ids is None:
-            batch_node_ids = self.get_batched_node_ids(data)
-        else:
-            batch_node_ids = node_ids.view(1, -1)
-
-        batchwise_probabilities = self.get_probabilities(data.x, batch_node_ids)
-
-        # print("x:",data.x.size(), "choices:", choices.size())
-        # print("x before:", data.x)
-        # print("probabilities", batchwise_probabilities.size(), batchwise_probabilities)
-        if inplace:
-            data.x = batchwise_probabilities
-            # print("x after:", data.x)
-            return data
-        else:
-            return batchwise_probabilities
-
-    def get_probabilities(self, vec, batch_node_ids):
         probs = []
         max_node_count = -1
         # must do final probability mapping separately due to differing classification node counts per batch item
-        for graph_node_ids in batch_node_ids:
-            if not isinstance(batch_node_ids, torch.Tensor):
+        for graph_node_ids in output_ids:
+            if not isinstance(output_ids, torch.Tensor):
                 node_ids = torch.tensor(graph_node_ids).to(device)
             else:
                 node_ids = graph_node_ids
-            # print("selecting node:", node_ids, "\nfrom", data.x.size())
+            # print("selecting node:", node_ids, "\nfrom", vec.size())
             choices = torch.index_select(vec, 0, node_ids)
             # print("choices:",choices.size())
             probabilities = self.probability_mapper(choices).view(-1)
@@ -63,7 +56,7 @@ class NodeSelection(OutputModel):
         batchwise_probabilities = torch.stack(probs).view(len(probs), -1)
         return batchwise_probabilities
 
-    def get_batched_node_ids(self, data):
+    def get_output_ids_from_graph(self, data):
         """
             returns 2d arrary shaped (batch, node_ids)
             here the number of node ids may vary between batch items
@@ -79,4 +72,4 @@ class NodeSelection(OutputModel):
 
     def get_node_ids_from_graph(self, graph):
         # override to make node selection on a subset only
-        return list(range(len(graph.ordered_nodes)))
+        return list(range(len(graph.ordered_nodes)))  # all nodes
