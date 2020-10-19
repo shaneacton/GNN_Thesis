@@ -16,11 +16,14 @@ from Code.Training.metric import Metric
 from Datasets.Batching.batch_reader import BatchReader
 from Datasets.Readers.squad_reader import SQuADDatasetReader
 
-FEATURES = 800
 MAX_TRAIN_BATCHES = -1
 TEST_EVERY = 100
 MAX_TEST_BATCHES = 30
 PRINT_EVERY = 10
+
+FEATURES = 804
+INTERMEDIATE_FEATURES = 3072
+HEADS = 12
 ATTENTION_WINDOW = 256
 LAYERS = 12
 
@@ -129,11 +132,11 @@ if __name__ == "__main__":
 
     configuration.attention_window = ATTENTION_WINDOW
     configuration.hidden_size = FEATURES
-    configuration.intermediate_size = FEATURES
+    configuration.intermediate_size = INTERMEDIATE_FEATURES
     configuration.num_labels = 2
     configuration.max_position_embeddings = 4000
     configuration.type_vocab_size = 3
-    configuration.num_attention_heads = 8
+    configuration.num_attention_heads = HEADS
     configuration.num_hidden_layers = LAYERS
     configuration.return_dict = True
 
