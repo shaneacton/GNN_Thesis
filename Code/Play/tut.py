@@ -16,13 +16,13 @@ from Code.Training.metric import Metric
 from Datasets.Batching.batch_reader import BatchReader
 from Datasets.Readers.squad_reader import SQuADDatasetReader
 
-FEATURES = 600
+FEATURES = 800
 MAX_TRAIN_BATCHES = -1
 TEST_EVERY = 100
 MAX_TEST_BATCHES = 30
 PRINT_EVERY = 10
-ATTENTION_WINDOW = 128
-LAYERS = 6
+ATTENTION_WINDOW = 256
+LAYERS = 12
 
 if MAX_TRAIN_BATCHES > 0:
     PRINT_EVERY = min(PRINT_EVERY, MAX_TRAIN_BATCHES)
