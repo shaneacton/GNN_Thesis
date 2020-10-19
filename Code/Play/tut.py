@@ -1,9 +1,5 @@
-import re
-import string
-
 import torch
 from transformers import LongformerForQuestionAnswering, LongformerConfig, LongformerTokenizerFast
-from collections import Counter
 
 from Code.Training import device
 from Code.Training.eval_utils import evaluate
@@ -14,7 +10,7 @@ from Datasets.Readers.squad_reader import SQuADDatasetReader
 FEATURES = 400
 MAX_BATCHES = -1
 TEST_EVERY = 2000
-MAX_TEST_BATCHES = 750
+MAX_TEST_BATCHES = 500
 PRINT_EVERY = 250
 
 PRINT_EVERY = min(PRINT_EVERY, MAX_BATCHES)
@@ -58,7 +54,7 @@ def test_model(model, batch_reader):
 
     with torch.no_grad():
         for b, batch in enumerate(batch_reader.get_test_batches()):
-            if b > MAX_TEST_BATCHES:
+            if b > MAX_TEST_BATCHES > 0:
                 break
 
             input_ids, attention_mask, start_positions, end_positions = get_ids(batch)
@@ -87,7 +83,7 @@ def train_model(model, batch_reader):
     for epoch in range(100):
 
         for b, batch in enumerate(batch_reader.get_train_batches()):
-            if b > MAX_BATCHES:
+            if b > MAX_BATCHES > 0:
                 break
 
             input_ids, attention_mask, start_positions, end_positions = get_ids(batch)
@@ -107,6 +103,9 @@ def train_model(model, batch_reader):
 
             if b % PRINT_EVERY == 0:
                 print(loss_metric)
+
+            if b % TEST_EVERY == 0:
+                test_model(model, batch_reader)
 
         print("Epoch", epoch, "av loss:", loss_metric.mean)
         loss_metric.flash_mean()
