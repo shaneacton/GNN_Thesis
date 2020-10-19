@@ -16,15 +16,16 @@ from Code.Training.metric import Metric
 from Datasets.Batching.batch_reader import BatchReader
 from Datasets.Readers.squad_reader import SQuADDatasetReader
 
-FEATURES = 400
-MAX_BATCHES = -1
-TEST_EVERY = 2000
-MAX_TEST_BATCHES = 500
-PRINT_EVERY = 250
+FEATURES = 600
+MAX_TRAIN_BATCHES = -1
+TEST_EVERY = 100
+MAX_TEST_BATCHES = 30
+PRINT_EVERY = 10
 ATTENTION_WINDOW = 128
 LAYERS = 6
 
-PRINT_EVERY = min(PRINT_EVERY, MAX_BATCHES)
+if MAX_TRAIN_BATCHES > 0:
+    PRINT_EVERY = min(PRINT_EVERY, MAX_TRAIN_BATCHES)
 
 
 def get_ids(batch):
@@ -91,10 +92,10 @@ def train_model(model, batch_reader):
     loss_metric = Metric("loss", print_step=True)
     model.train()
 
-    for epoch in range(100):
+    for epoch in range(10000):
 
         for b, batch in enumerate(batch_reader.get_train_batches()):
-            if b > MAX_BATCHES > 0:
+            if b > MAX_TRAIN_BATCHES > 0:
                 break
 
             input_ids, attention_mask, start_positions, end_positions = get_ids(batch)
@@ -115,7 +116,7 @@ def train_model(model, batch_reader):
             if b % PRINT_EVERY == 0:
                 print(loss_metric)
 
-            if b % TEST_EVERY == 0:
+            if b % TEST_EVERY == 0 and b > 0:
                 test_model(model, batch_reader)
 
         print("Epoch", epoch, "av loss:", loss_metric.mean)
