@@ -1,5 +1,14 @@
+import os
+import sys
+
 import torch
 from transformers import LongformerForQuestionAnswering, LongformerConfig, LongformerTokenizerFast
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
+sys.path.append(dir_path_1)
+sys.path.append(os.path.join(dir_path_1, 'Code'))
+sys.path.append(os.path.join(dir_path_1, 'Datasets'))
 
 from Code.Training import device
 from Code.Training.eval_utils import evaluate
@@ -12,6 +21,8 @@ MAX_BATCHES = -1
 TEST_EVERY = 2000
 MAX_TEST_BATCHES = 500
 PRINT_EVERY = 250
+ATTENTION_WINDOW = 128
+LAYERS = 6
 
 PRINT_EVERY = min(PRINT_EVERY, MAX_BATCHES)
 
@@ -115,14 +126,14 @@ def train_model(model, batch_reader):
 if __name__ == "__main__":
     configuration = LongformerConfig()
 
-    configuration.attention_window = 50
+    configuration.attention_window = ATTENTION_WINDOW
     configuration.hidden_size = FEATURES
     configuration.intermediate_size = FEATURES
     configuration.num_labels = 2
     configuration.max_position_embeddings = 4000
     configuration.type_vocab_size = 3
     configuration.num_attention_heads = 8
-    configuration.num_hidden_layers = 5
+    configuration.num_hidden_layers = LAYERS
     configuration.return_dict = True
 
     tokenizer = LongformerTokenizerFast.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")

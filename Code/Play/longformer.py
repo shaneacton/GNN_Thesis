@@ -8,14 +8,13 @@ import numpy as np
 import torch
 from transformers import LongformerConfig, LongformerModel
 
-from Code.Models.Transformers.context_transformer import ContextTransformer
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 sys.path.append(os.path.join(dir_path_1, 'Datasets'))
 
+from Code.Models.Transformers.context_transformer import ContextTransformer
 from Code.Config import eval_conf, sysconf
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Data.Text.Answers.extracted_answer import ExtractedAnswer
