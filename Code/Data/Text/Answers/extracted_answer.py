@@ -1,5 +1,4 @@
 from Code.Data.Text.Answers.answers import Answer
-from Code.Models.GNNs.OutputModules.span_selection import SpanSelection
 
 
 class ExtractedAnswer(Answer):
@@ -12,9 +11,6 @@ class ExtractedAnswer(Answer):
         super().__init__(text)
         self.start_char_id = start_char_id
         self.end_char_id = start_char_id + len(text)
-
-        self.start_token_id = None
-        self.end_token_id = None
 
     def __repr__(self):
         return self.raw_text + "\t\t- char ids : [" + repr(self.start_char_id) + ", " + repr(self.end_char_id) + "]"

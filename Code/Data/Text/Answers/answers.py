@@ -36,3 +36,9 @@ class Answers:
             print(type(self.correct_answers[0]), type(self.answer_candidates[0]))
             print(self.correct_answers[0] == self.answer_candidates[4])
             raise Exception()
+
+    def __repr__(self):
+        r = "Correct: " + "\n".join([a.raw_text for a in self.correct_answers])
+        r += ("Candidates: " + "\n".join([c.raw_text for c in self.answer_candidates]))\
+            if self.answer_candidates is not None else ""
+        return r

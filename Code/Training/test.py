@@ -55,4 +55,6 @@ def test_model(batch_reader: BatchReader, gnn: ContextGNN):
     chance = total_chance / count
     print("accuracy:", accuracy, "count:", count, "chance:", chance)
 
+    gnn.train()
+
     return accuracy

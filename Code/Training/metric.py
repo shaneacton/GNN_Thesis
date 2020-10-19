@@ -4,7 +4,8 @@ import math
 
 class Metric:
 
-    def __init__(self, name: str, print_step=False, print_total=False, max_alpha=0.998):
+    def __init__(self, name: str, print_step=False, print_total=False, max_alpha=0.9995, beta=1):
+        self.beta = beta
         self.max_alpha = max_alpha
         self.print_total = print_total
         self.print_step = print_step
@@ -15,11 +16,15 @@ class Metric:
 
     @property
     def alpha(self):
-        return min(1 - 1/ (len(self.values) + 1), self.max_alpha)
+        return min(1 - 1/ (len(self.values) * self.beta + 1), self.max_alpha)
 
     @property
     def mean(self):
-        return self.total / len(self.values)
+        """the average of the values since the last mean flash"""
+        return sum(self.values[-self.t:]) / self.t
+
+    def flash_mean(self):
+        self.t = 0
 
     @property
     def total(self):
