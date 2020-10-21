@@ -2,6 +2,7 @@ from typing import List
 
 from torch import nn
 
+import Code.constants
 from Code.Config import gnn_config, GNNConfig
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Models.GNNs.Layers.layer_constructor import LayerConstructor
@@ -29,8 +30,8 @@ class GraphModule(GNNComponent, nn.Module):
         """
 
         self.gnnc = gnnc
-        self.same_weight_repeats = layer_conf[gnn_config.SAME_WEIGHT_REPEATS]
-        self.distinct_weight_repeats = layer_conf[gnn_config.DISTINCT_WEIGHT_REPEATS]
+        self.same_weight_repeats = layer_conf[Code.constants.SAME_WEIGHT_REPEATS]
+        self.distinct_weight_repeats = layer_conf[Code.constants.DISTINCT_WEIGHT_REPEATS]
         self.return_all_outputs = False
         if self.distinct_weight_repeats and not self.same_weight_repeats:
             raise Exception()

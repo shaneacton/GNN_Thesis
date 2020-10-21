@@ -1,3 +1,4 @@
+import Code.constants
 from Code.Config import graph_construction_config as construction
 
 
@@ -10,7 +11,7 @@ class NodePosition:
         self.sequence_level = TokenSpanHierarchy.strip_query(sequence_level)  # an identifier for which sequence this node is in (token,sentence, etc)
         self.sequence_id = sequence_id  # the abs/rel position of this node in the relevant sequence
 
-        if sequence_level == construction.DOCUMENT:
+        if sequence_level == Code.constants.DOCUMENT:
             raise Exception("document nodes cannot have positions")
 
     def __sub__(self, other):

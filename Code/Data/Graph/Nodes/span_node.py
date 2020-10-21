@@ -1,6 +1,7 @@
 import textwrap
 from abc import ABC
 
+import Code.constants
 from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
 from Code.Config import graph_construction_config as construction
@@ -8,7 +9,7 @@ from Code.Config import graph_construction_config as construction
 
 class SpanNode(Node, ABC):
 
-    def __init__(self, token_span: TokenSpan, source=construction.CONTEXT, subtype=None):
+    def __init__(self, token_span: TokenSpan, source=Code.constants.CONTEXT, subtype=None):
         self.token_span = token_span
         super().__init__(subtype=subtype, source=source)
 
@@ -17,7 +18,7 @@ class SpanNode(Node, ABC):
         return self.token_span.level
 
     def get_node_viz_text(self):
-        text = "QUERY: " if self.source == construction.QUERY else ""
+        text = "QUERY: " if self.source == Code.constants.QUERY else ""
         text += self.token_span.text + "\n" + repr(self.token_span.subtoken_indexes)
         return "\n".join(textwrap.wrap(text, 24))
 

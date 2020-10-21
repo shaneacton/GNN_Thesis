@@ -5,6 +5,7 @@ import torch
 from torch import nn
 from torch.nn import ModuleDict
 
+import Code.constants
 from Code.Config import gec, GraphEmbeddingConfig
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph import TypeMap
@@ -79,7 +80,7 @@ class GraphEmbedder(nn.Module):
         return self.use_query_summary_vec or has_query_nodes
 
     def use_query_summary_vec(self, graph: ContextGraph) -> bool:
-        query_sentence_node = construction.QUERY_SENTENCE in graph.gcc.query_structure_levels
+        query_sentence_node = Code.constants.QUERY_SENTENCE in graph.gcc.query_structure_levels
         return query_sentence_node or gec.use_query_aware_context_vectors
 
     def forward(self, graph: ContextGraph) -> GraphEncoding:
@@ -101,11 +102,11 @@ class GraphEmbedder(nn.Module):
         for node_id in range(len(graph.ordered_nodes)):
             node = graph.ordered_nodes[node_id]
 
-            if node.get_structure_level() == construction.QUERY_SENTENCE:
+            if node.get_structure_level() == Code.constants.QUERY_SENTENCE:
                 node_features[node_id] = query_summary
                 continue
 
-            source_sequence = embedded_context_sequence if node.source == construction.CONTEXT \
+            source_sequence = embedded_context_sequence if node.source == Code.constants.CONTEXT \
                 else embedded_query_sequence
 
             try:
@@ -136,7 +137,7 @@ class GraphEmbedder(nn.Module):
         structure_level = node.get_structure_level()
         token_embeddings = self.get_embedded_elements_in_span(full_embedded_sequence, node.token_span)
 
-        if structure_level == construction.TOKEN or structure_level == construction.QUERY_TOKEN:
+        if structure_level == Code.constants.TOKEN or structure_level == Code.constants.QUERY_TOKEN:
             """no summariser needed"""
             if token_embeddings.size(1) != 1:
                 """token nodes should have exactly 1 seq elem"""
@@ -151,9 +152,9 @@ class GraphEmbedder(nn.Module):
         return embedder(token_embeddings)
 
     def get_query_vec_summary(self, embedded_query_sequence: torch.Tensor):
-        if not construction.QUERY_SENTENCE in self.sequence_summarisers:
-            raise Exception(construction.QUERY_SENTENCE + " not in summarisers list" )
-        summariser = self.sequence_summarisers[construction.QUERY_SENTENCE]
+        if not Code.constants.QUERY_SENTENCE in self.sequence_summarisers:
+            raise Exception(Code.constants.QUERY_SENTENCE + " not in summarisers list")
+        summariser = self.sequence_summarisers[Code.constants.QUERY_SENTENCE]
         return summariser(embedded_query_sequence)
 
     @staticmethod

@@ -1,3 +1,4 @@
+import Code.constants
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Edges.candidate_edge import CandidateEdge
@@ -28,7 +29,7 @@ class CandidatesConstructor(GraphConstructor):
 
     def connect_to_context(self, existing_graph, node_ids):
         connection_levels = existing_graph.gcc.candidate_connections
-        if connection_levels == [construction.GLOBAL]:
+        if connection_levels == [Code.constants.GLOBAL]:
             # connect to all context nodes
             connection_levels = existing_graph.gcc.context_structure_levels
         for connection_level in connection_levels:
@@ -40,7 +41,7 @@ class CandidatesConstructor(GraphConstructor):
             # todo code reuse with query constructor. make generic extra-context constructor with context conn method
             context_ids = existing_graph.get_context_node_ids_at_level(connection_level)
             for node_id in node_ids:
-                edges = [CandidateEdge(node_id, con_id, connection_level, construction.CONTEXT) for con_id in context_ids]
+                edges = [CandidateEdge(node_id, con_id, connection_level, Code.constants.CONTEXT) for con_id in context_ids]
                 existing_graph.add_edges(edges)
 
     def connect_to_query(self, existing_graph, node_ids):
@@ -49,6 +50,6 @@ class CandidatesConstructor(GraphConstructor):
             # todo code reuse with query constructor. make generic extra-context constructor with context conn method
             query_ids = existing_graph.get_query_node_ids_at_level(connection_level)
             for node_id in node_ids:
-                edges = [CandidateEdge(node_id, q_id, connection_level, construction.QUERY) for q_id in query_ids]
+                edges = [CandidateEdge(node_id, q_id, connection_level, Code.constants.QUERY) for q_id in query_ids]
                 existing_graph.add_edges(edges)
 

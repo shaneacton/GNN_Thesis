@@ -1,6 +1,6 @@
 from typing import List, Tuple, Dict
 
-from Code.Config import graph_construction_config
+import Code.constants
 from Code.Data.Text.Tokenisation.Utils import spacy_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
@@ -12,6 +12,7 @@ if USE_NEURAL_COREF:
 
 def get_passages(tok_seq) -> List[DocumentExtract]:
     from Code.Data.Text.context import Context
+
     text_passages = tok_seq.text_obj.raw_text.split(Context.PASSAGE_BREAK_STRING)
     passages = []
     for text in text_passages:
@@ -21,7 +22,7 @@ def get_passages(tok_seq) -> List[DocumentExtract]:
 
         # +1 to include one of the passage sep tokens for alignment reasons
         match = (matches[0][0], min(matches[0][1] + 1, len(tok_seq.raw_subtokens)))
-        passage = DocumentExtract(tok_seq, match, graph_construction_config.PARAGRAPH)
+        passage = DocumentExtract(tok_seq, match, Code.constants.PARAGRAPH)
         passages.append(passage)
 
     return passages

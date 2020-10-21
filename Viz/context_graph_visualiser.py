@@ -2,6 +2,7 @@ import os
 
 import graphviz
 
+import Code.constants
 from Code.Data.Graph.Nodes.document_structure_node import DocumentStructureNode
 from Code.Data.Graph.Nodes.entity_node import EntityNode
 from Code.Data.Graph.Nodes.node import Node
@@ -25,11 +26,11 @@ def render_graph(graph: ContextGraph, graph_name, graph_folder):
     dot.render(path, view=False, format="png")
 
 def get_node_colour(node: Node):
-    if node.source == construction.QUERY:
+    if node.source == Code.constants.QUERY:
         if isinstance(node, DocumentStructureNode):
             return "darkgreen"
         return "green"
-    if node.source == construction.CANDIDATE:
+    if node.source == Code.constants.CANDIDATE:
         return "orange"
 
     # is context

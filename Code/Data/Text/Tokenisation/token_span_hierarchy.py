@@ -1,5 +1,6 @@
 from typing import List, Dict, Union
 
+import Code.constants
 from Code.Config import gcc, graph_construction_config
 from Code.Data.Text.Tokenisation.Utils import tokenisation_utils
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
@@ -66,7 +67,7 @@ class TokenSpanHierarchy:
 
     def sequence_position(self, span: DocumentExtract):
         """returns the positions of the span in the sequence at its span eg: token, word, sentence"""
-        level_id = graph_construction_config.LEVELS.index(self.strip_query(span.level))
+        level_id = Code.constants.LEVELS.index(self.strip_query(span.level))
         if level_id not in self._sequence_positions:
             self.find_sequence_positions(level_id)
 
@@ -89,7 +90,7 @@ class TokenSpanHierarchy:
     def __getitem__(self, item: Union[str, int]) -> List[DocumentExtract]:
         if isinstance(item, str):
             item = self.strip_query(item)
-            return self[graph_construction_config.LEVELS.index(item)]
+            return self[Code.constants.LEVELS.index(item)]
         if item == 0:
             return self.tokens
         if item == 1:
@@ -105,9 +106,9 @@ class TokenSpanHierarchy:
     def strip_query(level):
         if level is None:
             return level
-        if graph_construction_config.QUERY in level:
+        if Code.constants.QUERY in level:
             # a token span heirarchy is agnostic of source
-            level = level.split(graph_construction_config.QUERY + "_")[1]
+            level = level.split(Code.constants.QUERY + "_")[1]
         return level
 
     @property
@@ -159,7 +160,8 @@ class TokenSpanHierarchy:
 
     @property
     def full_document(self):
-        return DocumentExtract(self.token_sequence, (0, len(self.token_sequence.raw_subtokens)), graph_construction_config.DOCUMENT)
+        return DocumentExtract(self.token_sequence, (0, len(self.token_sequence.raw_subtokens)),
+                               Code.constants.DOCUMENT)
 
     @property
     def passages(self):

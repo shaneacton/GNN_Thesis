@@ -6,7 +6,7 @@ from torch_geometric.data import Batch
 
 from Code.Config import GNNConfig
 from Code.Config.config_set import ConfigSet
-from Code.Config.gnn_config import ACTIVATION_TYPE, DROPOUT_RATIO, ACTIVATION_ARGS
+from Code.constants import ACTIVATION_TYPE, ACTIVATION_ARGS, DROPOUT_RATIO
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding

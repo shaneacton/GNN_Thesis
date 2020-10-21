@@ -1,4 +1,4 @@
-from Code.Config import graph_construction_config
+import Code.constants
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 
 
@@ -15,7 +15,7 @@ class EntitySpan(DocumentExtract):
     def __init__(self, token_sequence, subtoken_indexes, is_coref=False):
         if is_coref:
             raise Exception()
-        super().__init__(token_sequence, subtoken_indexes, graph_construction_config.WORD)
+        super().__init__(token_sequence, subtoken_indexes, Code.constants.WORD)
         self.is_coref = is_coref
 
     def __repr__(self):
@@ -25,6 +25,6 @@ class EntitySpan(DocumentExtract):
         return coref + word + span
 
     def get_subtype(self):
-        return graph_construction_config.COREF if self.is_coref else graph_construction_config.ENTITY
+        return Code.constants.COREF if self.is_coref else Code.constants.ENTITY
 
 

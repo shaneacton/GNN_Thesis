@@ -3,6 +3,7 @@ from typing import List, Dict
 import torch
 from torch import nn
 
+import Code.constants
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Nodes.node_position import NodePosition, incompatible
 from Code.Training import device
@@ -42,10 +43,10 @@ class PositionEmbedder(nn.Module):
         """
         context_levels = self.gcc.context_structure_levels
         # doc nodes don't have positional encodings
-        context_levels = [lev for lev in context_levels if lev != construction.DOCUMENT]
+        context_levels = [lev for lev in context_levels if lev != Code.constants.DOCUMENT]
         query_levels = [x.split("query_")[1] for x in self.gcc.query_structure_levels]
 
-        sources = [construction.CONTEXT] * len(context_levels) + [construction.QUERY] * len(query_levels)
+        sources = [Code.constants.CONTEXT] * len(context_levels) + [Code.constants.QUERY] * len(query_levels)
         levels = context_levels + query_levels
 
         # print("levels:", levels, "sources:",sources)

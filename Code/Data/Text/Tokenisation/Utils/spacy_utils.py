@@ -2,8 +2,7 @@ from typing import List
 
 from spacy.tokens.doc import Doc
 
-
-from Code.Config import graph_construction_config
+import Code.constants
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 from Code.Data.Text.Tokenisation.entity_span import EntitySpan
 
@@ -50,10 +49,11 @@ def get_spacy_sentences(tok_seq, spacy_processed_doc=None):
     processed: Doc = get_processed(tok_seq) if not spacy_processed_doc else spacy_processed_doc
     spacy_sents = processed.sents
     sentences = []
+    from Code.Config import graph_construction_config
 
     for sent in spacy_sents:
         exact_match = tok_seq.get_word_token_span_from_chars(sent.start_char, sent.end_char, subtokens=True)
-        sentence = DocumentExtract(tok_seq, exact_match, graph_construction_config.SENTENCE)
+        sentence = DocumentExtract(tok_seq, exact_match, Code.constants.SENTENCE)
         sentences.append(sentence)
 
     return sentences

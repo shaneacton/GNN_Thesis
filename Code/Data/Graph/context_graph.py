@@ -1,5 +1,6 @@
 from typing import List, Set, Dict, Union
 
+import Code.constants
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.Nodes.node import Node
@@ -84,10 +85,10 @@ class ContextGraph:
 
             if isinstance(node, SpanNode):
                 self.span_nodes[node.token_span] = id
-                if node.source != construction.CANDIDATE and node.level != construction.DOCUMENT:
-                    if node.source == construction.QUERY:
+                if node.source != Code.constants.CANDIDATE and node.level != Code.constants.DOCUMENT:
+                    if node.source == Code.constants.QUERY:
                         pos_id = self.query_span_hierarchy.sequence_position(node.token_span)
-                    elif node.source == construction.CONTEXT:
+                    elif node.source == Code.constants.CONTEXT:
                         pos_id = self.span_hierarchy.sequence_position(node.token_span)
 
                     position = NodePosition(node.source, node.level, pos_id)
@@ -97,10 +98,10 @@ class ContextGraph:
             else:
                 self.node_positions.append(None)
 
-            if node.source == construction.QUERY:
+            if node.source == Code.constants.QUERY:
                 self.query_nodes.add(id)
 
-            if node.source == construction.CANDIDATE:
+            if node.source == Code.constants.CANDIDATE:
                 self.candidate_nodes.add(id)
 
             return id

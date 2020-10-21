@@ -5,13 +5,12 @@ from typing import List
 import torch
 from transformers import BertTokenizer
 
-from Code.Config import GraphEmbeddingConfig, gec
 from Code.Training import device
 
 
 class PretrainedTokenSequenceEmbedder:
 
-    def __init__(self, gec: GraphEmbeddingConfig):
+    def __init__(self, gec):
         start = time.time()
 
         self.gec = gec
@@ -85,5 +84,6 @@ _tokseq_embedder = None
 def tokseq_embedder():
     global _tokseq_embedder
     if _tokseq_embedder is None:
+        from Code.Config import gec
         _tokseq_embedder = PretrainedTokenSequenceEmbedder(gec)
     return _tokseq_embedder

@@ -1,5 +1,6 @@
 from typing import Dict, Tuple
 
+import Code.constants
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Edges.same_entity_edge import SameEntityEdge
@@ -22,7 +23,7 @@ class EntitiesConstructor(GraphConstructor):
 
         entity_clusters: Dict[Tuple[str], Tuple[int]] = self.get_entity_clusters(entity_nodes, node_ids)
         edges = self.get_same_edges(entity_clusters)
-        if existing_graph.gcc.has_keyword(construction.UNIQUE_ENTITY):
+        if existing_graph.gcc.has_keyword(Code.constants.UNIQUE_ENTITY):
             self.add_unique_entity_nodes(existing_graph, entity_clusters)
 
         existing_graph.add_edges(edges)
@@ -68,7 +69,7 @@ class EntitiesConstructor(GraphConstructor):
     @staticmethod
     def get_entity_nodes(existing_graph):
         entities = existing_graph.span_hierarchy.entities
-        entity_nodes = [EntityNode(ent, construction.CONTEXT) for ent in entities]
+        entity_nodes = [EntityNode(ent, Code.constants.CONTEXT) for ent in entities]
         return entity_nodes
 
     @staticmethod

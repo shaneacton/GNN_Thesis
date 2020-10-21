@@ -1,17 +1,9 @@
 from torch import nn
 
-from Code.Config import graph_construction_config as construction
+import Code.constants
 
-# sequence summary functions
 from Code.Config.config import Config
-
-SUMMARISER_NAME = "summariser_name"
-HEAD_AND_TAIL_CAT = "head_and_tail_cat"
-SELF_ATTENTIVE_POOLING = "self_attentive_pooling"
-NUM_LAYERS = "num_layers"
-
-NODE_TYPES = "node_types"
-EDGE_TYPES = "edge_types"
+from Code.constants import SUMMARISER_NAME, HEAD_AND_TAIL_CAT, SELF_ATTENTIVE_POOLING, NUM_LAYERS
 
 
 class GraphEmbeddingConfig(Config):
@@ -21,24 +13,24 @@ class GraphEmbeddingConfig(Config):
         self.use_query_aware_context_vectors = False
 
         self.span_summarisation_methods = {
-            construction.WORD: HEAD_AND_TAIL_CAT,
-            construction.SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2},
-            construction.PARAGRAPH: HEAD_AND_TAIL_CAT,
-            construction.DOCUMENT: HEAD_AND_TAIL_CAT,
+            Code.constants.WORD: HEAD_AND_TAIL_CAT,
+            Code.constants.SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2},
+            Code.constants.PARAGRAPH: HEAD_AND_TAIL_CAT,
+            Code.constants.DOCUMENT: HEAD_AND_TAIL_CAT,
 
-            construction.QUERY_WORD: HEAD_AND_TAIL_CAT,
-            construction.QUERY_SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2}
+            Code.constants.QUERY_WORD: HEAD_AND_TAIL_CAT,
+            Code.constants.QUERY_SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2}
         }
 
         self.relative_embeddings_window_per_level = {
-            construction.TOKEN: 20,
-            construction.WORD: 10,
-            construction.SENTENCE: 5,
-            construction.PARAGRAPH: 3,
+            Code.constants.TOKEN: 20,
+            Code.constants.WORD: 10,
+            Code.constants.SENTENCE: 5,
+            Code.constants.PARAGRAPH: 3,
 
-            construction.QUERY_TOKEN: 20,
-            construction.QUERY_WORD: 10,
-            construction.QUERY_SENTENCE: 5,
+            Code.constants.QUERY_TOKEN: 20,
+            Code.constants.QUERY_WORD: 10,
+            Code.constants.QUERY_SENTENCE: 5,
         }
 
         self.token_embedder_type = "bert"
@@ -68,7 +60,7 @@ class GraphEmbeddingConfig(Config):
         from Code.Config import GraphConstructionConfig
         gcc: GraphConstructionConfig = gcc
         for structure_level in gcc.all_structure_levels:
-            if structure_level == construction.TOKEN or structure_level == construction.QUERY_TOKEN:
+            if structure_level == Code.constants.TOKEN or structure_level == Code.constants.QUERY_TOKEN:
                 continue
             graph_embedder.sequence_summarisers[structure_level] = self.get_sequence_embedder(structure_level)
 

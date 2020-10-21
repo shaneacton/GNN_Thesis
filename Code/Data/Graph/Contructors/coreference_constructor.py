@@ -1,5 +1,6 @@
 from typing import List
 
+import Code.constants
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor, IncompatibleGraphContructionOrder
@@ -36,7 +37,7 @@ class CoreferenceConstructor(GraphConstructor):
             if ent not in corefs.keys():
                 continue  # no corefs for this entity
 
-            coref_nodes = [EntityNode(coref_ent, construction.CONTEXT) for coref_ent in corefs[ent]]
+            coref_nodes = [EntityNode(coref_ent, Code.constants.CONTEXT) for coref_ent in corefs[ent]]
             #remove corefs which are already linked by SAME edge
             coref_nodes = [node for node in coref_nodes if node not in existing_graph.node_id_map]
             ids = existing_graph.add_nodes(coref_nodes)

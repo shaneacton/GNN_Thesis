@@ -1,35 +1,6 @@
-# word types
 from Code.Config.config import Config
-
-ENTITY = "entity"
-UNIQUE_ENTITY = "unique_entity"
-COREF = "coref"
-
-# structure node types
-TOKEN = "token"
-WORD = "word"
-SENTENCE = "sentence"
-PARAGRAPH = "paragraph"
-DOCUMENT = "document"
-
-LEVELS = [TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT]
-
-# structure connections
-CONNECTION_TYPE = "connection_type"
-WINDOW = "window"  # fully connects nodes which are within a max distance of each other
-SEQUENTIAL = "sequential"  # connects nodes to the next node at its structure level, within optional max distance
-WINDOW_SIZE = "window_size"  # an optional arg for both window and seq
-GLOBAL = "global"  # connects to all other nodes
-
-# source types
-CONTEXT = "context"
-QUERY = "query"
-CANDIDATE = "candidate"
-
-# query structure
-QUERY_TOKEN = QUERY + "_" + TOKEN  # Longformer style query tokens connected to all context tokens
-QUERY_WORD = QUERY + "_" + WORD  # connected to context entity nodes of same string values
-QUERY_SENTENCE = QUERY + "_" + SENTENCE  # one node for the whole query
+from Code.constants import ENTITY, COREF, TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT, CONNECTION_TYPE, WINDOW, \
+    SEQUENTIAL, WINDOW_SIZE, QUERY_TOKEN, QUERY_WORD, QUERY_SENTENCE
 
 
 class GraphConstructionConfig(Config):

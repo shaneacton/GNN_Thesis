@@ -1,3 +1,4 @@
+import Code.constants
 from Code.Config import graph_embedding_config
 from Code.Data.Graph.Embedders.type_embedder import TypeEmbedder
 from Code.Models.GNNs.LayerModules.layer_module import LayerModule
@@ -14,7 +15,7 @@ class PrepareModule(LayerModule):
         LayerModule.__init__(self, sizes, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
 
         if use_node_type_embeddings:
-            self.node_type_embedder = TypeEmbedder(in_channels, graph_feature_type=graph_embedding_config.NODE_TYPES)
+            self.node_type_embedder = TypeEmbedder(in_channels, graph_feature_type=Code.constants.NODE_TYPES)
 
     def forward(self, x, encoding):
         if self.use_node_type_embeddings:

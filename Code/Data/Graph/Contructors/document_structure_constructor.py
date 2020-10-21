@@ -1,5 +1,6 @@
 from typing import Type, List
 
+import Code.constants
 from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Edges.document_edge import DocumentEdge
@@ -27,7 +28,7 @@ def get_node_type(span) -> Type[SpanNode]:
 class DocumentStructureConstructor(GraphConstructor):
 
     def level_indices(self, existing_graph: ContextGraph):
-        level_indices = [construction.LEVELS.index(level) for level in existing_graph.gcc.context_structure_levels]
+        level_indices = [Code.constants.LEVELS.index(level) for level in existing_graph.gcc.context_structure_levels]
         level_indices = sorted(level_indices)
         return level_indices
 
@@ -44,8 +45,8 @@ class DocumentStructureConstructor(GraphConstructor):
             try:
                 contain_map = existing_graph.span_hierarchy.match_heirarchical_span_seqs(containeR_spans, containeD_spans)
             except Exception as e:
-                print("failed matching", construction.LEVELS[level_indices[i]], "to",
-                      construction.LEVELS[level_indices[i + 1]])
+                print("failed matching", Code.constants.LEVELS[level_indices[i]], "to",
+                      Code.constants.LEVELS[level_indices[i + 1]])
                 raise e
 
             # print("contain map:", contain_map)

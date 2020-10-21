@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 
+import Code.constants
 from Code.Data.Graph.graph_feature import GraphFeature
 from Code.Config import graph_construction_config as construction
 
 
 class Node (GraphFeature, ABC):
 
-    def __init__(self, source=construction.CONTEXT, subtype=None):
+    def __init__(self, source=Code.constants.CONTEXT, subtype=None):
         super().__init__(subtype=subtype)
         self.source = source
 

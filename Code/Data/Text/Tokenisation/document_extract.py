@@ -1,4 +1,4 @@
-from Code.Config import graph_construction_config
+import Code.constants
 from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 
@@ -18,9 +18,10 @@ class DocumentExtract(TokenSpan):
         return super().__hash__() + 5 * hash(self.strip_query(self.level))
 
     def strip_query(self, level):
-        if graph_construction_config.QUERY in level:
+        from Code.Config import graph_construction_config
+        if Code.constants.QUERY in level:
             # a token span heirarchy is agnostic of source
-            level = level.split(graph_construction_config.QUERY + "_")[1]
+            level = level.split(Code.constants.QUERY + "_")[1]
         return level
 
 

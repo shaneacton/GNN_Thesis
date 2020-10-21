@@ -2,8 +2,9 @@ from typing import List
 
 from torch import nn
 
+import Code.constants
 from Code.Config import GNNConfig, ConfigSet, graph_embedding_config
-from Code.Config.gnn_config import ACTIVATION_ARGS, ACTIVATION_TYPE, DROPOUT_RATIO
+from Code.constants import ACTIVATION_TYPE, ACTIVATION_ARGS, DROPOUT_RATIO
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.Embedders.position_embedder import PositionEmbedder
 from Code.Data.Graph.Embedders.type_embedder import TypeEmbedder
@@ -35,7 +36,7 @@ class GNN(GNNComponent, nn.Module):
 
     def init_layers(self, in_features) -> int:  # returns the feature num of the last layer
         if self.configs.gnnc.use_node_type_embeddings:
-            self.node_type_embedder = TypeEmbedder(in_features, graph_feature_type=graph_embedding_config.NODE_TYPES)
+            self.node_type_embedder = TypeEmbedder(in_features, graph_feature_type=Code.constants.NODE_TYPES)
 
         if self.configs.gec.use_absolute_positional_embeddings:
             self.positional_embedder = PositionEmbedder(in_features, self.configs.gcc, self.configs.gec)

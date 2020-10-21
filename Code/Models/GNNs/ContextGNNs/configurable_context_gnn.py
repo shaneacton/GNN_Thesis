@@ -1,3 +1,4 @@
+import Code.constants
 from Code.Config import gnn_config
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
@@ -15,7 +16,7 @@ class ConfigurableContextGNN(ContextGNN):
         returns the number of features in the last layer for the output layer
         """
         for layer_conf in self.gnnc.layers:
-            layer_features = layer_conf[gnn_config.NUM_FEATURES]
+            layer_features = layer_conf[Code.constants.NUM_FEATURES]
 
             layer = GraphModule([in_features, layer_features, layer_features], layer_conf, self.gnnc)
             self.layers.append(layer)

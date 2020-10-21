@@ -4,14 +4,13 @@ import sys
 import torch
 from transformers import LongformerForQuestionAnswering, LongformerConfig, LongformerTokenizerFast, LongformerModel
 
-from Code.Play.wrap import Wrap
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 sys.path.append(os.path.join(dir_path_1, 'Datasets'))
 
+from Code.Play.wrap import Wrap
 from Code.Training import device
 from Code.Training.eval_utils import evaluate
 from Code.Training.metric import Metric
