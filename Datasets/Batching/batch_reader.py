@@ -1,4 +1,3 @@
-from Code.Config import eval_conf
 from Datasets.Batching.samplebatch import SampleBatch
 from Datasets.Batching.batch_item import BatchItem
 from Datasets.Readers.data_reader import DataReader
@@ -42,6 +41,8 @@ class BatchReader:
         """
         can be used for cross validation by stepping through test offset
         """
+        from Code.Config import eval_conf
+
         num_batches = len(self)
         i = 0
         for batch in self.get_all_batches():

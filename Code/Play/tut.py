@@ -2,7 +2,9 @@ import os
 import sys
 
 import torch
-from transformers import LongformerForQuestionAnswering, LongformerConfig, LongformerTokenizerFast
+from transformers import LongformerForQuestionAnswering, LongformerConfig, LongformerTokenizerFast, LongformerModel
+
+from Code.Play.wrap import Wrap
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -16,16 +18,16 @@ from Code.Training.metric import Metric
 from Datasets.Batching.batch_reader import BatchReader
 from Datasets.Readers.squad_reader import SQuADDatasetReader
 
-MAX_TRAIN_BATCHES = -1
-TEST_EVERY = 100
-MAX_TEST_BATCHES = 30
-PRINT_EVERY = 10
+MAX_TRAIN_BATCHES = 1000
+TEST_EVERY = 250
+MAX_TEST_BATCHES = 150
+PRINT_EVERY = 50
 
-FEATURES = 804
-INTERMEDIATE_FEATURES = 3072
-HEADS = 12
-ATTENTION_WINDOW = 256
-LAYERS = 12
+FEATURES = 402
+INTERMEDIATE_FEATURES = 600
+HEADS = 6
+ATTENTION_WINDOW = 128
+LAYERS = 7
 
 if MAX_TRAIN_BATCHES > 0:
     PRINT_EVERY = min(PRINT_EVERY, MAX_TRAIN_BATCHES)
@@ -36,9 +38,7 @@ def get_ids(batch):
     question = batch.batch_items[0].question
     query = question.raw_text
     answer = question.answers
-    # print("query:", query)
-    # print("context:", context)
-    # print("answers:", answer)
+
     encoding = tokenizer(query, context, return_tensors="pt")
     context_encoding = tokenizer(context)
     input_ids = encoding["input_ids"]
@@ -49,13 +49,9 @@ def get_ids(batch):
     ctc_c = len(context_encoding["input_ids"])
     full_c = len(input_ids[0])
     q_c = full_c - ctc_c
-    # print("full:", full_c, "con:", ctc_c, "q:", q_c)
 
     start_positions = torch.tensor([start_positions_context + q_c])
     end_positions = torch.tensor([end_positions_context + q_c])
-
-    # print("char span:", (answer.correct_answers[0].start_char_id, answer.correct_answers[0].end_char_id - 1))
-    # print("answer span:", (start_positions, end_positions))
 
     # the forward method will automatically set global attention on question tokens
     attention_mask = encoding["attention_mask"]
@@ -74,7 +70,7 @@ def test_model(model, batch_reader):
 
             input_ids, attention_mask, start_positions, end_positions = get_ids(batch)
             outputs = model(input_ids=input_ids, attention_mask=attention_mask,
-                            start_positions=start_positions, end_positions=end_positions)
+                            start_positions=start_positions, end_positions=end_positions, return_dict=True)
             start_scores, end_scores = outputs["start_logits"], outputs["end_logits"]
             for i in range(start_scores.shape[0]):
                 all_tokens = tokenizer.convert_ids_to_tokens(input_ids[i])
@@ -87,7 +83,7 @@ def test_model(model, batch_reader):
                 # print("predicted ans:", answer)
                 # print("answer:", ground)
 
-    print(evaluate(grounds, predictions))
+    return evaluate(grounds, predictions)
 
 
 def train_model(model, batch_reader):
@@ -105,7 +101,7 @@ def train_model(model, batch_reader):
             optimizer.zero_grad()
 
             outputs = model(input_ids=input_ids, attention_mask=attention_mask,
-                         start_positions=start_positions, end_positions=end_positions)
+                         start_positions=start_positions, end_positions=end_positions, return_dict=True)
 
             # print(outputs)
 
@@ -116,18 +112,18 @@ def train_model(model, batch_reader):
 
             loss_metric.report(loss.item())
 
-            if b % PRINT_EVERY == 0:
+            if b % PRINT_EVERY == 0 and PRINT_EVERY != -1:
                 print(loss_metric)
 
             if b % TEST_EVERY == 0 and b > 0:
-                test_model(model, batch_reader)
+                print("Batch", b, test_model(model, batch_reader))
 
         print("Epoch", epoch, "av loss:", loss_metric.mean)
         loss_metric.flash_mean()
         test_model(model, batch_reader)
 
 
-if __name__ == "__main__":
+def get_fresh_qa_longformer():
     configuration = LongformerConfig()
 
     configuration.attention_window = ATTENTION_WINDOW
@@ -138,18 +134,38 @@ if __name__ == "__main__":
     configuration.type_vocab_size = 3
     configuration.num_attention_heads = HEADS
     configuration.num_hidden_layers = LAYERS
-    configuration.return_dict = True
 
     tokenizer = LongformerTokenizerFast.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
     configuration.vocab_size = tokenizer.vocab_size
 
     qa = LongformerForQuestionAnswering(configuration).to(device)
-
+    print("Cuda available:", torch.cuda.is_available())
     print(qa)
+
+    return qa, tokenizer
+
+
+def get_pretrained_qa_longformer():
+    qa = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
+    tokenizer = LongformerTokenizerFast.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
+
+    return qa, tokenizer
+
+
+def get_composit_qa_longformer():
+    qa = LongformerModel.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
+    tokenizer = LongformerTokenizerFast.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
+
+    qa = Wrap(qa, get_fresh_qa_longformer()[0])
+    return qa, tokenizer
+
+
+if __name__ == "__main__":
+    # qa, tokenizer = get_fresh_longformer()
+    qa, tokenizer = get_pretrained_qa_longformer()
 
     squad_reader = SQuADDatasetReader("SQuAD")
     squad_path = SQuADDatasetReader.train_set_location()
     squad_batch_reader = BatchReader(squad_reader, 1, squad_path)
-
 
     train_model(qa, squad_batch_reader)
