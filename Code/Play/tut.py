@@ -163,6 +163,8 @@ if __name__ == "__main__":
     # qa, tokenizer = get_fresh_longformer()
     qa, tokenizer = get_pretrained_qa_longformer()
 
+    print(qa)
+
     squad_reader = SQuADDatasetReader("SQuAD")
     squad_path = SQuADDatasetReader.train_set_location()
     squad_batch_reader = BatchReader(squad_reader, 1, squad_path)
