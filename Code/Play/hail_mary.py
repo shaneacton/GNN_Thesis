@@ -59,21 +59,17 @@ def convert_to_features(example):
 
 def save_dataset():
 
-
     # load train and validation split of squad
     train_dataset = nlp.load_dataset('squad', split=nlp.Split.TRAIN)
     valid_dataset = nlp.load_dataset('squad', split=nlp.Split.VALIDATION)
 
-
     train_dataset = train_dataset.map(convert_to_features)
     valid_dataset = valid_dataset.map(convert_to_features) #, load_from_cache_file=False)
-
 
     # set the tensor type and the columns which the dataset should return
     columns = ['input_ids', 'attention_mask', 'start_positions', 'end_positions']
     train_dataset.set_format(type='torch', columns=columns)
     valid_dataset.set_format(type='torch', columns=columns)
-
 
     torch.save(train_dataset, TRAIN)
     torch.save(valid_dataset, VALID)
@@ -89,6 +85,8 @@ print('loading done')
 
 train_args = TrainingArguments(OUT)
 train_args.per_device_train_batch_size = 1
+train_args.do_eval = True
+train_args.evaluation_strategy = "epoch"
 
 # Initialize our Trainer
 trainer = Trainer(
@@ -102,3 +100,6 @@ trainer = Trainer(
 
 trainer.train(model_path="./" + MODEL)
 trainer.save_model()
+
+# model = model.cuda()
+# model.eval()
