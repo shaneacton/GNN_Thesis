@@ -79,7 +79,7 @@ trainer = Trainer(
 
 def get_latest_model():
     out = os.path.join(".", OUT)
-    checks = [f for f in os.listdir(out) if isfile(join(out, f))]
+    checks = os.listdir(out)
     if len(checks) == 0:
         return None
     steps = [int(c.split("-")[1]) for c in checks]
