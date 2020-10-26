@@ -91,7 +91,9 @@ def get_latest_model():
     return checks[max_i]
 
 
-trainer.train(model_path=get_latest_model())
+check = "./" + get_latest_model()
+print("checkpoint:", check)
+trainer.train(model_path=check)
 trainer.save_model()
 
 # model = model.cuda()
