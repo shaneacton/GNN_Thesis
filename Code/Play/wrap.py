@@ -7,8 +7,9 @@ class Wrap(nn.Module):
 
     def __init__(self, pretrained, output):
         super().__init__()
-        self.output = output
         self.pretrained = pretrained
+        self.output = output
+
         self.middle = nn.Linear(self.pretrained.config.hidden_size, self.output.config.hidden_size)
 
     def forward(self, input_ids, attention_mask, start_positions, end_positions, return_dict=True):
