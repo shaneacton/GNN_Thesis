@@ -68,7 +68,7 @@ train_args.do_train = True
 train_args.save_steps = 500
 train_args.overwrite_output_dir = True
 train_args.save_total_limit = 2
-
+train_args.num_train_epochs = 2
 
 # Initialize our Trainer
 trainer = Trainer(
