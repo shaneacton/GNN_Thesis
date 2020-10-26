@@ -1,4 +1,6 @@
 import os
+from os.path import isfile, join
+
 import sys
 
 import nlp
@@ -75,7 +77,21 @@ trainer = Trainer(
 )
 
 
-trainer.train(model_path=OUT)
+def get_latest_model():
+    checks = [f for f in os.listdir(OUT) if isfile(join(OUT, f))]
+    if len(checks) == 0:
+        return None
+    steps = [int(c.split("-")[1]) for c in checks]
+    hi=-1
+    max_i = -1
+    for i in range(len(steps)):
+        if steps[i] > hi:
+            hi=steps[i]
+            max_i = i
+    return checks[max_i]
+
+
+trainer.train(model_path=get_latest_model())
 trainer.save_model()
 
 # model = model.cuda()
