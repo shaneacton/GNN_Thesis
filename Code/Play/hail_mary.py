@@ -78,7 +78,8 @@ trainer = Trainer(
 
 
 def get_latest_model():
-    checks = [f for f in os.listdir(OUT) if isfile(join(OUT, f))]
+    out = os.path.join(".", OUT)
+    checks = [f for f in os.listdir(out) if isfile(join(out, f))]
     if len(checks) == 0:
         return None
     steps = [int(c.split("-")[1]) for c in checks]
@@ -91,7 +92,8 @@ def get_latest_model():
     return checks[max_i]
 
 
-check = "./" + get_latest_model()
+check = get_latest_model()
+check = None if check is None else os.path.join(".", OUT, check)
 print("checkpoint:", check)
 trainer.train(model_path=check)
 trainer.save_model()
