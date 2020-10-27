@@ -1,6 +1,4 @@
 import os
-from os.path import isfile, join
-
 import sys
 
 import nlp
@@ -8,14 +6,14 @@ import torch
 from torch.utils.data import DataLoader
 from transformers import LongformerTokenizerFast, Trainer, LongformerForQuestionAnswering, TrainingArguments
 
-from Code.Training.eval_utils import evaluate
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
 from Code.Play.encoding import TextEncoder
+from Code.Training.eval_utils import evaluate
+
 
 tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 encoder = TextEncoder(tokenizer)
@@ -82,7 +80,7 @@ trainer = Trainer(
 
 def get_latest_model():
     out = os.path.join(".", OUT)
-    checks = os.listdir(out)
+    checks = [c for c in os.listdir(out) if "check" in c]
     if len(checks) == 0:
         return None
     steps = [int(c.split("-")[1]) for c in checks]
@@ -123,6 +121,7 @@ predictions = []
 references = []
 for ref, pred in zip(valid_dataset, answers):
     predictions.append(pred)
+    print("ref:", ref)
     references.append(ref['answers']['text'])
 
 evaluate(references, predictions)
