@@ -13,8 +13,7 @@ sys.path.append(os.path.join(dir_path_1, 'Code'))
 
 from Code.Play.encoding import TextEncoder
 from Code.Training.eval_utils import evaluate
-from Code.Play.utils import get_trainer
-
+from Code.Play.utils import get_trainer, get_composite_span_longformer
 
 tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 encoder = TextEncoder(tokenizer)
@@ -78,7 +77,8 @@ def evaluate_model(model, valid_dataset):
 # save_dataset()
 
 print("starting model init")
-model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
+# model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
+model = get_composite_span_longformer()
 
 # Get datasets
 print('loading data')

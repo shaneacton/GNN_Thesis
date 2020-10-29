@@ -10,14 +10,13 @@ FEATURES = 402
 INTERMEDIATE_FEATURES = 600
 HEADS = 6
 ATTENTION_WINDOW = 128
-LAYERS = 7
+LAYERS = 5
 
 PRETRAINED = "valhalla/longformer-base-4096-finetuned-squadv1"
 
 _tokenizer = None
 
 
-@property
 def tokenizer() -> LongformerTokenizerFast:
     global _tokenizer
     if _tokenizer is None:
@@ -37,7 +36,7 @@ def get_longformer_config():
     configuration.num_attention_heads = HEADS
     configuration.num_hidden_layers = LAYERS
 
-    configuration.vocab_size = tokenizer.vocab_size
+    configuration.vocab_size = tokenizer().vocab_size
     return configuration
 
 
@@ -59,12 +58,16 @@ def get_composit_qa_longformer(output_model):
     return qa
 
 
+def get_composite_span_longformer():
+    return get_composit_qa_longformer(get_fresh_span_longformer())
+
+
 def get_trainer(model, outdir, train_dataset, valid_dataset):
     train_args = TrainingArguments(outdir)
     train_args.per_device_train_batch_size = 8
-    train_args.do_eval = True
-    train_args.evaluation_strategy = "steps"
-    train_args.eval_steps = 2000
+    train_args.do_eval = False
+    train_args.evaluation_strategy = "no"
+    # train_args.eval_steps = 2000
     train_args.do_train = True
 
     train_args.save_steps = 500
