@@ -6,6 +6,8 @@ import torch
 from torch.utils.data import DataLoader
 from transformers import LongformerTokenizerFast, Trainer, LongformerForQuestionAnswering, TrainingArguments
 
+from Code.Play.utils import get_trainer
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -33,8 +35,8 @@ def save_dataset():
     train_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.TRAIN, name=VERSION)
     valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
 
-    train_dataset = train_dataset.map(encoder.get_span_features)
-    valid_dataset = valid_dataset.map(encoder.get_span_features) #, load_from_cache_file=False)
+    train_dataset = train_dataset.map(encoder.get_qa_features)
+    valid_dataset = valid_dataset.map(encoder.get_qa_features) #, load_from_cache_file=False)
 
     # set the tensor type and the columns which the dataset should return
     columns = ['input_ids', 'attention_mask', 'start_positions', 'end_positions']
@@ -56,26 +58,7 @@ train_dataset = torch.load(TRAIN)
 valid_dataset = torch.load(VALID)
 print('loading done')
 
-train_args = TrainingArguments(OUT)
-train_args.per_device_train_batch_size = 8
-train_args.do_eval = True
-train_args.evaluation_strategy = "steps"
-train_args.eval_steps = 2000
-train_args.do_train = True
-
-train_args.save_steps = 500
-train_args.overwrite_output_dir = True
-train_args.save_total_limit = 2
-train_args.num_train_epochs = 2
-
-# Initialize our Trainer
-trainer = Trainer(
-    model=model,
-    args=train_args,
-    train_dataset=train_dataset,
-    eval_dataset=valid_dataset,
-    prediction_loss_only=True,
-)
+trainer = get_trainer(model, OUT, train_dataset, valid_dataset)
 
 
 def get_latest_model():
@@ -119,6 +102,8 @@ with torch.no_grad():
 
 predictions = []
 references = []
+valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
+
 for ref, pred in zip(valid_dataset, answers):
     predictions.append(pred)
     print("ref:", ref)

@@ -5,14 +5,18 @@ class TextEncoder:
     def __init__(self, tokeniser):
         self.tokeniser = tokeniser
 
-    # def get_qa_features(self, example):
-    #     # the example is encoded like this <s> question</s></s> context</s>
+    def get_qa_features(self, example):
+        encoding = self._get_span_features(example)
+        # encoding.update(example)
+        # print("encode:", encoding)
+        return encoding
 
-    def get_candidate_features(self, example):
+    def _get_candidate_features(self, example):
         pass
 
-    def get_span_features(self, example):
-        print(example)
+    def _get_span_features(self, example):
+        # the example is encoded like this <s> question</s></s> context</s>
+        # print(example)
 
         encodings = self.tokeniser(example['question'], example['context'], pad_to_max_length=True, max_length=512)
         context_encodings = self.tokeniser.encode_plus(example['context'])

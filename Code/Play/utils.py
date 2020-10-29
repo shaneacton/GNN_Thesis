@@ -1,5 +1,6 @@
 import torch
-from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel
+from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel, \
+    TrainingArguments, Trainer
 
 from Code.Play.wrap import Wrap
 
@@ -56,3 +57,27 @@ def get_composit_qa_longformer(output_model):
 
     qa = Wrap(qa, output_model)
     return qa
+
+
+def get_trainer(model, outdir, train_dataset, valid_dataset):
+    train_args = TrainingArguments(outdir)
+    train_args.per_device_train_batch_size = 8
+    train_args.do_eval = True
+    train_args.evaluation_strategy = "steps"
+    train_args.eval_steps = 2000
+    train_args.do_train = True
+
+    train_args.save_steps = 500
+    train_args.overwrite_output_dir = True
+    train_args.save_total_limit = 2
+    train_args.num_train_epochs = 2
+
+    # Initialize our Trainer
+    trainer = Trainer(
+        model=model,
+        args=train_args,
+        train_dataset=train_dataset,
+        eval_dataset=valid_dataset,
+        prediction_loss_only=True,
+    )
+    return trainer
