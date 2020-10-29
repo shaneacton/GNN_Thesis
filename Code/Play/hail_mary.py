@@ -45,6 +45,35 @@ def save_dataset():
     torch.save(train_dataset, TRAIN)
     torch.save(valid_dataset, VALID)
 
+def evaluate_model(model, valid_dataset):
+    model = model.cuda()
+    model.eval()
+
+    dataloader = DataLoader(valid_dataset, batch_size=16)
+
+    answers = []
+    with torch.no_grad():
+        for batch in nlp.tqdm(dataloader):
+            start_scores, end_scores = model(input_ids=batch['input_ids'].cuda(),
+                                             attention_mask=batch['attention_mask'].cuda())
+            for i in range(start_scores.shape[0]):
+                all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
+                answer = ' '.join(all_tokens[torch.argmax(start_scores[i]): torch.argmax(end_scores[i]) + 1])
+                ans_ids = tokenizer.convert_tokens_to_ids(answer.split())
+                answer = tokenizer.decode(ans_ids)
+                answers.append(answer)
+
+    predictions = []
+    references = []
+    valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
+
+    for ref, pred in zip(valid_dataset, answers):
+        predictions.append(pred)
+        # print("ref:", ref)
+        references.append(ref['answers']['text'])
+
+    print(evaluate(references, predictions))
+
 
 # save_dataset()
 
@@ -56,6 +85,8 @@ print('loading data')
 train_dataset = torch.load(TRAIN)
 valid_dataset = torch.load(VALID)
 print('loading done')
+
+evaluate_model(model, valid_dataset)
 
 trainer = get_trainer(model, OUT, train_dataset, valid_dataset)
 
@@ -81,31 +112,4 @@ print("checkpoint:", check)
 trainer.train(model_path=check)
 trainer.save_model()
 
-model = model.cuda()
-model.eval()
-
-dataloader = DataLoader(valid_dataset, batch_size=16)
-
-answers = []
-with torch.no_grad():
-    for batch in nlp.tqdm(dataloader):
-        start_scores, end_scores = model(input_ids=batch['input_ids'].cuda(),
-                                      attention_mask=batch['attention_mask'].cuda())
-        for i in range(start_scores.shape[0]):
-            all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
-            answer = ' '.join(all_tokens[torch.argmax(start_scores[i]) : torch.argmax(end_scores[i])+1])
-            ans_ids = tokenizer.convert_tokens_to_ids(answer.split())
-            answer = tokenizer.decode(ans_ids)
-            answers.append(answer)
-
-
-predictions = []
-references = []
-valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
-
-for ref, pred in zip(valid_dataset, answers):
-    predictions.append(pred)
-    # print("ref:", ref)
-    references.append(ref['answers']['text'])
-
-print(evaluate(references, predictions))
+evaluate_model(model, valid_dataset)
