@@ -44,6 +44,7 @@ def save_dataset():
     torch.save(train_dataset, TRAIN)
     torch.save(valid_dataset, VALID)
 
+
 def evaluate_model(model, valid_dataset):
     model = model.cuda()
     model.eval()
@@ -54,7 +55,7 @@ def evaluate_model(model, valid_dataset):
     with torch.no_grad():
         for batch in nlp.tqdm(dataloader):
             start_scores, end_scores = model(input_ids=batch['input_ids'].cuda(),
-                                             attention_mask=batch['attention_mask'].cuda())
+                                             attention_mask=batch['attention_mask'].cuda(), return_dict=False)
             for i in range(start_scores.shape[0]):
                 all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
                 answer = ' '.join(all_tokens[torch.argmax(start_scores[i]): torch.argmax(end_scores[i]) + 1])
@@ -86,7 +87,7 @@ train_dataset = torch.load(TRAIN)
 valid_dataset = torch.load(VALID)
 print('loading done')
 
-evaluate_model(model, valid_dataset)
+# evaluate_model(model, valid_dataset)
 
 trainer = get_trainer(model, OUT, train_dataset, valid_dataset)
 
