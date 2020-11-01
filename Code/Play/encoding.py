@@ -1,3 +1,15 @@
+from typing import Dict
+
+from Code.Data.Text.text_utils import words
+
+
+def question(example):
+    if 'question' in example:
+        return example['question']
+    elif 'query' in example:
+        return example['query']
+    else:
+        raise Exception()
 
 
 class TextEncoder:
@@ -5,10 +17,16 @@ class TextEncoder:
     def __init__(self, tokeniser):
         self.tokeniser = tokeniser
 
-    def get_qa_features(self, example):
-        encoding = self._get_span_features(example)
-        # encoding.update(example)
-        # print("encode:", encoding)
+    def get_qa_features(self, example: Dict):
+        if 'candidates' in example:
+            encoding = self._get_candidate_features(example)
+        else:
+            encoding = self._get_span_features(example)
+        print("ex:", example)
+        print("encode:", encoding)
+        print("tokens:", encoding.tokens())
+        print("word ids:", encoding.words())
+        print("words:", words(encoding, question(example), example['context']))
         return encoding
 
     def _get_candidate_features(self, example):
@@ -16,9 +34,8 @@ class TextEncoder:
 
     def _get_span_features(self, example):
         # the example is encoded like this <s> question</s></s> context</s>
-        # print(example)
 
-        encodings = self.tokeniser(example['question'], example['context'], pad_to_max_length=True, max_length=512)
+        encodings = self.tokeniser(question(example), example['context'], pad_to_max_length=True, max_length=512)
         context_encodings = self.tokeniser.encode_plus(example['context'])
         # Compute start and end tokens for labels using Transformers's fast tokenizers alignement methodes.
         # this will give us the position of answer span in the context text
@@ -29,7 +46,7 @@ class TextEncoder:
         # here we will compute the start and end position of the answer in the whole example
         # as the example is encoded like this <s> question</s></s> context</s>
         # and we know the postion of the answer in the context
-        # we can just find out the index of the sep token and then add that to position + 1 (+1 because there are two sep tokens)
+        # we can just find models the index of the sep token and then add that to position + 1 (+1 because there are two sep tokens)
         # this will give us the position of the answer span in whole example
         sep_idx = encodings['input_ids'].index(self.tokeniser.sep_token_id)
         start_positions = start_positions_context + sep_idx + 1

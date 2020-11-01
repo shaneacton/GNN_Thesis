@@ -1,8 +1,6 @@
 import Code.constants
-from Code.Data.Graph.Nodes.entity_node import EntityNode
-from Code.Data.Text.Tokenisation.token_span import TokenSpan
+from Code.Data.Graph.Nodes.word_node import EntityNode
 
-from Code.Config import graph_construction_config as construction
 
 
 class CandidateNode(EntityNode):

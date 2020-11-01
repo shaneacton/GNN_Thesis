@@ -1,26 +1,26 @@
-import textwrap
-from abc import ABC
+from abc import ABC, abstractmethod
+
+from transformers import TokenSpan
 
 import Code.constants
 from Code.Data.Graph.Nodes.node import Node
-from Code.Data.Text.Tokenisation.token_span import TokenSpan
-from Code.Config import graph_construction_config as construction
 
 
 class SpanNode(Node, ABC):
 
-    def __init__(self, token_span: TokenSpan, source=Code.constants.CONTEXT, subtype=None):
-        self.token_span = token_span
+    def __init__(self, span: TokenSpan, source=Code.constants.CONTEXT, subtype=None):
+        self.token_span = span
         super().__init__(subtype=subtype, source=source)
 
-    @property
-    def level(self):
-        return self.token_span.level
-
     def get_node_viz_text(self):
-        text = "QUERY: " if self.source == Code.constants.QUERY else ""
-        text += self.token_span.text + "\n" + repr(self.token_span.subtoken_indexes)
-        return "\n".join(textwrap.wrap(text, 24))
+        # text = "QUERY: " if self.source == Code.constants.QUERY else ""
+        # text += self.token_span.text + "\n" + repr(self.token_span.subtoken_indexes)
+        # return "\n".join(textwrap.wrap(text, 24))
+        return "span: " + repr(self.token_span)
+
+    @abstractmethod
+    def get_structure_level(self):
+        raise NotImplementedError()
 
     def __eq__(self, other):
         return self.token_span == other.token_span and type(self) == type(other)

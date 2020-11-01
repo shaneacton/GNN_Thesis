@@ -1,5 +1,4 @@
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
-from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
 
 
 class DocumentEdge(EdgeRelation):

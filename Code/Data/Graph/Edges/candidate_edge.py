@@ -1,6 +1,5 @@
 import Code.constants
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
-from Code.Config import graph_construction_config as construction
 
 
 class CandidateEdge(EdgeRelation):

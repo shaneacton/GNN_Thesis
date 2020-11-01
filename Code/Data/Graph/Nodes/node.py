@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 import Code.constants
 from Code.Data.Graph.graph_feature import GraphFeature
-from Code.Config import graph_construction_config as construction
 
 
 class Node (GraphFeature, ABC):
@@ -13,10 +12,6 @@ class Node (GraphFeature, ABC):
 
     @abstractmethod
     def get_node_viz_text(self):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def get_structure_level(self):
         raise NotImplementedError()
 
     def __repr__(self):

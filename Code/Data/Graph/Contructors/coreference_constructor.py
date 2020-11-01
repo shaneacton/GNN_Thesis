@@ -5,7 +5,7 @@ from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor, IncompatibleGraphContructionOrder
 from Code.Data.Graph.Edges.same_entity_edge import SameEntityEdge
-from Code.Data.Graph.Nodes.entity_node import EntityNode
+from Code.Data.Graph.Nodes.word_node import EntityNode
 from Code.Data.Graph.context_graph import ContextGraph
 
 

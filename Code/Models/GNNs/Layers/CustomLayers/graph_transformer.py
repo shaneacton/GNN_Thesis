@@ -21,7 +21,7 @@ class GraphTransformer(GraphLayer):
                             activation_kwargs=activation_kwargs)
 
         if self.input_size == self.output_size:
-            # in == out can use trivial prep
+            # in == models can use trivial prep
             prep = PrepareModule(self.input_size, self.output_size, activation_type, dropout_ratio, activation_kwargs=activation_kwargs)
         else:
             # must map to the desired features

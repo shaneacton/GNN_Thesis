@@ -1,10 +1,8 @@
 import Code.constants
-from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Edges.candidate_edge import CandidateEdge
 from Code.Data.Graph.Nodes.candidate_node import CandidateNode
 from Code.Data.Graph.context_graph import ContextGraph
-from Code.Data.Text.Tokenisation.token_span import TokenSpan
 
 
 class CandidatesConstructor(GraphConstructor):

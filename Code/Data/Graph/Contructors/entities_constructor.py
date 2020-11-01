@@ -1,10 +1,9 @@
 from typing import Dict, Tuple
 
 import Code.constants
-from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Edges.same_entity_edge import SameEntityEdge
-from Code.Data.Graph.Nodes.entity_node import EntityNode
+from Code.Data.Graph.Nodes.word_node import EntityNode
 from Code.Data.Graph.Nodes.unique_entity_node import UniqueEntityNode
 from Code.Data.Graph.context_graph import ContextGraph
 

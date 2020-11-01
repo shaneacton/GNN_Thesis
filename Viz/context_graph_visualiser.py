@@ -4,7 +4,7 @@ import graphviz
 
 import Code.constants
 from Code.Data.Graph.Nodes.document_structure_node import DocumentStructureNode
-from Code.Data.Graph.Nodes.entity_node import EntityNode
+from Code.Data.Graph.Nodes.word_node import EntityNode
 from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Graph.Nodes.token_node import TokenNode
 from Code.Data.Graph.context_graph import ContextGraph

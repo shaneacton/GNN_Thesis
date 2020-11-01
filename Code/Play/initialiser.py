@@ -2,7 +2,7 @@ import torch
 from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel, \
     TrainingArguments, Trainer
 
-from Code.Play.wrap import Wrap
+from Code.Play.composite import Wrap
 
 device = torch.device("cpu")
 

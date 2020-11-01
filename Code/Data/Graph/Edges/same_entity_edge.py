@@ -1,8 +1,5 @@
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
-
-COMENTION = "comention"
-COREFERENCE = "coreference"
-UNIQUE_REFERENCE = "unique_ref"
+from Code.constants import COMENTION, COREFERENCE, UNIQUE_REFERENCE
 
 
 class SameEntityEdge(EdgeRelation):

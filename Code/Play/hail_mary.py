@@ -13,18 +13,24 @@ sys.path.append(os.path.join(dir_path_1, 'Code'))
 
 from Code.Play.encoding import TextEncoder
 from Code.Training.eval_utils import evaluate
-from Code.Play.utils import get_trainer, get_composite_span_longformer
+from Code.Play.initialiser import get_trainer, get_composite_span_longformer
 
 tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 encoder = TextEncoder(tokenizer)
 
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
-OUT = "out"
-MODEL = "model"
+OUT = "models"
 
 DATASET = "squad"  # "qangaroo"  # "squad"
 VERSION = None  # "wikihop"
+# DATASET = "qangaroo"  # "qangaroo"  # "squad"
+# VERSION = "wikihop"
+
+
+def data_loc(set_name):
+    data_name = VERSION if VERSION else DATASET
+    return os.path.join(data_name, set_name)
 
 
 def save_dataset():
@@ -41,8 +47,8 @@ def save_dataset():
     train_dataset.set_format(type='torch', columns=columns)
     valid_dataset.set_format(type='torch', columns=columns)
 
-    torch.save(train_dataset, TRAIN)
-    torch.save(valid_dataset, VALID)
+    torch.save(train_dataset, data_loc(TRAIN))
+    torch.save(valid_dataset, data_loc(VALID))
 
 
 def evaluate_model(model, valid_dataset):
@@ -65,7 +71,7 @@ def evaluate_model(model, valid_dataset):
 
     predictions = []
     references = []
-    valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
+    valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)  # raw text version
 
     for ref, pred in zip(valid_dataset, answers):
         predictions.append(pred)
@@ -75,7 +81,7 @@ def evaluate_model(model, valid_dataset):
     print(evaluate(references, predictions))
 
 
-# save_dataset()
+save_dataset()
 
 print("starting model init")
 # model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
@@ -83,17 +89,17 @@ model = get_composite_span_longformer()
 
 # Get datasets
 print('loading data')
-train_dataset = torch.load(TRAIN)
-valid_dataset = torch.load(VALID)
+train_dataset = torch.load(data_loc(TRAIN))
+valid_dataset = torch.load(data_loc(VALID))
 print('loading done')
 
 # evaluate_model(model, valid_dataset)
 
-trainer = get_trainer(model, OUT, train_dataset, valid_dataset)
+trainer = get_trainer(model, data_loc(OUT), train_dataset, valid_dataset)
 
 
 def get_latest_model():
-    out = os.path.join(".", OUT)
+    out = os.path.join(".", data_loc(OUT))
     checks = [c for c in os.listdir(out) if "check" in c]
     if len(checks) == 0:
         return None
@@ -108,7 +114,7 @@ def get_latest_model():
 
 
 check = get_latest_model()
-check = None if check is None else os.path.join(".", OUT, check)
+check = None if check is None else os.path.join(".", data_loc(OUT), check)
 print("checkpoint:", check)
 trainer.train(model_path=check)
 trainer.save_model()

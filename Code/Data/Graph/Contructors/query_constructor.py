@@ -3,7 +3,7 @@ from Code.Config import graph_construction_config as construction
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Edges.query_edge import QueryEdge
 from Code.Data.Graph.Nodes.document_structure_node import DocumentStructureNode
-from Code.Data.Graph.Nodes.entity_node import EntityNode
+from Code.Data.Graph.Nodes.word_node import EntityNode
 from Code.Data.Graph.Nodes.token_node import TokenNode
 from Code.Data.Graph.context_graph import ContextGraph
 from Code.Data.Text.Tokenisation.document_extract import DocumentExtract
