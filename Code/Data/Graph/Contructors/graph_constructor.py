@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Dict
+
+from transformers import BatchEncoding
 
 from Code.Data.Graph.context_graph import ContextGraph
-from Code.Data.Text.Tokenisation.token_span_hierarchy import TokenSpanHierarchy
-from Code.Data.Text.data_sample import DataSample
 
 
 class GraphConstructor(ABC):
@@ -17,23 +18,19 @@ class GraphConstructor(ABC):
     def __init__(self, gcc):
         self.gcc = gcc
 
-
     @abstractmethod
-    def _append(self, existing_graph: ContextGraph) -> ContextGraph:
+    def _append(self, encoding: BatchEncoding, existing_graph: ContextGraph, batch_id=0) -> ContextGraph:
         raise NotImplementedError()
 
     def add_construct(self, existing_graph: ContextGraph):
         existing_graph.constructs.append(type(self))
 
-    def create_graph_from_data_sample(self, data_sample: DataSample, question):
-        context_span_hierarchy = TokenSpanHierarchy(data_sample.context.token_sequence)
-        graph = ContextGraph(data_sample, context_span_hierarchy, gcc=self.gcc, question=question)
+    def create_graph_from_data_sample(self, example):
+        graph = ContextGraph(example, gcc=self.gcc)
         return self._append(graph)
 
-    def __call__(self, data_sample: DataSample, question=None):
-        if question is None:
-            question = data_sample.questions[0]
-        return self.create_graph_from_data_sample(data_sample, question)
+    def __call__(self, example: Dict):
+        return self.create_graph_from_data_sample(example)
 
 
 class IncompatibleGraphContructionOrder(Exception):

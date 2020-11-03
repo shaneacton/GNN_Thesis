@@ -64,7 +64,7 @@ class GraphConstructionConfig(Config):
         return TOKEN in self.context_structure_levels
 
     def get_graph_constructor(self):
-        from Code.Data.Graph.Contructors.compound_graph_constructor import CompoundGraphConstructor
+        from Code.Data.Graph.Contructors.compound_graph_constructor import QAGraphConstructor
         constructors = []
         if self.use_tokens:
             from Code.Data.Graph.Contructors.tokens_constructor import TokensConstructor
@@ -90,5 +90,5 @@ class GraphConstructionConfig(Config):
         from Code.Data.Graph.Contructors.candidates_constructor import CandidatesConstructor
         constructors.append(CandidatesConstructor)
 
-        cgc = CompoundGraphConstructor(constructors, self)
+        cgc = QAGraphConstructor(constructors, self)
         return cgc

@@ -3,6 +3,7 @@ from typing import Type
 import torch
 from transformers import PreTrainedModel
 
+import Code.Data.Text.text_utils
 from Code.Config import gec
 from Code.Data.Text.Answers.candidate_answer import CandidateAnswer
 from Code.Data.Text.data_sample import DataSample
@@ -48,7 +49,7 @@ class ContextTransformer(ContextNN):
             if batch has candidate answers, returns: cands, sep, query, sep, context
             else returns context, sep, query
         """
-        q = batch.batch_items[0].question
+        q = Code.Data.Text.text_utils.question
         q_ids = self.indexer(q.raw_text)
         ctx_ids = self.indexer(batch.data_sample.context.get_full_context())
         sep_id = torch.tensor(self.configuration.sep_token_id).view(1, 1)

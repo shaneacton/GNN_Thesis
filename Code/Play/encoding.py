@@ -1,15 +1,6 @@
 from typing import Dict
 
-from Code.Data.Text.text_utils import words
-
-
-def question(example):
-    if 'question' in example:
-        return example['question']
-    elif 'query' in example:
-        return example['query']
-    else:
-        raise Exception()
+from Code.Data.Text.text_utils import words, question
 
 
 class TextEncoder:
@@ -18,6 +9,7 @@ class TextEncoder:
         self.tokeniser = tokeniser
 
     def get_qa_features(self, example: Dict):
+        print("type:", type(example))
         if 'candidates' in example:
             encoding = self._get_candidate_features(example)
         else:

@@ -26,3 +26,19 @@ def words(encoding: BatchEncoding, query: str, context):
             words.append(word)
 
     return words
+
+
+def question(example):
+    if 'question' in example:
+        return example['question']
+    elif 'query' in example:
+        return example['query']
+    else:
+        raise Exception("can't get query from " + repr(example))
+
+
+def context(example):
+    if 'context' in example:
+        return example['context']
+    else:
+        raise Exception("can't get context from " + repr(example))

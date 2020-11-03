@@ -4,6 +4,7 @@ from typing import Union
 from torch import nn
 from torch_geometric.data import Batch
 
+import Code.Data.Text.text_utils
 from Code.Config import GNNConfig
 from Code.Config.config_set import ConfigSet
 from Code.constants import ACTIVATION_TYPE, ACTIVATION_ARGS, DROPOUT_RATIO
@@ -82,7 +83,7 @@ class ContextGNN(GNN, ContextNN, ABC):
         for bi in range(len(batch.batch_items)):
             batch_item = batch.batch_items[bi]
             try:
-                data = self.get_graph_from_data_sample(batch_item.data_sample, question=batch_item.question)
+                data = self.get_graph_from_data_sample(batch_item.data_sample, question=Code.Data.Text.text_utils.question)
             except Exception as e:
                 self.last_batch_failures.append(bi)
                 continue

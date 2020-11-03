@@ -1,12 +1,7 @@
 Todo:
 
-* fix id problem in batches in output model
-* activations in pooling
-* bug in graph construction - word to token not getting every link
-* returning edges type-id issue
 * create config save/load system
     * create configs for Longformer, Big Bird, HDE
-* make variant map use gcc rep not constructors rep for offline context graphs
 
 
 * Graph embedder
@@ -66,7 +61,8 @@ pip install torch-cluster==latest+${CUDA} -f https://pytorch-geometric.com/whl/t
 pip install torch-spline-conv==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-${TORCH}.html --user --no-cache-dir
 pip install torch-geometric --user
 pip install transformers --user
-pip install neuralcoref --user
+pip install -U spacy==2.1.3 --user
+pip install neuralcoref --no-binary neuralcoref --user
 python -m spacy download en_core_web_sm
 
 %%wikihop download
