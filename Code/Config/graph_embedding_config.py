@@ -1,9 +1,8 @@
 from torch import nn
 
-import Code.constants
-
 from Code.Config.config import Config
-from Code.constants import SUMMARISER_NAME, HEAD_AND_TAIL_CAT, SELF_ATTENTIVE_POOLING, NUM_LAYERS
+from Code.constants import SUMMARISER_NAME, HEAD_AND_TAIL_CAT, SELF_ATTENTIVE_POOLING, NUM_LAYERS, CONTEXT, QUERY, \
+    TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT
 
 
 class GraphEmbeddingConfig(Config):
@@ -12,25 +11,32 @@ class GraphEmbeddingConfig(Config):
         super().__init__()
         self.use_query_aware_context_vectors = False
 
+        # how to reduce the n feature vectors to 1 for each type of node
         self.span_summarisation_methods = {
-            Code.constants.WORD: HEAD_AND_TAIL_CAT,
-            Code.constants.SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2},
-            Code.constants.PARAGRAPH: HEAD_AND_TAIL_CAT,
-            Code.constants.DOCUMENT: HEAD_AND_TAIL_CAT,
-
-            Code.constants.QUERY_WORD: HEAD_AND_TAIL_CAT,
-            Code.constants.QUERY_SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2}
+            CONTEXT: {
+                WORD: HEAD_AND_TAIL_CAT,
+                SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2},
+                PARAGRAPH: HEAD_AND_TAIL_CAT,
+                DOCUMENT: HEAD_AND_TAIL_CAT
+            },
+            QUERY: {
+                WORD: HEAD_AND_TAIL_CAT,
+                SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2}
+            }
         }
 
+        # used for relative positional embeddings
         self.relative_embeddings_window_per_level = {
-            Code.constants.TOKEN: 20,
-            Code.constants.WORD: 10,
-            Code.constants.SENTENCE: 5,
-            Code.constants.PARAGRAPH: 3,
-
-            Code.constants.QUERY_TOKEN: 20,
-            Code.constants.QUERY_WORD: 10,
-            Code.constants.QUERY_SENTENCE: 5,
+            CONTEXT: {
+                TOKEN: 20,
+                WORD: 10,
+                SENTENCE: 5,
+                PARAGRAPH: 3,
+            },
+            QUERY: {
+                TOKEN: 20,
+                WORD: 10
+            }
         }
 
         self.token_embedder_type = "bert"
@@ -44,31 +50,32 @@ class GraphEmbeddingConfig(Config):
         self.bert_window_overlap_tokens = 20
         self.max_token_embedding_threads = 4
 
-
-
     def get_graph_embedder(self, gcc):
         from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
         graph_embedder = GraphEmbedder(self)
 
-        from Code.Data.Text.token_sequence_embedder import TokenSequenceEmbedder
-        from Code.Data.Text.pretrained_token_sequence_embedder import tokseq_embedder
-
-        token_embedder: TokenSequenceEmbedder = TokenSequenceEmbedder(self, token_embedder=tokseq_embedder())
-
-        graph_embedder.token_embedder = token_embedder
-
         from Code.Config import GraphConstructionConfig
         gcc: GraphConstructionConfig = gcc
-        for structure_level in gcc.all_structure_levels:
-            if structure_level == Code.constants.TOKEN or structure_level == Code.constants.QUERY_TOKEN:
+        ss = graph_embedder.sequence_summarisers
+        for structure_level in gcc.context_structure_levels:
+            if structure_level == TOKEN:  # no summary needed for tokens
                 continue
-            graph_embedder.sequence_summarisers[structure_level] = self.get_sequence_embedder(structure_level)
+            if CONTEXT not in ss:
+                ss[CONTEXT] = {}
+            ss[CONTEXT][structure_level] = self.get_sequence_embedder(structure_level, CONTEXT)
 
-        graph_embedder.on_create_finished()
+        for structure_level in gcc.query_structure_levels:
+            if structure_level == TOKEN:  # no summary needed for tokens
+                continue
+            if QUERY not in ss:
+                ss[QUERY] = {}
+            ss[QUERY][structure_level] = self.get_sequence_embedder(structure_level, QUERY)
+
+        graph_embedder.on_create_finished()  # registers summariser params
         return graph_embedder
 
-    def get_sequence_embedder(self, structure_level):
-        method_conf = self.span_summarisation_methods[structure_level]
+    def get_sequence_embedder(self, structure_level, source):
+        method_conf = self.span_summarisation_methods[source][structure_level]
         if isinstance(method_conf, str):
             method = method_conf
         else:

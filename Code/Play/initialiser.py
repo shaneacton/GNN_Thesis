@@ -17,7 +17,7 @@ PRETRAINED = "valhalla/longformer-base-4096-finetuned-squadv1"
 _tokenizer = None
 
 
-def tokenizer() -> LongformerTokenizerFast:
+def get_tokenizer() -> LongformerTokenizerFast:
     global _tokenizer
     if _tokenizer is None:
         _tokenizer = LongformerTokenizerFast.from_pretrained(PRETRAINED)
@@ -36,7 +36,7 @@ def get_longformer_config():
     configuration.num_attention_heads = HEADS
     configuration.num_hidden_layers = LAYERS
 
-    configuration.vocab_size = tokenizer().vocab_size
+    configuration.vocab_size = get_tokenizer().vocab_size
     return configuration
 
 

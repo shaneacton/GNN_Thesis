@@ -33,9 +33,9 @@ class GraphConstructionConfig(Config):
         self.query_structure_levels = [QUERY_SENTENCE, QUERY_TOKEN]
 
         self.query_connections = {  # defines how the query nodes connect to the context. [GLOBAL] option
-            QUERY_TOKEN: [TOKEN, SENTENCE],
-            QUERY_WORD: [SENTENCE],
-            QUERY_SENTENCE: [TOKEN, SENTENCE]
+            TOKEN: [TOKEN, SENTENCE],
+            WORD: [SENTENCE],
+            SENTENCE: [TOKEN, SENTENCE]
         }
 
         self.use_candidate_nodes = True

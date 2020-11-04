@@ -1,25 +1,24 @@
 import time
-from typing import List, Dict
+from typing import List, Dict, Callable
 
 import torch
-from torch import nn
+from torch import nn, Tensor
 from torch.nn import ModuleDict
+from transformers import PreTrainedTokenizerFast, TokenSpan, BatchEncoding
 
-import Code.constants
-from Code.Config import gec, GraphEmbeddingConfig
-from Code.Config import graph_construction_config as construction
+from Code.Config import GraphEmbeddingConfig
 from Code.Data.Graph import TypeMap
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.Embedders.Summarisers.sequence_summariser import SequenceSummariser
-from Code.Data.Text.token_sequence_embedder import TokenSequenceEmbedder
+from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.Nodes.span_node import SpanNode
 from Code.Data.Graph.Types.types import Types
 from Code.Data.Graph.context_graph import ContextGraph
-from Code.Data.Text.Tokenisation.token_sequence import TokenSequence
-from Code.Data.Text.Tokenisation.token_span import TokenSpan
-from Code.Data.Text.pretrained_token_sequence_embedder import tokseq_embedder
+from Code.Data.Text.longformer_embedder import LongformerEmbedder
+from Code.Data.Text.text_utils import question, context
+from Code.Play.initialiser import get_tokenizer
 from Code.Training import device
 from Code.Training.metric import Metric
+from Code.constants import TOKEN, CONTEXT, QUERY
 
 
 class GraphEmbedder(nn.Module):
@@ -29,13 +28,26 @@ class GraphEmbedder(nn.Module):
     encodes all nodes, as well as edge features, returns a geometric datapoint
     """
 
-    def __init__(self, gec: GraphEmbeddingConfig):
+    def __init__(self, gec: GraphEmbeddingConfig, tokeniser: PreTrainedTokenizerFast=None,
+                 embedder: Callable[[BatchEncoding], Tensor]=None, num_features=-1):
+        """
+        :param embedder: any function which maps a batchencoding to a tensor of features
+        :param num_features: if -1 will default to dims of pretrained embedder
+        """
         super().__init__()
-        self.gec: GraphEmbeddingConfig = gec
-        self.token_embedder: TokenSequenceEmbedder = tokseq_embedder()
-        self.sequence_summarisers: Dict[str, SequenceSummariser] = {}  # maps structure level to a sequence summariser
+        if not embedder:
+            embedder = LongformerEmbedder(out_features=num_features)
+        if not tokeniser:
+            tokeniser = get_tokenizer()
+        self.embedder = embedder
+        self.tokeniser: PreTrainedTokenizerFast = tokeniser
 
-        self.summarisers: ModuleDict = None
+        self.gec: GraphEmbeddingConfig = gec
+        # maps source, structure level to a sequence summariser instance
+        self.sequence_summarisers: Dict[str, Dict[str, SequenceSummariser]] = {}
+
+        self.context_summarisers: ModuleDict = None  # used later to register summariser params
+        self.query_summarisers: ModuleDict = None  # used later to register summariser params
 
         self.node_type_map = TypeMap()  # maps node types to ids
         self.edge_type_map = TypeMap()  # maps edge types to ids
@@ -44,7 +56,8 @@ class GraphEmbedder(nn.Module):
 
     def on_create_finished(self):
         """called after all summarisers added to register the modules"""
-        self.summarisers = ModuleDict(self.sequence_summarisers)
+        self.context_summarisers = ModuleDict(self.sequence_summarisers[CONTEXT])
+        self.query_summarisers = ModuleDict(self.sequence_summarisers[QUERY])
 
     @staticmethod
     def edge_index(graph: ContextGraph) -> torch.Tensor:
@@ -75,47 +88,36 @@ class GraphEmbedder(nn.Module):
             node_types.append(type_id)
         return torch.tensor(node_types).to(device)
 
-    def use_query(self, graph: ContextGraph):
-        has_query_nodes = len(graph.gcc.query_structure_levels) > 0
-        return self.use_query_summary_vec or has_query_nodes
-
-    def use_query_summary_vec(self, graph: ContextGraph) -> bool:
-        query_sentence_node = Code.constants.QUERY_SENTENCE in graph.gcc.query_structure_levels
-        return query_sentence_node or gec.use_query_aware_context_vectors
+    def get_query_and_context_spans(self, qa_encoding, question):
+        qu_encoding = self.tokeniser(question)
+        query_length = len(qu_encoding['input_ids'])
+        context_length = len(qa_encoding['input_ids']) - query_length
+        query_span = TokenSpan(1, query_length + 1)
+        context_span = TokenSpan(query_length + 3, query_length + 3 + context_length)
+        return query_span, context_span
 
     def forward(self, graph: ContextGraph) -> GraphEncoding:
-        context_sequence: TokenSequence = graph.data_sample.context.token_sequence
         # print("running graph embedder on context:", context_sequence)
         start_time = time.time()
-        embedded_context_sequence: torch.Tensor = self.token_embedder(context_sequence)
+        qa_encoding = self.tokeniser(question(graph.example), context(graph.example))
+        query_span, context_span = self.get_query_and_context_spans(qa_encoding, question(graph.example))
+        full_embedded_sequence = self.embedder(qa_encoding)
+        embedded_context_sequence: torch.Tensor = self.get_embedded_elements_in_span(full_embedded_sequence, context_span)
+        embedded_query_sequence: torch.Tensor = self.get_embedded_elements_in_span(full_embedded_sequence, query_span)
 
         node_features: List[torch.Tensor] = [None] * len(graph.ordered_nodes)
 
-        if self.use_query:
-            query_sequence: TokenSequence = graph.query_token_sequence
-            embedded_query_sequence: torch.Tensor = self.token_embedder(query_sequence)
-
-        if self.use_query_summary_vec(graph):
-            # must map the query embedded sequence into a single embedded summary element
-            query_summary: torch.Tensor = self.get_query_vec_summary(embedded_query_sequence)
-
         for node_id in range(len(graph.ordered_nodes)):
             node = graph.ordered_nodes[node_id]
-
-            if node.get_structure_level() == Code.constants.QUERY_SENTENCE:
-                node_features[node_id] = query_summary
-                continue
-
-            source_sequence = embedded_context_sequence if node.source == Code.constants.CONTEXT \
-                else embedded_query_sequence
+            source_sequence = embedded_context_sequence if node.source == CONTEXT else embedded_query_sequence
 
             try:
                 embedding = self.get_node_embedding(source_sequence, node)
+                node_features[node_id] = embedding
             except Exception as e:
                 print("failed to get node embedding for " + repr(node) + " query tok seq: "
                       + repr(graph.query_token_sequence))
                 raise e
-            node_features[node_id] = embedding
 
         self.check_dimensions(node_features, graph)
         features = torch.cat(node_features, dim=0).view(len(node_features), -1)
@@ -137,7 +139,7 @@ class GraphEmbedder(nn.Module):
         structure_level = node.get_structure_level()
         token_embeddings = self.get_embedded_elements_in_span(full_embedded_sequence, node.token_span)
 
-        if structure_level == Code.constants.TOKEN or structure_level == Code.constants.QUERY_TOKEN:
+        if structure_level == TOKEN:
             """no summariser needed"""
             if token_embeddings.size(1) != 1:
                 """token nodes should have exactly 1 seq elem"""
@@ -148,19 +150,13 @@ class GraphEmbedder(nn.Module):
 
         if structure_level not in self.sequence_summarisers:
             raise Exception(repr(node) + " structure level not in " + repr(list(self.sequence_summarisers.keys())))
-        embedder = self.sequence_summarisers[structure_level]
-        return embedder(token_embeddings)
-
-    def get_query_vec_summary(self, embedded_query_sequence: torch.Tensor):
-        if not Code.constants.QUERY_SENTENCE in self.sequence_summarisers:
-            raise Exception(Code.constants.QUERY_SENTENCE + " not in summarisers list")
-        summariser = self.sequence_summarisers[Code.constants.QUERY_SENTENCE]
-        return summariser(embedded_query_sequence)
+        summ = self.sequence_summarisers[node.source][structure_level]
+        return summ(token_embeddings)
 
     @staticmethod
     def get_embedded_elements_in_span(full_embedded_sequence: torch.Tensor, span: TokenSpan):
-        start, end = span.subtoken_indexes[0], span.subtoken_indexes[1]
-        return full_embedded_sequence[:,start:end,:]
+        """cuts the relevant elements out to return the spans elements only"""
+        return full_embedded_sequence[:,span.start:span.end,:]
 
     @staticmethod
     def check_dimensions(node_features: List[torch.Tensor], graph: ContextGraph):

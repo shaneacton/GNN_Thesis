@@ -5,7 +5,6 @@ from transformers import TokenSpan
 import Code.constants
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.Nodes.node import Node
-from Code.Data.Graph.Nodes.node_position import NodePosition
 from Code.Data.Graph.Nodes.span_node import SpanNode
 
 

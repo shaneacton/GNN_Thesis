@@ -12,7 +12,7 @@ nlp = spacy.load('en')
 added_neuralcoref = False
 
 
-def init_doc(doc, text):
+def _init_doc(doc, text):
     if not doc:
         doc = nlp(text)
     return doc
@@ -24,12 +24,15 @@ def get_char_span_from_spacy_span(span: Span, doc) -> Tuple[int]:
     return start_char, end_char
 
 
-def get_sentences(text, doc=None):
-    doc = init_doc(doc, text)
+def get_sentence_char_spans(text, doc=None) -> List[Tuple[int]]:
+    doc = _init_doc(doc, text)
     sents = doc.sents
+    sent_spans = [get_char_span_from_spacy_span(s, doc) for s in sents]
+
+    return sent_spans, doc
 
 
-def get_coref_char_spans(doc) -> Dict[Tuple[int], List[Tuple[int]]]:
+def _get_coref_char_spans(doc) -> Dict[Tuple[int], List[Tuple[int]]]:
     corefs: List[Cluster] = doc._.coref_clusters
 
     coref_chars: Dict[Tuple[int], List[Tuple[int]]] = {}
@@ -44,6 +47,7 @@ def get_coref_char_spans(doc) -> Dict[Tuple[int], List[Tuple[int]]]:
 
 
 def get_entity_and_coref_chars(text, doc=None) -> List[Tuple[Tuple[int], List[Tuple[int]]]]:
+    """returns a list of entity:[corefs] char spans"""
     global added_neuralcoref
     global nlp
 
@@ -51,9 +55,9 @@ def get_entity_and_coref_chars(text, doc=None) -> List[Tuple[Tuple[int], List[Tu
         import neuralcoref
         neuralcoref.add_to_pipe(nlp)
         doc = None  # must reinit doc with NC
-    doc = init_doc(doc, text)
+    doc = _init_doc(doc, text)
 
-    coref_chars = get_coref_char_spans(doc)
+    coref_chars = _get_coref_char_spans(doc)
     ent_and_coref_chars: List[Tuple[Tuple[int], List[Tuple[int]]]] = []
     for ent in doc.ents:
         """get the char spans of all ents, combine with corefs if available"""
@@ -62,19 +66,32 @@ def get_entity_and_coref_chars(text, doc=None) -> List[Tuple[Tuple[int], List[Tu
         cor_span = coref_chars[ent_span] if ent_span in coref_chars else []
         ent_and_coref_chars.append((ent_span, cor_span))
 
-    print(ent_and_coref_chars)
-    for e in ent_and_coref_chars:
-        # print(e)
-        print(text[e[0][0]:e[0][1]])
-        corefs = [text[c[0]: c[1]] for c in e[1]]
-        print(corefs)
+    return ent_and_coref_chars, doc
 
-def nouns(text, doc=None):
-    doc = init_doc(doc, text)
+
+def get_flat_entity_and_corefs_chars(text, doc=None):
+    ent_and_coref_chars, doc = get_entity_and_coref_chars(text, doc=doc)
+    flat = [m[0] for m in ent_and_coref_chars]
+    for m in ent_and_coref_chars:
+        flat.extend(m[1])
+    flat.sort(key=lambda span: (span[0] + span[1]) * 0.5)
+    return flat, doc
+
+
+def get_noun_char_spans(text, doc=None):
+    doc = _init_doc(doc, text)
     nouns = doc.noun_chunks
+    return [get_char_span_from_spacy_span(n, doc) for n in nouns], doc
+
 
 if __name__ == "__main__":
-    sequence = "Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very " \
+    text = "Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very " \
                "close to the Manhattan Bridge which is visible from the window."
-    print(sequence)
-    print(get_entity_and_coref_chars(sequence))
+    # print(sequence)
+    doc = None
+    char_spans, doc = get_flat_entity_and_corefs_chars(text, doc=doc)
+    # char_spans, doc = get_sentence_char_spans(text, doc=doc)
+    # char_spans, doc = get_noun_char_spans(text, doc=doc)
+
+    for s in char_spans:
+        print(text[s[0]: s[1]])

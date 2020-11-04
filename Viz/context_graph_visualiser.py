@@ -4,7 +4,7 @@ import graphviz
 
 import Code.constants
 from Code.Data.Graph.Nodes.document_structure_node import DocumentStructureNode
-from Code.Data.Graph.Nodes.word_node import EntityNode
+from Code.Data.Graph.Nodes.word_node import WordNode
 from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Graph.Nodes.token_node import TokenNode
 from Code.Data.Graph.context_graph import ContextGraph
@@ -37,7 +37,7 @@ def get_node_colour(node: Node):
 
     if isinstance(node, TokenNode):
         return "cadetblue1"
-    if isinstance(node, EntityNode):
+    if isinstance(node, WordNode):
         return "deepskyblue4"
     if isinstance(node, DocumentStructureNode):
         return "deepskyblue1"

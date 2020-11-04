@@ -5,7 +5,7 @@ from Code import constants
 from Code.Data.Graph.Nodes.span_node import SpanNode
 
 
-class EntityNode(SpanNode):
+class WordNode(SpanNode):
 
     def __init__(self, span: TokenSpan, source=Code.constants.CONTEXT, subtype=None):
         """

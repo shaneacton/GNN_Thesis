@@ -13,14 +13,7 @@ class SpanNode(Node, ABC):
         super().__init__(subtype=subtype, source=source)
 
     def get_node_viz_text(self):
-        # text = "QUERY: " if self.source == Code.constants.QUERY else ""
-        # text += self.token_span.text + "\n" + repr(self.token_span.subtoken_indexes)
-        # return "\n".join(textwrap.wrap(text, 24))
         return "span: " + repr(self.token_span)
-
-    @abstractmethod
-    def get_structure_level(self):
-        raise NotImplementedError()
 
     def __eq__(self, other):
         return self.token_span == other.token_span and type(self) == type(other)

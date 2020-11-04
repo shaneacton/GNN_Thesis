@@ -1,0 +1,14 @@
+@startuml
+
+package "Data Flow" {
+    [NLP Loader] - Examples
+    Examples --> [Graph Constructor]
+    [Graph Constructor] - graphs
+    Examples -> [Longformer Encoder]
+    [Longformer Encoder] -> feature_vectors
+    feature_vectors --> [Graph Embedder]
+    graphs -> [Graph Embedder]
+}
+
+
+@enduml

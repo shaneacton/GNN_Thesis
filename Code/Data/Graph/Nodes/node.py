@@ -14,6 +14,10 @@ class Node (GraphFeature, ABC):
     def get_node_viz_text(self):
         raise NotImplementedError()
 
+    @abstractmethod
+    def get_structure_level(self):
+        raise NotImplementedError()
+
     def __repr__(self):
         return super(Node, self).__repr__() + " source: " + self.source
 
