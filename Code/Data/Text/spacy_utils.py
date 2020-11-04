@@ -5,6 +5,9 @@ from neuralcoref.neuralcoref import Cluster
 from spacy.tokens.span import Span
 from spacy.tokens.token import Token
 
+from Code.Data.Text.text_utils import context
+from Code.Test.examples import test_example
+
 nlp = spacy.load('en')
 
 # Add neural coref to SpaCy's pipe
@@ -34,6 +37,7 @@ def get_sentence_char_spans(text, doc=None) -> List[Tuple[int]]:
 
 def _get_coref_char_spans(doc) -> Dict[Tuple[int], List[Tuple[int]]]:
     corefs: List[Cluster] = doc._.coref_clusters
+    print(corefs)
 
     coref_chars: Dict[Tuple[int], List[Tuple[int]]] = {}
     for cor in corefs:
@@ -87,11 +91,12 @@ def get_noun_char_spans(text, doc=None):
 if __name__ == "__main__":
     text = "Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very " \
                "close to the Manhattan Bridge which is visible from the window."
+    text = context(test_example)
     # print(sequence)
     doc = None
     char_spans, doc = get_flat_entity_and_corefs_chars(text, doc=doc)
     # char_spans, doc = get_sentence_char_spans(text, doc=doc)
-    # char_spans, doc = get_noun_char_spans(text, doc=doc)
+    char_spans, doc = get_noun_char_spans(text, doc=doc)
 
     for s in char_spans:
         print(text[s[0]: s[1]])

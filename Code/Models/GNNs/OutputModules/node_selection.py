@@ -3,7 +3,6 @@ from typing import List
 import torch
 from torch import nn, Tensor
 
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Models.GNNs.OutputModules.output_model import OutputModel
 from Code.Training import device
 
@@ -16,7 +15,7 @@ class NodeSelection(OutputModel):
         self.probability_mapper = nn.Linear(in_features, 1)
         self.softmax = nn.Softmax(dim=0)
 
-    def get_output_from_graph_encoding(self, data: GraphEncoding, **kwargs):
+    def get_output_from_graph_encoding(self, data, **kwargs):
         output_ids = self.get_output_ids_from_graph(data)
         batchwise_probabilities = self.get_probabilities(data.x, output_ids)
         return batchwise_probabilities
