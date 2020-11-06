@@ -1,6 +1,6 @@
 import torch
 
-from Code.Data.Graph import TypeMap
+from Code.Data.Graph.Types.type_map import TypeMap
 
 
 class Types:

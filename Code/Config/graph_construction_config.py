@@ -17,7 +17,7 @@ class GraphConstructionConfig(Config):
 
         # which structure levels to make nodes for
         # {TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT}
-        self.context_structure_levels = [TOKEN, SENTENCE]
+        self.context_structure_levels = [TOKEN, WORD, SENTENCE]
 
         # how to connect nodes at the same structure level eg token-token or sentence-sentence
         self.structure_connections = {
@@ -30,7 +30,7 @@ class GraphConstructionConfig(Config):
 
         self.extra_nodes = []
         self.fully_connect_query_nodes = True
-        self.query_structure_levels = [SENTENCE, TOKEN]
+        self.query_structure_levels = [TOKEN, WORD, SENTENCE]
 
         self.query_connections = {  # defines how the query nodes connect to the context. [GLOBAL] option
             TOKEN: [TOKEN, SENTENCE],
@@ -62,33 +62,3 @@ class GraphConstructionConfig(Config):
     @property
     def use_tokens(self):
         return TOKEN in self.context_structure_levels
-
-    def get_graph_constructor(self):
-        from Code.Data.Graph.Contructors.compound_graph_constructor import QAGraphConstructor
-        constructors = []
-        if self.use_tokens:
-            from Code.Data.Graph.Contructors.tokens_constructor import TokensConstructor
-            constructors.append(TokensConstructor)
-        if self.use_words:
-            if ENTITY in self.word_nodes:
-                from Code.Data.Graph.Contructors.entities_constructor import EntitiesConstructor
-                constructors.append(EntitiesConstructor)
-            if COREF in self.word_nodes:
-                from Code.Data.Graph.Contructors.coreference_constructor import CoreferenceConstructor
-                constructors.append(CoreferenceConstructor)
-        if len(self.context_structure_levels) != 1:  # if only one level included - no need for hierarchal structure
-            from Code.Data.Graph.Contructors.document_structure_constructor import DocumentStructureConstructor
-            constructors.append(DocumentStructureConstructor)
-
-        from Code.Data.Graph.Contructors.window_edge_constructor import WindowEdgeConstructor
-        constructors.append(WindowEdgeConstructor)
-
-        if len(self.query_structure_levels):
-            from Code.Data.Graph.Contructors.query_constructor import QueryConstructor
-            constructors.append(QueryConstructor)
-
-        from Code.Data.Graph.Contructors.candidates_constructor import CandidatesConstructor
-        constructors.append(CandidatesConstructor)
-
-        cgc = QAGraphConstructor(constructors, self)
-        return cgc

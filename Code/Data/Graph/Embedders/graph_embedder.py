@@ -7,15 +7,17 @@ from torch.nn import ModuleDict
 from transformers import PreTrainedTokenizerFast, TokenSpan, BatchEncoding
 
 from Code.Config import GraphEmbeddingConfig
-from Code.Data.Graph import TypeMap
+from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
 from Code.Data.Graph.Embedders.Summarisers.sequence_summariser import SequenceSummariser
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.Nodes.span_node import SpanNode
+from Code.Data.Graph.Types.type_map import TypeMap
 from Code.Data.Graph.Types.types import Types
-from Code.Data.Graph.context_graph import ContextGraph
+from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
 from Code.Data.Text.text_utils import question, context
 from Code.Play.initialiser import get_tokenizer
+from Code.Test.examples import test_example
 from Code.Training import device
 from Code.Training.metric import Metric
 from Code.constants import TOKEN, CONTEXT, QUERY
@@ -60,7 +62,7 @@ class GraphEmbedder(nn.Module):
         self.query_summarisers = ModuleDict(self.sequence_summarisers[QUERY])
 
     @staticmethod
-    def edge_index(graph: ContextGraph) -> torch.Tensor:
+    def edge_index(graph: QAGraph) -> torch.Tensor:
         """
         converts edges into connection info for pytorch geometric
         """
@@ -72,7 +74,7 @@ class GraphEmbedder(nn.Module):
                     index[from_to].append(edge[1-from_to])
         return torch.tensor(index).to(device)
 
-    def edge_types(self, graph: ContextGraph) -> torch.Tensor:
+    def edge_types(self, graph: QAGraph) -> torch.Tensor:
         edge_types = []
         for edge in graph.ordered_edges:
             type_id = self.edge_type_map.get_id(edge)
@@ -81,7 +83,7 @@ class GraphEmbedder(nn.Module):
                 edge_types.append(type_id)
         return torch.tensor(edge_types).to(device)
 
-    def node_types(self, graph: ContextGraph) -> torch.Tensor:
+    def node_types(self, graph: QAGraph) -> torch.Tensor:
         node_types = []
         for node in graph.ordered_nodes:
             type_id = self.node_type_map.get_id(node)
@@ -92,11 +94,13 @@ class GraphEmbedder(nn.Module):
         qu_encoding = self.tokeniser(question)
         query_length = len(qu_encoding['input_ids'])
         context_length = len(qa_encoding['input_ids']) - query_length
+        query_length -= 2  # remove s and \s
+        context_length -= 2
         query_span = TokenSpan(1, query_length + 1)
         context_span = TokenSpan(query_length + 3, query_length + 3 + context_length)
         return query_span, context_span
 
-    def forward(self, graph: ContextGraph) -> GraphEncoding:
+    def forward(self, graph: QAGraph) -> GraphEncoding:
         # print("running graph embedder on context:", context_sequence)
         start_time = time.time()
         qa_encoding = self.tokeniser(question(graph.example), context(graph.example))
@@ -115,11 +119,11 @@ class GraphEmbedder(nn.Module):
                 embedding = self.get_node_embedding(source_sequence, node)
                 node_features[node_id] = embedding
             except Exception as e:
-                print("failed to get node embedding for " + repr(node) + " query tok seq: "
-                      + repr(graph.query_token_sequence))
+                print("failed to get node embedding for " + repr(node))
                 raise e
 
         self.check_dimensions(node_features, graph)
+        print("dimensions ok")
         features = torch.cat(node_features, dim=0).view(len(node_features), -1)
 
         node_types = self.node_types(graph)
@@ -127,6 +131,7 @@ class GraphEmbedder(nn.Module):
         types = Types(self.node_type_map, self.edge_type_map, node_types, edge_types)
 
         encoding = GraphEncoding(graph, self.gec, types, x=features, edge_index=self.edge_index(graph))
+        print("encoding created")
 
         self.embedding_times.report(time.time() - start_time)
         return encoding
@@ -148,8 +153,12 @@ class GraphEmbedder(nn.Module):
                                 + "\n full seq:" + repr(full_embedded_sequence.size()))
             return token_embeddings
 
-        if structure_level not in self.sequence_summarisers:
-            raise Exception(repr(node) + " structure level not in " + repr(list(self.sequence_summarisers.keys())))
+        if node.source not in self.sequence_summarisers:
+            raise Exception(repr(node) + " source not in " + repr(list(self.sequence_summarisers.keys())))
+        if structure_level not in self.sequence_summarisers[node.source]:
+            raise Exception(repr(node) + " structure lev " + structure_level +" not in " +
+                            repr(list(self.sequence_summarisers[node.source].keys())))
+
         summ = self.sequence_summarisers[node.source][structure_level]
         return summ(token_embeddings)
 
@@ -159,7 +168,7 @@ class GraphEmbedder(nn.Module):
         return full_embedded_sequence[:,span.start:span.end,:]
 
     @staticmethod
-    def check_dimensions(node_features: List[torch.Tensor], graph: ContextGraph):
+    def check_dimensions(node_features: List[torch.Tensor], graph: QAGraph):
         size = -1
         for i in range(len(node_features)):
             node = graph.ordered_nodes[i]
@@ -175,3 +184,18 @@ class GraphEmbedder(nn.Module):
             if size != node_size:
                 first_node = graph.ordered_nodes[0]
                 raise Exception("size mismatch. Got " + repr(size) + " for " + repr(first_node) + " but " + repr(node_size) + " for " + repr(node))
+
+
+if __name__ == "__main__":
+    from Code.Config import gec
+    from Code.Config import gcc
+
+    embedder = gec.get_graph_embedder(gcc)
+
+    const = QAGraphConstructor(gcc)
+
+    print(test_example)
+
+    graph = const.create_graph_from_data_sample(test_example)
+    encoding = embedder(graph)
+    print("done")

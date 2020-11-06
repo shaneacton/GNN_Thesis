@@ -9,7 +9,7 @@ class WordNode(SpanNode):
 
     def __init__(self, span: TokenSpan, source=Code.constants.CONTEXT, subtype=None):
         """
-        :param subtype: can be WORD, ENTITY, UNIQUE_ENTITY, COREF
+        :param subtype: can be WORD, ENTITY, UNIQUE_ENTITY
         """
         if not subtype:
             subtype = constants.WORD

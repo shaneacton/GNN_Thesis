@@ -1,7 +1,7 @@
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 
 
-class DocumentEdge(EdgeRelation):
+class StructureEdge(EdgeRelation):
 
     """
     these links represent document structure

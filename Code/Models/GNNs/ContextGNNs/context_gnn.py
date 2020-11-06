@@ -10,7 +10,7 @@ from Code.Config.config_set import ConfigSet
 from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
-from Code.Data.Graph.context_graph import ContextGraph
+from Code.Data.Graph.context_graph import QAGraph
 
 from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
 from Code.Models.GNNs.gnn import GNN
@@ -53,17 +53,17 @@ class ContextGNN(GNN, ContextNN, ABC):
         # to initialise all sample dependant/ dynamically created params, before being passed to the optimiser
         self.forward(encoding)
 
-    def forward(self, input: Union[ContextGraph, GraphEncoding, DataSample, SampleBatch]) -> GraphEncoding:
+    def forward(self, input: Union[QAGraph, GraphEncoding, DataSample, SampleBatch]) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
         data = self.get_graph_encoding(input)
         return self._forward(data)
 
-    def get_graph_encoding(self, input: Union[ContextGraph, GraphEncoding, Dict]) -> GraphEncoding:
+    def get_graph_encoding(self, input: Union[QAGraph, GraphEncoding, Dict]) -> GraphEncoding:
         """graph encoding is done with a batchsize of 1"""
         if isinstance(input, GraphEncoding):
             return input
         data = None
-        if isinstance(input, ContextGraph):
+        if isinstance(input, QAGraph):
             data: GraphEncoding = self.embedder(input)
         if isinstance(input, Dict):
             data: GraphEncoding = self.get_graph_from_data_sample(input)

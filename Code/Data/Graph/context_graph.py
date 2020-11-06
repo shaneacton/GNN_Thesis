@@ -8,7 +8,7 @@ from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Graph.Nodes.span_node import SpanNode
 
 
-class ContextGraph:
+class QAGraph:
 
     """
     Directed graph constructed from a tokensequence and construction config
@@ -67,7 +67,10 @@ class ContextGraph:
     def add_edges(self, edges):
         [self.add_edge(edge) for edge in edges]
 
-    def add_edge(self, edge):
+    def add_edge(self, edge: EdgeRelation):
+        if edge.to_id == edge.from_id:
+            # no self connections
+            return
         if edge not in self.unique_edges:
             self.unique_edges.add(edge)
             self.ordered_edges.append(edge)
