@@ -52,7 +52,7 @@ class GraphEmbeddingConfig(Config):
 
     def get_graph_embedder(self, gcc):
         from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
-        graph_embedder = GraphEmbedder(self)
+        graph_embedder = GraphEmbedder(self, gcc=gcc)
 
         from Code.Config import GraphConstructionConfig
         gcc: GraphConstructionConfig = gcc

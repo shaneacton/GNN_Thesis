@@ -2,17 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Union, Dict
 
 from torch import nn
-from torch_geometric.data import Batch
-
-import Code.Data.Text.text_utils
 from Code.Config import GNNConfig
 from Code.Config.config_set import ConfigSet
-from Code.Data.Graph.Contructors.graph_constructor import GraphConstructor
+from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import QAGraph
 
-from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
 from Code.Models.GNNs.gnn import GNN
 from Code.Models.context_nn import ContextNN
 from Code.Training import device
@@ -24,11 +20,11 @@ class ContextGNN(GNN, ContextNN, ABC):
     takes in context graphs as inputs, outputs graph encoding
     """
 
-    def __init__(self, constructor: GraphConstructor, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None):
+    def __init__(self, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None):
         GNN.__init__(self, None, gnnc, configs)
         ContextNN.__init__(self)
         self.embedder: GraphEmbedder = embedder
-        self.constructor: GraphConstructor = constructor
+        self.constructor: QAGraphConstructor = QAGraphConstructor(embedder.gcc)
 
         self.output_model = None
 
@@ -42,18 +38,18 @@ class ContextGNN(GNN, ContextNN, ABC):
         return self.configs.gnnc
 
     def init_model(self, example):
-        encoding: GraphEncoding = self.get_graph_encoding(data_sample)
+        encoding: GraphEncoding = self.get_graph_encoding(example)
         in_features = encoding.x.size(-1)
         out_features = self.init_layers(in_features)
         self.sizes = [in_features, 1]
 
         self.layer_list = nn.ModuleList(self.layers).to(device)  # registers modules with pytorch and moves to device
-        self.init_output_model(data_sample, out_features)
+        self.init_output_model(example, out_features)
 
         # to initialise all sample dependant/ dynamically created params, before being passed to the optimiser
         self.forward(encoding)
 
-    def forward(self, input: Union[QAGraph, GraphEncoding, DataSample, SampleBatch]) -> GraphEncoding:
+    def forward(self, input: Union[QAGraph, GraphEncoding, Dict]) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
         data = self.get_graph_encoding(input)
         return self._forward(data)
@@ -87,10 +83,12 @@ class ContextGNN(GNN, ContextNN, ABC):
         # get x, autodetect feature count
         # init layers based on detected in_features and init args
         # print("cgnn operating on:",data,"\nx=",data.x)
-        data = GNN._forward(self, data)  # add type and abs pos embeddings
+
         if self.layer_list is None:
             # gnn layers have not been initialised yet
             self.init_model(data.graph.example)
+        data = GNN._forward(self, data)  # add type and abs pos embeddings
+
 
         data.layer = 0
         next_layer = 0
@@ -108,12 +106,5 @@ class ContextGNN(GNN, ContextNN, ABC):
             data = self.output_model(data)
 
         return data
-
-    def get_output_model_type(self, example: Dict):
-        # answer_type = data_sample.get_answer_type()
-        # if answer_type == CandidateAnswer:
-        #     return CandidateSelection
-        # return ContextNN.get_output_model_type(self, data_sample)
-        pass
 
 

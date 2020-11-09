@@ -9,15 +9,19 @@ from torch import nn
 class GNNComponent:
 
     def __init__(self, sizes: List[int], activation_type, dropout_ratio, activation_kwargs=None):
+        self.activation_kwargs = activation_kwargs
+        self.activation_type = activation_type
         self.sizes = sizes
         self.dropout_ratio = dropout_ratio
+        self.activation=None
+        self.activate=None
+        self.init_activation()
 
-        if not activation_type:
-            # print("no activation type for", self)
+    def init_activation(self):
+        if not self.activation_type:
+            print("GNN Comp: no activation type for", self)
             return
-
-        self.activation = GenericActivation(activation_type, activation_kwargs)
-        # print("comp:", self, "act:", self.activation)
+        self.activation = GenericActivation(self.activation_type, self.activation_kwargs)
         self.activate = lambda x: self.activation(x)
 
     def dropout(self, vector: torch.Tensor, training):

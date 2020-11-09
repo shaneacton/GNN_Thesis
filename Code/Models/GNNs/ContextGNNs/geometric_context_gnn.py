@@ -8,6 +8,8 @@ class GeometricContextGNN(ContextGNN):
     def add_layer(self, in_features, out_features, layer_type: Type):
         layer = layer_type(in_features, out_features)
         self.layers.append(layer)
+        if not "activation" in self.__dict__:
+            self.init_activation()
         self.layers.append(self.activation)
 
     def init_layers(self, in_features, layer_type: Type, num_layers=5) -> int:

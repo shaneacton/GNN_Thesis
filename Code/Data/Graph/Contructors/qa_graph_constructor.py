@@ -25,6 +25,9 @@ class QAGraphConstructor:
             tokeniser = get_tokenizer()
         self.tokeniser: PreTrainedTokenizerFast = tokeniser
 
+    def __call__(self, example, batch_id=0):
+        return self.create_graph_from_data_sample(example, batch_id=batch_id)
+
     def create_graph_from_data_sample(self, example, batch_id=0) -> QAGraph:
         context_hierarchy, query_hierarchy = self.build_hierarchies(example)
         graph = QAGraph(example, self.gcc)

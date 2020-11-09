@@ -31,12 +31,13 @@ class GraphEmbedder(nn.Module):
     """
 
     def __init__(self, gec: GraphEmbeddingConfig, tokeniser: PreTrainedTokenizerFast=None,
-                 embedder: Callable[[BatchEncoding], Tensor]=None, num_features=-1):
+                 embedder: Callable[[BatchEncoding], Tensor]=None, num_features=-1, gcc=None):
         """
         :param embedder: any function which maps a batchencoding to a tensor of features
         :param num_features: if -1 will default to dims of pretrained embedder
         """
         super().__init__()
+        self.gcc = gcc
         if not embedder:
             embedder = LongformerEmbedder(out_features=num_features)
         if not tokeniser:
@@ -123,7 +124,6 @@ class GraphEmbedder(nn.Module):
                 raise e
 
         self.check_dimensions(node_features, graph)
-        print("dimensions ok")
         features = torch.cat(node_features, dim=0).view(len(node_features), -1)
 
         node_types = self.node_types(graph)
@@ -131,7 +131,6 @@ class GraphEmbedder(nn.Module):
         types = Types(self.node_type_map, self.edge_type_map, node_types, edge_types)
 
         encoding = GraphEncoding(graph, self.gec, types, x=features, edge_index=self.edge_index(graph))
-        print("encoding created")
 
         self.embedding_times.report(time.time() - start_time)
         return encoding

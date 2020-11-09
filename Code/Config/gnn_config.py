@@ -9,18 +9,18 @@ class GNNConfig(Config):
     def __init__(self):
 
         super().__init__()
-        # from torch import nn
+        from torch import nn
         # from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
         # from Code.Models.GNNs.Layers.CustomLayers.graph_transformer import GraphTransformer
         #
         # self.relations_basis_count = 3
         #
-        # self.global_params = {
-        #     ACTIVATION_TYPE: nn.ReLU,
-        #     DROPOUT_RATIO: 0.5,
-        # }
+        self.global_params = {
+            ACTIVATION_TYPE: nn.ReLU,
+            DROPOUT_RATIO: 0.5,
+        }
         #
-        # self.use_node_type_embeddings = True
+        self.use_node_type_embeddings = True
         #
         # self.layers = [
         #     # {
