@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Union, Dict
+from typing import Union, Dict, List
 
 from torch import nn
+from torch_geometric.data import Batch
+
 from Code.Config import GNNConfig
 from Code.Config.config_set import ConfigSet
 from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
@@ -68,9 +70,20 @@ class ContextGNN(GNN, ContextNN, ABC):
             raise Exception()
         return data
 
+    def get_graphs_from_batched_example(self):
+        """
+            The torch data loader batches dictionaries by stacking each of the values per key
+            {a:1, b:2} + {a:3, b:4} = {a: [1,3], b:[2,4]}
+        """
+
     def get_graph_from_data_sample(self, example) -> GraphEncoding:
-        graph = self.constructor(example)
-        data: GraphEncoding = self.embedder(graph)
+        graphs: Union[List[QAGraph], QAGraph] = self.constructor(example)
+        if isinstance(graphs, List):
+            # todo this graph embedding can be done in parallel
+            datas: List[GraphEncoding] = [self.embedder(graph) for graph in graphs]
+            data = Batch.from_data_list(datas)  # batch the graph embeddings using Pytorch Geometric
+        else:
+            data: GraphEncoding = self.embedder(graphs)
         return data
 
     @abstractmethod

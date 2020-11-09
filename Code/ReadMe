@@ -65,10 +65,3 @@ pip install -U spacy==2.1.3 --user
 pip install neuralcoref --no-binary neuralcoref --user
 python -m spacy download en_core_web_sm
 
-%%wikihop download
-wget https://drive.google.com/file/d/1ytVZ4AhubFDOEL7o7XrIRIyhU8g9wvKA/
-unzip unzip qangaroo_v1.1.zip  %% or download from their website
-
-%% or visualisation
-sudo apt-get install graphviz
-pip install graphviz

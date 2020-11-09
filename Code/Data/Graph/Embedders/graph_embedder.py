@@ -195,6 +195,6 @@ if __name__ == "__main__":
 
     print(test_example)
 
-    graph = const.create_graph_from_data_sample(test_example)
+    graph = const._create_single_graph_from_data_sample(test_example)
     encoding = embedder(graph)
     print("done")

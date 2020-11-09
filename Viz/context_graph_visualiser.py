@@ -89,6 +89,6 @@ if __name__ == "__main__":
 
     const = QAGraphConstructor(gcc)
     print(test_example)
-    graph = const.create_graph_from_data_sample(test_example)
+    graph = const._create_single_graph_from_data_sample(test_example)
     context_hierarchy, query_hierarchy = const.build_hierarchies(test_example)
     render_graph(graph, context_hierarchy.encoding, query_hierarchy.encoding, "test", ".")

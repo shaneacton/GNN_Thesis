@@ -1,3 +1,5 @@
+from typing import List, Union
+
 from transformers import BatchEncoding
 
 
@@ -28,17 +30,39 @@ def words(encoding: BatchEncoding, query: str, context):
     return words
 
 
-def question(example):
+def is_batched(example):
+    qkey = question_key(example)
+    return isinstance(example[qkey], List)
+
+
+def get_single_value(example, key):
+    if isinstance(example[key], List):
+        raise Exception("cannot get " + key + " from ex, it appears to be batched: " + repr(example))
+    return example[key]
+
+
+def question_key(example):
     if 'question' in example:
-        return example['question']
+        key = 'question'
     elif 'query' in example:
-        return example['query']
+        key = example['query']
     else:
         raise Exception("can't get query from " + repr(example))
+    return key
 
 
-def context(example):
+def question(example) -> Union[str, List[str]]:
+    if is_batched(example):
+        return get_single_value(example, question_key(example))
+    return get_single_value(example, question_key(example))
+
+
+def context(example) -> Union[str, List[str]]:
     if 'context' in example:
-        return example['context']
+        context = example['context']
+    elif 'supports' in example:
+        # multiple passages for a single context, must combine
+        raise NotImplementedError()
     else:
         raise Exception("can't get context from " + repr(example))
+    return context
