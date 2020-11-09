@@ -7,8 +7,14 @@ from spacy.tokens.span import Span
 from Code.Data.Text.text_utils import context
 from Code.Test.examples import test_example
 
-nlp = spacy.load('en')
-
+try:
+    import en_core_web_sm
+    nlp = en_core_web_sm.load()
+except:
+    print("failed to load en_core_web_sm, trying in clisyer location")
+    import spacy
+    spacy.util.set_data_path('/home/sacton/.conda/envs/gnn_env/lib/python3.8/site-packages')
+    nlp = spacy.load('en_core_web_sm')
 # Add neural coref to SpaCy's pipe
 
 added_neuralcoref = False
