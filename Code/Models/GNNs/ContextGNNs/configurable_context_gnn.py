@@ -1,6 +1,5 @@
 import Code.constants
-from Code.Config import gnn_config
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
 from Code.Models.GNNs.graph_module import GraphModule
 

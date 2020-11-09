@@ -3,7 +3,7 @@ from typing import List
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import remove_self_loops, add_self_loops
 
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.gnn_component import GNNComponent
 
 
@@ -31,10 +31,10 @@ class BaseGraphLayer(GNNComponent, MessagePassing):
         self.clean_loops(data)
 
         kwargs = self.get_required_kwargs_from_batch(data)
-        kwargs["edge_types"] = data.edge_types
+        kwargs["types"] = data.edge_types
         kwargs["node_types"] = data.node_types
         kwargs["encoding"] = data
-        kwargs["graph"] = data.graph
+        kwargs["graph"] = data.graphs
         kwargs["layer"] = data.layer
 
         return kwargs

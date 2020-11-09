@@ -5,7 +5,7 @@ from torch import nn
 import Code.constants
 from Code.Config import GNNConfig, ConfigSet
 from Code.constants import ACTIVATION_TYPE, ACTIVATION_ARGS, DROPOUT_RATIO
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+from Code.Data.Graph.graph_encoding import GraphEncoding
 # from Code.Data.Graph.Embedders.position_embedder import PositionEmbedder
 from Code.Data.Graph.Embedders.type_embedder import TypeEmbedder
 from Code.Models.GNNs.gnn_component import GNNComponent
@@ -42,7 +42,7 @@ class GNN(GNNComponent, nn.Module):
         #     self.positional_embedder = PositionEmbedder(in_features, self.configs.gcc, self.configs.gec)
 
     def add_node_type_embeddings(self, data: GraphEncoding):
-        type_embeddings = self.node_type_embedder(data.types.node_types)
+        type_embeddings = self.node_type_embedder(data.node_types)
         # print(self, "adding node type embs:", type_embeddings.size())
         data.x = data.x + type_embeddings
         return data

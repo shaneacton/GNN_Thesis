@@ -20,7 +20,7 @@ class GNNConfig(Config):
             DROPOUT_RATIO: 0.5,
         }
         #
-        self.use_node_type_embeddings = True
+        self.use_node_type_embeddings = False
         #
         # self.layers = [
         #     # {

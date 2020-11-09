@@ -3,7 +3,7 @@ from typing import Union
 import torch
 from torch import nn
 
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Training import device
 
 

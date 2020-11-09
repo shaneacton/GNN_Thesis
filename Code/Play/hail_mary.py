@@ -60,14 +60,18 @@ def evaluate_model(model, valid_dataset):
     answers = []
     with torch.no_grad():
         for batch in nlp.tqdm(dataloader):
+            print("batch:", batch)
             start_scores, end_scores = model(input_ids=batch['input_ids'].cuda(),
                                              attention_mask=batch['attention_mask'].cuda(), return_dict=False)
+            print("starts:", start_scores.size(), "ends:", end_scores.size())
+
             for i in range(start_scores.shape[0]):
                 all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
                 answer = ' '.join(all_tokens[torch.argmax(start_scores[i]): torch.argmax(end_scores[i]) + 1])
                 ans_ids = tokenizer.convert_tokens_to_ids(answer.split())
                 answer = tokenizer.decode(ans_ids)
                 answers.append(answer)
+            raise Exception()
 
     predictions = []
     references = []
@@ -81,7 +85,7 @@ def evaluate_model(model, valid_dataset):
     print(evaluate(references, predictions))
 
 
-save_dataset()
+# save_dataset()
 
 print("starting model init")
 # model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
@@ -93,7 +97,7 @@ train_dataset = torch.load(data_loc(TRAIN))
 valid_dataset = torch.load(data_loc(VALID))
 print('loading done')
 
-# evaluate_model(model, valid_dataset)
+evaluate_model(model, valid_dataset)
 
 trainer = get_trainer(model, data_loc(OUT), train_dataset, valid_dataset)
 

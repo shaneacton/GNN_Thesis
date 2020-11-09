@@ -39,8 +39,8 @@ class GraphEmbeddingConfig(Config):
             }
         }
 
-        self.token_embedder_type = "bert"
-        self.use_contextual_embeddings = True
+        self.max_tokens = 1024
+
         self.fine_tune_token_embedder = False
 
         self.use_absolute_positional_embeddings = True

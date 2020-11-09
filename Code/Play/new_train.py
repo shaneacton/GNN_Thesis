@@ -6,13 +6,12 @@ import torch
 from torch.utils.data import DataLoader
 from transformers import LongformerTokenizerFast, LongformerForQuestionAnswering
 
-from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
+from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Play.encoding import TextEncoder
 from Code.Training.eval_utils import evaluate
 from Code.Play.initialiser import get_trainer, get_composite_span_longformer
@@ -46,12 +45,14 @@ def evaluate_model(model, valid_dataset):
         for batch in nlp.tqdm(dataloader):
             print("batch:", batch)
             start_scores, end_scores = model(batch)
+            print("starts:", start_scores.size(), "ends:", end_scores.size())
             for i in range(start_scores.shape[0]):
                 all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
                 answer = ' '.join(all_tokens[torch.argmax(start_scores[i]): torch.argmax(end_scores[i]) + 1])
                 ans_ids = tokenizer.convert_tokens_to_ids(answer.split())
                 answer = tokenizer.decode(ans_ids)
                 answers.append(answer)
+                print("got answers:", answer)
     print("got answers")
 
     predictions = []

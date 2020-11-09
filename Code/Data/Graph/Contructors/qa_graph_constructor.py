@@ -33,6 +33,14 @@ class QAGraphConstructor:
         return self._create_single_graph_from_data_sample(example)
 
     def _create_graphs_from_batched_data_sample(self, example) -> List[QAGraph]:
+        """
+            The torch data loader batches dictionaries by stacking each of the values per key
+            {a:1, b:2} + {a:3, b:4} = {a: [1,3], b:[2,4]}
+
+            break these up into individual examples to construct graphs in series
+            todo: parallelise
+        """
+
         single_examples = []
         questions = question(example)
         contexts = context(example)
@@ -43,6 +51,9 @@ class QAGraphConstructor:
         return graphs
 
     def _create_single_graph_from_data_sample(self, example) -> QAGraph:
+        if is_batched(example):
+            raise Exception("must pass a single, unbatched example. instead got: " + repr(example))
+
         context_hierarchy, query_hierarchy = self.build_hierarchies(example)
         graph = QAGraph(example, self.gcc)
         self.add_nodes_from_hierarchy(graph, context_hierarchy)

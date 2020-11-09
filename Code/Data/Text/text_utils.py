@@ -53,7 +53,7 @@ def question_key(example):
 
 def question(example) -> Union[str, List[str]]:
     if is_batched(example):
-        return get_single_value(example, question_key(example))
+        return example[question_key(example)]
     return get_single_value(example, question_key(example))
 
 

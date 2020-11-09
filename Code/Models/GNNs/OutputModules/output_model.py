@@ -10,7 +10,7 @@ class OutputModel(nn.Module, ABC):
         self.in_features = in_features
 
     def forward(self, x, **kwargs):
-        from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+        from Code.Data.Graph.graph_encoding import GraphEncoding
 
         if isinstance(x, GraphEncoding):
             return self.get_output_from_graph_encoding(x, **kwargs)

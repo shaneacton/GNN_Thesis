@@ -8,7 +8,7 @@ from Code.Config import GNNConfig
 from Code.Config.config_set import ConfigSet
 from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import QAGraph
 
 from Code.Models.GNNs.gnn import GNN
@@ -70,18 +70,12 @@ class ContextGNN(GNN, ContextNN, ABC):
             raise Exception()
         return data
 
-    def get_graphs_from_batched_example(self):
-        """
-            The torch data loader batches dictionaries by stacking each of the values per key
-            {a:1, b:2} + {a:3, b:4} = {a: [1,3], b:[2,4]}
-        """
-
     def get_graph_from_data_sample(self, example) -> GraphEncoding:
         graphs: Union[List[QAGraph], QAGraph] = self.constructor(example)
         if isinstance(graphs, List):
             # todo this graph embedding can be done in parallel
             datas: List[GraphEncoding] = [self.embedder(graph) for graph in graphs]
-            data = Batch.from_data_list(datas)  # batch the graph embeddings using Pytorch Geometric
+            data = GraphEncoding.batch(datas)
         else:
             data: GraphEncoding = self.embedder(graphs)
         return data
@@ -95,13 +89,13 @@ class ContextGNN(GNN, ContextNN, ABC):
         # format of graph layers forward: (x, edge_index, batch, **kwargs)
         # get x, autodetect feature count
         # init layers based on detected in_features and init args
-        # print("cgnn operating on:",data,"\nx=",data.x)
+        if isinstance(data, List):
+            raise Exception("graph encodings should be batched via pytorch geometric batch class")
 
         if self.layer_list is None:
             # gnn layers have not been initialised yet
-            self.init_model(data.graph.example)
+            self.init_model(data.graphs[0].example)
         data = GNN._forward(self, data)  # add type and abs pos embeddings
-
 
         data.layer = 0
         next_layer = 0
@@ -109,7 +103,6 @@ class ContextGNN(GNN, ContextNN, ABC):
         for layer in self.layers:
             next_layer = max(next_layer + 1, data.layer)
             data = self.pass_layer(layer, data)  # may or may not increase the layer count
-
             next_layer = max(next_layer, data.layer)
             data.layer = next_layer
 

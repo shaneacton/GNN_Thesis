@@ -12,6 +12,8 @@ HEADS = 6
 ATTENTION_WINDOW = 128
 LAYERS = 5
 
+BATCH_SIZE = 2
+
 PRETRAINED = "valhalla/longformer-base-4096-finetuned-squadv1"
 
 _tokenizer = None
@@ -64,7 +66,7 @@ def get_composite_span_longformer():
 
 def get_trainer(model, outdir, train_dataset, valid_dataset):
     train_args = TrainingArguments(outdir)
-    train_args.per_device_train_batch_size = 8
+    train_args.per_device_train_batch_size = BATCH_SIZE
     train_args.do_eval = False
     train_args.evaluation_strategy = "no"
     # train_args.eval_steps = 2000

@@ -3,8 +3,8 @@ from typing import List
 from torch import nn
 
 import Code.constants
-from Code.Config import gnn_config, GNNConfig
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+from Code.Config import GNNConfig
+from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.Layers.layer_constructor import LayerConstructor
 from Code.Models.GNNs.gnn_component import GNNComponent
 

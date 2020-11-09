@@ -42,7 +42,6 @@ class GraphConstructionConfig(Config):
         # which context levels to connect to. automatically connected to all query nodes
         self.candidate_connections = [SENTENCE]
 
-        self.context_max_chars = -1
         self.max_edges = 300000
 
     @property

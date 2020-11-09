@@ -35,6 +35,9 @@ class NodeSelection(OutputModel):
         max_node_count = -1
         # must do final probability mapping separately due to differing classification node counts per batch item
         for graph_node_ids in output_ids:
+            """
+                for each nod
+            """
             if not isinstance(output_ids, torch.Tensor):
                 node_ids = torch.tensor(graph_node_ids).to(device)
             else:
@@ -48,9 +51,9 @@ class NodeSelection(OutputModel):
             probs.append(probabilities)
             max_node_count = max(max_node_count, len(graph_node_ids))
 
-        for p in range(len(probs)):
+        for p in range(len(probs)):  # pad
             num_probs = probs[p].size(0)
-            probs[p] = torch.cat([probs[p], torch.zeros(max_node_count - num_probs)])  # pad
+            probs[p] = torch.cat([probs[p], torch.zeros(max_node_count - num_probs).to(device)])
 
         batchwise_probabilities = torch.stack(probs).view(len(probs), -1)
         return batchwise_probabilities
@@ -60,14 +63,14 @@ class NodeSelection(OutputModel):
             returns 2d arrary shaped (batch, node_ids)
             here the number of node ids may vary between batch items
         """
-        if isinstance(data.graph, List):
+        if isinstance(data.graphs, List):
             all_ids = []
-            for g in data.graph:
+            for g in data.graphs:
                 ids = self.get_node_ids_from_graph(g)
                 all_ids.append(ids)
             return all_ids
         else:
-            return [self.get_node_ids_from_graph(data.graph)]
+            return [self.get_node_ids_from_graph(data.graphs)]
 
     def get_node_ids_from_graph(self, graph):
         # override to make node selection on a subset only

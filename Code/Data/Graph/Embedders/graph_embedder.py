@@ -6,10 +6,10 @@ from torch import nn, Tensor
 from torch.nn import ModuleDict
 from transformers import PreTrainedTokenizerFast, TokenSpan, BatchEncoding
 
-from Code.Config import GraphEmbeddingConfig
+from Code.Config import GraphEmbeddingConfig, gec
 from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
 from Code.Data.Graph.Embedders.Summarisers.sequence_summariser import SequenceSummariser
-from Code.Data.Graph.Embedders.graph_encoding import GraphEncoding
+from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Data.Graph.Nodes.span_node import SpanNode
 from Code.Data.Graph.Types.type_map import TypeMap
 from Code.Data.Graph.Types.types import Types
@@ -102,9 +102,12 @@ class GraphEmbedder(nn.Module):
         return query_span, context_span
 
     def forward(self, graph: QAGraph) -> GraphEncoding:
+        if isinstance(graph, List):
+            raise Exception("single graph embedder cannot handle batched graphs: " + repr(graph))
         # print("running graph embedder on context:", context_sequence)
         start_time = time.time()
-        qa_encoding = self.tokeniser(question(graph.example), context(graph.example))
+        qa_encoding = self.tokeniser(question(graph.example), context(graph.example), pad_to_max_length=True,
+                                     max_length=gec.max_tokens)
         query_span, context_span = self.get_query_and_context_spans(qa_encoding, question(graph.example))
         full_embedded_sequence = self.embedder(qa_encoding)
         embedded_context_sequence: torch.Tensor = self.get_embedded_elements_in_span(full_embedded_sequence, context_span)
