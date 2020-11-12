@@ -1,10 +1,12 @@
-from typing import List
+from typing import List, Union
 
 import torch
 from torch import nn, Tensor
 
+from Code.Data.Graph.context_graph import QAGraph
 from Code.Models.GNNs.OutputModules.output_model import OutputModel
 from Code.Training import device
+from Code.constants import CONTEXT, QUERY
 
 
 class NodeSelection(OutputModel):
@@ -26,6 +28,29 @@ class NodeSelection(OutputModel):
 
         output_ids = kwargs["output_ids"]
         return self.get_probabilities(x.squeeze(), output_ids)
+
+    def get_typed_node_ids_from_graph(self, graph, node_type, source=None) -> List[int]:
+        """return the node ids of each token"""
+        token_nodes: List[int] = graph.typed_nodes[node_type]
+        if source is None:
+            source = [QUERY, CONTEXT]
+        return self.get_nodes_from_source(graph, token_nodes, source)
+
+    @staticmethod
+    def get_nodes_from_source(graph: QAGraph, nodes: List, sources: Union[str, List[str]]):
+        """
+            the nodes selected from need to be faithful to the order of the tokens to match the answer spans
+            returns a span ordered list of node ids, if multiple sources, these are ordered as provided
+        """
+        if isinstance(sources, str):
+            sources = [sources]
+        nodes = [graph.ordered_nodes[n] for n in nodes]
+        ordered_nodes = []
+        for source in sources:
+            source_nodes = [n for n in nodes if n.source == source]
+            source_nodes.sort()
+            ordered_nodes.extend([graph.node_id_map[n] for n in source_nodes])
+        return ordered_nodes
 
     def get_probabilities(self, vec, output_ids):
         """

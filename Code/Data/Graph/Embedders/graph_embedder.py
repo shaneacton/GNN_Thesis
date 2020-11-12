@@ -107,7 +107,7 @@ class GraphEmbedder(nn.Module):
         # print("running graph embedder on context:", context_sequence)
         start_time = time.time()
         qa_encoding = self.tokeniser(question(graph.example), context(graph.example), pad_to_max_length=True,
-                                     max_length=gec.max_tokens)
+                                     max_length=gec.max_tokens, truncation=True)
         query_span, context_span = self.get_query_and_context_spans(qa_encoding, question(graph.example))
         full_embedded_sequence = self.embedder(qa_encoding)
         embedded_context_sequence: torch.Tensor = self.get_embedded_elements_in_span(full_embedded_sequence, context_span)

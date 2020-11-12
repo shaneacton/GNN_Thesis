@@ -20,7 +20,3 @@ class OutputModel(nn.Module, ABC):
     @abstractmethod
     def get_output_from_graph_encoding(self, data, **kwargs):
         raise NotImplementedError()
-
-    @abstractmethod
-    def get_output_from_tensor(self, x: Tensor, **kwargs):
-        raise NotImplementedError()

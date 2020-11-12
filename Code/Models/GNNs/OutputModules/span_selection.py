@@ -1,6 +1,8 @@
 from torch import Tensor
 
+from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.OutputModules.output_model import OutputModel
+from Code.Models.Loss.loss_funcs import get_span_loss
 
 
 class SpanSelection(OutputModel):
@@ -12,10 +14,10 @@ class SpanSelection(OutputModel):
         self.start_selector = TokenSelection(in_features)
         self.end_selector = TokenSelection(in_features)
 
-    def get_output_from_graph_encoding(self, data, **kwargs):
-        return self.start_selector(data, **kwargs), self.end_selector(data, **kwargs)
-
-    def get_output_from_tensor(self, x: Tensor, **kwargs):
-        return self.start_selector(x, **kwargs), self.end_selector(x, **kwargs)
-
-
+    def get_output_from_graph_encoding(self, data: GraphEncoding, **kwargs):
+        logits = self.start_selector(data, **kwargs), self.end_selector(data, **kwargs)
+        if "start_positions" in kwargs and "end_positions" in kwargs:
+            positions = kwargs["start_positions"], kwargs["end_positions"]
+            loss = get_span_loss(positions[0], positions[1], logits[0], logits[1])
+            return (loss,) + logits
+        return logits

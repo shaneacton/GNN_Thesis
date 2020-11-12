@@ -11,15 +11,15 @@ import torch
 from torch.utils.data import DataLoader
 from transformers import LongformerTokenizerFast, LongformerForQuestionAnswering
 
-from Code.Play.encoding import TextEncoder
+from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
 from Code.Play.initialiser import get_trainer, get_composite_span_longformer
 
 tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 encoder = TextEncoder(tokenizer)
 
-TRAIN = 'train_data.pt'
-VALID = 'valid_data.pt'
+TRAIN = 'long_train_data.pt'
+VALID = 'long_valid_data.pt'
 OUT = "models"
 
 DATASET = "squad"  # "qangaroo"  # "squad"
@@ -40,7 +40,7 @@ def save_dataset():
     valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
 
     train_dataset = train_dataset.map(encoder.get_qa_features)
-    valid_dataset = valid_dataset.map(encoder.get_qa_features) #, load_from_cache_file=False)
+    valid_dataset = valid_dataset.map(encoder.get_qa_features)  # load_from_cache_file=False)
 
     # set the tensor type and the columns which the dataset should return
     columns = ['input_ids', 'attention_mask', 'start_positions', 'end_positions']
@@ -60,18 +60,21 @@ def evaluate_model(model, valid_dataset):
     answers = []
     with torch.no_grad():
         for batch in nlp.tqdm(dataloader):
-            print("batch:", batch)
+            print("model:", model)
             start_scores, end_scores = model(input_ids=batch['input_ids'].cuda(),
                                              attention_mask=batch['attention_mask'].cuda(), return_dict=False)
-            print("starts:", start_scores.size(), "ends:", end_scores.size())
+            # print("batch:", batch, "\nstart probs:", start_scores, "\n:end probs:", end_scores)
 
             for i in range(start_scores.shape[0]):
                 all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
-                answer = ' '.join(all_tokens[torch.argmax(start_scores[i]): torch.argmax(end_scores[i]) + 1])
-                ans_ids = tokenizer.convert_tokens_to_ids(answer.split())
-                answer = tokenizer.decode(ans_ids)
-                answers.append(answer)
-            raise Exception()
+                s, e = torch.argmax(start_scores[i]), torch.argmax(end_scores[i]) + 1
+                predicted = ' '.join(all_tokens[s: e])
+                ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
+                predicted = tokenizer.decode(ans_ids)
+                answers.append(predicted)
+            #     print("(s,e):", (s, e), "pred:", predicted, "total tokens:", len(all_tokens), "\n\n")
+            #
+            # raise Exception()
 
     predictions = []
     references = []
@@ -85,7 +88,7 @@ def evaluate_model(model, valid_dataset):
     print(evaluate(references, predictions))
 
 
-# save_dataset()
+save_dataset()
 
 print("starting model init")
 # model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Union, Dict, List
 
+import torch
 from torch import nn
 from torch_geometric.data import Batch
 
@@ -14,6 +15,19 @@ from Code.Data.Graph.context_graph import QAGraph
 from Code.Models.GNNs.gnn import GNN
 from Code.Models.context_nn import ContextNN
 from Code.Training import device
+
+
+def prep_input(input, kwargs):
+    """moves all non essential fields from in to kwargs"""
+    input_fields = ["context", "question"]
+    graph_input = {}
+    for inp in input:
+        if inp in input_fields:
+            graph_input[inp] = input[inp]
+        else:
+            kwargs[inp] = input[inp]
+
+    return graph_input, kwargs
 
 
 class ContextGNN(GNN, ContextNN, ABC):
@@ -51,10 +65,21 @@ class ContextGNN(GNN, ContextNN, ABC):
         # to initialise all sample dependant/ dynamically created params, before being passed to the optimiser
         self.forward(encoding)
 
-    def forward(self, input: Union[QAGraph, GraphEncoding, Dict]) -> GraphEncoding:
+    def forward(self, input: Union[QAGraph, GraphEncoding, Dict], **kwargs) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
+        if isinstance(input, Dict):
+            # graph still needs to be constructed
+            # print("kwargs:", kwargs, "input:", input)
+            input, kwargs = prep_input(input, kwargs)
+            # print("after k:", kwargs, "\nin:", input)
         data = self.get_graph_encoding(input)
-        return self._forward(data)
+
+        # if data.is_batched:
+        #     print("passing batched graph", data, "through gnn")
+        #     print("e_s:", data.edge_index.size())
+        #     print("edge:", data.edge_index)
+        #     print("edge min:", torch.min(data.edge_index), "max:", torch.max(data.edge_index))
+        return self._forward(data, **kwargs)
 
     def get_graph_encoding(self, input: Union[QAGraph, GraphEncoding, Dict]) -> GraphEncoding:
         """graph encoding is done with a batchsize of 1"""
@@ -85,7 +110,7 @@ class ContextGNN(GNN, ContextNN, ABC):
         # send the graph encoding through this gnn layer, ie call its forward
         pass
 
-    def _forward(self, data: GraphEncoding) -> GraphEncoding:
+    def _forward(self, data: GraphEncoding, **kwargs) -> GraphEncoding:
         # format of graph layers forward: (x, edge_index, batch, **kwargs)
         # get x, autodetect feature count
         # init layers based on detected in_features and init args
@@ -109,7 +134,7 @@ class ContextGNN(GNN, ContextNN, ABC):
             # print("layer",layer,"output:",data.x.size())
 
         if self.output_model:
-            data = self.output_model(data)
+            data = self.output_model(data, **kwargs)
 
         return data
 

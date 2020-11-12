@@ -23,11 +23,6 @@ class GeometricContextGNN(ContextGNN):
         return in_features
 
     def pass_layer(self, layer, data: GraphEncoding):
-        # if data.is_batched:
-        #     print("passing batched graph", data, "through", layer)
-        #     print("e_s:", data.edge_index.size())
-        #     print("edge:", data.edge_index)
-        #     print("edge min:", torch.min(data.edge_index), "max:", torch.max(data.edge_index))
         if "edge_index" in self.get_method_arg_names(layer.forward):
             x = layer(data.x, data.edge_index)
         else:

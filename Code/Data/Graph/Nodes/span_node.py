@@ -21,6 +21,9 @@ class SpanNode(Node, ABC):
     def end(self):
         return self.token_span.end
 
+    def __lt__(self, other):
+        return self.end <= other.start
+
     def __eq__(self, other):
         return self.token_span == other.token_span and type(self) == type(other)
 
