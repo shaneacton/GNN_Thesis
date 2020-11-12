@@ -76,7 +76,7 @@ def evaluate_model(model, valid_dataset):
     dataloader = DataLoader(valid_dataset, batch_size=16)
     tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 
-    predictions = []
+    answers = []
     with torch.no_grad():
         for batch in nlp.tqdm(dataloader):
             # print("batch:", batch)
@@ -92,7 +92,7 @@ def evaluate_model(model, valid_dataset):
                 ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
                 predicted = tokenizer.decode(ans_ids)
                 # print("(s,e):", (s, e), "pred:", predicted, "total tokens:", len(qa.tokens()), "\n\n")
-                predictions.append(predicted)
+                answers.append(predicted)
     #         raise Exception()
     # print("got answers")
 
@@ -100,7 +100,7 @@ def evaluate_model(model, valid_dataset):
     references = []
     valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)  # raw text version
 
-    for ref, pred in zip(valid_dataset, predictions):
+    for ref, pred in zip(valid_dataset, answers):
         predictions.append(pred)
         # print("ref:", ref)
         references.append(ref['answers']['text'])
