@@ -122,7 +122,7 @@ train_dataset = torch.load(data_loc(TRAIN))
 valid_dataset = torch.load(data_loc(VALID))
 print('loading done')
 
-evaluate_model(gat, valid_dataset)
+# evaluate_model(gat, valid_dataset)
 # evaluate_model(None, valid_dataset)
 
 

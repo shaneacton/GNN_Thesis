@@ -53,9 +53,9 @@ def composite_data_collator(features: List[Any]) -> Dict[str, Dict[str, Union[to
             else:
                 batch[k] = torch.tensor([f[k] for f in features])
     # print("defcoal:", batch)
-    # inputs = ["context", "question"]
-    # bat = {inp: batch[inp] for inp in inputs}
-    # for inp in inputs:
-    #     batch.pop(inp, None)
-    # batch.update({"input": bat})
+    inputs = ["context", "question"]
+    bat = {inp: batch[inp] for inp in inputs}
+    for inp in inputs:
+        batch.pop(inp, None)
+    batch.update({"input": bat})
     return batch
