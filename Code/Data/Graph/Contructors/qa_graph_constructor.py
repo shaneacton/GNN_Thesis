@@ -76,8 +76,12 @@ class QAGraphConstructor:
         query_hierarchy = SpanHierarchy(question(single_example), question_encoding, QUERY)
 
         context_hierarchy.add_tokens()
-        context_hierarchy.add_spans_from_chars(get_noun_char_spans, WORD, WordNode)
-        context_hierarchy.add_spans_from_chars(get_sentence_char_spans, SENTENCE, StructureNode, subtype=SENTENCE)
+        try:
+            context_hierarchy.add_spans_from_chars(get_noun_char_spans, WORD, WordNode)
+            context_hierarchy.add_spans_from_chars(get_sentence_char_spans, SENTENCE, StructureNode, subtype=SENTENCE)
+        except Exception as e:
+            print(e)
+            raise Exception("failed to add context span nodes for ex " + repr(single_example) + "\nnum context chars:" + repr(len(context(single_example))))
         context_hierarchy.calculate_encapsulation()
 
         query_hierarchy.add_tokens()

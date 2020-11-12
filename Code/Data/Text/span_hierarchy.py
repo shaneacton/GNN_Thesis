@@ -45,6 +45,14 @@ class SpanHierarchy:
     def convert_charspan_to_tokenspan(self, char_span: Tuple[int]) -> TokenSpan:
         start = self.encoding.char_to_token(char_index=char_span[0], batch_or_char_index=self.batch_id)
         end = self.encoding.char_to_token(char_index=char_span[1] - 1, batch_or_char_index=self.batch_id)
+        if end is None:
+            """
+                char span has landed on  a space.
+                this was likely a failure of the sentence extraction system
+                correct this by erring on the side of caution and taking an extra token instead of one fewer
+            """
+            end = self.encoding.char_to_token(char_index=char_span[1], batch_or_char_index=self.batch_id)
+            # raise Exception("could not get end token span from char span:" + repr(char_span) + " num tokens: " + repr(len(self.encoding.tokens())) + " ~ " + repr(self.encoding))
         span = TokenSpan(start, end + 1)  # todo confirm + 1
         return span
 
@@ -55,7 +63,11 @@ class SpanHierarchy:
             raise Exception("level must be one of: " + repr(self.level_order))
 
         chars, self.doc = char_span_method(self.text, self.doc)
-        token_spans = [self.convert_charspan_to_tokenspan(c_span) for c_span in chars]
+        try:
+            token_spans = [self.convert_charspan_to_tokenspan(c_span) for c_span in chars]
+        except Exception as e:
+            print(e)
+            raise Exception("could not add span nodes for level: " + repr(level) + " using " + repr(char_span_method))
         nodes = [node_type(s, source=self.source, subtype=subtype) for s in token_spans]
         self._add_span_nodes(nodes, level)
 

@@ -6,14 +6,13 @@ import torch
 from torch.utils.data import DataLoader
 from transformers import LongformerTokenizerFast, LongformerForQuestionAnswering
 
-from Code.Data.Text.text_utils import context, question
-from Code.Play.text_and_tensor_coalator import composite_data_collator
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
+from Code.Data.Text.text_utils import context, question
+from Code.Play.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
