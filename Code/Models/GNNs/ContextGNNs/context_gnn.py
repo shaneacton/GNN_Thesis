@@ -4,6 +4,8 @@ from typing import Union, Dict, List
 import torch
 from torch import nn
 from torch_geometric.data import Batch
+from transformers import LongformerConfig
+from transformers.modeling_longformer import LongformerPreTrainedModel
 
 from Code.Config import GNNConfig
 from Code.Config.config_set import ConfigSet
@@ -14,6 +16,7 @@ from Code.Data.Graph.context_graph import QAGraph
 
 from Code.Models.GNNs.gnn import GNN
 from Code.Models.context_nn import ContextNN
+from Code.Play.initialiser import get_longformer_config
 from Code.Training import device
 
 
@@ -36,9 +39,12 @@ class ContextGNN(GNN, ContextNN, ABC):
     takes in context graphs as inputs, outputs graph encoding
     """
 
-    def __init__(self, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None):
+    def __init__(self, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None, longformer_config:LongformerConfig=None):
         GNN.__init__(self, None, gnnc, configs)
         ContextNN.__init__(self)
+        if longformer_config is None:
+            longformer_config = get_longformer_config()
+        self.config:LongformerConfig = longformer_config
         self.embedder: GraphEmbedder = embedder
         self.constructor: QAGraphConstructor = QAGraphConstructor(embedder.gcc)
 

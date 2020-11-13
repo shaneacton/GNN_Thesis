@@ -1,6 +1,7 @@
 from typing import Type
 
 import torch
+from transformers.modeling_longformer import LongformerPreTrainedModel
 
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
