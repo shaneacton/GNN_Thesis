@@ -18,6 +18,9 @@ class SpanHierarchy:
 
     at each tier, the spans are in order
     spans in the hierarchy can have labels, to differentiate between entities, nouns, corefs, etc
+
+    here token spans are indexed from zero, and do not factor in <s> and </s> tokens
+    take care to account for this when using a BatchEncoding which counts the <s>,</s> tokens
     """
 
     def __init__(self, text, encoding: BatchEncoding, source, batch_id=0):
@@ -53,7 +56,7 @@ class SpanHierarchy:
             """
             end = self.encoding.char_to_token(char_index=char_span[1], batch_or_char_index=self.batch_id)
             # raise Exception("could not get end token span from char span:" + repr(char_span) + " num tokens: " + repr(len(self.encoding.tokens())) + " ~ " + repr(self.encoding))
-        span = TokenSpan(start, end + 1)  # todo confirm + 1
+        span = TokenSpan(start - 1, end)  # -1 to discount the <s> token
         return span
 
     def add_spans_from_chars(self, char_span_method: Callable[[str, Optional[Any]], List[Any]], level,

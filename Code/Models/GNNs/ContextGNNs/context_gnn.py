@@ -13,16 +13,20 @@ from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import QAGraph
+from Code.Data.Text.text_utils import question, candidates, question_key
 
 from Code.Models.GNNs.gnn import GNN
 from Code.Models.context_nn import ContextNN
 from Code.Play.initialiser import get_longformer_config
 from Code.Training import device
+from Viz.context_graph_visualiser import render_graph
 
 
 def prep_input(input, kwargs):
     """moves all non essential fields from in to kwargs"""
-    input_fields = ["context", "question"]
+    input_fields = ["context", question_key(input)]
+    if candidates(input):
+        input_fields.append("candidates")
     graph_input = {}
     for inp in input:
         if inp in input_fields:
@@ -39,7 +43,7 @@ class ContextGNN(GNN, ContextNN, ABC):
     takes in context graphs as inputs, outputs graph encoding
     """
 
-    def __init__(self, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None, longformer_config:LongformerConfig=None):
+    def __init__(self, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None, longformer_config: LongformerConfig=None):
         GNN.__init__(self, None, gnnc, configs)
         ContextNN.__init__(self)
         if longformer_config is None:
@@ -103,12 +107,19 @@ class ContextGNN(GNN, ContextNN, ABC):
 
     def get_graph_from_data_sample(self, example) -> GraphEncoding:
         graphs: Union[List[QAGraph], QAGraph] = self.constructor(example)
+
         if isinstance(graphs, List):
             # todo this graph embedding can be done in parallel
             datas: List[GraphEncoding] = [self.embedder(graph) for graph in graphs]
             data = GraphEncoding.batch(datas)
+            example = graphs[0].example
         else:
             data: GraphEncoding = self.embedder(graphs)
+            example = graphs.example
+        # ctx_enc = self.embedder.text_encoder.get_context_encoding(example)
+        # q_enc = self.embedder.text_encoder.get_question_encoding(example)
+        # render_graph(graphs[0] if isinstance(graphs, List) else graphs, ctx_enc, q_enc)
+
         return data
 
     @abstractmethod

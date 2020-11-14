@@ -5,7 +5,6 @@ Todo:
 
 
 * Graph embedder
-     * query aware embeddings
      * edge feature encodings. an embedder for subtype info
      * more sophisticated attentive summarisation, possibly utilising sliding window att to pretransform a sequence
         before using self attentive pooling
@@ -14,14 +13,9 @@ Todo:
      * swap out spacy coref for something better
      * node filters to allow for word nodes be filtered by query words
      * AMR
-     * make type a param not class type. when special classes are created - they pass a rep of their class type to type
-        * this allows for generic edges and nodes which can still be given distinct types/subtypes
 
 * GNNs
-    * allow no message module in a graph layer, bypassing the prop call
-    * add biases and reset params to all graph layers
     * create output models
-        * span prediction
         * autodetect output model type based on data sample
     * make generic hierarchical layer switching module
         * basic is layer dependants + 1 layer agnostic

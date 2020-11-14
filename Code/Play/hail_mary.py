@@ -39,8 +39,8 @@ def save_dataset():
     train_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.TRAIN, name=VERSION)
     valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
 
-    train_dataset = train_dataset.map(encoder.get_qa_features)
-    valid_dataset = valid_dataset.map(encoder.get_qa_features)  # load_from_cache_file=False)
+    train_dataset = train_dataset.map(encoder.get_longformer_qa_features)
+    valid_dataset = valid_dataset.map(encoder.get_longformer_qa_features)  # load_from_cache_file=False)
 
     # set the tensor type and the columns which the dataset should return
     columns = ['input_ids', 'attention_mask', 'start_positions', 'end_positions']

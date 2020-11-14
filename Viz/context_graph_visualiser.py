@@ -26,7 +26,13 @@ def get_node_text(graph, node: SpanNode, encoding, source):
         return prefix + node.get_structure_level()
 
     full_text = context(graph.example) if node.source == CONTEXT else question(graph.example)
-    chars = encoding.token_to_chars(node.start)[0], encoding.token_to_chars(node.end - 1)[1]
+    try:
+        s_char = encoding.token_to_chars(node.start)[0]
+        e_char = encoding.token_to_chars(node.end - 1)[1]
+    except Exception as e:
+        print(e)
+        raise Exception("could not find " + source + " chars for " + repr(node) + " given encoding of len: " + repr(len(encoding['input_ids'])))
+    chars = s_char, e_char
     if chars[1] > vizconf.max_context_graph_chars:
         return None
     extract = full_text[chars[0]: chars[1]]
@@ -35,7 +41,7 @@ def get_node_text(graph, node: SpanNode, encoding, source):
 
 
 def render_graph(graph: QAGraph, context_encoding: BatchEncoding, query_encoding: BatchEncoding,
-                 graph_name, graph_folder):
+                 graph_name="temp", graph_folder="."):
 
     dot = graphviz.Digraph(comment='The Round Table')
     dot.graph_attr.update({'rankdir': 'LR'})

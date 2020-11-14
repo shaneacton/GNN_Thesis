@@ -1,5 +1,6 @@
 import os
 import sys
+from os.path import exists
 
 import nlp
 import torch
@@ -38,32 +39,44 @@ def data_loc(set_name):
 
 
 def save_dataset():
-
+    if exists(data_loc(VALID)):
+        """already saved"""
+        return
     # load train and validation split of squad
-    train_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.TRAIN, name=VERSION)
-    valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
+    remaining_tries = 100
+    while remaining_tries > 0:
+        try:
+            train_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.TRAIN, name=VERSION)
+            valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
+            break  # loaded successfully
+        except:
+            remaining_tries -= 1  # retry
 
-    # dataloader = DataLoader(valid_dataset, batch_size=16)
-    # for batch in nlp.tqdm(dataloader):
-    #     print("before:", batch)
-    #     break
+    dataloader = DataLoader(valid_dataset, batch_size=1)
+    for batch in nlp.tqdm(dataloader):
+        print("before:", batch)
+        break
 
     print("mapping dataset")
-    train_dataset = train_dataset.map(encoder.get_basic_features)
-    valid_dataset = valid_dataset.map(encoder.get_basic_features) #, load_from_cache_file=False)
+    train_dataset = train_dataset.map(encoder.get_processed_example)
+    valid_dataset = valid_dataset.map(encoder.get_processed_example) #, load_from_cache_file=False)
 
-    # dataloader = DataLoader(valid_dataset, batch_size=16)
-    # for batch in nlp.tqdm(dataloader):
-    #     print("after", batch)
-    #     break
+    dataloader = DataLoader(valid_dataset, batch_size=1)
+    batch = None
+    for batch in nlp.tqdm(dataloader):
+        print("after", batch)
+        break
 
     # set the tensor type and the columns which the dataset should return
-    columns = ['start_positions', 'end_positions']
-    train_dataset.set_format(type='torch', columns=columns, output_all_columns=True)
-    valid_dataset.set_format(type='torch', columns=columns, output_all_columns=True)
-    # columns = ['context', 'question']
-    # train_dataset.set_format(type=None, columns=columns)
-    # valid_dataset.set_format(type=None, columns=columns)
+    if 'start_positions' in batch and 'end_positions' in batch:
+        tensor_columns = ['start_positions', "tensor_columns"]
+    elif "answer" in batch:
+        tensor_columns = ['answer']
+    else:
+        raise Exception()
+
+    train_dataset.set_format(type='torch', columns=tensor_columns, output_all_columns=True)
+    valid_dataset.set_format(type='torch', columns=tensor_columns, output_all_columns=True)
 
     torch.save(train_dataset, data_loc(TRAIN))
     torch.save(valid_dataset, data_loc(VALID))
@@ -117,7 +130,8 @@ embedder = gec.get_graph_embedder(gcc)
 gat = ContextGAT(embedder, gnnc)
 # Get datasets
 print('loading data')
-# save_dataset()
+save_dataset()
+
 train_dataset = torch.load(data_loc(TRAIN))
 valid_dataset = torch.load(data_loc(VALID))
 print('loading done')

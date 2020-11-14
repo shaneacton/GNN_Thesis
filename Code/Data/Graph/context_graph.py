@@ -6,6 +6,7 @@ import Code.constants
 from Code.Data.Graph.Edges.edge_relation import EdgeRelation
 from Code.Data.Graph.Nodes.node import Node
 from Code.Data.Graph.Nodes.span_node import SpanNode
+from Code.Data.Text.text_utils import is_batched
 
 
 class QAGraph:
@@ -31,6 +32,13 @@ class QAGraph:
         self.constructs: List[type] = []  # record of the construction process used
 
         self.example = example
+
+        if is_batched(example):
+            raise Exception("cannot create graph from a batched example")
+
+    @property
+    def has_candidates(self):
+        return "candidates" in self.example
 
     def get_nodes_of_type(self, type):
         return [self.ordered_nodes[id] for id in self.typed_nodes[type]]

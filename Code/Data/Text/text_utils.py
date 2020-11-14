@@ -45,7 +45,7 @@ def question_key(example):
     if 'question' in example:
         key = 'question'
     elif 'query' in example:
-        key = example['query']
+        key = 'query'
     else:
         raise Exception("can't get query from " + repr(example))
     return key
@@ -57,12 +57,31 @@ def question(example) -> Union[str, List[str]]:
     return get_single_value(example, question_key(example))
 
 
+def context_key(example):
+    if 'context' in example:
+        return 'context'
+    elif 'supports' in example:
+        return 'supports'
+    raise Exception()
+
+
 def context(example) -> Union[str, List[str]]:
     if 'context' in example:
-        context = example['context']
+        return example['context']
     elif 'supports' in example:
         # multiple passages for a single context, must combine
-        raise NotImplementedError()
-    else:
-        raise Exception("can't get context from " + repr(example))
-    return context
+        return " ".join(example['supports'])
+    raise Exception("can't get context from " + repr(example))
+
+
+def candidates(example):
+    """not all examples have candidates"""
+    if not has_candidates(example):
+        return None
+
+    cands = example["candidates"]
+    return cands
+
+
+def has_candidates(example):
+    return 'candidates' in example

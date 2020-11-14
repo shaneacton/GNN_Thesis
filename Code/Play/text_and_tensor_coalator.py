@@ -3,6 +3,8 @@ from typing import List, Any, Dict, Union
 import torch
 from transformers import BatchEncoding
 
+from Code.Data.Text.text_utils import question_key
+
 
 def composite_data_collator(features: List[Any]) -> Dict[str, Dict[str, Union[torch.Tensor, List[str]]]]:
     """
@@ -49,11 +51,13 @@ def composite_data_collator(features: List[Any]) -> Dict[str, Dict[str, Union[to
             if isinstance(v, torch.Tensor):
                 batch[k] = torch.stack([f[k] for f in features])
             elif isinstance(v, str):
-                batch[k] = [f[k] for f in features]
+                batch[k] = [f[k] for f in features]  # put strings in a plain array
             else:
                 batch[k] = torch.tensor([f[k] for f in features])
     # print("defcoal:", batch)
-    inputs = ["context", "question"]
+    inputs = ["context", question_key(batch)]
+    if "candidates" in batch:
+        inputs.append("candidates")
     bat = {inp: batch[inp] for inp in inputs}
     for inp in inputs:
         batch.pop(inp, None)

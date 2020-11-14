@@ -5,6 +5,7 @@ from transformers.modeling_longformer import LongformerPreTrainedModel
 
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
+from Code.constants import NUM_LAYERS
 
 
 class GeometricContextGNN(ContextGNN):
@@ -16,9 +17,9 @@ class GeometricContextGNN(ContextGNN):
             self.init_activation()
         self.layers.append(self.activation)
 
-    def init_layers(self, in_features, layer_type: Type, num_layers=5) -> int:
+    def init_layers(self, in_features, layer_type: Type) -> int:
         ContextGNN.init_layers(self, in_features)
-        for l in range(num_layers):
+        for l in range(self.gnnc.global_params[NUM_LAYERS]):
             self.add_layer(in_features, 300, layer_type)
             in_features = 300
         return in_features

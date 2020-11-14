@@ -1,5 +1,5 @@
 import time
-from typing import List, Dict, Callable
+from typing import List, Dict, Callable, Tuple, Union
 
 import torch
 from torch import nn, Tensor
@@ -15,8 +15,9 @@ from Code.Data.Graph.Types.type_map import TypeMap
 from Code.Data.Graph.Types.types import Types
 from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
-from Code.Data.Text.text_utils import question, context
+from Code.Data.Text.text_utils import question, context, is_batched, has_candidates
 from Code.Play.initialiser import get_tokenizer
+from Code.Play.text_encoder import TextEncoder
 from Code.Test.examples import test_example
 from Code.Training import device
 from Code.Training.metric import Metric
@@ -43,7 +44,7 @@ class GraphEmbedder(nn.Module):
         if not tokeniser:
             tokeniser = get_tokenizer()
         self.embedder = embedder
-        self.tokeniser: PreTrainedTokenizerFast = tokeniser
+        self.text_encoder = TextEncoder(tokeniser)
 
         self.gec: GraphEmbeddingConfig = gec
         # maps source, structure level to a sequence summariser instance
@@ -91,33 +92,51 @@ class GraphEmbedder(nn.Module):
             node_types.append(type_id)
         return torch.tensor(node_types).to(device)
 
-    def get_query_and_context_spans(self, qa_encoding, question):
-        qu_encoding = self.tokeniser(question)
-        query_length = len(qu_encoding['input_ids'])
-        context_length = len(qa_encoding['input_ids']) - query_length
-        query_length -= 2  # remove s and \s
-        context_length -= 2
-        query_span = TokenSpan(1, query_length + 1)
-        context_span = TokenSpan(query_length + 3, query_length + 3 + context_length)
-        return query_span, context_span
+    def get_source_spans(self, qa_encoding: BatchEncoding, example: Dict) \
+            -> Tuple[TokenSpan, TokenSpan, Union[TokenSpan, None]]:
+        """
+        qa enc is <context><query>[candidates_string]
+        :return: ctx_span, q_span_ optional[cands_span]
+        these token spans respect the <s>,<\\s> tokens, and should be faithful to the token order in qa_enc
+        """
+        if is_batched(example):
+            raise Exception()
+        ctx_encoding = self.text_encoder.tokeniser.encode_plus(context(example))
+        qu_encoding = self.text_encoder.tokeniser.encode_plus(question(example))
+        lens = len(ctx_encoding['input_ids']), len(qu_encoding['input_ids'])
+        context_span = TokenSpan(1, lens[0] - 1)
+        query_span = TokenSpan(lens[0] + 1, lens[0] + lens[1] - 1)
+
+        cands_span = None
+        full_len = len(qa_encoding['input_ids'])
+
+        if has_candidates(example):
+            cands_span = TokenSpan(lens[0] + lens[1] - 1, full_len - 1)
+        elif lens[0] + lens[1] != full_len:
+            raise Exception("context len: " + repr(lens[0]) + " query len: " + repr(lens[1]) + " full len:", full_len)
+
+        return context_span, query_span, cands_span
 
     def forward(self, graph: QAGraph) -> GraphEncoding:
         if isinstance(graph, List):
             raise Exception("single graph embedder cannot handle batched graphs: " + repr(graph))
         # print("running graph embedder on context:", context_sequence)
         start_time = time.time()
-        qa_encoding = self.tokeniser(question(graph.example), context(graph.example), pad_to_max_length=True,
-                                     max_length=gec.max_tokens, truncation=True)
-        query_span, context_span = self.get_query_and_context_spans(qa_encoding, question(graph.example))
+        qa_encoding = self.text_encoder.get_encoding(graph.example)
+        context_span, query_span, cands_span = self.get_source_spans(qa_encoding, graph.example)
         full_embedded_sequence = self.embedder(qa_encoding)
         embedded_context_sequence: torch.Tensor = self.get_embedded_elements_in_span(full_embedded_sequence, context_span)
         embedded_query_sequence: torch.Tensor = self.get_embedded_elements_in_span(full_embedded_sequence, query_span)
+        if cands_span:
+            embedded_cands_sequence: torch.Tensor = self.get_embedded_elements_in_span(full_embedded_sequence,
+                                                                                       cands_span)
 
         node_features: List[torch.Tensor] = [None] * len(graph.ordered_nodes)
 
         for node_id in range(len(graph.ordered_nodes)):
             node = graph.ordered_nodes[node_id]
-            source_sequence = embedded_context_sequence if node.source == CONTEXT else embedded_query_sequence
+            source_sequence = embedded_context_sequence if node.source == CONTEXT else \
+                (embedded_query_sequence if node.source == QUERY else embedded_cands_sequence)
 
             try:
                 embedding = self.get_node_embedding(source_sequence, node)
@@ -167,7 +186,7 @@ class GraphEmbedder(nn.Module):
     @staticmethod
     def get_embedded_elements_in_span(full_embedded_sequence: torch.Tensor, span: TokenSpan):
         """cuts the relevant elements out to return the spans elements only"""
-        return full_embedded_sequence[:,span.start:span.end,:]
+        return full_embedded_sequence[:, span.start:span.end, :]
 
     @staticmethod
     def check_dimensions(node_features: List[torch.Tensor], graph: QAGraph):

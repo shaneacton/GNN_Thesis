@@ -1,5 +1,6 @@
 PROP_AND_POOL = "prop_and_pool"
 LAYER_TYPE = "layer_type"
+NUM_LAYERS = "num_layers"
 NUM_FEATURES = "num_features"
 SAME_WEIGHT_REPEATS = "same_weight_repeats"
 DISTINCT_WEIGHT_REPEATS = "distinct_weight_repeats"

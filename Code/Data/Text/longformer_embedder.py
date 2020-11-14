@@ -29,7 +29,9 @@ class LongformerEmbedder(Embedder):
             input_ids = input_ids.view(1, -1)
             attention_mask = attention_mask.view(1, -1)
 
-        global_attention_mask = qa_glob_att(input_ids, self.longformer.config.sep_token_id).to(device)
+        """we use <context><query>[cands] so global att is after sep, not before"""
+        global_attention_mask = qa_glob_att(input_ids, self.longformer.config.sep_token_id,
+                                            before_sep_token=False).to(device)
         with torch.no_grad():  # no finetuning the embedder
             embs = self.longformer(input_ids=input_ids, attention_mask=attention_mask, return_dict=True,
                                    global_attention_mask=global_attention_mask)

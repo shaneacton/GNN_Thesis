@@ -9,7 +9,7 @@ from Code.Data.Graph.Nodes.word_node import WordNode
 from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.spacy_utils import get_sentence_char_spans, get_noun_char_spans
 from Code.Data.Text.span_hierarchy import SpanHierarchy
-from Code.Data.Text.text_utils import context, question, is_batched, question_key
+from Code.Data.Text.text_utils import context, question, is_batched, question_key, candidates
 from Code.Play.initialiser import get_tokenizer
 from Code.Test.examples import test_example
 from Code.constants import CONTEXT, QUERY, SENTENCE, WORD
@@ -44,8 +44,11 @@ class QAGraphConstructor:
         single_examples = []
         questions = question(example)
         contexts = context(example)
+        cands = candidates(example)
+        # print("cands:", cands, "ex:", example)
         for i in range(len(questions)):
             example = {"context": contexts[i], 'question': questions[i]}
+            example.update({"candidates": cands[i]} if cands else {})
             single_examples.append(example)
         graphs = [self._create_single_graph_from_data_sample(ex) for ex in single_examples]
         return graphs
