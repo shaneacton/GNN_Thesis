@@ -73,6 +73,7 @@ class QAGraphConstructor:
 
     def build_hierarchies(self, single_example):
         context_encoding: BatchEncoding = self.tokeniser(context(single_example))
+        # print("num context tokens:", len(context_encoding.tokens()), "ctx:", context_encoding.tokens())
         question_encoding: BatchEncoding = self.tokeniser(question(single_example))
 
         context_hierarchy = SpanHierarchy(context(single_example), context_encoding, CONTEXT)

@@ -12,7 +12,7 @@ HEADS = 6
 ATTENTION_WINDOW = 128
 LAYERS = 5
 
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 
 PRETRAINED = "valhalla/longformer-base-4096-finetuned-squadv1"
 

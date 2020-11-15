@@ -14,8 +14,9 @@ class OutputModel(nn.Module, ABC):
 
         if isinstance(x, GraphEncoding):
             return self.get_output_from_graph_encoding(x, **kwargs)
-        if isinstance(x, Tensor):
-            return self.get_output_from_tensor(x, **kwargs)
+        # if isinstance(x, Tensor):
+        #     return self.get_output_from_tensor(x, **kwargs)
+        raise Exception()
 
     @abstractmethod
     def get_output_from_graph_encoding(self, data, **kwargs):

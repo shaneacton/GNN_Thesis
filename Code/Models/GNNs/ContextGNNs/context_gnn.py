@@ -19,6 +19,7 @@ from Code.Models.GNNs.gnn import GNN
 from Code.Models.context_nn import ContextNN
 from Code.Play.initialiser import get_longformer_config
 from Code.Training import device
+from Code.constants import CONTEXT
 from Viz.context_graph_visualiser import render_graph
 
 
@@ -73,7 +74,7 @@ class ContextGNN(GNN, ContextNN, ABC):
         self.init_output_model(example, out_features)
 
         # to initialise all sample dependant/ dynamically created params, before being passed to the optimiser
-        self.forward(encoding)
+        # self.forward(encoding)
 
     def forward(self, input: Union[QAGraph, GraphEncoding, Dict], **kwargs) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
@@ -133,10 +134,11 @@ class ContextGNN(GNN, ContextNN, ABC):
         # init layers based on detected in_features and init args
         if isinstance(data, List):
             raise Exception("graph encodings should be batched via pytorch geometric batch class")
-
+        # inited = False
         if self.layer_list is None:
             # gnn layers have not been initialised yet
             self.init_model(data.graphs[0].example)
+            inited = True
         data = GNN._forward(self, data)  # add type and abs pos embeddings
 
         data.layer = 0
@@ -150,9 +152,15 @@ class ContextGNN(GNN, ContextNN, ABC):
 
             # print("layer",layer,"output:",data.x.size())
 
+        kwargs.update({"source": CONTEXT})
         if self.output_model:
-            data = self.output_model(data, **kwargs)
-
-        return data
+            out = self.output_model(data, **kwargs)
+        #     print("out:", type(out), out)
+        #
+        # print("out shape:", out[1].size())
+        # print("loss:", out[0])
+        # if inited:
+        #     raise Exception("weh")
+        return out
 
 

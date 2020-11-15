@@ -1,8 +1,5 @@
 from typing import Type
 
-import torch
-from transformers.modeling_longformer import LongformerPreTrainedModel
-
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
 from Code.constants import NUM_LAYERS
@@ -20,12 +17,14 @@ class GeometricContextGNN(ContextGNN):
     def init_layers(self, in_features, layer_type: Type) -> int:
         ContextGNN.init_layers(self, in_features)
         for l in range(self.gnnc.global_params[NUM_LAYERS]):
-            self.add_layer(in_features, 300, layer_type)
-            in_features = 300
+            self.add_layer(in_features, 400, layer_type)
+            in_features = 400
         return in_features
 
     def pass_layer(self, layer, data: GraphEncoding):
+        # print("data.x before:")
         if "edge_index" in self.get_method_arg_names(layer.forward):
+            # print("passing", data, "through", layer)
             x = layer(data.x, data.edge_index)
         else:
             x = layer(data.x)
