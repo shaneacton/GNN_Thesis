@@ -69,7 +69,7 @@ def evaluate_model(model, valid_dataset):
     answers = []
     with torch.no_grad():
         for batch in nlp.tqdm(dataloader):
-            print("model:", model)
+            # print("model:", model)
             start_scores, end_scores = model(input_ids=batch['input_ids'].cuda(),
                                              attention_mask=batch['attention_mask'].cuda(), return_dict=False)
             # print("batch:", batch, "\nstart probs:", start_scores, "\n:end probs:", end_scores)
@@ -109,7 +109,7 @@ train_dataset = torch.load(data_loc(TRAIN))
 valid_dataset = torch.load(data_loc(VALID))
 print('loading done')
 
-# evaluate_model(model, valid_dataset)
+evaluate_model(model, valid_dataset)
 
 trainer = get_trainer(model, data_loc(OUT), train_dataset, valid_dataset)
 

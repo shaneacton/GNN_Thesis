@@ -3,7 +3,7 @@ from transformers import LongformerConfig, LongformerTokenizerFast, LongformerFo
     TrainingArguments, Trainer
 
 from Code.Play.composite import Wrap
-# from Code.Play.gat_composite import GatWrap
+from Code.Play.gat_composite import GatWrap
 
 device = torch.device("cpu")
 
@@ -58,7 +58,7 @@ def get_composit_qa_longformer(output_model):
 
     qa = LongformerModel.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
 
-    qa = Wrap(qa, output_model)
+    qa = GatWrap(qa, output_model)
     return qa
 
 
