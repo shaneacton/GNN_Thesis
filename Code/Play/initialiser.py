@@ -3,6 +3,7 @@ from transformers import LongformerConfig, LongformerTokenizerFast, LongformerFo
     TrainingArguments, Trainer
 
 from Code.Play.composite import Wrap
+# from Code.Play.gat_composite import GatWrap
 
 device = torch.device("cpu")
 
@@ -10,9 +11,10 @@ FEATURES = 402
 INTERMEDIATE_FEATURES = 600
 HEADS = 6
 ATTENTION_WINDOW = 128
-LAYERS = 5
+LAYERS = 1
 
 BATCH_SIZE = 1
+NUM_EPOCHS = 1
 
 PRETRAINED = "valhalla/longformer-base-4096-finetuned-squadv1"
 
@@ -75,7 +77,7 @@ def get_trainer(model, outdir, train_dataset, valid_dataset):
     train_args.save_steps = 25
     train_args.overwrite_output_dir = True
     train_args.save_total_limit = 2
-    train_args.num_train_epochs = 2
+    train_args.num_train_epochs = NUM_EPOCHS
 
     # Initialize our Trainer
     trainer = Trainer(

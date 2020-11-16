@@ -3,13 +3,15 @@ from Code.Data.Graph.Edges.structure_edge import StructureEdge
 from Code.Data.Graph.Edges.window_edge import WindowEdge
 from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.span_hierarchy import SpanHierarchy
+from Code.Play.initialiser import ATTENTION_WINDOW
 
 
-def connect_sliding_window(graph: QAGraph, hierarchy: SpanHierarchy, window_size = 3):
+def connect_sliding_window(graph: QAGraph, hierarchy: SpanHierarchy, window_size=ATTENTION_WINDOW):
     for lev in hierarchy.levels:
         nodes = hierarchy.levels[lev]
         for n, node in enumerate(nodes):
             for d in range(1, window_size):
+                # todo check. this seems wrong, n is not the from id
                 to_id = n + d
                 if to_id >= len(nodes):
                     break

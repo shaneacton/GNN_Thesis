@@ -1,5 +1,6 @@
 import os
 import sys
+from os.path import exists
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -13,7 +14,7 @@ from transformers import LongformerTokenizerFast, LongformerForQuestionAnswering
 
 from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
-from Code.Play.initialiser import get_trainer, get_composite_span_longformer
+from Code.Play.initialiser import get_trainer, get_composite_span_longformer, BATCH_SIZE
 
 tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 encoder = TextEncoder(tokenizer)
@@ -34,10 +35,18 @@ def data_loc(set_name):
 
 
 def save_dataset():
-
+    if exists(data_loc(VALID)):
+        """already saved"""
+        return
     # load train and validation split of squad
-    train_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.TRAIN, name=VERSION)
-    valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
+    remaining_tries = 100
+    while remaining_tries > 0:
+        try:
+            train_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.TRAIN, name=VERSION)
+            valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
+            break  # loaded successfully
+        except:
+            remaining_tries -= 1  # retry
 
     train_dataset = train_dataset.map(encoder.get_longformer_qa_features)
     valid_dataset = valid_dataset.map(encoder.get_longformer_qa_features)  # load_from_cache_file=False)
@@ -55,7 +64,7 @@ def evaluate_model(model, valid_dataset):
     model = model.cuda()
     model.eval()
 
-    dataloader = DataLoader(valid_dataset, batch_size=16)
+    dataloader = DataLoader(valid_dataset, batch_size=BATCH_SIZE)
 
     answers = []
     with torch.no_grad():
@@ -100,7 +109,7 @@ train_dataset = torch.load(data_loc(TRAIN))
 valid_dataset = torch.load(data_loc(VALID))
 print('loading done')
 
-evaluate_model(model, valid_dataset)
+# evaluate_model(model, valid_dataset)
 
 trainer = get_trainer(model, data_loc(OUT), train_dataset, valid_dataset)
 

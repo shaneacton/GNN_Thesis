@@ -20,7 +20,7 @@ from Code.Models.context_nn import ContextNN
 from Code.Play.initialiser import get_longformer_config
 from Code.Training import device
 from Code.constants import CONTEXT
-from Viz.context_graph_visualiser import render_graph
+# from Viz.context_graph_visualiser import render_graph
 
 
 def prep_input(input, kwargs):
