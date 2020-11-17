@@ -67,9 +67,9 @@ def evaluate(gold_answers: List[List[str]], predictions: List[str]):
     """
     f1 = exact_match = total = 0
 
-    print("g:", len(gold_answers), "p:", len(predictions))
-    print(gold_answers)
-    print(predictions)
+    # print("g:", len(gold_answers), "p:", len(predictions))
+    # print(gold_answers)
+    # print(predictions)
     for ground_truths, prediction in zip(gold_answers, predictions):
         total += 1
         exact_match += metric_max_over_ground_truths(
