@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch_geometric.nn import GATConv
+from torch_geometric.nn import GATConv, SAGEConv
 from transformers.modeling_longformer import _compute_global_attention_mask as qa_glob_att, LongformerPreTrainedModel
 
 # from Code.Play.initialiser import ATTENTION_WINDOW
@@ -15,9 +15,9 @@ class GatWrap(LongformerPreTrainedModel):
         self.output = output
 
         # self.middle = nn.Linear(pretrained.config.hidden_size, output.config.hidden_size)
-        self.middle1 = GATConv(self.pretrained_size, self.middle_size)
+        self.middle1 = SAGEConv(self.pretrained_size, self.middle_size)
         self.act = nn.ReLU()
-        self.middle2 = GATConv(self.middle_size, self.middle_size)
+        self.middle2 = SAGEConv(self.middle_size, self.middle_size)
 
 
     @property
@@ -72,5 +72,8 @@ class GatWrap(LongformerPreTrainedModel):
                     froms.append(from_id)
                     tos.append(to_id)
 
-        return torch.tensor([froms, tos]).to(device)
+        # print("num edges:", len(froms))
+        edges = torch.tensor([froms, tos]).to(device)
+        # print("edges:", edges.size(), edges)
+        return edges
 
