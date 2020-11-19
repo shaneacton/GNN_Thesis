@@ -1,24 +1,26 @@
 import torch
-from torch import nn
+from torch import nn, Tensor
 from torch_geometric.nn import GATConv, SAGEConv
-from transformers.modeling_longformer import _compute_global_attention_mask as qa_glob_att, LongformerPreTrainedModel
+from transformers.modeling_longformer import _compute_global_attention_mask as qa_glob_att, LongformerPreTrainedModel, \
+    LongformerModel, create_position_ids_from_input_ids
 
 # from Code.Play.initialiser import ATTENTION_WINDOW
+from Code.Play.Gat import Gat
 from Code.Training import device
 
 
 class GatWrap(LongformerPreTrainedModel):
 
-    def __init__(self, pretrained, output):
+    def __init__(self, pretrained: LongformerModel, output):
         super().__init__(pretrained.config)
         self.pretrained = pretrained
+        self.pos_embed = pretrained.embeddings.position_embeddings
         self.output = output
 
         # self.middle = nn.Linear(pretrained.config.hidden_size, output.config.hidden_size)
-        self.middle1 = SAGEConv(self.pretrained_size, self.middle_size)
+        self.middle1 = Gat(self.pretrained_size, self.middle_size)
         self.act = nn.ReLU()
-        self.middle2 = SAGEConv(self.middle_size, self.middle_size)
-
+        self.middle2 = Gat(self.middle_size, self.middle_size)
 
     @property
     def pretrained_size(self):
@@ -39,17 +41,25 @@ class GatWrap(LongformerPreTrainedModel):
 
         # print("token embs:", embs.size())
         edge = self.get_edge_indices(embs.size(1), global_attention_mask).squeeze()
+        # pos_embs = self.get_pos_embs(input_ids)
+        # print("pos embs:", pos_embs.size())
 
         embs = self.act(self.middle1(x=embs.squeeze(), edge_index=edge))
-        embs = self.act(self.middle2(x=embs, edge_index=edge).view(1, -1, self.middle_size))
+        embs = self.act(self.middle2(x=embs, edge_index=edge)).view(1, -1, self.middle_size)
         # print("after gat:", embs.size())
         out = self.output(inputs_embeds=embs, attention_mask=attention_mask, return_dict=return_dict,
                           start_positions=start_positions, end_positions=end_positions,
                           global_attention_mask=global_attention_mask)
         return out
 
+    def get_pos_embs(self, input_ids: Tensor):
+        pas_id = self.pretrained.config.pad_token_id
+        pos_ids = create_position_ids_from_input_ids(input_ids, pas_id).to(input_ids.device)
+        pos_embs = self.pos_embed(pos_ids)
+        return pos_embs
+
     @staticmethod
-    def get_edge_indices(num_tokens, glob_att_mask: torch.Tensor, window_size=128) -> torch.Tensor:
+    def get_edge_indices(num_tokens, glob_att_mask: Tensor, window_size=128) -> Tensor:
         # print("num tokens:", num_tokens, type(num_tokens))
         froms = []
         tos = []

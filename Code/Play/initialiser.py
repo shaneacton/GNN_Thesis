@@ -74,7 +74,7 @@ def get_trainer(model, outdir, train_dataset, valid_dataset):
     # train_args.eval_steps = 2000
     train_args.do_train = True
 
-    train_args.save_steps = 25
+    train_args.save_steps = 250
     train_args.overwrite_output_dir = True
     train_args.save_total_limit = 2
     train_args.num_train_epochs = NUM_EPOCHS
