@@ -14,10 +14,11 @@ class GatWrap(LongformerPreTrainedModel):
     def __init__(self, pretrained: LongformerModel, output):
         super().__init__(pretrained.config)
         self.pretrained = pretrained
-        self.pos_embed = pretrained.embeddings.position_embeddings
         self.output = output
 
-        # self.middle = nn.Linear(pretrained.config.hidden_size, output.config.hidden_size)
+        self.pos_embed = pretrained.embeddings.position_embeddings
+        self.pos_embed_map = nn.Linear(self.pretrained_size, self.middle_size)
+
         self.middle1 = Gat(self.pretrained_size, self.middle_size)
         self.act = nn.ReLU()
         self.middle2 = Gat(self.middle_size, self.middle_size)
@@ -41,11 +42,11 @@ class GatWrap(LongformerPreTrainedModel):
 
         # print("token embs:", embs.size())
         edge = self.get_edge_indices(embs.size(1), global_attention_mask).squeeze()
-        # pos_embs = self.get_pos_embs(input_ids)
+        pos_embs = self.get_pos_embs(input_ids)
         # print("pos embs:", pos_embs.size())
 
-        embs = self.act(self.middle1(x=embs.squeeze(), edge_index=edge))
-        embs = self.act(self.middle2(x=embs, edge_index=edge)).view(1, -1, self.middle_size)
+        embs = self.act(self.middle1(x=embs.squeeze(), edge_index=edge) + pos_embs.squeeze())
+        embs = self.act(self.middle2(x=embs, edge_index=edge) + pos_embs).view(1, -1, self.middle_size)
         # print("after gat:", embs.size())
         out = self.output(inputs_embeds=embs, attention_mask=attention_mask, return_dict=return_dict,
                           start_positions=start_positions, end_positions=end_positions,
@@ -56,6 +57,9 @@ class GatWrap(LongformerPreTrainedModel):
         pas_id = self.pretrained.config.pad_token_id
         pos_ids = create_position_ids_from_input_ids(input_ids, pas_id).to(input_ids.device)
         pos_embs = self.pos_embed(pos_ids)
+        num_elements, num_features = pos_embs.size(1), pos_embs.size(2)
+        """reduce the dim of the pos embs to the same as the GNN"""
+        pos_embs = self.pos_embed_map(pos_embs.view(num_elements, num_features)).view(1, num_elements, self.middle_size)
         return pos_embs
 
     @staticmethod
