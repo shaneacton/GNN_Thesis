@@ -10,7 +10,9 @@ class Wrap(LongformerPreTrainedModel):
         self.pretrained = pretrained
         self.output = output
 
-        self.middle = nn.Linear(pretrained.config.hidden_size, output.config.hidden_size)
+        self.middle1 = nn.Linear(pretrained.config.hidden_size, output.config.hidden_size)
+        self.act = nn.ReLU()
+        self.middle2 = nn.Linear(output.config.hidden_size, output.config.hidden_size)
 
     def forward(self, input_ids, attention_mask, start_positions=None, end_positions=None, return_dict=True):
         # gives global attention to all question tokens
@@ -21,7 +23,10 @@ class Wrap(LongformerPreTrainedModel):
                                    global_attention_mask=global_attention_mask)
             embs = embs["last_hidden_state"]
 
-        embs = self.middle(embs)
+        embs = self.act(self.middle1(embs))
+        embs = self.act(self.middle2(embs))
+        # print("weh")
+
         out = self.output(inputs_embeds=embs, attention_mask=attention_mask, return_dict=return_dict,
                           start_positions=start_positions, end_positions=end_positions,
                           global_attention_mask=global_attention_mask)
