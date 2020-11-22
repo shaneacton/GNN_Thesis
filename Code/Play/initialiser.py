@@ -58,7 +58,7 @@ def get_composit_qa_longformer(output_model):
 
     qa = LongformerModel.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
 
-    qa = Wrap(qa, output_model)
+    qa = GatWrap(qa, output_model)
     return qa
 
 
