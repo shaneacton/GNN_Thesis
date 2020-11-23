@@ -35,7 +35,7 @@ class GatWrap(LongformerPreTrainedModel):
 
     def forward(self, input_ids, attention_mask, start_positions=None, end_positions=None, return_dict=True):
         # gives global attention to all question tokens
-        global_attention_mask = qa_glob_att(input_ids, self.output.config.sep_token_id)
+        global_attention_mask = qa_glob_att(input_ids, self.output.config.sep_token_id, before_sep_token=False)
         # print("glob att mask:", global_attention_mask.size(), global_attention_mask)
         with torch.no_grad():  # no finetuning the embedder
             embs = self.pretrained(input_ids=input_ids, attention_mask=attention_mask, return_dict=True,

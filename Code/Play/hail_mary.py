@@ -16,7 +16,7 @@ from Code.Play.gat_composite import GatWrap
 from Code.Play.composite import Wrap
 from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
-from Code.Play.initialiser import get_trainer, get_composite_span_longformer, BATCH_SIZE
+from Code.Play.initialiser import get_trainer, get_span_composite_model, BATCH_SIZE
 
 print("loading tokeniser")
 tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
@@ -41,8 +41,10 @@ def process_dataset():
     if exists(data_loc(VALID)):
         """already saved"""
         return
-    # load train and validation split of squad
+    # load train and validation split of squad/wikihop
     remaining_tries = 100
+    train_dataset = None
+    valid_dataset = None
     while remaining_tries > 0:
         try:
             train_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.TRAIN, name=VERSION)
@@ -51,8 +53,15 @@ def process_dataset():
         except:
             remaining_tries -= 1  # retry
 
-    train_dataset = train_dataset.map(encoder.get_longformer_qa_features)
-    valid_dataset = valid_dataset.map(encoder.get_longformer_qa_features)  # load_from_cache_file=False)
+    if not train_dataset or not valid_dataset:
+        raise Exception("failed to load datasets though network")
+
+    # for t in train_dataset:
+    #     print(t)
+    train_dataset = train_dataset.map(encoder.get_longformer_qa_features, load_from_cache_file=False)
+    print("mapped train data")
+    valid_dataset = valid_dataset.map(encoder.get_longformer_qa_features, load_from_cache_file=False)
+    print("mapped valid data")
 
     # set the tensor type and the columns which the dataset should return
     columns = ['input_ids', 'attention_mask', 'start_positions', 'end_positions']
@@ -102,7 +111,7 @@ def evaluate_model(model, valid_dataset):
 
 print("starting model init")
 # model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
-model = get_composite_span_longformer(wrap_class=GatWrap)
+model = get_span_composite_model(wrap_class=GatWrap)
 
 # Get datasets
 print('loading data')

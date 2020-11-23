@@ -60,7 +60,7 @@ class TextEncoder:
             raise Exception("cannot get encoding from batched example " + repr(example))
         # print("getting encoding for ex: " + repr(example) + "\n has cands:", ("candidates" in example))
         if "candidates" in example:
-            return self.get_candidates_encoding(example)
+            return self.get_mcqa_encoding(example)
         return self.get_qa_encoding(example)
 
     def get_context_encoding(self, example):
@@ -78,12 +78,16 @@ class TextEncoder:
     def get_cands_string(self, cands: List[str]):
         return self.tokeniser.sep_token.join(cands)
 
-    def get_candidates_encoding(self, example: Dict):
-        """concats <context><query><all candidates>"""
-        cands_str = self.get_cands_string(example["candidates"])
+    def get_mcqa_encoding(self, example: Dict):
+        """concats <context><query><all candidates> and encodes"""
+        cands = candidates(example)
+        cands_str = self.get_cands_string(cands)
         q_cans = question(example) + self.tokeniser.sep_token + cands_str
         # print("q_cans:", q_cans)
-        return self.tokeniser(context(example), q_cans)
+        encoding = self.tokeniser(context(example), q_cans)
+        # print("encoding:", encoding)
+
+        return encoding
 
     def get_qa_encoding(self, example: Dict, pad=False):
         """
@@ -98,28 +102,62 @@ class TextEncoder:
 
     def get_longformer_qa_features(self, example: Dict):
         """ready for a Longformer"""
-        print("type:", type(example))
         if 'candidates' in example:
             encoding = self._get_longformer_candidate_features(example)
         else:
             encoding = self._get_longformer_span_features(example)
-        print("ex:", example)
-        print("encode:", encoding)
-        print("tokens:", encoding.tokens())
-        print("word ids:", encoding.words())
-        print("words:", words(encoding, question(example), context(example)))
+        # print("ex:", example)
+        # print("encode:", encoding)
+        # print("tokens:", encoding.tokens())
+        # print("word ids:", encoding.words())
+        # print("words:", words(encoding, question(example), context(example)))
         return encoding
 
     def _get_longformer_candidate_features(self, example):
         """encoded like <context><query><all candidates>"""
-        encoding = self.get_candidates_encoding(example)
+        encoding = self.get_mcqa_encoding(example)
         cands = candidates(example)
-        print("example:", example, "\ncands:", cands)
+        # print("example:", example, "\ncands:", cands)
         answer = example["answer"]
         ans_id = cands.index(answer)
-        encoding.update({"answer": ans_id})
-        print("ans id:", ans_id, "enc:", encoding)
+        start_positions, end_positions = self.get_answer_candidate_token_span(example, encoding, ans_id)
+
+        encoding.update({'start_positions': start_positions,
+                          'end_positions': end_positions,
+                          'attention_mask': encoding['attention_mask'], "answer": ans_id})
+        # print("ans id:", ans_id, "enc:", encoding)
         return encoding
+
+    def get_answer_candidate_token_span(self, example, mcqa_encoding, answer_id) -> Tuple[int, int]:
+        """
+            mcqa is treated as span selection where the text is <context><query><all candidates>
+            :returns the span corr to the correct candidates tokens in the full encoding
+        """
+        cands = candidates(example)
+        cands_str = self.get_cands_string(cands)
+        cands_encoding = self.tokeniser(cands_str)
+        sep_id = self.tokeniser.sep_token_id
+        starts = [0]
+        ends = []
+        # print("cands ids:", type(cands_encoding["input_ids"]), cands_encoding["input_ids"])
+        for i, tok_id in enumerate(cands_encoding["input_ids"]):
+            if tok_id == sep_id:
+                if ends:  # starts of cand spans
+                    starts.append(ends[-1])
+                ends.append(i)  # ends of cand spans
+
+        # print("cands enc:", cands_encoding)
+        # print("cands spans:", [(starts[i], ends[i]) for i in range(len(starts))])
+        # print("ans cand span:", (starts[answer_id], ends[answer_id]))
+
+        con_query_len = len(mcqa_encoding["input_ids"]) - len(cands_encoding["input_ids"])
+        # print("full mcqa:", len(mcqa_encoding["input_ids"]), "cands:", len(cands_encoding["input_ids"]), "con quer:", con_query_len)
+        # print("full toks:", mcqa_encoding.tokens())
+
+        span_in_full_enc = (starts[answer_id] + con_query_len, ends[answer_id] + con_query_len)
+        # print("span in full enc:", span_in_full_enc)
+
+        return span_in_full_enc
 
     def _get_longformer_span_features(self, example):
         """ready for a longformer which predicts a span. ie: LongformerForQuestionAnswering"""
@@ -136,7 +174,7 @@ class TextEncoder:
                           'attention_mask': encoding['attention_mask']})
         return encoding
 
-    def get_answer_token_span(self, example, qa_encoding,) -> Tuple[int, int]:
+    def get_answer_token_span(self, example, qa_encoding) -> Tuple[int, int]:
         """
             example is encoded like this <s> context</s></s> question</s>
             find out which tokens the start,end chars belong to

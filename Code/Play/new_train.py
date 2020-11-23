@@ -17,7 +17,7 @@ from Code.Play.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
-from Code.Play.initialiser import get_trainer, get_composite_span_longformer
+from Code.Play.initialiser import get_trainer, get_span_composite_model
 
 
 tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')

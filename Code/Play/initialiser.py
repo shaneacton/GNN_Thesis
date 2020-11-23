@@ -2,7 +2,7 @@ from typing import Type
 
 import torch
 from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel, \
-    TrainingArguments, Trainer
+    TrainingArguments, Trainer, LongformerForMultipleChoice
 
 from Code.Play.composite import Wrap
 from Code.Play.gat_composite import GatWrap
@@ -49,7 +49,6 @@ def get_longformer_config():
 def get_fresh_span_longformer():
     """no pretraining"""
     configuration = get_longformer_config()
-
     qa = LongformerForQuestionAnswering(configuration).to(device)
 
     return qa
@@ -64,7 +63,7 @@ def get_composit_qa_longformer(output_model, wrap_class: Type):
     return qa.to(device)
 
 
-def get_composite_span_longformer(wrap_class: Type = Wrap):
+def get_span_composite_model(wrap_class: Type = Wrap):
     return get_composit_qa_longformer(get_fresh_span_longformer(), wrap_class)
 
 
