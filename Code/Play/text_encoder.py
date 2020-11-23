@@ -63,6 +63,18 @@ class TextEncoder:
             return self.get_candidates_encoding(example)
         return self.get_qa_encoding(example)
 
+    def get_context_encoding(self, example):
+        if is_batched(example):
+            cs = context(example)
+            return [self.tokeniser.encode_plus(c) for c in cs]
+        return self.tokeniser.encode_plus(context(example))
+
+    def get_question_encoding(self, example):
+        if is_batched(example):
+            qs = question(example)
+            return [self.tokeniser.encode_plus(q) for q in qs]
+        return self.tokeniser.encode_plus(question(example))
+
     def get_cands_string(self, cands: List[str]):
         return self.tokeniser.sep_token.join(cands)
 
@@ -95,23 +107,34 @@ class TextEncoder:
         print("encode:", encoding)
         print("tokens:", encoding.tokens())
         print("word ids:", encoding.words())
-        print("words:", words(encoding, question(example), example['context']))
+        print("words:", words(encoding, question(example), context(example)))
         return encoding
 
-    def get_context_encoding(self, example):
-        if is_batched(example):
-            cs = context(example)
-            return [self.tokeniser.encode_plus(c) for c in cs]
-        return self.tokeniser.encode_plus(context(example))
-
-    def get_question_encoding(self, example):
-        if is_batched(example):
-            qs = question(example)
-            return [self.tokeniser.encode_plus(q) for q in qs]
-        return self.tokeniser.encode_plus(question(example))
-
     def _get_longformer_candidate_features(self, example):
-        pass
+        """encoded like <context><query><all candidates>"""
+        encoding = self.get_candidates_encoding(example)
+        cands = candidates(example)
+        print("example:", example, "\ncands:", cands)
+        answer = example["answer"]
+        ans_id = cands.index(answer)
+        encoding.update({"answer": ans_id})
+        print("ans id:", ans_id, "enc:", encoding)
+        return encoding
+
+    def _get_longformer_span_features(self, example):
+        """ready for a longformer which predicts a span. ie: LongformerForQuestionAnswering"""
+        # the example is encoded like this <s> question</s></s> context</s>
+
+        encoding = self.get_encoding(example)
+        start_positions, end_positions = self.get_answer_token_span(example, encoding)
+
+        if end_positions > 512:
+            start_positions, end_positions = 0, 0
+
+        encoding.update({'start_positions': start_positions,
+                          'end_positions': end_positions,
+                          'attention_mask': encoding['attention_mask']})
+        return encoding
 
     def get_answer_token_span(self, example, qa_encoding,) -> Tuple[int, int]:
         """
@@ -127,20 +150,6 @@ class TextEncoder:
         end_positions_context = qa_encoding.char_to_token(end_idx - 1)
 
         return start_positions_context, end_positions_context
-
-    def _get_longformer_span_features(self, example):
-        # the example is encoded like this <s> question</s></s> context</s>
-
-        encodings = self.get_qa_encoding(example)
-        start_positions, end_positions = self.get_answer_token_span(example, encodings)
-
-        if end_positions > 512:
-            start_positions, end_positions = 0, 0
-
-        encodings.update({'start_positions': start_positions,
-                          'end_positions': end_positions,
-                          'attention_mask': encodings['attention_mask']})
-        return encodings
 
     @staticmethod
     def get_correct_span_alignement(context, answer):

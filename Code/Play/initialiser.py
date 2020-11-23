@@ -1,3 +1,5 @@
+from typing import Type
+
 import torch
 from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel, \
     TrainingArguments, Trainer
@@ -53,17 +55,17 @@ def get_fresh_span_longformer():
     return qa
 
 
-def get_composit_qa_longformer(output_model):
+def get_composit_qa_longformer(output_model, wrap_class: Type):
     """frozen pretrained longformer base with a specialised trainable output longformer"""
 
     qa = LongformerModel.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
 
-    qa = GatWrap(qa, output_model)
-    return qa
+    qa = wrap_class(qa, output_model)
+    return qa.to(device)
 
 
-def get_composite_span_longformer():
-    return get_composit_qa_longformer(get_fresh_span_longformer())
+def get_composite_span_longformer(wrap_class: Type = Wrap):
+    return get_composit_qa_longformer(get_fresh_span_longformer(), wrap_class)
 
 
 def get_trainer(model, outdir, train_dataset, valid_dataset):

@@ -7,7 +7,7 @@ from transformers.modeling_longformer import _compute_global_attention_mask as q
     LongformerModel, create_position_ids_from_input_ids
 
 # from Code.Play.initialiser import ATTENTION_WINDOW
-from Code.Play.Gat import Gat
+from Code.Play.gat import Gat
 from Code.Training import device
 
 
@@ -53,6 +53,7 @@ class GatWrap(LongformerPreTrainedModel):
         out = self.output(inputs_embeds=embs, attention_mask=attention_mask, return_dict=return_dict,
                           start_positions=start_positions, end_positions=end_positions,
                           global_attention_mask=global_attention_mask)
+        # print("loss:", out["loss"])
         return out
 
     def get_pos_embs(self, input_ids: Tensor):

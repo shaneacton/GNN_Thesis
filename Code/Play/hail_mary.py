@@ -12,10 +12,13 @@ import torch
 from torch.utils.data import DataLoader
 from transformers import LongformerTokenizerFast, LongformerForQuestionAnswering
 
+from Code.Play.gat_composite import GatWrap
+from Code.Play.composite import Wrap
 from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
 from Code.Play.initialiser import get_trainer, get_composite_span_longformer, BATCH_SIZE
 
+print("loading tokeniser")
 tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 encoder = TextEncoder(tokenizer)
 
@@ -34,7 +37,7 @@ def data_loc(set_name):
     return os.path.join(data_name, set_name)
 
 
-def save_dataset():
+def process_dataset():
     if exists(data_loc(VALID)):
         """already saved"""
         return
@@ -97,14 +100,13 @@ def evaluate_model(model, valid_dataset):
     print(evaluate(references, predictions))
 
 
-save_dataset()
-
 print("starting model init")
 # model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
-model = get_composite_span_longformer()
+model = get_composite_span_longformer(wrap_class=GatWrap)
 
 # Get datasets
 print('loading data')
+process_dataset()
 train_dataset = torch.load(data_loc(TRAIN))
 valid_dataset = torch.load(data_loc(VALID))
 print('loading done')
