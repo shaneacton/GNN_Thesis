@@ -22,13 +22,15 @@ print("loading tokeniser")
 tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 encoder = TextEncoder(tokenizer)
 
+WRAP_CLASS = GatWrap
+
 TRAIN = 'long_train_data.pt'
 VALID = 'long_valid_data.pt'
-OUT = "models"
+OUT = ("GAT" if WRAP_CLASS == GatWrap else "Lin") + "_models"
 
-DATASET = "squad"  # "qangaroo"  # "squad"
-VERSION = None  # "wikihop"
-# DATASET = "qangaroo"  # "qangaroo"  # "squad"
+DATASET = "squad"
+VERSION = None
+# DATASET = "qangaroo"
 # VERSION = "wikihop"
 
 
@@ -111,7 +113,7 @@ def evaluate_model(model, valid_dataset):
 
 print("starting model init")
 # model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
-model = get_span_composite_model(wrap_class=GatWrap)
+model = get_span_composite_model(wrap_class=WRAP_CLASS)
 
 # Get datasets
 print('loading data')
