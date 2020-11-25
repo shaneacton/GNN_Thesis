@@ -26,7 +26,8 @@ WRAP_CLASS = GatWrap
 
 TRAIN = 'long_train_data.pt'
 VALID = 'long_valid_data.pt'
-OUT = ("GAT" if WRAP_CLASS == GatWrap else "Lin") + "_models"
+model_name = "GAT" if WRAP_CLASS == GatWrap else "Lin"
+OUT = model_name + "_models"
 
 DATASET = "squad"
 VERSION = None
@@ -108,8 +109,9 @@ def evaluate_model(model, valid_dataset):
         # print("ref:", ref)
         references.append(ref['answers']['text'])
 
+    print(model)
+    print("model:", model_name)
     print(evaluate(references, predictions))
-
 
 print("starting model init")
 # model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
