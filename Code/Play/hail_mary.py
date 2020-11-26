@@ -10,16 +10,15 @@ sys.path.append(os.path.join(dir_path_1, 'Code'))
 import nlp
 import torch
 from torch.utils.data import DataLoader
-from transformers import LongformerTokenizerFast, LongformerForQuestionAnswering
 
 from Code.Play.gat_composite import GatWrap
 from Code.Play.composite import Wrap
 from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
-from Code.Play.initialiser import get_trainer, get_span_composite_model, BATCH_SIZE
+from Code.Play.initialiser import get_trainer, get_span_composite_model, BATCH_SIZE, get_pretrained_tokeniser
 
 print("loading tokeniser")
-tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
+tokenizer = get_pretrained_tokeniser()
 encoder = TextEncoder(tokenizer)
 
 WRAP_CLASS = GatWrap
@@ -29,10 +28,10 @@ VALID = 'long_valid_data.pt'
 model_name = "GAT" if WRAP_CLASS == GatWrap else "Lin"
 OUT = model_name + "_models"
 
-DATASET = "squad"
-VERSION = None
-# DATASET = "qangaroo"
-# VERSION = "wikihop"
+# DATASET = "squad"
+# VERSION = None
+DATASET = "qangaroo"
+VERSION = "wikihop"
 
 
 def data_loc(set_name):

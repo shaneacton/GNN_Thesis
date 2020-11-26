@@ -34,9 +34,11 @@ class GatWrap(LongformerPreTrainedModel):
         return self.output.config.hidden_size
 
     def forward(self, input_ids, attention_mask, start_positions=None, end_positions=None, return_dict=True):
-        # gives global attention to all question tokens
-        global_attention_mask = qa_glob_att(input_ids, self.output.config.sep_token_id, before_sep_token=False)
+        # gives global attention to all question and/or candidate tokens
+        # global_attention_mask = qa_glob_att(input_ids, self.output.config.sep_token_id, before_sep_token=False)
+        global_attention_mask = self.get_glob_att_mask(input_ids)
         # print("glob att mask:", global_attention_mask.size(), global_attention_mask)
+
         with torch.no_grad():  # no finetuning the embedder
             embs = self.pretrained(input_ids=input_ids, attention_mask=attention_mask, return_dict=True,
                                    global_attention_mask=global_attention_mask)
@@ -55,6 +57,23 @@ class GatWrap(LongformerPreTrainedModel):
                           global_attention_mask=global_attention_mask)
         # print("loss:", out["loss"])
         return out
+
+    def get_glob_att_mask(self, input_ids: Tensor) -> Tensor:
+        """
+            input ids are encoded via <context>sep<query>sep[all candidates]
+            thus all ids after the first sep should be global
+            adapted from modeling_longformer._compute_global_attention_mask from Transformers lib
+        """
+        sep_token_indices = (input_ids == self.output.config.sep_token_id).nonzero()
+        first_sep = sep_token_indices.squeeze()[0][1].item()
+        # print("first:", first_sep)
+        # print("sep idxs:", sep_token_indices)
+        attention_mask = torch.arange(input_ids.shape[1], device=input_ids.device)
+        attention_mask = (attention_mask.expand_as(input_ids) > (first_sep + 1)).to(torch.uint8) * (
+                attention_mask.expand_as(input_ids) < input_ids.shape[-1]
+        ).to(torch.uint8)
+        # print("att mask:", attention_mask)
+        return attention_mask
 
     def get_pos_embs(self, input_ids: Tensor):
         pas_id = self.pretrained.config.pad_token_id

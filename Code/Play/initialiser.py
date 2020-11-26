@@ -6,8 +6,7 @@ from transformers import LongformerConfig, LongformerTokenizerFast, LongformerFo
 
 from Code.Play.composite import Wrap
 from Code.Play.gat_composite import GatWrap
-
-device = torch.device("cpu")
+from Code.Training import device
 
 FEATURES = 402
 INTERMEDIATE_FEATURES = 600
@@ -18,7 +17,9 @@ LAYERS = 1
 BATCH_SIZE = 1
 NUM_EPOCHS = 1
 
-PRETRAINED = "valhalla/longformer-base-4096-finetuned-squadv1"
+# PRETRAINED = "valhalla/longformer-base-4096-finetuned-squadv1"
+PRETRAINED = "allenai/longformer-base-4096"
+
 
 _tokenizer = None
 
@@ -46,6 +47,14 @@ def get_longformer_config():
     return configuration
 
 
+def get_pretrained_longformer():
+    return LongformerModel.from_pretrained(PRETRAINED)
+
+
+def get_pretrained_tokeniser():
+    return LongformerTokenizerFast.from_pretrained(PRETRAINED)
+
+
 def get_fresh_span_longformer():
     """no pretraining"""
     configuration = get_longformer_config()
@@ -56,10 +65,7 @@ def get_fresh_span_longformer():
 
 def get_composit_qa_longformer(output_model, wrap_class: Type):
     """frozen pretrained longformer base with a specialised trainable output longformer"""
-
-    qa = LongformerModel.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
-
-    qa = wrap_class(qa, output_model)
+    qa = wrap_class(get_pretrained_longformer(), output_model)
     return qa.to(device)
 
 
