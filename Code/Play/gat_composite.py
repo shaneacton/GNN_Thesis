@@ -17,6 +17,7 @@ class GatWrap(LongformerPreTrainedModel):
         super().__init__(pretrained.config)
         self.pretrained = pretrained
         self.output = output
+        self.max_pretrained_pos_ids = pretrained.config.max_position_embeddings
 
         # self.pos_embed = pretrained.embeddings.position_embeddings
         # self.pos_embed_map = nn.Linear(self.pretrained_size, self.middle_size)
@@ -38,10 +39,10 @@ class GatWrap(LongformerPreTrainedModel):
         # global_attention_mask = qa_glob_att(input_ids, self.output.config.sep_token_id, before_sep_token=False)
         global_attention_mask = self.get_glob_att_mask(input_ids)
         # print("glob att mask:", global_attention_mask.size(), global_attention_mask)
-
+        pos_ids = self.get_safe_pos_ids(input_ids)
         with torch.no_grad():  # no finetuning the embedder
             embs = self.pretrained(input_ids=input_ids, attention_mask=attention_mask, return_dict=True,
-                                   global_attention_mask=global_attention_mask)
+                                   global_attention_mask=global_attention_mask, position_ids=pos_ids)
             embs = embs["last_hidden_state"]
 
         # print("token embs:", embs.size())
@@ -57,6 +58,21 @@ class GatWrap(LongformerPreTrainedModel):
                           global_attention_mask=global_attention_mask)
         # print("loss:", out["loss"])
         return out
+
+    def get_safe_pos_ids(self, input_ids: Tensor):
+        """
+            incase there are more tokens than the max pos ids in the pretrained
+            simple wrap performed in case of spill over
+        """
+        num_ids = input_ids.size(1)
+        batch_size = input_ids.size(0)
+        if num_ids < 3:
+            return None  # is safe
+        safe_ids = [i % self.max_pretrained_pos_ids for i in range(num_ids)]
+        safe_ids = [safe_ids for _ in range(batch_size)]
+        safe_ids = torch.tensor(safe_ids).to(device)
+        # print("safe ids:", safe_ids.size())
+        return safe_ids
 
     def get_glob_att_mask(self, input_ids: Tensor) -> Tensor:
         """
