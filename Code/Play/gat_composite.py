@@ -3,7 +3,7 @@ from typing import Tuple
 import torch
 from torch import nn, Tensor
 from torch_geometric.nn import GATConv, SAGEConv
-from transformers.modeling_longformer import _compute_global_attention_mask as qa_glob_att, LongformerPreTrainedModel, \
+from transformers.modeling_longformer import LongformerPreTrainedModel, \
     LongformerModel, create_position_ids_from_input_ids
 
 # from Code.Play.initialiser import ATTENTION_WINDOW

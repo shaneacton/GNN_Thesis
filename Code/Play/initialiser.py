@@ -48,7 +48,8 @@ def get_longformer_config():
 
 
 def get_pretrained_longformer():
-    return LongformerModel.from_pretrained(PRETRAINED)
+    pret = LongformerModel.from_pretrained(PRETRAINED)
+    return pret.to(device)
 
 
 def get_pretrained_tokeniser():
@@ -70,7 +71,7 @@ def get_composit_qa_longformer(output_model, wrap_class: Type):
 
 
 def get_span_composite_model(wrap_class: Type = Wrap):
-    return get_composit_qa_longformer(get_fresh_span_longformer(), wrap_class)
+    return get_composit_qa_longformer(get_fresh_span_longformer(), wrap_class).to(device)
 
 
 def get_trainer(model, outdir, train_dataset, valid_dataset):
@@ -79,7 +80,8 @@ def get_trainer(model, outdir, train_dataset, valid_dataset):
     train_args.do_eval = False
     train_args.evaluation_strategy = "no"
     # train_args.eval_steps = 2000
-    train_args.do_train = True
+    train_args.do_train = True                                                                                                                                                                                                                                                                                                                                                                              
+    train_args.no_cuda = device == torch.device("cpu")
 
     train_args.save_steps = 250
     train_args.overwrite_output_dir = True
