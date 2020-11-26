@@ -10,6 +10,8 @@ from transformers.modeling_longformer import LongformerPreTrainedModel, \
 from Code.Play.gat import Gat
 from Code.Training import device
 
+MAX_NODES = 3500
+
 
 class GatWrap(LongformerPreTrainedModel):
 
@@ -36,8 +38,8 @@ class GatWrap(LongformerPreTrainedModel):
 
     def forward(self, input_ids, attention_mask, start_positions=None, end_positions=None, return_dict=True):
         # gives global attention to all question and/or candidate tokens
-        if input_ids.size(1) >= self.max_pretrained_pos_ids:
-            return torch.Tensor([0] * input_ids.size(0))  # too large to pass
+        if input_ids.size(1) >= self.max_pretrained_pos_ids or input_ids.size(1) >= MAX_NODES:
+            return torch.tensor([0.] * input_ids.size(0), requires_grad=True)  # too large to pass
         # global_attention_mask = qa_glob_att(input_ids, self.output.config.sep_token_id, before_sep_token=False)
         global_attention_mask = self.get_glob_att_mask(input_ids)
         # print("glob att mask:", global_attention_mask.size(), global_attention_mask)
