@@ -38,7 +38,7 @@ def get_longformer_config():
     configuration.hidden_size = FEATURES
     configuration.intermediate_size = INTERMEDIATE_FEATURES
     configuration.num_labels = 2
-    configuration.max_position_embeddings = 4000
+    configuration.max_position_embeddings = 4098
     configuration.type_vocab_size = 3
     configuration.num_attention_heads = HEADS
     configuration.num_hidden_layers = LAYERS

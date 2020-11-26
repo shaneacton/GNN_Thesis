@@ -18,7 +18,7 @@ class GatWrap(LongformerPreTrainedModel):
         self.pretrained = pretrained
         self.output = output
         self.max_pretrained_pos_ids = pretrained.config.max_position_embeddings
-
+        print("max pos embs:", self.max_pretrained_pos_ids)
         # self.pos_embed = pretrained.embeddings.position_embeddings
         # self.pos_embed_map = nn.Linear(self.pretrained_size, self.middle_size)
 
@@ -36,6 +36,8 @@ class GatWrap(LongformerPreTrainedModel):
 
     def forward(self, input_ids, attention_mask, start_positions=None, end_positions=None, return_dict=True):
         # gives global attention to all question and/or candidate tokens
+        if input_ids.size(1) >= self.max_pretrained_pos_ids:
+            return torch.Tensor([0] * input_ids.size(0))  # too large to pass
         # global_attention_mask = qa_glob_att(input_ids, self.output.config.sep_token_id, before_sep_token=False)
         global_attention_mask = self.get_glob_att_mask(input_ids)
         # print("glob att mask:", global_attention_mask.size(), global_attention_mask)
@@ -66,7 +68,7 @@ class GatWrap(LongformerPreTrainedModel):
         """
         num_ids = input_ids.size(1)
         batch_size = input_ids.size(0)
-        if num_ids < 3:
+        if num_ids < self.max_pretrained_pos_ids:
             return None  # is safe
         safe_ids = [i % self.max_pretrained_pos_ids for i in range(num_ids)]
         safe_ids = [safe_ids for _ in range(batch_size)]
