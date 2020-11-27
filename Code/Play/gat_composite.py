@@ -12,7 +12,7 @@ from transformers.modeling_outputs import QuestionAnsweringModelOutput
 from Code.Play.gat import Gat
 from Code.Training import device
 
-MAX_NODES = 600  # 2900
+MAX_NODES = 2900  # 2900
 
 
 class GatWrap(LongformerPreTrainedModel):
@@ -24,7 +24,7 @@ class GatWrap(LongformerPreTrainedModel):
         middle_size = output.config.hidden_size
         self.middle1 = Gat(self.pretrained_size, middle_size, num_edge_types=2)
         self.act = nn.ReLU()
-        self.middle2 = Gat(self.middle_size, middle_size, num_edge_types=2)
+        self.middle2 = Gat(middle_size, middle_size, num_edge_types=2)
 
         self.output = output
         self.max_pretrained_pos_ids = pretrained.config.max_position_embeddings
