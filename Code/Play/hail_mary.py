@@ -11,7 +11,7 @@ import nlp
 import torch
 from torch.utils.data import DataLoader
 
-from Code.Play.gat_composite import GatWrap, PASS, FAIL
+from Code.Play.gat_composite import GatWrap
 from Code.Play.composite import Wrap
 from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
@@ -145,10 +145,8 @@ def get_latest_model():
 check = get_latest_model()
 check = None if check is None else os.path.join(".", data_loc(OUT), check)
 print("checkpoint:", check)
-try:
-    trainer.train(model_path=check)
-except:
-    print("pass:", PASS, "fail", FAIL, "percent:",(PASS/(PASS + FAIL)))
+trainer.train(model_path=check)
+
 
 trainer.save_model()
 

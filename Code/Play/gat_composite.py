@@ -4,7 +4,7 @@ import torch
 from torch import nn, Tensor
 from torch_geometric.nn import GATConv, SAGEConv
 from transformers.modeling_longformer import LongformerPreTrainedModel, \
-    LongformerModel, create_position_ids_from_input_ids
+    LongformerModel
 
 # from Code.Play.initialiser import ATTENTION_WINDOW
 from transformers.modeling_outputs import QuestionAnsweringModelOutput
@@ -12,11 +12,8 @@ from transformers.modeling_outputs import QuestionAnsweringModelOutput
 from Code.Play.gat import Gat
 from Code.Training import device
 
-MAX_NODES = 3200
+MAX_NODES = 600  # 2900
 
-PASS = 0
-FAIL = 0
-TEST=0
 
 class GatWrap(LongformerPreTrainedModel):
 
@@ -24,9 +21,10 @@ class GatWrap(LongformerPreTrainedModel):
         super().__init__(pretrained.config)
         self.pretrained = pretrained
 
-        self.middle1 = Gat(self.pretrained_size, self.middle_size, num_edge_types=2)
+        middle_size = output.config.hidden_size
+        self.middle1 = Gat(self.pretrained_size, middle_size, num_edge_types=2)
         self.act = nn.ReLU()
-        self.middle2 = Gat(self.middle_size, self.middle_size, num_edge_types=2)
+        self.middle2 = Gat(self.middle_size, middle_size, num_edge_types=2)
 
         self.output = output
         self.max_pretrained_pos_ids = pretrained.config.max_position_embeddings
