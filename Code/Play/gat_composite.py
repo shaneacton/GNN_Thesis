@@ -7,26 +7,30 @@ from transformers.modeling_longformer import LongformerPreTrainedModel, \
     LongformerModel, create_position_ids_from_input_ids
 
 # from Code.Play.initialiser import ATTENTION_WINDOW
+from transformers.modeling_outputs import QuestionAnsweringModelOutput
+
 from Code.Play.gat import Gat
 from Code.Training import device
 
-MAX_NODES = 3500
+MAX_NODES = 3200
 
+PASS = 0
+FAIL = 0
+TEST=0
 
 class GatWrap(LongformerPreTrainedModel):
 
     def __init__(self, pretrained: LongformerModel, output):
         super().__init__(pretrained.config)
         self.pretrained = pretrained
-        self.output = output
-        self.max_pretrained_pos_ids = pretrained.config.max_position_embeddings
-        print("max pos embs:", self.max_pretrained_pos_ids)
-        # self.pos_embed = pretrained.embeddings.position_embeddings
-        # self.pos_embed_map = nn.Linear(self.pretrained_size, self.middle_size)
 
         self.middle1 = Gat(self.pretrained_size, self.middle_size, num_edge_types=2)
         self.act = nn.ReLU()
         self.middle2 = Gat(self.middle_size, self.middle_size, num_edge_types=2)
+
+        self.output = output
+        self.max_pretrained_pos_ids = pretrained.config.max_position_embeddings
+        print("max pos embs:", self.max_pretrained_pos_ids)
 
     @property
     def pretrained_size(self):
@@ -38,15 +42,15 @@ class GatWrap(LongformerPreTrainedModel):
 
     def forward(self, input_ids, attention_mask, start_positions=None, end_positions=None, return_dict=True):
         # gives global attention to all question and/or candidate tokens
-        if input_ids.size(1) >= self.max_pretrained_pos_ids or input_ids.size(1) >= MAX_NODES:
-            return torch.tensor([0.] * input_ids.size(0), requires_grad=True)  # too large to pass
+        if input_ids.size(1) >= self.max_pretrained_pos_ids or input_ids.size(1) >= MAX_NODES:  # too large to pass
+            has_loss = start_positions is not None and end_positions is not None
+            return self.get_null_return(input_ids, return_dict, has_loss)
         # global_attention_mask = qa_glob_att(input_ids, self.output.config.sep_token_id, before_sep_token=False)
         global_attention_mask = self.get_glob_att_mask(input_ids)
         # print("glob att mask:", global_attention_mask.size(), global_attention_mask)
-        pos_ids = self.get_safe_pos_ids(input_ids)
         with torch.no_grad():  # no finetuning the embedder
             embs = self.pretrained(input_ids=input_ids, attention_mask=attention_mask, return_dict=True,
-                                   global_attention_mask=global_attention_mask, position_ids=pos_ids)
+                                   global_attention_mask=global_attention_mask)
             embs = embs["last_hidden_state"]
 
         # print("token embs:", embs.size())
@@ -62,21 +66,6 @@ class GatWrap(LongformerPreTrainedModel):
                           global_attention_mask=global_attention_mask)
         # print("loss:", out["loss"])
         return out
-
-    def get_safe_pos_ids(self, input_ids: Tensor):
-        """
-            incase there are more tokens than the max pos ids in the pretrained
-            simple wrap performed in case of spill over
-        """
-        num_ids = input_ids.size(1)
-        batch_size = input_ids.size(0)
-        if num_ids < self.max_pretrained_pos_ids:
-            return None  # is safe
-        safe_ids = [i % self.max_pretrained_pos_ids for i in range(num_ids)]
-        safe_ids = [safe_ids for _ in range(batch_size)]
-        safe_ids = torch.tensor(safe_ids).to(device)
-        # print("safe ids:", safe_ids.size())
-        return safe_ids
 
     def get_glob_att_mask(self, input_ids: Tensor) -> Tensor:
         """
@@ -94,15 +83,6 @@ class GatWrap(LongformerPreTrainedModel):
         ).to(torch.uint8)
         # print("att mask:", attention_mask)
         return attention_mask
-
-    def get_pos_embs(self, input_ids: Tensor):
-        pas_id = self.pretrained.config.pad_token_id
-        pos_ids = create_position_ids_from_input_ids(input_ids, pas_id).to(input_ids.device)
-        pos_embs = self.pos_embed(pos_ids)
-        num_elements, num_features = pos_embs.size(1), pos_embs.size(2)
-        """reduce the dim of the pos embs to the same as the GNN"""
-        pos_embs = self.pos_embed_map(pos_embs.view(num_elements, num_features)).view(1, num_elements, self.middle_size)
-        return pos_embs
 
     @staticmethod
     def get_edge_indices(num_tokens, glob_att_mask: Tensor, window_size=128) -> Tuple[Tensor, Tensor]:
@@ -139,3 +119,20 @@ class GatWrap(LongformerPreTrainedModel):
         # print("edges:", edges.size(), edges)
         return edges, edge_types
 
+    def get_null_return(self, input_ids:Tensor, return_dict:bool, include_loss:bool):
+        loss = None
+        batch_size = input_ids.size(0)
+        num_ids = input_ids.size(1)
+        if include_loss:
+            loss = torch.tensor([0.] * batch_size, requires_grad=True)
+        logits = torch.tensor([0.] * num_ids, requires_grad=True).to(float)
+
+        if not return_dict:
+            output = (logits, logits)
+            return ((loss,) + output) if loss is not None else output
+
+        return QuestionAnsweringModelOutput(
+            loss=loss,
+            start_logits=logits,
+            end_logits=logits,
+        )
