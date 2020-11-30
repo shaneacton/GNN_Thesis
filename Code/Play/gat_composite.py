@@ -119,10 +119,9 @@ class GatWrap(LongformerPreTrainedModel):
 
     def get_null_return(self, input_ids:Tensor, return_dict:bool, include_loss:bool):
         loss = None
-        batch_size = input_ids.size(0)
         num_ids = input_ids.size(1)
         if include_loss:
-            loss = torch.tensor([0.] * batch_size, requires_grad=True)
+            loss = torch.tensor(0., requires_grad=True)
         logits = torch.tensor([0.] * num_ids, requires_grad=True).to(float)
 
         if not return_dict:
