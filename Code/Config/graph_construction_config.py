@@ -42,7 +42,7 @@ class GraphConstructionConfig(Config):
         # which context levels to connect to. automatically connected to all query nodes
         self.candidate_connections = [SENTENCE]
 
-        self.max_edges = 300000
+        self.max_edges = 500000  # 300000
 
     @property
     def all_structure_levels(self):

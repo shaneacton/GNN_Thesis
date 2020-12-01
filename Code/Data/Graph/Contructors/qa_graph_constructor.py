@@ -1,9 +1,10 @@
 from typing import List, Union
 
-from transformers import PreTrainedTokenizerFast, BatchEncoding
+from transformers import PreTrainedTokenizerFast, BatchEncoding, TokenSpan
 
-from Code.Data.Graph.Contructors.construction_utils import get_structure_edge, connect_sliding_window, \
-    connect_query_and_context
+from Code.Data.Graph.Contructors.construction_utils import connect_sliding_window, \
+    connect_query_and_context, add_nodes_from_hierarchy, connect_candidates_to_graph
+from Code.Data.Graph.Nodes.candidate_node import CandidateNode
 from Code.Data.Graph.Nodes.structure_node import StructureNode
 from Code.Data.Graph.Nodes.word_node import WordNode
 from Code.Data.Graph.context_graph import QAGraph
@@ -37,7 +38,7 @@ class QAGraphConstructor:
             The torch data loader batches dictionaries by stacking each of the values per key
             {a:1, b:2} + {a:3, b:4} = {a: [1,3], b:[2,4]}
 
-            break these up into individual examples to construct graphs in series
+            break these up into individual examples to construct graphs individually
             todo: parallelise
         """
 
@@ -57,19 +58,45 @@ class QAGraphConstructor:
         if is_batched(example):
             raise Exception("must pass a single, unbatched example. instead got: " + repr(example))
 
+        # separates the context and query, calculates node spans from {toks, wrds, sents}, calculates containment
         context_hierarchy, query_hierarchy = self.build_hierarchies(example)
         graph = QAGraph(example, self.gcc)
-        self.add_nodes_from_hierarchy(graph, context_hierarchy)
-        self.add_nodes_from_hierarchy(graph, query_hierarchy)
+        add_nodes_from_hierarchy(graph, context_hierarchy)
+        add_nodes_from_hierarchy(graph, query_hierarchy)
 
         connect_sliding_window(graph, context_hierarchy)
         connect_sliding_window(graph, query_hierarchy)
         connect_query_and_context(graph)
 
+        if candidates(example):
+            cands = candidates(example).split(self.tokeniser.sep_token)
+            # print("found candidates!", cands)
+            # print("q:", question(example))
+            self.add_candidate_nodes(graph, cands)
+
         if graph.gcc.max_edges != -1 and len(graph.ordered_edges) > graph.gcc.max_edges:
             raise Exception("data sample created too many edeges ("+str(len(graph.ordered_edges))+
                             ") with this gcc (max = "+str(graph.gcc.max_edges)+"). Discard it")
         return graph
+
+    def add_candidate_nodes(self, graph: QAGraph, cands: List[str]):
+        """
+            create all candidate nodes, and connect them to the existing graph
+
+            candidates are encoded at the end of a <context><query><all candidates> concat, but separated after embedding.
+            Thus each candidate need only know its span in the candidates_string encoding
+        """
+        nodes = []
+        start = 0
+        for i, cand in enumerate(cands):
+            cand_enc = self.tokeniser(cand)
+            num_can_toks = len(cand_enc.tokens())
+            end = start + num_can_toks - 1
+            span = TokenSpan(start, end)
+            nodes.append(CandidateNode(span, i))
+            start = end
+        graph.add_nodes(nodes)
+        connect_candidates_to_graph(graph)
 
     def build_hierarchies(self, single_example):
         context_encoding: BatchEncoding = self.tokeniser(context(single_example))
@@ -93,17 +120,6 @@ class QAGraphConstructor:
         query_hierarchy.calculate_encapsulation()
         return context_hierarchy, query_hierarchy
 
-    def add_nodes_from_hierarchy(self, graph: QAGraph, hierarchy: SpanHierarchy, connect=True):
-        """adds nodes at each level, and adds in the hierarchical connections"""
-        for lev in hierarchy.present_levels:
-            graph.add_nodes(hierarchy.levels[lev])
-        if not connect:
-            return
-        for from_s in hierarchy.containing_links:
-            to_nodes = hierarchy.containing_links[from_s]
-            for to in to_nodes:
-                edge = get_structure_edge(graph, from_s, to)
-                graph.add_edge(edge)
 
 
 if __name__ == "__main__":

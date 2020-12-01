@@ -103,17 +103,21 @@ class GraphEmbedder(nn.Module):
             raise Exception()
         ctx_encoding = self.text_encoder.tokeniser.encode_plus(context(example))
         qu_encoding = self.text_encoder.tokeniser.encode_plus(question(example))
-        lens = len(ctx_encoding['input_ids']), len(qu_encoding['input_ids'])
-        context_span = TokenSpan(1, lens[0] - 1)
-        query_span = TokenSpan(lens[0] + 1, lens[0] + lens[1] - 1)
-
-        cands_span = None
+        ctx_len = len(ctx_encoding['input_ids'])
+        qu_len = len(qu_encoding['input_ids'])
         full_len = len(qa_encoding['input_ids'])
 
+        context_span = TokenSpan(1, ctx_len - 1)
+        query_span = TokenSpan(ctx_len + 1, ctx_len + qu_len - 1)
+
+        cands_span = None
+
         if has_candidates(example):
-            cands_span = TokenSpan(lens[0] + lens[1] - 1, full_len - 1)
-        elif lens[0] + lens[1] != full_len:
-            raise Exception("context len: " + repr(lens[0]) + " query len: " + repr(lens[1]) + " full len:", full_len)
+            cands_span = TokenSpan(ctx_len + qu_len - 1, full_len - 1)
+            if ctx_len + qu_len + cands_span.end - cands_span.start != full_len:
+                raise Exception("context len: " + repr(ctx_len) + " query len: " + repr(qu_len) + " cands len: " + repr(cands_span.end - cands_span.start) + " full len:", full_len)
+        elif ctx_len + qu_len != full_len:
+            raise Exception("context len: " + repr(ctx_len) + " query len: " + repr(qu_len) + " full len:", full_len)
 
         return context_span, query_span, cands_span
 
@@ -132,7 +136,6 @@ class GraphEmbedder(nn.Module):
                                                                                        cands_span)
 
         node_features: List[torch.Tensor] = [None] * len(graph.ordered_nodes)
-
         for node_id in range(len(graph.ordered_nodes)):
             node = graph.ordered_nodes[node_id]
             source_sequence = embedded_context_sequence if node.source == CONTEXT else \
@@ -186,7 +189,10 @@ class GraphEmbedder(nn.Module):
     @staticmethod
     def get_embedded_elements_in_span(full_embedded_sequence: torch.Tensor, span: TokenSpan):
         """cuts the relevant elements out to return the spans elements only"""
-        return full_embedded_sequence[:, span.start:span.end, :]
+        embs = full_embedded_sequence[:, span.start:span.end, :]
+        if embs.size(1) == 0:
+            raise Exception("cannot get emb elements from span: " + repr(span) + " given seq: " + repr(full_embedded_sequence.size()))
+        return embs
 
     @staticmethod
     def check_dimensions(node_features: List[torch.Tensor], graph: QAGraph):

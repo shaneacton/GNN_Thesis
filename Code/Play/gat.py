@@ -5,10 +5,6 @@ from torch import Tensor, nn
 from torch_geometric.nn import GATConv
 from torch_geometric.typing import OptTensor, OptPairTensor, Adj, Size
 
-from Code.Models.GNNs.LayerModules.Message.relational_message import RelationalMessage
-from Code.Play.relational_linear import RelationalLinear
-from Code.Training import device
-
 
 class Gat(GATConv):
 

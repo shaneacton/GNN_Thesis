@@ -2,7 +2,7 @@ from torch import nn
 
 from Code.Config.config import Config
 from Code.constants import SUMMARISER_NAME, HEAD_AND_TAIL_CAT, SELF_ATTENTIVE_POOLING, NUM_LAYERS, CONTEXT, QUERY, \
-    TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT
+    TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT, CANDIDATE
 
 
 class GraphEmbeddingConfig(Config):
@@ -22,7 +22,8 @@ class GraphEmbeddingConfig(Config):
             QUERY: {
                 WORD: HEAD_AND_TAIL_CAT,
                 SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2}
-            }
+            },
+            CANDIDATE: {WORD: HEAD_AND_TAIL_CAT}
         }
 
         # used for relative positional embeddings
@@ -70,6 +71,9 @@ class GraphEmbeddingConfig(Config):
             if QUERY not in ss:
                 ss[QUERY] = {}
             ss[QUERY][structure_level] = self.get_sequence_embedder(structure_level, QUERY)
+
+        ss[CANDIDATE] = {}
+        ss[CANDIDATE][WORD] = self.get_sequence_embedder(WORD, CANDIDATE)
 
         graph_embedder.on_create_finished()  # registers summariser params
         return graph_embedder

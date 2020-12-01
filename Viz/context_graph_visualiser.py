@@ -12,20 +12,20 @@ from Code.Data.Graph.Nodes.structure_node import StructureNode
 from Code.Data.Graph.Nodes.token_node import TokenNode
 from Code.Data.Graph.Nodes.word_node import WordNode
 from Code.Data.Graph.context_graph import QAGraph
-from Code.Data.Text.text_utils import context, question
+from Code.Data.Text.text_utils import context, question, candidates
+from Code.Play.text_encoder import TextEncoder
 from Code.Test.examples import test_example
 from Code.constants import CONTEXT, QUERY, CANDIDATE, SENTENCE, WORD, TOKEN
 
 wrapper = TextWrapper()
 
 
-def get_node_text(graph, node: SpanNode, encoding, source):
+def get_node_text(graph, node: SpanNode, encoding, source, text_encoder: TextEncoder):
     prefix = "Query: " if source == QUERY else ""
     if node.get_structure_level() not in [TOKEN, WORD, SENTENCE]:
         # don't add in full text
         return prefix + node.get_structure_level()
 
-    full_text = context(graph.example) if node.source == CONTEXT else question(graph.example)
     try:
         s_char = encoding.token_to_chars(node.start)[0]
         e_char = encoding.token_to_chars(node.end - 1)[1]
@@ -35,26 +35,29 @@ def get_node_text(graph, node: SpanNode, encoding, source):
     chars = s_char, e_char
     if chars[1] > vizconf.max_context_graph_chars:
         return None
+    full_text = context(graph.example) if node.source == CONTEXT else question(graph.example) if node.source == QUERY \
+        else text_encoder.get_cands_string(candidates(graph.example))
     extract = full_text[chars[0]: chars[1]]
     text = prefix + extract
     return wrapper.fill(text)
 
 
-def render_graph(graph: QAGraph, context_encoding: BatchEncoding, query_encoding: BatchEncoding,
+def render_graph(graph: QAGraph, text_encoder: TextEncoder,
                  graph_name="temp", graph_folder="."):
 
     dot = graphviz.Digraph(comment='The Round Table')
     dot.graph_attr.update({'rankdir': 'LR'})
 
+    context_encoding: BatchEncoding = text_encoder.get_context_encoding(graph.example)
+    query_encoding: BatchEncoding = text_encoder.get_question_encoding(graph.example)
+    cands_encoding: BatchEncoding = text_encoder.get_candidates_encoding(graph.example)
+
     name = lambda i: "Node(" + repr(i) + ")"
     ignored_nodes = set()
     for i, node in enumerate(graph.ordered_nodes):
         node: SpanNode = node
-        encoding = context_encoding if node.source == CONTEXT else query_encoding if node.source == QUERY else None
-        if encoding is None:
-            # todo candidates
-            continue
-        node_text = get_node_text(graph, node, encoding, node.source)
+        encoding = context_encoding if node.source == CONTEXT else query_encoding if node.source == QUERY else cands_encoding
+        node_text = get_node_text(graph, node, encoding, node.source, text_encoder)
         if node_text is None:
             ignored_nodes.add(name(i))
             continue

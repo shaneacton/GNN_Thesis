@@ -20,8 +20,10 @@ from Code.Models.context_nn import ContextNN
 from Code.Play.initialiser import get_longformer_config
 from Code.Training import device
 from Code.constants import CONTEXT
-# from Viz.context_graph_visualiser import render_graph
-
+try:
+    from Viz.context_graph_visualiser import render_graph
+except:  # graph viz not installed
+    pass
 
 def prep_input(input, kwargs):
     """moves all non essential fields from in to kwargs"""
@@ -72,24 +74,18 @@ class ContextGNN(GNN, ContextNN, ABC):
 
         self.layer_list = nn.ModuleList(self.layers).to(device)  # registers modules with pytorch and moves to device
         self.init_output_model(example, out_features)
-
-        # to initialise all sample dependant/ dynamically created params, before being passed to the optimiser
-        # self.forward(encoding)
+        print("initialising context gnn with", self.output_model)
 
     def forward(self, input: Union[QAGraph, GraphEncoding, Dict], **kwargs) -> GraphEncoding:
         """allows gnn to be used with either internal or external constructors and embedders"""
         if isinstance(input, Dict):
-            # graph still needs to be constructed
-            # print("kwargs:", kwargs, "input:", input)
+            """moves all non essential inputs into kwargs"""
             input, kwargs = prep_input(input, kwargs)
-            # print("after k:", kwargs, "\nin:", input)
         data = self.get_graph_encoding(input)
 
-        # if data.is_batched:
-        #     print("passing batched graph", data, "through gnn")
-        #     print("e_s:", data.edge_index.size())
-        #     print("edge:", data.edge_index)
-        #     print("edge min:", torch.min(data.edge_index), "max:", torch.max(data.edge_index))
+        if data.is_batched:
+            raise Exception("")
+
         return self._forward(data, **kwargs)
 
     def get_graph_encoding(self, input: Union[QAGraph, GraphEncoding, Dict]) -> GraphEncoding:
@@ -98,7 +94,8 @@ class ContextGNN(GNN, ContextNN, ABC):
             return input
         data = None
         if isinstance(input, QAGraph):
-            data: GraphEncoding = self.embedder(input)
+            raise Exception()
+            # data: GraphEncoding = self.embedder(input)
         if isinstance(input, Dict):
             data: GraphEncoding = self.get_graph_from_data_sample(input)
 
@@ -110,16 +107,13 @@ class ContextGNN(GNN, ContextNN, ABC):
         graphs: Union[List[QAGraph], QAGraph] = self.constructor(example)
 
         if isinstance(graphs, List):
+            """graph batching"""
             # todo this graph embedding can be done in parallel
             datas: List[GraphEncoding] = [self.embedder(graph) for graph in graphs]
             data = GraphEncoding.batch(datas)
-            example = graphs[0].example
         else:
             data: GraphEncoding = self.embedder(graphs)
-            example = graphs.example
-        # ctx_enc = self.embedder.text_encoder.get_context_encoding(example)
-        # q_enc = self.embedder.text_encoder.get_question_encoding(example)
-        # render_graph(graphs[0] if isinstance(graphs, List) else graphs, ctx_enc, q_enc)
+        # render_graph(graphs[0] if isinstance(graphs, List) else graphs, self.embedder.text_encoder)
 
         return data
 
@@ -134,33 +128,17 @@ class ContextGNN(GNN, ContextNN, ABC):
         # init layers based on detected in_features and init args
         if isinstance(data, List):
             raise Exception("graph encodings should be batched via pytorch geometric batch class")
-        # inited = False
         if self.layer_list is None:
             # gnn layers have not been initialised yet
             self.init_model(data.graphs[0].example)
-            inited = True
         data = GNN._forward(self, data)  # add type and abs pos embeddings
 
-        data.layer = 0
-        next_layer = 0
-
         for layer in self.layers:
-            next_layer = max(next_layer + 1, data.layer)
-            data = self.pass_layer(layer, data)  # may or may not increase the layer count
-            next_layer = max(next_layer, data.layer)
-            data.layer = next_layer
-
-            # print("layer",layer,"output:",data.x.size())
+            data = self.pass_layer(layer, data)
 
         kwargs.update({"source": CONTEXT})
         if self.output_model:
             out = self.output_model(data, **kwargs)
-        #     print("out:", type(out), out)
-        #
-        # print("out shape:", out[1].size())
-        # print("loss:", out[0])
-        # if inited:
-        #     raise Exception("weh")
         return out
 
 

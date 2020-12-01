@@ -13,7 +13,6 @@ def composite_data_collator(features: List[Any]) -> Dict[str, Dict[str, Union[to
     - Performs special handling for potential keys named:
         - ``label``: handles a single value (int or float) per object
         - ``label_ids``: handles a list of values per object
-    - does not do any additional preprocessing
 
     i.e., Property names of the input object will be used as corresponding inputs to the model.
     See glue and ner for example of how it's useful.

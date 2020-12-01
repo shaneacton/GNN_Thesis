@@ -25,12 +25,12 @@ encoder = TextEncoder(tokenizer)
 
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
-OUT = "models"
+OUT = "context_model"
 
-DATASET = "squad"  # "qangaroo"  # "squad"
-VERSION = None  # "wikihop"
-# DATASET = "qangaroo"  # "qangaroo"  # "squad"
-# VERSION = "wikihop"
+# DATASET = "squad"  # "qangaroo"  # "squad"
+# VERSION = None  # "wikihop"
+DATASET = "qangaroo"  # "qangaroo"  # "squad"
+VERSION = "wikihop"
 
 
 def data_loc(set_name):
@@ -38,13 +38,16 @@ def data_loc(set_name):
     return os.path.join(data_name, set_name)
 
 
-def save_dataset():
+def process_dataset():
     if exists(data_loc(VALID)):
         """already saved"""
         return
     # load train and validation split of squad
     remaining_tries = 100
+    train_dataset = None
+    valid_dataset = None
     while remaining_tries > 0:
+        """load dataset from online"""
         try:
             train_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.TRAIN, name=VERSION)
             valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
@@ -52,24 +55,27 @@ def save_dataset():
         except:
             remaining_tries -= 1  # retry
 
-    dataloader = DataLoader(valid_dataset, batch_size=1)
-    for batch in nlp.tqdm(dataloader):
-        print("before:", batch)
-        break
+    if not train_dataset or not valid_dataset:
+        raise Exception("failed to load datasets though network")
+
+    # dataloader = DataLoader(valid_dataset, batch_size=1)
+    # for batch in nlp.tqdm(dataloader):
+    #     print("before:", batch)
+    #     break
 
     print("mapping dataset")
-    train_dataset = train_dataset.map(encoder.get_processed_example)
-    valid_dataset = valid_dataset.map(encoder.get_processed_example) #, load_from_cache_file=False)
+    train_dataset = train_dataset.map(encoder.get_processed_example, load_from_cache_file=False)
+    valid_dataset = valid_dataset.map(encoder.get_processed_example, load_from_cache_file=False)
 
     dataloader = DataLoader(valid_dataset, batch_size=1)
     batch = None
     for batch in nlp.tqdm(dataloader):
-        print("after", batch)
+        # print("after", batch)
         break
 
     # set the tensor type and the columns which the dataset should return
     if 'start_positions' in batch and 'end_positions' in batch:
-        tensor_columns = ['start_positions', "tensor_columns"]
+        tensor_columns = ['start_positions', "end_positions"]
     elif "answer" in batch:
         tensor_columns = ['answer']
     else:
@@ -130,20 +136,16 @@ embedder = gec.get_graph_embedder(gcc)
 gat = ContextGAT(embedder, gnnc)
 # Get datasets
 print('loading data')
-save_dataset()
-
+process_dataset()
 train_dataset = torch.load(data_loc(TRAIN))
 valid_dataset = torch.load(data_loc(VALID))
 print('loading done')
-
-# evaluate_model(gat, valid_dataset)
-# evaluate_model(None, valid_dataset)
-
+# raise Exception("")
 
 trainer = get_trainer(gat, data_loc(OUT), train_dataset, valid_dataset)
-trainer.data_collator = composite_data_collator
-#
-#
+trainer.data_collator = composite_data_collator  # to handle non tensor inputs without error
+
+
 def get_latest_model():
     out = os.path.join(".", data_loc(OUT))
     checks = [c for c in os.listdir(out) if "check" in c]

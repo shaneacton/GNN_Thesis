@@ -42,12 +42,12 @@ class TextEncoder:
             replaces answer with a cand id
             replaces supports list with single context string
         """
-        # print("cand ex:", example)
+        # print("cand ex:", candidates(example), question(example))
+        # raise Exception()
         cands: List[str] = candidates(example)
         answer = example["answer"]
         correct_cand_id = cands.index(answer)
-        cands_str = self.tokeniser.sep_token.join(cands)
-        example["candidates"] = cands_str
+        example["candidates"] = self.get_cands_string(cands)
         example["answer"] = correct_cand_id
         ctx = context(example)
         example.pop(context_key(example))  # remove supports field
@@ -56,6 +56,10 @@ class TextEncoder:
         return example
 
     def get_encoding(self, example: Dict):
+        """
+            returns <context><query>[all candidates]
+            checks if candidates are present.
+        """
         if is_batched(example):
             raise Exception("cannot get encoding from batched example " + repr(example))
         # print("getting encoding for ex: " + repr(example) + "\n has cands:", ("candidates" in example))
@@ -75,11 +79,22 @@ class TextEncoder:
             return [self.tokeniser.encode_plus(q) for q in qs]
         return self.tokeniser.encode_plus(question(example))
 
+    def get_candidates_encoding(self, example):
+        if is_batched(example):
+            cands = candidates(example)
+            return [self.tokeniser.encode_plus(self.get_cands_string(c)) for c in cands]
+        return self.tokeniser.encode_plus(self.get_cands_string(candidates(example)))
+
     def get_cands_string(self, cands: List[str]):
+        if isinstance(cands, str):
+            if self.tokeniser.sep_token not in cands:
+                raise Exception("cannot pass single candidate: " + repr(cands))
+            # print("Tex enc: asking for cands string, but provided cands string")
+            return cands
         return self.tokeniser.sep_token.join(cands)
 
     def get_mcqa_encoding(self, example: Dict):
-        """concats <context><query><all candidates> and encodes"""
+        """concats <context><query><all candidates> and encodes as <context> , <query><all candidates>"""
         cands = candidates(example)
         cands_str = self.get_cands_string(cands)
         q_cans = question(example) + self.tokeniser.sep_token + cands_str

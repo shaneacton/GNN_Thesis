@@ -87,17 +87,17 @@ def evaluate_model(model, valid_dataset):
             start_scores, end_scores = model(input_ids=batch['input_ids'].cuda(),
                                              attention_mask=batch['attention_mask'].cuda(), return_dict=False)
             # print("batch:", batch, "\nstart probs:", start_scores, "\n:end probs:", end_scores)
-
+            if torch.sum(start_scores) == 0:
+                """null output due to too large of an input"""
+                continue
             for i in range(start_scores.shape[0]):
+                """for each batch item"""
                 all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
                 s, e = torch.argmax(start_scores[i]), torch.argmax(end_scores[i]) + 1
                 predicted = ' '.join(all_tokens[s: e])
                 ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
                 predicted = tokenizer.decode(ans_ids)
                 answers.append(predicted)
-            #     print("(s,e):", (s, e), "pred:", predicted, "total tokens:", len(all_tokens), "\n\n")
-            #
-            # raise Exception()
 
     predictions = []
     references = []
@@ -106,7 +106,10 @@ def evaluate_model(model, valid_dataset):
     for ref, pred in zip(valid_dataset, answers):
         predictions.append(pred)
         # print("ref:", ref)
-        references.append(ref['answers']['text'])
+        if 'answers' in ref:
+            references.append(ref['answers']['text'])
+        elif 'answer' in ref:
+            references.append(ref['answer'])
 
     print(model)
     print("model:", model_name)

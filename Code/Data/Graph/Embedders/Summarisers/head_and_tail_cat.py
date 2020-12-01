@@ -18,6 +18,5 @@ class HeadAndTailCat(SequenceSummariser):
 
     def _summarise(self, embedded_sequence: torch.Tensor):
         batch_size = embedded_sequence.size(0)
-
         cat_seq = torch.cat([embedded_sequence[:,0,:], embedded_sequence[:,-1,:]], dim=1)
         return self.feature_reducer(cat_seq).view(batch_size, 1, -1)
