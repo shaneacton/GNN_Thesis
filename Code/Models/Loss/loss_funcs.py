@@ -25,7 +25,7 @@ def get_span_element_loss(positions, logits):
     if len(positions.size()) > 1:
         positions = positions.squeeze(-1)
 
-    ignored_index = positions.size(1)
+    ignored_index = logits.size(1)
     positions.clamp_(0, ignored_index)
     loss_fct = CrossEntropyLoss(ignore_index=ignored_index)
     loss = loss_fct(logits, positions.to(device))

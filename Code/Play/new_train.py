@@ -27,10 +27,10 @@ TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
 OUT = "context_model"
 
-# DATASET = "squad"  # "qangaroo"  # "squad"
-# VERSION = None  # "wikihop"
-DATASET = "qangaroo"  # "qangaroo"  # "squad"
-VERSION = "wikihop"
+DATASET = "squad"  # "qangaroo"  # "squad"
+VERSION = None  # "wikihop"
+# DATASET = "qangaroo"  # "qangaroo"  # "squad"
+# VERSION = "wikihop"
 
 
 def data_loc(set_name):

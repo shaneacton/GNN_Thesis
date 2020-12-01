@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Union, Dict, List
 
 import torch
-from torch import nn
+from torch import nn, Tensor
 from torch_geometric.data import Batch
 from transformers import LongformerConfig
 from transformers.modeling_longformer import LongformerPreTrainedModel
@@ -13,10 +13,10 @@ from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import QAGraph
-from Code.Data.Text.text_utils import question, candidates, question_key
+from Code.Data.Text.text_utils import question, candidates, question_key, has_candidates
 
 from Code.Models.GNNs.gnn import GNN
-from Code.Models.Loss.loss_funcs import get_span_element_loss
+from Code.Models.Loss.loss_funcs import get_span_element_loss, get_span_loss
 from Code.Models.context_nn import ContextNN
 from Code.Play.initialiser import get_longformer_config
 from Code.Training import device
@@ -123,7 +123,8 @@ class ContextGNN(GNN, ContextNN, ABC):
         # send the graph encoding through this gnn layer, ie call its forward
         pass
 
-    def _forward(self, data: GraphEncoding, **kwargs) -> GraphEncoding:
+    def _forward(self, data: GraphEncoding, **kwargs) -> Union[Tensor, GraphEncoding]:
+        """returns the transformed context graph encoding, and the loss"""
         # format of graph layers forward: (x, edge_index, batch, **kwargs)
         # get x, autodetect feature count
         # init layers based on detected in_features and init args
@@ -138,9 +139,9 @@ class ContextGNN(GNN, ContextNN, ABC):
             data = self.pass_layer(layer, data)
 
         kwargs.update({"source": CONTEXT})
-        if self.output_model:
-            out = self.output_model(data, **kwargs)
-        loss = get_span_element_loss(kwargs["answer"], out)
-        return loss, out
+        out = self.output_model(data, **kwargs)
+        print("out:", out)
+
+        return out
 
 
