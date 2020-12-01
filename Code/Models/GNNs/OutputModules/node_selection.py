@@ -98,6 +98,8 @@ class NodeSelection(OutputModel):
         """
         if isinstance(data.graphs, List):
             all_ids = []
+            if len(data.graphs) > 1:
+                raise Exception("batching not supported")
             for g in data.graphs:
                 ids = self.get_node_ids_from_graph(g, **kwargs)
                 all_ids.append(ids)

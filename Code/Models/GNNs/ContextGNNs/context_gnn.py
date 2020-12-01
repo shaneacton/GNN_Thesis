@@ -16,6 +16,7 @@ from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.text_utils import question, candidates, question_key
 
 from Code.Models.GNNs.gnn import GNN
+from Code.Models.Loss.loss_funcs import get_span_element_loss
 from Code.Models.context_nn import ContextNN
 from Code.Play.initialiser import get_longformer_config
 from Code.Training import device
@@ -139,6 +140,7 @@ class ContextGNN(GNN, ContextNN, ABC):
         kwargs.update({"source": CONTEXT})
         if self.output_model:
             out = self.output_model(data, **kwargs)
-        return out
+        loss = get_span_element_loss(kwargs["answer"], out)
+        return loss, out
 
 
