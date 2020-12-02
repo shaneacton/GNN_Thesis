@@ -41,16 +41,18 @@ def data_loc(set_name):
 def load_dataset(split):
     remaining_tries = 100
     dataset = None
+    e = None
     while remaining_tries > 0:
         """load dataset from online"""
         try:
             dataset = nlp.load_dataset(path=DATASET, split=split, name=VERSION)
             break  # loaded successfully
-        except:
+        except Exception as e:
             remaining_tries -= 1  # retry
 
     if not dataset:
-        raise Exception("failed to load datasets though network")
+        print("failed to load datasets though network")
+        raise e
 
 
 def process_dataset():
