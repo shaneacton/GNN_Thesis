@@ -17,11 +17,9 @@ from Code.Play.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
-from Code.Play.initialiser import get_trainer, get_span_composite_model
+from Code.Play.initialiser import get_trainer, get_tokenizer
 
-
-tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
-encoder = TextEncoder(tokenizer)
+encoder = TextEncoder(get_tokenizer())
 
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
@@ -38,30 +36,27 @@ def data_loc(set_name):
     return os.path.join(data_name, set_name)
 
 
+def load_dataset(split):
+    remaining_tries = 100
+    dataset = None
+    while remaining_tries > 0:
+        """load dataset from online"""
+        try:
+            dataset = nlp.load_dataset(path=DATASET, split=split, name=VERSION)
+            break  # loaded successfully
+        except:
+            remaining_tries -= 1  # retry
+
+    if not dataset:
+        raise Exception("failed to load datasets though network")
+
 def process_dataset():
     if exists(data_loc(VALID)):
         """already saved"""
         return
     # load train and validation split of squad
-    remaining_tries = 100
-    train_dataset = None
-    valid_dataset = None
-    while remaining_tries > 0:
-        """load dataset from online"""
-        try:
-            train_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.TRAIN, name=VERSION)
-            valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)
-            break  # loaded successfully
-        except:
-            remaining_tries -= 1  # retry
-
-    if not train_dataset or not valid_dataset:
-        raise Exception("failed to load datasets though network")
-
-    # dataloader = DataLoader(valid_dataset, batch_size=1)
-    # for batch in nlp.tqdm(dataloader):
-    #     print("before:", batch)
-    #     break
+    train_dataset = load_dataset(nlp.Split.TRAIN)
+    valid_dataset = load_dataset(nlp.Split.VALIDATION)
 
     print("mapping dataset")
     train_dataset = train_dataset.map(encoder.get_processed_example, load_from_cache_file=False)
@@ -117,8 +112,7 @@ def evaluate_model(model, valid_dataset):
 
     predictions = []
     references = []
-    valid_dataset = nlp.load_dataset(path=DATASET, split=nlp.Split.VALIDATION, name=VERSION)  # raw text version
-
+    valid_dataset = load_dataset(nlp.Split.VALIDATION)
     for ref, pred in zip(valid_dataset, answers):
         predictions.append(pred)
         # print("ref:", ref)
@@ -164,7 +158,7 @@ def get_latest_model():
 check = get_latest_model()
 check = None if check is None else os.path.join(".", data_loc(OUT), check)
 print("checkpoint:", check)
-trainer.train(model_path=check)
-trainer.save_model()
+# trainer.train(model_path=check)
+# trainer.save_model()
 
 evaluate_model(gat, valid_dataset)
