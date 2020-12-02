@@ -85,7 +85,7 @@ class ContextGNN(GNN, ContextNN, ABC):
         data = self.get_graph_encoding(input)
 
         if data.is_batched:
-            raise Exception("")
+            raise Exception("batched data not supported yet")
 
         return self._forward(data, **kwargs)
 
@@ -140,7 +140,7 @@ class ContextGNN(GNN, ContextNN, ABC):
 
         kwargs.update({"source": CONTEXT})
         out = self.output_model(data, **kwargs)
-        print("out:", out)
+        # print("out:", out)
 
         return out
 

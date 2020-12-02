@@ -92,7 +92,7 @@ def evaluate_model(model, valid_dataset):
     model = model.cuda()
     model.eval()
 
-    dataloader = DataLoader(valid_dataset, batch_size=16)
+    dataloader = DataLoader(valid_dataset, batch_size=1)
     tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 
     answers = []
