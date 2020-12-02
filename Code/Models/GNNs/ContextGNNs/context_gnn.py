@@ -9,11 +9,12 @@ from transformers.modeling_longformer import LongformerPreTrainedModel
 
 from Code.Config import GNNConfig
 from Code.Config.config_set import ConfigSet
-from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
+from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor, TooManyEdgesException
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import QAGraph
-from Code.Data.Text.text_utils import question, candidates, question_key, has_candidates
+from Code.Data.Text.text_utils import question, candidates, question_key, has_candidates, num_candidates
+from Code.Models.GNNs.OutputModules.output_model import OutputModel
 
 from Code.Models.GNNs.gnn import GNN
 from Code.Models.Loss.loss_funcs import get_span_element_loss, get_span_loss
@@ -56,7 +57,7 @@ class ContextGNN(GNN, ContextNN, ABC):
         self.embedder: GraphEmbedder = embedder
         self.constructor: QAGraphConstructor = QAGraphConstructor(embedder.gcc)
 
-        self.output_model = None
+        self.output_model: OutputModel = None
 
         self.layers = []
         self.layer_list: nn.Module = None
@@ -82,12 +83,31 @@ class ContextGNN(GNN, ContextNN, ABC):
         if isinstance(input, Dict):
             """moves all non essential inputs into kwargs"""
             input, kwargs = prep_input(input, kwargs)
-        data = self.get_graph_encoding(input)
+        try:
+            data = self.get_graph_encoding(input)
+        except TooManyEdgesException as e:
+            if not self.output_model:
+                print("cannot recover from too many edges. First example must pass")
+                raise e
+            has_answers = 'answer' in kwargs or 'start_positions' in kwargs
+            # print("returning null output")
+            return self.get_null_return(num_candidates(input), input, has_answers)
 
         if data.is_batched:
             raise Exception("batched data not supported yet")
 
         return self._forward(data, **kwargs)
+
+    def get_null_return(self, num_outputs, example, include_loss:bool):
+        loss = None
+        if include_loss:
+            loss = torch.tensor(0., requires_grad=True)
+        logits = torch.tensor([0.] * num_outputs, requires_grad=True).to(float)
+        if has_candidates(example):
+            output = logits
+        else:
+            output = (logits, logits)
+        return ((loss,) + (output,)) if loss is not None else output
 
     def get_graph_encoding(self, input: Union[QAGraph, GraphEncoding, Dict]) -> GraphEncoding:
         """graph encoding is done with a batchsize of 1"""

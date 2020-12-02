@@ -12,6 +12,9 @@ class SpanSelection(OutputModel):
         self.start_selector = TokenSelection(in_features)
         self.end_selector = TokenSelection(in_features)
 
+    def get_node_ids_from_graph(self, graph, **kwargs):
+        return self.start_selector.get_node_ids_from_graph(graph, **kwargs)
+
     def get_output_from_graph_encoding(self, data: GraphEncoding, **kwargs):
         # print("span selection, kwargs:", kwargs)
         logits = self.start_selector(data, **kwargs), self.end_selector(data, **kwargs)

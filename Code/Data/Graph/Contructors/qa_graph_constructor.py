@@ -78,7 +78,7 @@ class QAGraphConstructor:
             self.add_candidate_nodes(graph, cands)
 
         if graph.gcc.max_edges != -1 and len(graph.ordered_edges) > graph.gcc.max_edges:
-            raise Exception("data sample created too many edeges ("+str(len(graph.ordered_edges))+
+            raise TooManyEdgesException("data sample created too many edeges ("+str(len(graph.ordered_edges))+
                             ") with this gcc (max = "+str(graph.gcc.max_edges)+"). Discard it")
         return graph
 
@@ -124,6 +124,9 @@ class QAGraphConstructor:
         query_hierarchy.calculate_encapsulation()
         return context_hierarchy, query_hierarchy
 
+
+class TooManyEdgesException(Exception):
+    pass
 
 
 if __name__ == "__main__":

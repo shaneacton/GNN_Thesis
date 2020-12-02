@@ -83,5 +83,12 @@ def candidates(example):
     return cands
 
 
+def num_candidates(example):
+    cands = candidates(example)
+    if isinstance(cands, str):
+        return len(cands.split("</s>"))  # todo support for different sep toks
+    return len(cands)
+
+
 def has_candidates(example):
     return 'candidates' in example
