@@ -19,16 +19,18 @@ from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
 from Code.Play.initialiser import get_trainer, get_tokenizer
 
-encoder = TextEncoder(get_tokenizer())
+from Code.Config import gec, gnnc
+from Code.Config import gcc
+
 
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
 OUT = "context_model"
 
-DATASET = "squad"  # "qangaroo"  # "squad"
-VERSION = None  # "wikihop"
-# DATASET = "qangaroo"  # "qangaroo"  # "squad"
-# VERSION = "wikihop"
+# DATASET = "squad"  # "qangaroo"  # "squad"
+# VERSION = None  # "wikihop"
+DATASET = "qangaroo"  # "qangaroo"  # "squad"
+VERSION = "wikihop"
 
 
 def data_loc(set_name):
@@ -50,6 +52,7 @@ def load_dataset(split):
     if not dataset:
         raise Exception("failed to load datasets though network")
 
+
 def process_dataset():
     if exists(data_loc(VALID)):
         """already saved"""
@@ -57,6 +60,7 @@ def process_dataset():
     # load train and validation split of squad
     train_dataset = load_dataset(nlp.Split.TRAIN)
     valid_dataset = load_dataset(nlp.Split.VALIDATION)
+    encoder = TextEncoder(get_tokenizer())
 
     print("mapping dataset")
     train_dataset = train_dataset.map(encoder.get_processed_example, load_from_cache_file=False)
@@ -89,6 +93,7 @@ def evaluate_model(model, valid_dataset):
 
     dataloader = DataLoader(valid_dataset, batch_size=1)
     tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
+    valid_dataset = load_dataset(nlp.Split.VALIDATION)
 
     answers = []
     with torch.no_grad():
@@ -112,32 +117,12 @@ def evaluate_model(model, valid_dataset):
 
     predictions = []
     references = []
-    valid_dataset = load_dataset(nlp.Split.VALIDATION)
     for ref, pred in zip(valid_dataset, answers):
         predictions.append(pred)
         # print("ref:", ref)
         references.append(ref['answers']['text'])
 
     print(evaluate(references, predictions))
-
-
-print("starting model init")
-from Code.Config import gec, gnnc
-from Code.Config import gcc
-
-embedder = gec.get_graph_embedder(gcc)
-
-gat = ContextGAT(embedder, gnnc)
-# Get datasets
-print('loading data')
-process_dataset()
-train_dataset = torch.load(data_loc(TRAIN))
-valid_dataset = torch.load(data_loc(VALID))
-print('loading done')
-# raise Exception("")
-
-trainer = get_trainer(gat, data_loc(OUT), train_dataset, valid_dataset)
-trainer.data_collator = composite_data_collator  # to handle non tensor inputs without error
 
 
 def get_latest_model():
@@ -153,12 +138,29 @@ def get_latest_model():
             hi=steps[i]
             max_i = i
     return checks[max_i]
-#
-#
-check = get_latest_model()
-check = None if check is None else os.path.join(".", data_loc(OUT), check)
-print("checkpoint:", check)
-# trainer.train(model_path=check)
-# trainer.save_model()
 
-evaluate_model(gat, valid_dataset)
+
+if __name__ == "__main__":
+    print("starting model init")
+    embedder = gec.get_graph_embedder(gcc)
+
+    gat = ContextGAT(embedder, gnnc)
+    # Get datasets
+    print('loading data')
+    process_dataset()
+    train_dataset = torch.load(data_loc(TRAIN))
+    valid_dataset = torch.load(data_loc(VALID))
+    print('loading done')
+    # raise Exception("")
+
+    trainer = get_trainer(gat, data_loc(OUT), train_dataset, valid_dataset)
+    trainer.data_collator = composite_data_collator  # to handle non tensor inputs without error
+
+    check = get_latest_model()
+    check = None if check is None else os.path.join(".", data_loc(OUT), check)
+    print("checkpoint:", check)
+    trainer.train(model_path=check)
+    trainer.save_model()
+
+    evaluate_model(gat, valid_dataset)
+

@@ -2,10 +2,9 @@ from typing import Type
 
 import torch
 from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel, \
-    TrainingArguments, Trainer, LongformerForMultipleChoice
+    TrainingArguments, Trainer
 
 from Code.Play.composite import Wrap
-from Code.Play.gat_composite import GatWrap
 from Code.Training import device
 
 FEATURES = 402

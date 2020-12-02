@@ -10,7 +10,7 @@ from Code.Data.Graph.Nodes.word_node import WordNode
 from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.spacy_utils import get_sentence_char_spans, get_noun_char_spans
 from Code.Data.Text.span_hierarchy import SpanHierarchy
-from Code.Data.Text.text_utils import context, question, is_batched, question_key, candidates
+from Code.Data.Text.text_utils import context, question, is_batched, question_key, candidates, context_key
 from Code.Play.initialiser import get_tokenizer
 from Code.Test.examples import test_example
 from Code.constants import CONTEXT, QUERY, SENTENCE, WORD
@@ -57,7 +57,10 @@ class QAGraphConstructor:
     def _create_single_graph_from_data_sample(self, example) -> QAGraph:
         if is_batched(example):
             raise Exception("must pass a single, unbatched example. instead got: " + repr(example))
-
+        if self.gcc.max_context_chars != -1:
+            """replace the context in the given example"""
+            ctx = context(example)
+            example[context_key(example)] = ctx[0:min(len(ctx), self.gcc.max_context_chars)]  #cuts context
         # separates the context and query, calculates node spans from {toks, wrds, sents}, calculates containment
         context_hierarchy, query_hierarchy = self.build_hierarchies(example)
         graph = QAGraph(example, self.gcc)
@@ -95,7 +98,8 @@ class QAGraphConstructor:
             span = TokenSpan(start, end)
             nodes.append(CandidateNode(span, i))
             start = end
-        graph.add_nodes(nodes)
+        node_ids = graph.add_nodes(nodes)
+        # print("adding cand nodes:", node_ids)
         connect_candidates_to_graph(graph)
 
     def build_hierarchies(self, single_example):

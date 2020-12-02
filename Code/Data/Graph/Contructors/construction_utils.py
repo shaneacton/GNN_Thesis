@@ -12,8 +12,8 @@ from Code.Play.initialiser import ATTENTION_WINDOW
 def add_nodes_from_hierarchy(graph: QAGraph, hierarchy: SpanHierarchy, connect=True):
     """adds nodes at each level, and adds in the hierarchical connections"""
     for lev in hierarchy.present_levels:
-        # print("adding nodes:", hierarchy.levels[lev])
-        graph.add_nodes(hierarchy.levels[lev])
+        ids = graph.add_nodes(hierarchy.levels[lev])
+        # print("adding", lev, hierarchy.source, "nodes:", ids)
     if not connect:
         return
     for from_s in hierarchy.containing_links:
