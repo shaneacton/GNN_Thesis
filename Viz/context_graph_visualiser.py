@@ -25,10 +25,11 @@ def get_node_text(graph, node: SpanNode, encoding, source, text_encoder: TextEnc
     if node.get_structure_level() not in [TOKEN, WORD, SENTENCE]:
         # don't add in full text
         return prefix + node.get_structure_level()
-
+    if node.source == CANDIDATE and node.candidate_id >= vizconf.max_candidates:
+        return None
     try:
-        s_char = encoding.token_to_chars(node.start)[0]
-        e_char = encoding.token_to_chars(node.end - 1)[1]
+        s_char = encoding.token_to_chars(node.start + 1)[0]
+        e_char = encoding.token_to_chars(node.end)[1]
     except Exception as e:
         print(e)
         raise Exception("could not find " + source + " chars for " + repr(node) + " given encoding of len: " + repr(len(encoding['input_ids'])))
@@ -51,7 +52,6 @@ def render_graph(graph: QAGraph, text_encoder: TextEncoder,
     context_encoding: BatchEncoding = text_encoder.get_context_encoding(graph.example)
     query_encoding: BatchEncoding = text_encoder.get_question_encoding(graph.example)
     cands_encoding: BatchEncoding = text_encoder.get_candidates_encoding(graph.example)
-
     name = lambda i: "Node(" + repr(i) + ")"
     ignored_nodes = set()
     for i, node in enumerate(graph.ordered_nodes):

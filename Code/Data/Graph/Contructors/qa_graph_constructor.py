@@ -60,6 +60,7 @@ class QAGraphConstructor:
         if self.gcc.max_context_chars != -1:
             """replace the context in the given example"""
             ctx = context(example)
+            # print("cutting ctx len", len(ctx))
             example[context_key(example)] = ctx[0:min(len(ctx), self.gcc.max_context_chars)]  #cuts context
         # separates the context and query, calculates node spans from {toks, wrds, sents}, calculates containment
         context_hierarchy, query_hierarchy = self.build_hierarchies(example)
@@ -68,12 +69,11 @@ class QAGraphConstructor:
         add_nodes_from_hierarchy(graph, query_hierarchy)
 
         connect_sliding_window(graph, context_hierarchy)
-        connect_sliding_window(graph, query_hierarchy)
+        # connect_sliding_window(graph, query_hierarchy)
         connect_query_and_context(graph)
 
         if candidates(example):
             cands = candidates(example).split(self.tokeniser.sep_token)
-            # print("found candidates!", cands)
             # print("q:", question(example))
             self.add_candidate_nodes(graph, cands)
 
@@ -99,7 +99,6 @@ class QAGraphConstructor:
             nodes.append(CandidateNode(span, i))
             start = end
         node_ids = graph.add_nodes(nodes)
-        # print("adding cand nodes:", node_ids)
         connect_candidates_to_graph(graph)
 
     def build_hierarchies(self, single_example):
@@ -108,9 +107,9 @@ class QAGraphConstructor:
         question_encoding: BatchEncoding = self.tokeniser(question(single_example))
 
         context_hierarchy = SpanHierarchy(context(single_example), context_encoding, CONTEXT)
-        query_hierarchy = SpanHierarchy(question(single_example), question_encoding, QUERY)
+        query_hierarchy = SpanHierarchy(question(single_example), question_encoding, QUERY, encoding_offset=len(context_encoding.tokens()))
 
-        context_hierarchy.add_tokens()
+        # context_hierarchy.add_tokens()
         try:
             context_hierarchy.add_spans_from_chars(get_noun_char_spans, WORD, WordNode)
             context_hierarchy.add_spans_from_chars(get_sentence_char_spans, SENTENCE, StructureNode, subtype=SENTENCE)
@@ -119,7 +118,7 @@ class QAGraphConstructor:
             raise Exception("failed to add context span nodes for ex " + repr(single_example) + "\nnum context chars:" + repr(len(context(single_example))))
         context_hierarchy.calculate_encapsulation()
 
-        query_hierarchy.add_tokens()
+        # query_hierarchy.add_tokens()
         query_hierarchy.add_full_query()
         query_hierarchy.calculate_encapsulation()
         return context_hierarchy, query_hierarchy

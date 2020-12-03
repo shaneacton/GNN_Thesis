@@ -1,3 +1,4 @@
+import copy
 from typing import List, Tuple, Dict
 
 import spacy
@@ -89,7 +90,7 @@ def get_flat_entity_and_corefs_chars(text, doc=None):
 
 def get_noun_char_spans(text, doc=None):
     doc = _init_doc(doc, text)
-    nouns = doc.noun_chunks
+    nouns = [n for n in doc.noun_chunks]
     return [get_char_span_from_spacy_span(n, doc) for n in nouns], doc
 
 

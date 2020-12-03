@@ -9,7 +9,8 @@ from Code.Data.Graph.Nodes.node import Node
 
 class SpanNode(Node, ABC):
 
-    def __init__(self, span: TokenSpan, source=Code.constants.CONTEXT, subtype=None):
+    def __init__(self, span: TokenSpan, source=Code.constants.CONTEXT, subtype=None, encoding_offset=0):
+        self.encoding_offset = encoding_offset
         self.token_span = span
         super().__init__(subtype=subtype, source=source)
 

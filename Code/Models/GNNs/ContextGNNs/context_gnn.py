@@ -7,7 +7,7 @@ from torch_geometric.data import Batch
 from transformers import LongformerConfig
 from transformers.modeling_longformer import LongformerPreTrainedModel
 
-from Code.Config import GNNConfig
+from Code.Config import GNNConfig, vizconf
 from Code.Config.config_set import ConfigSet
 from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor, TooManyEdgesException
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
@@ -134,7 +134,8 @@ class ContextGNN(GNN, ContextNN, ABC):
             data = GraphEncoding.batch(datas)
         else:
             data: GraphEncoding = self.embedder(graphs)
-        # render_graph(graphs[0] if isinstance(graphs, List) else graphs, self.embedder.text_encoder)
+        if vizconf.visualise_graphs:
+            render_graph(graphs[0] if isinstance(graphs, List) else graphs, self.embedder.text_encoder)
 
         return data
 
@@ -161,7 +162,8 @@ class ContextGNN(GNN, ContextNN, ABC):
         kwargs.update({"source": CONTEXT})
         out = self.output_model(data, **kwargs)
         # print("out:", out)
-
+        if vizconf.visualise_graphs and vizconf.exit_after_first_viz:
+            raise Exception("exiting after vizualisation")
         return out
 
 

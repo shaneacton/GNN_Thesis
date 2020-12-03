@@ -23,7 +23,8 @@ class SpanHierarchy:
     take care to account for this when using a BatchEncoding which counts the <s>,</s> tokens
     """
 
-    def __init__(self, text, encoding: BatchEncoding, source, batch_id=0):
+    def __init__(self, text, encoding: BatchEncoding, source, batch_id=0, encoding_offset=0):
+        self.encoding_offset = encoding_offset
         self.batch_id = batch_id
         acceptable_sources = [CONTEXT, QUERY]
         if source not in acceptable_sources:
@@ -77,6 +78,8 @@ class SpanHierarchy:
     def _add_span_nodes(self, token_spans: List[SpanNode], level):
         if level not in self.levels:
             self.levels[level] = token_spans  # automatically in order
+            for node in token_spans:
+                node.encoding_offset = self.encoding_offset
             return
 
         """must splice new spans in order"""
