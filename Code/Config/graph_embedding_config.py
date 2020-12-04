@@ -2,7 +2,7 @@ from torch import nn
 
 from Code.Config.config import Config
 from Code.constants import SUMMARISER_NAME, HEAD_AND_TAIL_CAT, SELF_ATTENTIVE_POOLING, NUM_LAYERS, CONTEXT, QUERY, \
-    TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT, CANDIDATE
+    TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT, CANDIDATE, NOUN, ENTITY, COREF
 
 
 class GraphEmbeddingConfig(Config):
@@ -58,19 +58,17 @@ class GraphEmbeddingConfig(Config):
         from Code.Config import GraphConstructionConfig
         gcc: GraphConstructionConfig = gcc
         ss = graph_embedder.sequence_summarisers
-        for structure_level in gcc.context_structure_levels:
-            if structure_level == TOKEN:  # no summary needed for tokens
-                continue
-            if CONTEXT not in ss:
-                ss[CONTEXT] = {}
-            ss[CONTEXT][structure_level] = self.get_sequence_embedder(structure_level, CONTEXT)
 
-        for structure_level in gcc.query_structure_levels:
-            if structure_level == TOKEN:  # no summary needed for tokens
-                continue
-            if QUERY not in ss:
-                ss[QUERY] = {}
-            ss[QUERY][structure_level] = self.get_sequence_embedder(structure_level, QUERY)
+        for source in [CONTEXT, QUERY]:
+            for structure_level in gcc.structure_levels[source]:
+                if structure_level == TOKEN:  # no summary needed for tokens
+                    continue
+                if source not in ss:
+                    ss[source] = {}
+                if structure_level in [NOUN, ENTITY, COREF]:
+                    """All word levels get same summariser"""
+                    structure_level = WORD
+                ss[source][structure_level] = self.get_sequence_embedder(structure_level, source)
 
         ss[CANDIDATE] = {}
         ss[CANDIDATE][WORD] = self.get_sequence_embedder(WORD, CANDIDATE)

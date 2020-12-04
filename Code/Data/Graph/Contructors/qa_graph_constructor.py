@@ -13,7 +13,7 @@ from Code.Data.Text.span_hierarchy import SpanHierarchy
 from Code.Data.Text.text_utils import context, question, is_batched, question_key, candidates, context_key
 from Code.Play.initialiser import get_tokenizer
 from Code.Test.examples import test_example
-from Code.constants import CONTEXT, QUERY, SENTENCE, WORD
+from Code.constants import CONTEXT, QUERY, SENTENCE, WORD, TOKEN, NOUN
 
 
 class QAGraphConstructor:
@@ -23,7 +23,7 @@ class QAGraphConstructor:
     """
 
     def __init__(self, gcc, tokeniser: PreTrainedTokenizerFast=None):
-        self.gcc = gcc
+        self.gcc: GraphConstructionConfig = gcc
         if not tokeniser:
             tokeniser = get_tokenizer()
         self.tokeniser: PreTrainedTokenizerFast = tokeniser
@@ -71,7 +71,6 @@ class QAGraphConstructor:
         add_nodes_from_hierarchy(graph, query_hierarchy)
 
         connect_sliding_window(graph, context_hierarchy)
-        # connect_sliding_window(graph, query_hierarchy)
         connect_query_and_context(graph)
 
         if candidates(example):
@@ -105,26 +104,38 @@ class QAGraphConstructor:
 
     def build_hierarchies(self, single_example):
         context_encoding: BatchEncoding = self.tokeniser(context(single_example))
-        # print("num context tokens:", len(context_encoding.tokens()), "ctx:", context_encoding.tokens())
         question_encoding: BatchEncoding = self.tokeniser(question(single_example))
 
         context_hierarchy = SpanHierarchy(context(single_example), context_encoding, CONTEXT)
         query_hierarchy = SpanHierarchy(question(single_example), question_encoding, QUERY, encoding_offset=len(context_encoding.tokens()))
 
-        # context_hierarchy.add_tokens()
         try:
-            context_hierarchy.add_spans_from_chars(get_noun_char_spans, WORD, WordNode)
-            context_hierarchy.add_spans_from_chars(get_sentence_char_spans, SENTENCE, StructureNode, subtype=SENTENCE)
+            self.build_hierarchy(context_hierarchy, CONTEXT)
+            self.build_hierarchy(query_hierarchy, QUERY)
         except Exception as e:
             print("failed to add context span nodes for ex " + repr(single_example))
-            print("num context chars:",len(context(single_example)), "last few chars:", "'" + context(single_example)[-5:-1] + "'")
+            print("num context chars:", len(context(single_example)), "last few chars:",
+                  "'" + context(single_example)[-5:-1] + "'")
             raise e
-        context_hierarchy.calculate_encapsulation()
 
-        # query_hierarchy.add_tokens()
-        query_hierarchy.add_full_query()
-        query_hierarchy.calculate_encapsulation()
         return context_hierarchy, query_hierarchy
+
+    def build_hierarchy(self, hierarchy, source):
+        structure_levels = self.gcc.structure_levels[source]
+        for lev in structure_levels:
+            if lev == TOKEN:
+                hierarchy.add_tokens()
+            elif lev == NOUN:
+                hierarchy.add_spans_from_chars(get_noun_char_spans, WORD, WordNode)
+            elif lev == SENTENCE:
+                if source == CONTEXT:
+                    hierarchy.add_spans_from_chars(get_sentence_char_spans, SENTENCE, StructureNode, subtype=SENTENCE)
+                else:  # query get a special case
+                    hierarchy.add_full_query()
+            else:
+                raise NotImplementedError()
+
+        hierarchy.calculate_encapsulation()
 
 
 class TooManyEdgesException(Exception):
@@ -132,7 +143,8 @@ class TooManyEdgesException(Exception):
 
 
 if __name__ == "__main__":
-    from Code.Config import gcc
+    from Code.Config import gcc, GraphConstructionConfig
+
     const = QAGraphConstructor(gcc)
     print(test_example)
     const._create_single_graph_from_data_sample(test_example)

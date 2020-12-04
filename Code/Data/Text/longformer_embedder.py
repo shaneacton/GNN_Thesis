@@ -42,7 +42,7 @@ class LongformerEmbedder(Embedder):
     def get_safe_pos_ids(self, input_ids: Tensor) -> Tensor:
         max_ids = self.longformer.config.max_position_embeddings
         num_toks = input_ids.size(-1)
-        print("num toks:", num_toks, "/", max_ids)
+        # print("num toks:", num_toks, "/", max_ids)
         if num_toks < max_ids:
             return None  # auto generated will be safe
         """too many input ids for longformer. must wrap"""
