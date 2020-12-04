@@ -62,6 +62,8 @@ class QAGraphConstructor:
             ctx = context(example)
             # print("cutting ctx len", len(ctx))
             example[context_key(example)] = ctx[0:min(len(ctx), self.gcc.max_context_chars)]  #cuts context
+            while example[context_key(example)][-1] == ' ':  # remove trailing spaces
+                example[context_key(example)] = example[context_key(example)][0: -1]
         # separates the context and query, calculates node spans from {toks, wrds, sents}, calculates containment
         context_hierarchy, query_hierarchy = self.build_hierarchies(example)
         graph = QAGraph(example, self.gcc)
@@ -114,8 +116,9 @@ class QAGraphConstructor:
             context_hierarchy.add_spans_from_chars(get_noun_char_spans, WORD, WordNode)
             context_hierarchy.add_spans_from_chars(get_sentence_char_spans, SENTENCE, StructureNode, subtype=SENTENCE)
         except Exception as e:
-            print(e)
-            raise Exception("failed to add context span nodes for ex " + repr(single_example) + "\nnum context chars:" + repr(len(context(single_example))))
+            print("failed to add context span nodes for ex " + repr(single_example))
+            print("num context chars:",len(context(single_example)), "last few chars:", "'" + context(single_example)[-5:-1] + "'")
+            raise e
         context_hierarchy.calculate_encapsulation()
 
         # query_hierarchy.add_tokens()

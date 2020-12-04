@@ -48,15 +48,18 @@ class SpanHierarchy:
 
     def convert_charspan_to_tokenspan(self, char_span: Tuple[int]) -> TokenSpan:
         start = self.encoding.char_to_token(char_index=char_span[0], batch_or_char_index=self.batch_id)
-        end = self.encoding.char_to_token(char_index=char_span[1] - 1, batch_or_char_index=self.batch_id)
-        if end is None:
-            """
-                char span has landed on  a space.
-                this was likely a failure of the sentence extraction system
-                correct this by erring on the side of caution and taking an extra token instead of one fewer
-            """
-            end = self.encoding.char_to_token(char_index=char_span[1], batch_or_char_index=self.batch_id)
-            # raise Exception("could not get end token span from char span:" + repr(char_span) + " num tokens: " + repr(len(self.encoding.tokens())) + " ~ " + repr(self.encoding))
+
+        recoveries = [-1, 0, -2, -3]  # which chars to try. To handle edge cases such as ending on dbl space ~ '  '
+        end = None
+        while end is None:
+            if len(recoveries) == 0:
+                raise Exception(
+                    "could not get end token span from char span:" + repr(char_span) + " num tokens: " + repr(
+                        len(self.encoding.tokens())) + " ~ " + repr(self.encoding))
+
+            offset = recoveries.pop(0)
+            end = self.encoding.char_to_token(char_index=char_span[1] + offset, batch_or_char_index=self.batch_id)
+
         span = TokenSpan(start - 1, end)  # -1 to discount the <s> token
         return span
 
@@ -70,8 +73,8 @@ class SpanHierarchy:
         try:
             token_spans = [self.convert_charspan_to_tokenspan(c_span) for c_span in chars]
         except Exception as e:
-            print(e)
-            raise Exception("could not add span nodes for level: " + repr(level) + " using " + repr(char_span_method))
+            print("could not add span nodes for level: ", level, " using ", char_span_method)
+            raise e
         nodes = [node_type(s, source=self.source, subtype=subtype) for s in token_spans]
         self._add_span_nodes(nodes, level)
 
