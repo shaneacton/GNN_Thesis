@@ -5,7 +5,7 @@ from os.path import exists
 import nlp
 import torch
 from torch.utils.data import DataLoader
-from transformers import LongformerTokenizerFast, LongformerForQuestionAnswering
+from transformers import LongformerTokenizerFast
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]

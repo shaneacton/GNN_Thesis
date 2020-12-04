@@ -21,6 +21,7 @@ class LongformerEmbedder(Embedder):
 
     def embed(self, encoding: BatchEncoding):
         input_ids = Tensor(encoding["input_ids"]).type(torch.LongTensor).to(device)
+        position_ids = self.get_safe_pos_ids(input_ids)
         attention_mask = Tensor(encoding["attention_mask"]).type(torch.LongTensor).to(device)
         if len(input_ids.size()) == 1:
             #  batch size is 1
@@ -31,12 +32,21 @@ class LongformerEmbedder(Embedder):
         global_attention_mask = self.get_glob_att_mask(input_ids).to(device)
         with torch.no_grad():  # no finetuning the embedder
             embs = self.longformer(input_ids=input_ids, attention_mask=attention_mask, return_dict=True,
-                                   global_attention_mask=global_attention_mask)
+                                   global_attention_mask=global_attention_mask, position_ids=position_ids)
             embs = embs["last_hidden_state"]
 
         if self.feature_mapper:
             embs = self.feature_mapper(embs)
         return embs
+
+    def get_safe_pos_ids(self, input_ids: Tensor) -> Tensor:
+        max_ids = self.longformer.config.max_position_embeddings
+        num_toks = input_ids.size(-1)
+        print("num toks:", num_toks, "/", max_ids)
+        if num_toks < max_ids:
+            return None  # auto generated will be safe
+        """too many input ids for longformer. must wrap"""
+        return torch.tensor([i % max_ids for i in range(num_toks)]).to(device)
 
     def get_glob_att_mask(self, input_ids: Tensor) -> Tensor:
         """
