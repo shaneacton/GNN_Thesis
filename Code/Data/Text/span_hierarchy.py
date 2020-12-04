@@ -79,6 +79,8 @@ class SpanHierarchy:
         self._add_span_nodes(nodes, level)
 
     def _add_span_nodes(self, token_spans: List[SpanNode], level):
+        if len(token_spans) == 0:
+            raise Exception("no tokens spans given for", level, "source:", self.source)
         if level not in self.levels:
             self.levels[level] = token_spans  # automatically in order
             for node in token_spans:
@@ -126,9 +128,15 @@ class SpanHierarchy:
                 s_i += 1
             s_i -= 1
             # now s_i is the index of the first contained smolboi
-            while s_i < s_l and small_spans[s_i] in l:  # loop until last contained smol is added
-                if l not in self.containing_links:
-                    self.containing_links[l] = []
-                self.containing_links[l].append(small_spans[s_i])
-                s_i += 1
+            try:
+                while s_i < s_l and small_spans[s_i] in l:  # loop until last contained smol is added
+                    if l not in self.containing_links:
+                        self.containing_links[l] = []
+                    self.containing_links[l].append(small_spans[s_i])
+                    s_i += 1
+            except Exception as e:
+                print("failed to like spans during containment calculation")
+                print("si:", s_i, "sl:", s_l, "i<l:", s_i < s_l, "len:", len(small_spans))
+                raise e
+
 

@@ -13,7 +13,7 @@ class GraphConstructionConfig(Config):
         # {TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT}
         self.structure_levels = {
             CONTEXT: [NOUN, SENTENCE],
-            QUERY: [TOKEN, NOUN, SENTENCE]
+            QUERY: [TOKEN, SENTENCE]
         }
 
         self.max_edges = 400000  # 400000
