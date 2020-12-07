@@ -45,7 +45,8 @@ def load_dataset(split):
     while remaining_tries > 0:
         """load dataset from online"""
         try:
-            dataset = nlp.load_dataset(path=DATASET, split=split, name=VERSION)
+
+            dataset = nlp.load_dataset(path=DATASET, split=split, name=VERSION, download_mode=nlp.GenerateMode.FORCE_REDOWNLOAD)
             break  # loaded successfully
         except Exception as e:
             remaining_tries -= 1  # retry
