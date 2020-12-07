@@ -14,7 +14,7 @@ class LongformerEmbedder(Embedder):
         if not longformer:
             longformer = LongformerModel.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
 
-        self.longformer = longformer.to(device)
+        self.longformer: LongformerModel = longformer.to(device)
         self.feature_mapper = None
         if out_features != longformer.config.hidden_size and out_features != -1:
             self.feature_mapper = nn.Linear(longformer.config.hidden_size, out_features)
@@ -43,7 +43,7 @@ class LongformerEmbedder(Embedder):
         max_ids = self.longformer.config.max_position_embeddings
         num_toks = input_ids.size(-1)
         # print("num toks:", num_toks, "/", max_ids)
-        if num_toks < max_ids:
+        if num_toks < max_ids - 1:
             return None  # auto generated will be safe
         """too many input ids for longformer. must wrap"""
         return torch.tensor([i % max_ids for i in range(num_toks)]).to(device)

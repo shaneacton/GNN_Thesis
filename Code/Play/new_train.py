@@ -53,6 +53,7 @@ def load_dataset(split):
     if not dataset:
         print("failed to load datasets though network")
         raise e
+    return dataset
 
 
 def process_dataset():

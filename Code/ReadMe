@@ -1,8 +1,5 @@
 Todo:
 
-* create config save/load system
-    * create configs for Longformer, Big Bird, HDE
-
 
 * Graph embedder
      * edge feature encodings. an embedder for subtype info
@@ -10,16 +7,10 @@ Todo:
         before using self attentive pooling
 
 * Graph construction
-     * swap out spacy coref for something better
      * node filters to allow for word nodes be filtered by query words
      * AMR
 
 * GNNs
-    * create output models
-        * autodetect output model type based on data sample
-    * make generic hierarchical layer switching module
-        * basic is layer dependants + 1 layer agnostic
-        * can be reused for task switching later
     * switch additive attention for dot-product
 
 * config summary graphs for visualisation

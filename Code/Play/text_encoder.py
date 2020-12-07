@@ -29,6 +29,7 @@ class TextEncoder:
         example.pop("answers", None)
         example["start_positions"] = start_positions
         example["end_positions"] = end_positions
+        example["context"] = context(example).strip()
         if end_positions > len(self.get_context_encoding(example)["input_ids"]):
             # todo remove check, or only do once
             raise Exception("span answer = " + repr((start_positions, end_positions)) + " but only "
@@ -51,7 +52,7 @@ class TextEncoder:
         example["answer"] = correct_cand_id
         ctx = context(example)
         example.pop(context_key(example))  # remove supports field
-        example["context"] = ctx
+        example["context"] = ctx.strip()
         # print("process cands ex:", example)
         return example
 
@@ -198,7 +199,7 @@ class TextEncoder:
 
         # Compute start and end tokens for labels using Transformers's fast tokenizers alignement methodes.
         # this will give us the position of answer span in the context text
-        start_idx, end_idx = self.get_correct_span_alignement(example['context'], example['answers'])
+        start_idx, end_idx = self.get_correct_span_alignement(context(example), example['answers'])
         start_positions_context = qa_encoding.char_to_token(start_idx)
         end_positions_context = qa_encoding.char_to_token(end_idx - 1)
 
