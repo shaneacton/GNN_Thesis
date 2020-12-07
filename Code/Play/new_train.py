@@ -49,10 +49,10 @@ def load_dataset(split):
             break  # loaded successfully
         except Exception as e:
             remaining_tries -= 1  # retry
+            if remaining_tries == 0:
+                print("failed to load datasets though network")
+                raise e
 
-    if not dataset:
-        print("failed to load datasets though network")
-        raise e
     return dataset
 
 
