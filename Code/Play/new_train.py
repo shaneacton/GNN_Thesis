@@ -5,17 +5,16 @@ from os.path import exists
 import nlp
 import torch
 from torch.utils.data import DataLoader
-from transformers import LongformerTokenizerFast
 
-from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
+from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
 from Code.Models.GNNs.OutputModules.span_selection import SpanSelection
-from Code.Data.Text.text_utils import context, question, candidates
+from Code.Data.Text.text_utils import candidates
 from Code.Play.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Play.text_encoder import TextEncoder
@@ -30,10 +29,10 @@ TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
 OUT = "context_model"
 
-# DATASET = "squad"  # "qangaroo"  # "squad"
-# VERSION = None  # "wikihop"
-DATASET = "qangaroo"  # "qangaroo"  # "squad"
-VERSION = "wikihop"
+DATASET = "squad"  # "qangaroo"  # "squad"
+VERSION = None  # "wikihop"
+# DATASET = "qangaroo"  # "qangaroo"  # "squad"
+# VERSION = "wikihop"
 
 
 def data_loc(set_name):
@@ -172,7 +171,7 @@ if __name__ == "__main__":
     embedder = gec.get_graph_embedder(gcc)
 
     gat = ContextGAT(embedder, gnnc)
-    print("data sample:", get_data_sample())
+    # print("data sample:", get_data_sample())
     # Get datasets
     print('loading data')
     process_dataset()
