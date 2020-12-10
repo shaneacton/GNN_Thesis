@@ -18,7 +18,7 @@ class GraphConstructionConfig(Config):
 
         self.max_edges = 400000  # 400000
         # cuts off all chars after the max. tries to proceed with partial context. -1 to turn off
-        self.max_context_chars = 2000
+        self.max_context_chars = -1
 
     @property
     def all_structure_levels(self):

@@ -35,6 +35,17 @@ def is_batched(example):
     return isinstance(example[qkey], List)
 
 
+def get_single_example(example):
+    """takes in a batched example with batch size = 1 and returns a single version"""
+    if not is_batched(example):
+        raise Exception()
+    if candidates(example):
+        example['candidates'] = candidates(example)[0]
+    example[context_key(example)] = context(example)[0]
+    example[question_key(example)] = question(example)[0]
+    return example
+
+
 def get_single_value(example, key):
     if isinstance(example[key], List):
         raise Exception("cannot get " + key + " from ex, it appears to be batched: " + repr(example))

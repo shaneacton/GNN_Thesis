@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple
 
 from transformers import LongformerTokenizerFast
 
-from Code.Data.Text.text_utils import words, question, context, is_batched, candidates, context_key
+from Code.Data.Text.text_utils import words, question, context, is_batched, candidates, context_key, get_single_example
 
 
 class TextEncoder:
@@ -62,7 +62,9 @@ class TextEncoder:
             checks if candidates are present.
         """
         if is_batched(example):
-            raise Exception("cannot get encoding from batched example " + repr(example))
+            single_example = get_single_example(example)
+            if not single_example:
+                raise Exception("cannot get encoding from batched example " + repr(example))
         # print("getting encoding for ex: " + repr(example) + "\n has cands:", ("candidates" in example))
         if "candidates" in example:
             return self.get_mcqa_encoding(example)

@@ -7,12 +7,15 @@ import torch
 from torch.utils.data import DataLoader
 from transformers import LongformerTokenizerFast
 
+from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
-from Code.Data.Text.text_utils import context, question
+from Code.Models.GNNs.OutputModules.span_selection import SpanSelection
+from Code.Data.Text.text_utils import context, question, candidates
 from Code.Play.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Play.text_encoder import TextEncoder
@@ -45,8 +48,7 @@ def load_dataset(split):
     while remaining_tries > 0:
         """load dataset from online"""
         try:
-
-            dataset = nlp.load_dataset(path=DATASET, split=split, name=VERSION, download_mode=nlp.GenerateMode.FORCE_REDOWNLOAD)
+            dataset = nlp.load_dataset(path=DATASET, split=split, name=VERSION)
             break  # loaded successfully
         except Exception as e:
             remaining_tries -= 1  # retry
@@ -91,29 +93,50 @@ def process_dataset():
     torch.save(valid_dataset, data_loc(VALID))
 
 
+def get_data_sample():
+    dataset = torch.load(data_loc(TRAIN))
+    dataloader = DataLoader(dataset, batch_size=1)
+
+    with torch.no_grad():
+        for example in nlp.tqdm(dataloader):
+            return example
+
+
 def evaluate_model(model, valid_dataset):
     model = model.cuda()
     model.eval()
 
-    dataloader = DataLoader(valid_dataset, batch_size=1)
-    tokenizer = LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
+    batch_size = 1
+    dataloader = DataLoader(valid_dataset, batch_size=batch_size)
+    tokenizer = get_tokenizer()
     valid_dataset = load_dataset(nlp.Split.VALIDATION)
+
+    encoder = TextEncoder(get_tokenizer())
 
     answers = []
     with torch.no_grad():
         for batch in nlp.tqdm(dataloader):
-            # print("batch:", batch)
-            _, start_scores, end_scores = model(batch)
-            # print("start probs:", start_scores, "\n:end probs:", end_scores)
-            # break
+            if isinstance(model.output_model, SpanSelection):
+                _, start_scores, end_scores = model(batch)
+                # print("start probs:", start_scores, "\n:end probs:", end_scores)
+            elif isinstance(model.output_model, CandidateSelection):
+                _, probs = model(batch)
+                # print("probs:", probs, "cands:", candidates(batch), "ans:", batch['answer'], "q:", question(batch))
+            else:
+                raise Exception("unsupported output model: " + repr(model.output_model))
 
-            for i in range(start_scores.shape[0]):
-                """for each batch item, """
-                qa = tokenizer(question(batch)[i], context(batch)[i], pad_to_max_length=True, max_length=512, truncation=True)
-                s, e = torch.argmax(start_scores[i]), torch.argmax(end_scores[i]) + 1
-                predicted = ' '.join(qa.tokens()[s: e])
-                ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
-                predicted = tokenizer.decode(ans_ids)
+            for i in range(batch_size):
+                """for each batch item, get the string prediction of the model"""
+                qa = encoder.get_encoding(batch)
+                if isinstance(model.output_model, SpanSelection):
+                    s, e = torch.argmax(start_scores[i]), torch.argmax(end_scores[i]) + 1
+                    predicted = ' '.join(qa.tokens()[s: e])
+                    ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
+                    predicted = tokenizer.decode(ans_ids)
+                else:
+                    c = torch.argmax(probs[i])
+                    predicted = candidates(batch).split('</s>')[c]
+                    # print("predicted:", predicted)
                 # print("(s,e):", (s, e), "pred:", predicted, "total tokens:", len(qa.tokens()), "\n\n")
                 answers.append(predicted)
     #         raise Exception()
@@ -149,6 +172,7 @@ if __name__ == "__main__":
     embedder = gec.get_graph_embedder(gcc)
 
     gat = ContextGAT(embedder, gnnc)
+    print("data sample:", get_data_sample())
     # Get datasets
     print('loading data')
     process_dataset()
@@ -157,12 +181,14 @@ if __name__ == "__main__":
     print('loading done')
     # raise Exception("")
 
+    _ = gat(get_data_sample())  # detect and init output model
     trainer = get_trainer(gat, data_loc(OUT), train_dataset, valid_dataset)
     trainer.data_collator = composite_data_collator  # to handle non tensor inputs without error
 
     check = get_latest_model()
     check = None if check is None else os.path.join(".", data_loc(OUT), check)
     print("checkpoint:", check)
+    evaluate_model(gat, valid_dataset)
     trainer.train(model_path=check)
     trainer.save_model()
 
