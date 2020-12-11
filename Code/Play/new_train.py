@@ -146,7 +146,11 @@ def evaluate_model(model, valid_dataset):
     for ref, pred in zip(valid_dataset, answers):
         predictions.append(pred)
         # print("ref:", ref)
-        references.append(ref['answers']['text'])
+        if 'answers' in ref:
+            references.append(ref['answers']['text'])
+        else:
+            references.append(ref['answer'])
+            print("correct:", references[-1])
 
     print(evaluate(references, predictions))
 
