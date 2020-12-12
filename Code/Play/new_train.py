@@ -14,7 +14,7 @@ sys.path.append(os.path.join(dir_path_1, 'Code'))
 
 from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
 from Code.Models.GNNs.OutputModules.span_selection import SpanSelection
-from Code.Data.Text.text_utils import candidates
+from Code.Data.Text.text_utils import candidates, question
 from Code.Play.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Play.text_encoder import TextEncoder
@@ -120,7 +120,7 @@ def evaluate_model(model, valid_dataset):
                 # print("start probs:", start_scores, "\n:end probs:", end_scores)
             elif isinstance(model.output_model, CandidateSelection):
                 _, probs = model(batch)
-                # print("probs:", probs, "cands:", candidates(batch), "ans:", batch['answer'], "q:", question(batch))
+                print("probs:", probs, "cands:", candidates(batch), "ans:", batch['answer'], "q:", question(batch))
             else:
                 raise Exception("unsupported output model: " + repr(model.output_model))
 
