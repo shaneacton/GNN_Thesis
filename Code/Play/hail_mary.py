@@ -2,6 +2,8 @@ import os
 import sys
 from os.path import exists
 
+from Code.Test.gat_comp_long_enc import GatWrapLongEnc
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -21,11 +23,11 @@ print("loading tokeniser")
 tokenizer = get_pretrained_tokeniser()
 encoder = TextEncoder(tokenizer)
 
-WRAP_CLASS = GatWrap
+WRAP_CLASS = GatWrapLongEnc
 
 TRAIN = 'long_train_data.pt'
 VALID = 'long_valid_data.pt'
-model_name = "GAT" if WRAP_CLASS == GatWrap else "Lin"
+model_name = "GAT" if WRAP_CLASS == GatWrap else "Lin" if WRAP_CLASS == Wrap else "GATEnc"
 OUT = model_name + "_models"
 
 # DATASET = "squad"

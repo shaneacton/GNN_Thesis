@@ -16,13 +16,13 @@ class LongformerEmbedder(Embedder):
 
         self.longformer: LongformerModel = longformer.to(device)
         self.feature_mapper = None
+        self.out_features = longformer.config.hidden_size
         if out_features != longformer.config.hidden_size and out_features != -1:
+            self.out_features = out_features
             self.feature_mapper = nn.Linear(longformer.config.hidden_size, out_features)
 
-    def embed(self, encoding: BatchEncoding):
-        input_ids = Tensor(encoding["input_ids"]).type(torch.LongTensor).to(device)
+    def embed(self, input_ids, attention_mask):
         position_ids = self.get_safe_pos_ids(input_ids)
-        attention_mask = Tensor(encoding["attention_mask"]).type(torch.LongTensor).to(device)
         if len(input_ids.size()) == 1:
             #  batch size is 1
             input_ids = input_ids.view(1, -1)

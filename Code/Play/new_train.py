@@ -29,10 +29,10 @@ TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
 OUT = "context_model"
 
-DATASET = "squad"  # "qangaroo"  # "squad"
-VERSION = None  # "wikihop"
-# DATASET = "qangaroo"  # "qangaroo"  # "squad"
-# VERSION = "wikihop"
+# DATASET = "squad"  # "qangaroo"  # "squad"
+# VERSION = None  # "wikihop"
+DATASET = "qangaroo"  # "qangaroo"  # "squad"
+VERSION = "wikihop"
 
 
 def data_loc(set_name):
@@ -150,7 +150,7 @@ def evaluate_model(model, valid_dataset):
             references.append(ref['answers']['text'])
         else:
             references.append(ref['answer'])
-            print("correct:", references[-1])
+            print("correct:", references[-1], "predicted:", pred)
 
     print(evaluate(references, predictions))
 
