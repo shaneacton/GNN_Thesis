@@ -18,10 +18,9 @@ class GatWrapLongEnc(LongformerPreTrainedModel):
 
     def __init__(self, _, output):
         middle_size = output.config.hidden_size
-        self.long_embedder = LongformerEmbedder(out_features=middle_size)
-
-        super().__init__(self.long_embedder.longformer.config)
-
+        long_embedder = LongformerEmbedder(out_features=middle_size)
+        super().__init__(long_embedder.longformer.config)
+        self.long_embedder = long_embedder
         self.middle1 = Gat(self.pretrained_size, middle_size, num_edge_types=2)
         self.act = nn.ReLU()
         self.middle2 = Gat(middle_size, middle_size, num_edge_types=2)

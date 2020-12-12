@@ -2,8 +2,6 @@ import os
 import sys
 from os.path import exists
 
-from Code.Test.gat_comp_long_enc import GatWrapLongEnc
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -13,6 +11,7 @@ import nlp
 import torch
 from torch.utils.data import DataLoader
 
+from Code.Test.gat_comp_long_enc import GatWrapLongEnc
 from Code.Play.gat_composite import GatWrap
 from Code.Play.composite import Wrap
 from Code.Play.text_encoder import TextEncoder
