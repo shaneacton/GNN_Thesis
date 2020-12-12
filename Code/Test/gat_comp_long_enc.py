@@ -17,25 +17,17 @@ MAX_NODES = 2900  # 2900
 class GatWrapLongEnc(LongformerPreTrainedModel):
 
     def __init__(self, _, output):
-        middle_size = output.config.hidden_size
-        long_embedder = LongformerEmbedder(out_features=middle_size)
+        self.middle_size = output.config.hidden_size
+        long_embedder = LongformerEmbedder(out_features=self.middle_size)
         super().__init__(long_embedder.longformer.config)
         self.long_embedder = long_embedder
-        self.middle1 = GATConv(self.pretrained_size, middle_size)
+        self.middle1 = GATConv(self.middle_size, self.middle_size)
         self.act = nn.ReLU()
-        self.middle2 = GATConv(middle_size, middle_size)
+        self.middle2 = GATConv(self.middle_size, self.middle_size)
 
         self.output = output
         self.max_pretrained_pos_ids = self.long_embedder.longformer.config.max_position_embeddings
         print("max pos embs:", self.max_pretrained_pos_ids)
-
-    @property
-    def pretrained_size(self):
-        return self.pretrained.config.hidden_size
-
-    @property
-    def middle_size(self):
-        return self.output.config.hidden_size
 
     def forward(self, input_ids, attention_mask, start_positions=None, end_positions=None, return_dict=True):
         # gives global attention to all question and/or candidate tokens

@@ -18,9 +18,6 @@ from Code.Play.text_encoder import TextEncoder
 from Code.Training.eval_utils import evaluate
 from Code.Play.initialiser import get_trainer, get_span_composite_model, BATCH_SIZE, get_pretrained_tokeniser
 
-print("loading tokeniser")
-tokenizer = get_pretrained_tokeniser()
-encoder = TextEncoder(tokenizer)
 
 WRAP_CLASS = GatWrapLongEnc
 
@@ -116,20 +113,6 @@ def evaluate_model(model, valid_dataset):
     print("model:", model_name)
     print(evaluate(references, predictions))
 
-print("starting model init")
-# model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
-model = get_span_composite_model(wrap_class=WRAP_CLASS)
-
-# Get datasets
-print('loading data')
-process_dataset()
-train_dataset = torch.load(data_loc(TRAIN))
-valid_dataset = torch.load(data_loc(VALID))
-print('loading done')
-
-# evaluate_model(model, valid_dataset)
-
-trainer = get_trainer(model, data_loc(OUT), train_dataset, valid_dataset)
 
 def get_latest_model():
     out = os.path.join(".", data_loc(OUT))
@@ -146,12 +129,31 @@ def get_latest_model():
     return checks[max_i]
 
 
-check = get_latest_model()
-check = None if check is None else os.path.join(".", data_loc(OUT), check)
-print("checkpoint:", check)
-trainer.train(model_path=check)
+if __name__ == "__main__":
+    print("loading tokeniser")
+    tokenizer = get_pretrained_tokeniser()
+    encoder = TextEncoder(tokenizer)
 
+    print("starting model init")
+    # model = LongformerForQuestionAnswering.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
+    model = get_span_composite_model(wrap_class=WRAP_CLASS)
 
-trainer.save_model()
+    # Get datasets
+    print('loading data')
+    process_dataset()
+    train_dataset = torch.load(data_loc(TRAIN))
+    valid_dataset = torch.load(data_loc(VALID))
+    print('loading done')
 
-evaluate_model(model, valid_dataset)
+    # evaluate_model(model, valid_dataset)
+
+    trainer = get_trainer(model, data_loc(OUT), train_dataset, valid_dataset)
+
+    check = get_latest_model()
+    check = None if check is None else os.path.join(".", data_loc(OUT), check)
+    print("checkpoint:", check)
+    trainer.train(model_path=check)
+
+    trainer.save_model()
+
+    evaluate_model(model, valid_dataset)
