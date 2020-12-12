@@ -4,7 +4,7 @@ import torch
 from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel, \
     TrainingArguments, Trainer
 
-from Code.Play.composite import Wrap
+from Code.Models.GNNs.TokenGNNs.composite import Wrap
 from Code.Training import device
 
 FEATURES = 402
@@ -49,10 +49,6 @@ def get_longformer_config():
 def get_pretrained_longformer():
     pret = LongformerModel.from_pretrained(PRETRAINED)
     return pret.to(device)
-
-
-def get_pretrained_tokeniser():
-    return LongformerTokenizerFast.from_pretrained(PRETRAINED)
 
 
 def get_fresh_span_longformer():

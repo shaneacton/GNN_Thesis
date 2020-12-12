@@ -40,8 +40,8 @@ class GatWrapLongEnc(LongformerPreTrainedModel):
         global_attention_mask = self.long_embedder.get_glob_att_mask(input_ids)
         edge, edge_types = self.get_edge_indices(embs.size(1), global_attention_mask)
 
-        embs = self.act(self.middle1(x=embs.squeeze(), edge_index=edge, edge_types=edge_types))
-        embs = self.act(self.middle2(x=embs, edge_index=edge, edge_types=edge_types)).view(1, -1, self.middle_size)
+        embs = self.act(self.middle1(x=embs.squeeze(), edge_index=edge))
+        embs = self.act(self.middle2(x=embs, edge_index=edge)).view(1, -1, self.middle_size)
         # print("after gat:", embs.size())
         out = self.output(inputs_embeds=embs, attention_mask=attention_mask, return_dict=return_dict,
                           start_positions=start_positions, end_positions=end_positions,

@@ -124,15 +124,14 @@ class TextEncoder:
             encoding = self._get_longformer_candidate_features(example)
         else:
             encoding = self._get_longformer_span_features(example)
-        # print("ex:", example)
-        # print("encode:", encoding)
-        # print("tokens:", encoding.tokens())
-        # print("word ids:", encoding.words())
-        # print("words:", words(encoding, question(example), context(example)))
+
         return encoding
 
     def _get_longformer_candidate_features(self, example):
-        """encoded like <context><query><all candidates>"""
+        """
+            encoded like <context><query><all candidates>
+            posed as a span prediction problem
+        """
         encoding = self.get_mcqa_encoding(example)
         cands = candidates(example)
         # print("example:", example, "\ncands:", cands)
