@@ -191,7 +191,7 @@ if __name__ == "__main__":
     check = get_latest_model()
     check = None if check is None else os.path.join(".", data_loc(OUT), check)
     print("checkpoint:", check)
-    evaluate_model(gat, valid_dataset)
+    # evaluate_model(gat, valid_dataset)
     trainer.train(model_path=check)
     trainer.save_model()
 

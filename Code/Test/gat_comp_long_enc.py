@@ -2,8 +2,8 @@ from typing import Tuple
 
 import torch
 from torch import nn, Tensor
-from transformers.modeling_longformer import LongformerPreTrainedModel, \
-    LongformerModel
+from torch_geometric.nn import GATConv
+from transformers.modeling_longformer import LongformerPreTrainedModel
 
 from transformers.modeling_outputs import QuestionAnsweringModelOutput
 
@@ -21,9 +21,9 @@ class GatWrapLongEnc(LongformerPreTrainedModel):
         long_embedder = LongformerEmbedder(out_features=middle_size)
         super().__init__(long_embedder.longformer.config)
         self.long_embedder = long_embedder
-        self.middle1 = Gat(self.pretrained_size, middle_size, num_edge_types=2)
+        self.middle1 = GATConv(self.pretrained_size, middle_size)
         self.act = nn.ReLU()
-        self.middle2 = Gat(middle_size, middle_size, num_edge_types=2)
+        self.middle2 = GATConv(middle_size, middle_size)
 
         self.output = output
         self.max_pretrained_pos_ids = self.long_embedder.longformer.config.max_position_embeddings
