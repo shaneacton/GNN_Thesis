@@ -29,7 +29,7 @@ VERSION = "wikihop"
 
 
 if __name__ == "__main__":
-    print("starting model init")
+    print("starting token span model init")
     model = get_span_composite_model(wrap_class=WRAP_CLASS)
 
     # Get datasets

@@ -16,6 +16,7 @@ def data_loc(dataset_name, version_name, file_name):
 
 
 def load_unprocessed_dataset(dataset_name, version_name, split):
+    """loads the original, unprocessed version of the given dataset"""
     remaining_tries = 100
     dataset = None
     e = None
@@ -34,6 +35,7 @@ def load_unprocessed_dataset(dataset_name, version_name, split):
 
 
 def load_processed_datasets(dataset_name, version_name, train_split_name, valid_split_name):
+    """must call process first with corresponding train/valid_split_name"""
     train_dataset = torch.load(data_loc(dataset_name, version_name, train_split_name))
     valid_dataset = torch.load(data_loc(dataset_name, version_name, valid_split_name))
 
@@ -41,6 +43,7 @@ def load_processed_datasets(dataset_name, version_name, train_split_name, valid_
 
 
 def get_latest_model(dataset_name, version_name, model_folder_name):
+    """finds the model checkpoint which did the most training iterations, returns file name"""
     out = os.path.join(".", data_loc(dataset_name, version_name, model_folder_name))
     checks = [c for c in os.listdir(out) if "check" in c]
     if len(checks) == 0:
@@ -56,6 +59,7 @@ def get_latest_model(dataset_name, version_name, model_folder_name):
 
 
 def get_processed_data_sample(dataset_name, version_name, train_split_name):
+    """returns the first data sample from the given preprocessed and saved dataset"""
     dataset = torch.load(data_loc(dataset_name, version_name, train_split_name))
     dataloader = DataLoader(dataset, batch_size=1)
 
@@ -73,7 +77,11 @@ def process_gat_dataset(dataset_name, version_name, train_split_name, valid_spli
     map_func = encoder.get_processed_example
     train_dataset, valid_dataset = _get_processed_dataset(map_func, dataset_name, version_name)
 
-    sample = get_processed_data_sample(dataset_name, version_name, train_split_name)
+    dataloader = DataLoader(valid_dataset, batch_size=1)
+    sample = None
+    for sample in nlp.tqdm(dataloader):
+        # print("after", batch)
+        break
 
     # set the tensor type and the columns which the dataset should return
     if 'start_positions' in sample and 'end_positions' in sample:
@@ -114,6 +122,7 @@ def _get_processed_dataset(map_function, dataset_name, version_name):
     valid_dataset = load_unprocessed_dataset(dataset_name, version_name, nlp.Split.VALIDATION)
 
     print("mapping dataset")
-    train_dataset = train_dataset.map(map_function, load_from_cache_file=False)
-    valid_dataset = valid_dataset.map(map_function, load_from_cache_file=False)
+    batch_size = 3000
+    train_dataset = train_dataset.map(map_function, load_from_cache_file=False, batch_size=batch_size)
+    valid_dataset = valid_dataset.map(map_function, load_from_cache_file=False, batch_size=batch_size)
     return train_dataset, valid_dataset
