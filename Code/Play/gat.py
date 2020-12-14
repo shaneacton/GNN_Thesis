@@ -8,7 +8,7 @@ from torch_geometric.typing import OptTensor, OptPairTensor, Adj, Size
 
 class Gat(GATConv):
 
-    def __init__(self, in_channels: Union[int, Tuple[int, int]], out_channels: int, num_edge_types=1, edge_emb_dim=10, **kwargs):
+    def __init__(self, in_channels: Union[int, Tuple[int, int]], out_channels: int, num_edge_types=1, **kwargs):
         super().__init__(in_channels, out_channels, **kwargs)
         self.num_edge_types = num_edge_types
         self.lin = nn.Linear(2 * out_channels, out_channels)
@@ -22,9 +22,6 @@ class Gat(GATConv):
         if num_edge_types > 1:
             layers = [nn.Linear(out_channels, out_channels) for _ in range(num_edge_types)]
             self.relational_transforms = nn.ModuleList(layers)
-            # self.relational_transform = RelationalLinear(out_channels, out_channels, num_edge_types)
-            # self.relational_transform = RelationalMessage(out_channels, 2, nn.ReLU, 0.3)
-
 
     def forward(self, x: Union[Tensor, OptPairTensor], edge_index: Adj, edge_types,
                 size: Size = None, return_attention_weights=None):

@@ -6,27 +6,35 @@ from torch_geometric.nn import GATConv
 from transformers.modeling_longformer import LongformerPreTrainedModel
 from transformers.modeling_outputs import QuestionAnsweringModelOutput
 
+from Code.Config import GraphConstructionConfig, GraphEmbeddingConfig
+from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
-from Code.Play.gat import Gat
 from Code.Training import device
+from Code.constants import TOKEN, QUERY, NOUN, CONTEXT
 
 MAX_NODES = 2900  # 2900
 
 
-class GatWrapLongEnc(LongformerPreTrainedModel):
+class GatTokenConstruction(LongformerPreTrainedModel):
 
     def __init__(self, _, output):
         self.middle_size = output.config.hidden_size
         long_embedder = LongformerEmbedder(out_features=self.middle_size)
         super().__init__(long_embedder.longformer.config)
         self.long_embedder = long_embedder
-        self.middle1 = Gat(self.middle_size, self.middle_size, num_edge_types=2)
+        self.middle1 = GATConv(self.middle_size, self.middle_size)
         self.act = nn.ReLU()
-        self.middle2 = Gat(self.middle_size, self.middle_size, num_edge_types=2)
+        self.middle2 = GATConv(self.middle_size, self.middle_size)
 
         self.output = output
         self.max_pretrained_pos_ids = self.long_embedder.longformer.config.max_position_embeddings
         print("max pos embs:", self.max_pretrained_pos_ids)
+
+        self.token_construction_config = GraphConstructionConfig()
+        self.token_construction_config.structure_levels = {CONTEXT: [NOUN], QUERY: [TOKEN]}
+
+        self.graph_embedder = GraphEmbeddingConfig.get_graph_embedder(self.token_construction_config)
+        self.graph_constructor = QAGraphConstructor(self.token_construction_config)
 
     def forward(self, input_ids, attention_mask, start_positions=None, end_positions=None, return_dict=True):
         # gives global attention to all question and/or candidate tokens
@@ -39,8 +47,8 @@ class GatWrapLongEnc(LongformerPreTrainedModel):
         global_attention_mask = self.long_embedder.get_glob_att_mask(input_ids)
         edge, edge_types = self.get_edge_indices(embs.size(1), global_attention_mask)
 
-        embs = self.act(self.middle1(x=embs.squeeze(), edge_index=edge, edge_types=edge_types))
-        embs = self.act(self.middle2(x=embs, edge_index=edge, edge_types=edge_types)).view(1, -1, self.middle_size)
+        embs = self.act(self.middle1(x=embs.squeeze(), edge_index=edge))
+        embs = self.act(self.middle2(x=embs, edge_index=edge)).view(1, -1, self.middle_size)
         # print("after gat:", embs.size())
         out = self.output(inputs_embeds=embs, attention_mask=attention_mask, return_dict=return_dict,
                           start_positions=start_positions, end_positions=end_positions,
