@@ -42,7 +42,7 @@ if __name__ == "__main__":
     trainer = get_trainer(model, model_loc, train_dataset, valid_dataset)
 
     check = get_latest_model(DATASET, VERSION, MODEL_FOLDER)
-    check = None if check is None else os.path.join("../Play", model_loc, check)
+    check = None if check is None else os.path.join(model_loc, check)
     print("training from checkpoint:", check)
     trainer.train(model_path=check)
     trainer.save_model()

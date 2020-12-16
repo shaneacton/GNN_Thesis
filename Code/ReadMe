@@ -46,6 +46,7 @@ pip install torch-cluster -f https://pytorch-geometric.com/whl/torch-${TORCH}+${
 pip install torch-spline-conv -f https://pytorch-geometric.com/whl/torch-${TORCH}+${CUDA}.html --user --no-cache-dir
 pip install torch-geometric --user
 pip install transformers --user
+conda install -c conda-forge nlp
 pip install -U spacy==2.1.3 --user
 pip install neuralcoref --no-binary neuralcoref --user
 python -m spacy download en_core_web_sm
