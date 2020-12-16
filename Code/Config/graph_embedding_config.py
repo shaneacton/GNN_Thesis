@@ -27,29 +27,18 @@ class GraphEmbeddingConfig(Config):
         }
 
         # used for relative positional embeddings
-        self.relative_embeddings_window_per_level = {
-            CONTEXT: {
-                TOKEN: 20,
-                WORD: 10,
-                SENTENCE: 5,
-                PARAGRAPH: 3,
-            },
-            QUERY: {
-                TOKEN: 20,
-                WORD: 10
-            }
-        }
-
-        self.max_tokens = 1024
-
-        self.fine_tune_token_embedder = False
-
-        self.use_absolute_positional_embeddings = True
-        self.num_positional_embeddings = 5000
-
-        self.max_bert_token_sequence = 500
-        self.bert_window_overlap_tokens = 20
-        self.max_token_embedding_threads = 4
+        # self.relative_embeddings_window_per_level = {
+        #     CONTEXT: {
+        #         TOKEN: 20,
+        #         WORD: 10,
+        #         SENTENCE: 5,
+        #         PARAGRAPH: 3,
+        #     },
+        #     QUERY: {
+        #         TOKEN: 20,
+        #         WORD: 10
+        #     }
+        # }
 
     def get_graph_embedder(self, gcc):
         from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
@@ -68,15 +57,17 @@ class GraphEmbeddingConfig(Config):
                 if structure_level in [NOUN, ENTITY, COREF]:
                     """All word levels get same summariser"""
                     structure_level = WORD
-                ss[source][structure_level] = self.get_sequence_embedder(structure_level, source)
+                ss[source][structure_level] = self.get_new_sequence_embedder(structure_level, source)
 
         ss[CANDIDATE] = {}
-        ss[CANDIDATE][WORD] = self.get_sequence_embedder(WORD, CANDIDATE)
+        ss[CANDIDATE][WORD] = self.get_new_sequence_embedder(WORD, CANDIDATE)
+
+        # print("creating graph embedder with:", graph_embedder.sequence_summarisers)
 
         graph_embedder.on_create_finished()  # registers summariser params
         return graph_embedder
 
-    def get_sequence_embedder(self, structure_level, source):
+    def get_new_sequence_embedder(self, structure_level, source):
         method_conf = self.span_summarisation_methods[source][structure_level]
         if isinstance(method_conf, str):
             method = method_conf

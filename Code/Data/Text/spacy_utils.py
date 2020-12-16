@@ -1,21 +1,27 @@
-import copy
 from typing import List, Tuple, Dict
 
-import spacy
-from neuralcoref.neuralcoref import Cluster
-from spacy.tokens.span import Span
+try:
+    from neuralcoref.neuralcoref import Cluster
+    from spacy.tokens.span import Span
+
+    try:
+        import en_core_web_sm
+
+        nlp = en_core_web_sm.load()
+    except:
+        print("failed to load en_core_web_sm, trying in clisyer location")
+        import spacy
+
+        spacy.util.set_data_path('/home/sacton/.conda/envs/gnn_env/lib/python3.8/site-packages')
+        nlp = spacy.load('en_core_web_sm')
+
+except:
+    print("spacy not installed. tokens only")
 
 from Code.Data.Text.text_utils import context
-from Code.Test.examples import test_example
+from Code.Play.examples import test_example
 
-try:
-    import en_core_web_sm
-    nlp = en_core_web_sm.load()
-except:
-    print("failed to load en_core_web_sm, trying in clisyer location")
-    import spacy
-    spacy.util.set_data_path('/home/sacton/.conda/envs/gnn_env/lib/python3.8/site-packages')
-    nlp = spacy.load('en_core_web_sm')
+
 # Add neural coref to SpaCy's pipe
 
 added_neuralcoref = False
@@ -27,7 +33,7 @@ def _init_doc(doc, text):
     return doc
 
 
-def get_char_span_from_spacy_span(span: Span, doc) -> Tuple[int]:
+def get_char_span_from_spacy_span(span, doc) -> Tuple[int]:
     start_char = doc[span.start].idx
     end_char = doc[span.end -1].idx + len(doc[span.end -1])
     return start_char, end_char

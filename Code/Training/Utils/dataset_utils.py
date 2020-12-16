@@ -6,8 +6,8 @@ from torch.utils.data import DataLoader
 
 import nlp
 
-from Code.Play.initialiser import get_tokenizer
-from Code.Play.text_encoder import TextEncoder
+from Code.Training.Utils.initialiser import get_tokenizer
+from Code.Training.Utils.text_encoder import TextEncoder
 
 
 def data_loc(dataset_name, version_name, file_name):
@@ -44,7 +44,7 @@ def load_processed_datasets(dataset_name, version_name, train_split_name, valid_
 
 def get_latest_model(dataset_name, version_name, model_folder_name):
     """finds the model checkpoint which did the most training iterations, returns file name"""
-    out = os.path.join(".", data_loc(dataset_name, version_name, model_folder_name))
+    out = os.path.join("..", data_loc(dataset_name, version_name, model_folder_name))
     checks = [c for c in os.listdir(out) if "check" in c]
     if len(checks) == 0:
         return None

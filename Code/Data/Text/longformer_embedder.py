@@ -48,19 +48,28 @@ class LongformerEmbedder(Embedder):
         """too many input ids for longformer. must wrap"""
         return torch.tensor([i % max_ids for i in range(num_toks)]).to(device)
 
+    def get_first_sep_index(self, input_ids: Tensor):
+        sep_token_indices = (input_ids == self.longformer.config.sep_token_id).nonzero()
+        first_sep = sep_token_indices.squeeze()[0][1].item()
+        return first_sep
+
     def get_glob_att_mask(self, input_ids: Tensor) -> Tensor:
         """
             input ids are encoded via <context>sep<query>sep[all candidates]
             thus all ids after the first sep should be global
             adapted from modeling_longformer._compute_global_attention_mask from Transformers lib
         """
-        sep_token_indices = (input_ids == self.longformer.config.sep_token_id).nonzero()
-        first_sep = sep_token_indices.squeeze()[0][1].item()
-        # print("first:", first_sep)
-        # print("sep idxs:", sep_token_indices)
-        attention_mask = torch.arange(input_ids.shape[1], device=input_ids.device)
-        attention_mask = (attention_mask.expand_as(input_ids) > (first_sep + 1)).to(torch.uint8) * (
-                attention_mask.expand_as(input_ids) < input_ids.shape[-1]
+        first_sep = self.get_first_sep_index(input_ids)
+        num_ids = input_ids.shape[1]
+        return self.get_glob_att_mask_from(first_sep, num_ids)
+
+    @staticmethod
+    def get_glob_att_mask_from(glob_start_id: int, length: int, batch_size=1) -> Tensor:
+        """returns a glob att mask with globs after the glob_start_id"""
+        attention_mask = torch.arange(length, device=device)
+        tens = torch.zeros(batch_size, length)
+        attention_mask = (attention_mask.expand_as(tens) > (glob_start_id + 1)).to(torch.uint8) * (
+                attention_mask.expand_as(tens) < length
         ).to(torch.uint8)
         # print("att mask:", attention_mask)
         return attention_mask

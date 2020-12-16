@@ -1,3 +1,4 @@
+import copy
 from typing import List, Union
 
 from transformers import BatchEncoding
@@ -35,15 +36,25 @@ def is_batched(example):
     return isinstance(example[qkey], List)
 
 
-def get_single_example(example):
-    """takes in a batched example with batch size = 1 and returns a single version"""
+def get_example_i_from_batch(example, i):
+    """takes in a batched example with batch size = n and returns a single version"""
     if not is_batched(example):
         raise Exception()
-    if candidates(example):
-        example['candidates'] = candidates(example)[0]
-    example[context_key(example)] = context(example)[0]
-    example[question_key(example)] = question(example)[0]
-    return example
+    single = copy.deepcopy(example)
+    if candidates(single):
+        single['candidates'] = candidates(example)[i]
+    single[context_key(example)] = context(example)[i]
+    single[question_key(example)] = question(example)[i]
+    return single
+
+
+def get_single_example(example):
+    """takes in a batched example with batch size = 1 and returns a single version"""
+    single = get_example_i_from_batch(example, 0)
+    bs = len(context(example))
+    if bs > 1:
+        raise Exception("cannot get single example from batch with size = " + repr(bs) + " >1")
+    return single
 
 
 def get_single_value(example, key):

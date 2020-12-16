@@ -1,6 +1,7 @@
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.OutputModules.output_model import OutputModel
-from Code.Models.Loss.loss_funcs import get_span_loss
+from Code.Models.loss_funcs import get_span_loss
+from Code.constants import CONTEXT, TOKEN
 
 
 class SpanSelection(OutputModel):
@@ -16,6 +17,8 @@ class SpanSelection(OutputModel):
         return self.start_selector.get_node_ids_from_graph(graph, **kwargs)
 
     def get_output_from_graph_encoding(self, data: GraphEncoding, **kwargs):
+        if TOKEN not in data.graph.gcc.structure_levels[CONTEXT]:
+            raise Exception("cannot do span prediction without including context tokens")
         # print("span selection, kwargs:", kwargs)
         logits = self.start_selector(data, **kwargs), self.end_selector(data, **kwargs)
         if "start_positions" in kwargs and "end_positions" in kwargs:

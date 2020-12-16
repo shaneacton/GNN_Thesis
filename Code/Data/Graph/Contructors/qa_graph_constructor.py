@@ -10,9 +10,9 @@ from Code.Data.Graph.Nodes.word_node import WordNode
 from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.spacy_utils import get_sentence_char_spans, get_noun_char_spans
 from Code.Data.Text.span_hierarchy import SpanHierarchy
-from Code.Data.Text.text_utils import context, question, is_batched, question_key, candidates, context_key
-from Code.Play.initialiser import get_tokenizer
-from Code.Test.examples import test_example
+from Code.Data.Text.text_utils import context, question, is_batched, candidates, context_key
+from Code.Training.Utils.initialiser import get_tokenizer
+from Code.Play.examples import test_example
 from Code.constants import CONTEXT, QUERY, SENTENCE, WORD, TOKEN, NOUN
 
 

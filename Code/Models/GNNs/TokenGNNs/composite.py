@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from transformers.modeling_longformer import _compute_global_attention_mask as qa_glob_att, LongformerPreTrainedModel
+from transformers.models.longformer.modeling_longformer import LongformerPreTrainedModel
 
 
 class Wrap(LongformerPreTrainedModel):

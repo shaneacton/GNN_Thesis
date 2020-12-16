@@ -82,13 +82,12 @@ def get_trainer(model, outdir, train_dataset, valid_dataset):
     train_args.overwrite_output_dir = True
     train_args.save_total_limit = 2
     train_args.num_train_epochs = NUM_EPOCHS
-
+    train_args.prediction_loss_only = True
     # Initialize our Trainer
     trainer = Trainer(
         model=model,
         args=train_args,
         train_dataset=train_dataset,
         eval_dataset=valid_dataset,
-        prediction_loss_only=True,
     )
     return trainer

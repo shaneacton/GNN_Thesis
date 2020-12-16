@@ -13,8 +13,8 @@ from Code.Data.Graph.Nodes.token_node import TokenNode
 from Code.Data.Graph.Nodes.word_node import WordNode
 from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.text_utils import context, question, candidates
-from Code.Play.text_encoder import TextEncoder
-from Code.Test.examples import test_example
+from Code.Training.Utils.text_encoder import TextEncoder
+from Code.Play.examples import test_example
 from Code.constants import CONTEXT, QUERY, CANDIDATE, SENTENCE, WORD, TOKEN
 
 wrapper = TextWrapper()

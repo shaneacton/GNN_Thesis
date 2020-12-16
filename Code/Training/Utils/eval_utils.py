@@ -6,13 +6,12 @@ from typing import List
 import nlp
 import torch
 from torch.utils.data import DataLoader
-
 from Code.Data.Text.text_utils import candidates, question
 from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
 from Code.Models.GNNs.OutputModules.span_selection import SpanSelection
-from Code.Play.initialiser import get_tokenizer
-from Code.Play.text_encoder import TextEncoder
-from Code.Training.dataset_utils import load_unprocessed_dataset
+from Code.Training.Utils.initialiser import get_tokenizer
+from Code.Training.Utils.text_encoder import TextEncoder
+from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
 
 def normalize_answer(s: str):

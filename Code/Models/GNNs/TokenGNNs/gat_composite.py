@@ -2,14 +2,12 @@ from typing import Tuple
 
 import torch
 from torch import nn, Tensor
-from torch_geometric.nn import GATConv, SAGEConv
-from transformers.modeling_longformer import LongformerPreTrainedModel, \
-    LongformerModel
 
 # from Code.Play.initialiser import ATTENTION_WINDOW
 from transformers.modeling_outputs import QuestionAnsweringModelOutput
+from transformers.models.longformer.modeling_longformer import LongformerPreTrainedModel, LongformerModel
 
-from Code.Play.gat import Gat
+from Code.Models.GNNs.Custom.gat import Gat
 from Code.Training import device
 
 MAX_NODES = 2900  # 2900

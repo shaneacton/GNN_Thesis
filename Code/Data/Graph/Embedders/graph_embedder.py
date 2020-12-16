@@ -6,7 +6,7 @@ from torch import nn, Tensor
 from torch.nn import ModuleDict
 from transformers import PreTrainedTokenizerFast, TokenSpan, BatchEncoding
 
-from Code.Config import GraphEmbeddingConfig, gec
+from Code.Config import GraphEmbeddingConfig, GraphConstructionConfig
 from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
 from Code.Data.Graph.Embedders.Summarisers.sequence_summariser import SequenceSummariser
 from Code.Data.Graph.graph_encoding import GraphEncoding
@@ -16,11 +16,11 @@ from Code.Data.Graph.Types.types import Types
 from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
 from Code.Data.Text.text_utils import question, context, is_batched, has_candidates
-from Code.Play.initialiser import get_tokenizer
-from Code.Play.text_encoder import TextEncoder
-from Code.Test.examples import test_example
+from Code.Training.Utils.initialiser import get_tokenizer
+from Code.Training.Utils.text_encoder import TextEncoder
+from Code.Play.examples import test_example
 from Code.Training import device
-from Code.Training.metric import Metric
+from Code.Training.Utils.metric import Metric
 from Code.constants import TOKEN, CONTEXT, QUERY
 
 
@@ -38,7 +38,7 @@ class GraphEmbedder(nn.Module):
         :param num_features: if -1 will default to dims of pretrained embedder
         """
         super().__init__()
-        self.gcc = gcc
+        self.gcc: GraphConstructionConfig = gcc
         if not embedder:
             embedder = LongformerEmbedder(out_features=num_features)
         if not tokeniser:
@@ -60,8 +60,11 @@ class GraphEmbedder(nn.Module):
 
     def on_create_finished(self):
         """called after all summarisers added to register the modules"""
-        self.context_summarisers = ModuleDict(self.sequence_summarisers[CONTEXT])
-        self.query_summarisers = ModuleDict(self.sequence_summarisers[QUERY])
+        if self.gcc.structure_levels[CONTEXT] != [TOKEN]:
+            # no summarisers for tokens
+            self.context_summarisers = ModuleDict(self.sequence_summarisers[CONTEXT])
+        if self.gcc.structure_levels[QUERY] != [TOKEN]:
+            self.query_summarisers = ModuleDict(self.sequence_summarisers[QUERY])
 
     @staticmethod
     def edge_index(graph: QAGraph) -> torch.Tensor:

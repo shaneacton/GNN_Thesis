@@ -1,12 +1,10 @@
-from typing import List
-
 from Code.Data.Graph.Edges.candidate_edge import CandidateEdge
 from Code.Data.Graph.Edges.query_edge import QueryEdge
 from Code.Data.Graph.Edges.structure_edge import StructureEdge
 from Code.Data.Graph.Edges.window_edge import WindowEdge
 from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Text.span_hierarchy import SpanHierarchy
-from Code.Play.initialiser import ATTENTION_WINDOW
+from Code.Training.Utils.initialiser import ATTENTION_WINDOW
 
 
 def add_nodes_from_hierarchy(graph: QAGraph, hierarchy: SpanHierarchy, connect=True):

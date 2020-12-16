@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     from Code.Config import gec, gnnc
     from Code.Config import gcc
-    from Code.Test.examples import test_example
+    from Code.Play.examples import test_example
 
     embedder = gec.get_graph_embedder(gcc)
 

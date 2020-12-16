@@ -8,6 +8,11 @@ from torch_geometric.typing import OptTensor, OptPairTensor, Adj, Size
 
 class Gat(GATConv):
 
+    """
+        wrapper around a regular GATConv to make the update rule asymmetric about sender/receiver
+        also makes the GAT relational
+    """
+
     def __init__(self, in_channels: Union[int, Tuple[int, int]], out_channels: int, num_edge_types=1, **kwargs):
         super().__init__(in_channels, out_channels, **kwargs)
         self.num_edge_types = num_edge_types

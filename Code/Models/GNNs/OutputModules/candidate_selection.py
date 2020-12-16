@@ -1,5 +1,5 @@
 from Code.Models.GNNs.OutputModules.node_selection import NodeSelection
-from Code.Models.Loss.loss_funcs import get_span_element_loss
+from Code.Models.loss_funcs import get_span_element_loss
 
 
 class CandidateSelection(NodeSelection):

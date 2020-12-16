@@ -1,16 +1,19 @@
-from typing import Tuple
-
 import torch
 from torch import nn, Tensor
 from torch_geometric.nn import GATConv
-from transformers.modeling_longformer import LongformerPreTrainedModel
 from transformers.modeling_outputs import QuestionAnsweringModelOutput
+from transformers.models.longformer.modeling_longformer import LongformerPreTrainedModel
 
 from Code.Config import GraphConstructionConfig, GraphEmbeddingConfig
 from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor
+from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
+from Code.Data.Text.text_utils import is_batched, get_single_example
+from Code.Models.GNNs.ContextGNNs.context_gnn import prep_input
+from Code.Training.Utils.initialiser import get_tokenizer
+from Code.Training.Utils.text_encoder import TextEncoder
 from Code.Training import device
-from Code.constants import TOKEN, QUERY, NOUN, CONTEXT
+from Code.constants import TOKEN, QUERY, CONTEXT
 
 MAX_NODES = 2900  # 2900
 
@@ -19,10 +22,11 @@ class GatTokenConstruction(LongformerPreTrainedModel):
 
     def __init__(self, _, output):
         self.middle_size = output.config.hidden_size
-        long_embedder = LongformerEmbedder(out_features=self.middle_size)
+        long_embedder = LongformerEmbedder()
+        emb_size = long_embedder.longformer.config.hidden_size
         super().__init__(long_embedder.longformer.config)
         self.long_embedder = long_embedder
-        self.middle1 = GATConv(self.middle_size, self.middle_size)
+        self.middle1 = GATConv(emb_size, self.middle_size)
         self.act = nn.ReLU()
         self.middle2 = GATConv(self.middle_size, self.middle_size)
 
@@ -31,64 +35,51 @@ class GatTokenConstruction(LongformerPreTrainedModel):
         print("max pos embs:", self.max_pretrained_pos_ids)
 
         self.token_construction_config = GraphConstructionConfig()
-        self.token_construction_config.structure_levels = {CONTEXT: [NOUN], QUERY: [TOKEN]}
+        self.token_construction_config.structure_levels = {CONTEXT: [TOKEN], QUERY: [TOKEN]}
 
-        self.graph_embedder = GraphEmbeddingConfig.get_graph_embedder(self.token_construction_config)
+        self.graph_embedder: GraphEmbedder = GraphEmbeddingConfig().get_graph_embedder(self.token_construction_config)
         self.graph_constructor = QAGraphConstructor(self.token_construction_config)
 
-    def forward(self, input_ids, attention_mask, start_positions=None, end_positions=None, return_dict=True):
-        # gives global attention to all question and/or candidate tokens
-        if input_ids.size(1) >= self.max_pretrained_pos_ids or input_ids.size(1) >= MAX_NODES:  # too large to pass
-            has_loss = start_positions is not None and end_positions is not None
-            return self.get_null_return(input_ids, return_dict, has_loss)
-        embs = self.long_embedder.embed(input_ids, attention_mask)
+        self.text_encoder = TextEncoder(get_tokenizer())
 
-        # print("token embs:", embs.size())
-        global_attention_mask = self.long_embedder.get_glob_att_mask(input_ids)
-        edge, edge_types = self.get_edge_indices(embs.size(1), global_attention_mask)
+    def forward(self, input, return_dict=True, **kwargs):
+        input, kwargs = prep_input(input, kwargs)
+        if is_batched(input):
+            input = get_single_example(input)
+        graph = self.graph_constructor(input)
+        graph_embedding = self.graph_embedder(graph)
+        node_embs = graph_embedding.x
+        token_encoding = self.text_encoder.get_encoding(input)
+        input_ids = torch.tensor(token_encoding["input_ids"]).to(device).view(1, -1)
+        attention_mask = torch.tensor(token_encoding["attention_mask"]).to(device).view(1, -1)
+        # long_embs = self.long_embedder.embed(input_ids, attention_mask).squeeze()[1:-1, :]
 
-        embs = self.act(self.middle1(x=embs.squeeze(), edge_index=edge))
-        embs = self.act(self.middle2(x=embs, edge_index=edge)).view(1, -1, self.middle_size)
-        # print("after gat:", embs.size())
-        out = self.output(inputs_embeds=embs, attention_mask=attention_mask, return_dict=return_dict,
+        # print("input:", input)
+        # print("graph embedding:", graph_embedding)
+        # print("nodes:", node_embs.size(), "\n", node_embs)
+        # print("token embedding:", long_embs.size(), "\n", long_embs)
+        ctx_len = self.long_embedder.get_first_sep_index(input_ids)
+        # +1 for the fake sep token inserted at the beginning
+        global_attention_mask = self.long_embedder.get_glob_att_mask_from(ctx_len + 1, node_embs.shape[0] + 1)
+
+        edge = graph_embedding.edge_index
+        node_embs = self.act(self.middle1(x=node_embs, edge_index=edge))
+        node_embs = self.act(self.middle2(x=node_embs, edge_index=edge))
+        node_embs = torch.cat([torch.zeros(1, self.middle_size).to(device), node_embs], dim=0).view(1, -1, self.middle_size)
+        # print("after gat:", node_embs.size())
+        # raise Exception("gtc weh")
+        start_positions = input.pop("start_positions", None)
+        end_positions = input.pop("end_positions", None)
+        if "start_positions" in kwargs:
+            start_positions = kwargs["start_positions"]
+            end_positions = kwargs["end_positions"]
+        start_positions = start_positions.to(device)
+        end_positions = end_positions.to(device)
+
+        out = self.output(inputs_embeds=node_embs, return_dict=return_dict,
                           start_positions=start_positions, end_positions=end_positions,
                           global_attention_mask=global_attention_mask)
         return out
-
-    @staticmethod
-    def get_edge_indices(num_tokens, glob_att_mask: Tensor, window_size=128) -> Tuple[Tensor, Tensor]:
-        # print("num tokens:", num_tokens, type(num_tokens))
-        froms = []
-        tos = []
-
-        edge_types = []
-        for from_id in range(num_tokens):
-            """sliding window connections"""
-            if glob_att_mask[0, from_id].item() == 1:
-                "global, so all"
-                # print("global on token", from_id)
-                for to_id in range(num_tokens):
-                    # eff edges:63153, calc edges:62641
-                    # if to_id == from_id:
-                    #     continue
-                    froms.append(from_id)
-                    tos.append(to_id)
-                    edge_types.append(0)
-            else:
-                """not global, so sliding"""
-                for d in range(0, window_size):
-                    to_id = from_id + d
-                    if to_id >= num_tokens:
-                        break
-                    froms.append(from_id)
-                    tos.append(to_id)
-                    edge_types.append(1)
-
-        # print("num edges:", len(froms))
-        edges = torch.tensor([froms, tos]).to(device)
-        edge_types = torch.tensor(edge_types).to(device)
-        # print("edges:", edges.size(), edges)
-        return edges, edge_types
 
     def get_null_return(self, input_ids:Tensor, return_dict:bool, include_loss:bool):
         loss = None

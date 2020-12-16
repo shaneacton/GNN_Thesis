@@ -3,25 +3,22 @@ from typing import Union, Dict, List
 
 import torch
 from torch import nn, Tensor
-from torch_geometric.data import Batch
 from transformers import LongformerConfig
-from transformers.modeling_longformer import LongformerPreTrainedModel
 
 from Code.Config import GNNConfig, vizconf
 from Code.Config.config_set import ConfigSet
 from Code.Data.Graph.Contructors.qa_graph_constructor import QAGraphConstructor, TooManyEdgesException
 from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
-from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Data.Graph.context_graph import QAGraph
-from Code.Data.Text.text_utils import question, candidates, question_key, has_candidates, num_candidates
+from Code.Data.Graph.graph_encoding import GraphEncoding
+from Code.Data.Text.text_utils import candidates, question_key, has_candidates, num_candidates
 from Code.Models.GNNs.OutputModules.output_model import OutputModel
-
 from Code.Models.GNNs.gnn import GNN
-from Code.Models.Loss.loss_funcs import get_span_element_loss, get_span_loss
 from Code.Models.context_nn import ContextNN
-from Code.Play.initialiser import get_longformer_config
+from Code.Training.Utils.initialiser import get_longformer_config
 from Code.Training import device
 from Code.constants import CONTEXT
+
 try:
     from Viz.context_graph_visualiser import render_graph
 except:  # graph viz not installed
