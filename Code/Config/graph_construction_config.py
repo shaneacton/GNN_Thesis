@@ -12,13 +12,16 @@ class GraphConstructionConfig(Config):
         # which structure levels to make nodes for
         # {TOKEN, WORD, SENTENCE, PARAGRAPH, DOCUMENT}
         self.structure_levels = {
-            CONTEXT: [NOUN, SENTENCE],
-            QUERY: [TOKEN, SENTENCE]
+            CONTEXT: [TOKEN],
+            QUERY: [TOKEN]
         }
 
         self.max_edges = 400000  # 400000
         # cuts off all chars after the max. tries to proceed with partial context. -1 to turn off
         self.max_context_chars = -1
+
+        if self.max_context_chars != -1:
+            print("truncating contexts to", self.max_context_chars, "chars")
 
     @property
     def all_structure_levels(self):

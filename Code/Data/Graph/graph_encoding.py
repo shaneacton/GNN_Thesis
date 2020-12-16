@@ -61,16 +61,11 @@ class GraphEncoding(Batch):
             raise Exception("cannot call graph on batched encoding")
         return self.graphs
 
-    # @property
-    # def node_positions(self):
-    #     if isinstance(self.graph, QAGraph):
-    #         return self.graph.node_positions
-    #     if isinstance(self.graph, List):
-    #         positions = []
-    #         for graph in self.graph:
-    #             positions.extend(graph.node_positions)
-    #         return positions
-    #     raise Exception()
+    @property
+    def sample_graph(self):
+        if isinstance(self.graphs, List):
+            return self.graphs[0]
+        return self.graphs
 
     @property
     def node_types(self):
@@ -83,20 +78,3 @@ class GraphEncoding(Batch):
         if isinstance(self.types, Types):
             return self.types.edge_types
         raise Exception()
-
-    # def set_positional_window_sizes(self):
-    #     """
-    #         these values cannot be set at graph construction time since
-    #         the window size should be independent of graph construction
-    #     """
-    #     def set_window_size(graph):
-    #         for pos in graph.node_positions:
-    #             if not pos:
-    #                 continue
-    #             pos.window_size = self.gec.relative_embeddings_window_per_level[pos.sequence_level]
-    #
-    #     if isinstance(self.graph, List):
-    #         for g in self.graph:
-    #            set_window_size(g)
-    #     if isinstance(self.graph, QAGraph):
-    #         set_window_size(self.graph)

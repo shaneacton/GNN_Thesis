@@ -21,7 +21,6 @@ from Code.Config import gec, gnnc
 from Code.Config import gcc
 
 
-
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
 # MODEL_FOLDER = "context_model"

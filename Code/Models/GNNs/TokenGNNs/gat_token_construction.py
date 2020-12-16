@@ -18,13 +18,14 @@ from Code.constants import TOKEN, QUERY, CONTEXT
 MAX_NODES = 2900  # 2900
 
 
-class GatTokenConstruction(LongformerPreTrainedModel):
+class GatTokenConstruction(nn.Module):
 
     def __init__(self, _, output):
+        super().__init__()
         self.middle_size = output.config.hidden_size
         long_embedder = LongformerEmbedder()
         emb_size = long_embedder.longformer.config.hidden_size
-        super().__init__(long_embedder.longformer.config)
+        # super().__init__(long_embedder.longformer.config)
         self.long_embedder = long_embedder
         self.middle1 = GATConv(emb_size, self.middle_size)
         self.act = nn.ReLU()
