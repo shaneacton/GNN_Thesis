@@ -131,13 +131,13 @@ def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset
                     """null output due to too large of an input"""
                     predictions.append(None)
                     continue
-                print("start scores 0:", start_scores.size(), start_scores)
-                print("end scores 0:", end_scores[0].size(), end_scores[0])
+                # print("start scores 0:", start_scores.size(), start_scores)
+                # print("end scores 0:", end_scores[0].size(), end_scores[0])
                 s, e = torch.argmax(start_scores[0]), torch.argmax(end_scores[0]) + 1
                 tokens = qa.tokens()[s: e]
                 ans_ids = tokenizer.convert_tokens_to_ids(tokens)
                 predicted = tokenizer.decode(ans_ids)
-                print("(s,e):", (s, e), "pred:", predicted, "total tokens:", len(qa.tokens()), "\n\n")
+                # print("(s,e):", (s, e), "pred:", predicted, "total tokens:", len(qa.tokens()), "\n\n")
             else:
                 if torch.sum(probs) == 0:
                     """null output due to too large of an input"""
@@ -174,8 +174,8 @@ def evaluate_span_model(dataset_name, version_name, model, processed_valid_datas
                 predictions.append(None)
                 continue
 
-            all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
-            s, e = torch.argmax(start_scores[i]), torch.argmax(end_scores[i]) + 1
+            all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][0])
+            s, e = torch.argmax(start_scores[0]), torch.argmax(end_scores[0]) + 1
             predicted = ' '.join(all_tokens[s: e])
             ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
             predicted = tokenizer.decode(ans_ids)

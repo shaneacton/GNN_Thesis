@@ -11,7 +11,6 @@ from Code.Training import device
 class GraphEncoding(Batch):
 
     """
-    initialise as a single data point. use Batch.from_data_list to group
     wrapper around Geometric datapoint batch which retains its context graph
     """
 

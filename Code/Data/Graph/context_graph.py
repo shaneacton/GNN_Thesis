@@ -27,9 +27,8 @@ class QAGraph:
         self.query_nodes: Set[int] = set()  # collection of nodes which have source=query
         self.candidate_nodes: Set[int] = set()
 
-        self.unique_edges: Set[EdgeRelation] = set()
         self.ordered_edges: List[EdgeRelation] = []
-        self.constructs: List[type] = []  # record of the construction process used
+        self.unique_edges: Set[EdgeRelation] = set()
 
         self.example = example
 

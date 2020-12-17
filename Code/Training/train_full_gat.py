@@ -24,8 +24,8 @@ from Code.Config import gcc
 """how to name the preprocessed data files"""
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
-# MODEL_FOLDER = "context_model"
-MODEL_FOLDER = "token_gat"
+MODEL_FOLDER = "context_model"
+# MODEL_FOLDER = "token_gat"
 
 
 DATASET = "squad"  # "qangaroo"  # "squad"
@@ -68,9 +68,10 @@ if __name__ == "__main__":
 
     check = get_latest_model(DATASET, VERSION, MODEL_FOLDER)
     check = None if check is None else os.path.join(model_loc, check)
+    if check is not None:
+        gat.load_state_dict(torch.load(os.path.join(check, WEIGHTS_NAME)))
     print("training from checkpoint:", check)
     trainer.train(model_path=check)
     trainer.save_model()
-    gat.load_state_dict(torch.load(os.path.join(check, WEIGHTS_NAME)))
     evaluate_full_gat(DATASET, VERSION, gat, valid_dataset)
 
