@@ -1,6 +1,9 @@
 import os
 import sys
 
+import torch
+from transformers import WEIGHTS_NAME
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -68,6 +71,6 @@ if __name__ == "__main__":
     print("training from checkpoint:", check)
     trainer.train(model_path=check)
     trainer.save_model()
-
+    gat.load_state_dict(torch.load(os.path.join(check, WEIGHTS_NAME)))
     evaluate_full_gat(DATASET, VERSION, gat, valid_dataset)
 
