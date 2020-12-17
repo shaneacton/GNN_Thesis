@@ -11,6 +11,9 @@ from Code.Training.Utils.text_encoder import TextEncoder
 
 
 def data_loc(dataset_name, version_name, file_name):
+    if not exists(dataset_name):
+        print("creating dir:", dataset_name)
+        os.mkdir(dataset_name)
     data_name = version_name if version_name else dataset_name
     return os.path.join(data_name, file_name)
 

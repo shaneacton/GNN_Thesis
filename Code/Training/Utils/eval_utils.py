@@ -96,7 +96,11 @@ def get_acc_and_f1(gold_answers: List[List[str]], predictions: List[str]):
 
 
 def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset):
-    """evaluates a gat with a custom node selection based output"""
+    """
+        evaluates a gat with a custom node selection based output
+        input to these models is the example style input dict
+    """
+    print("evaluating model on", dataset_name, version_name)
     model = model.cuda()
     model.eval()
 
@@ -109,14 +113,19 @@ def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset
     predictions = []
     with torch.no_grad():
         for batch in nlp.tqdm(dataloader):
-            if not hasattr(model, "output_model") or isinstance(model.output_model, SpanSelection):
+            start_scores = None
+            if not hasattr(model, "output_model"):
                 """models which do not have a dedicated output module are assumed to be span prediction"""
+                _, start_scores, end_scores = model(batch, return_dict=False)
+            if isinstance(model.output_model, SpanSelection):
                 _, start_scores, end_scores = model(batch)
+
+            if start_scores:
                 if torch.sum(start_scores) == 0:
                     """null output due to too large of an input"""
                     predictions.append(None)
                     continue
-                # print("start probs:", start_scores, "\n:end probs:", end_scores)
+
             elif isinstance(model.output_model, CandidateSelection):
                 _, probs = model(batch)
                 if torch.sum(probs) == 0:
@@ -146,6 +155,8 @@ def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset
 
 
 def evaluate_span_model(dataset_name, version_name, model, processed_valid_dataset):
+    """evaluates  token style models which input input_ids"""
+    print("evaluating model on", dataset_name, version_name)
     model = model.cuda()
     model.eval()
 
