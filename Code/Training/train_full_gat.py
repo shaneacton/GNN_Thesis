@@ -1,14 +1,12 @@
 import os
 import sys
 
-from Code.Models.GNNs.TokenGNNs.gat_token_construction import GatTokenConstruction
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
-
+from Code.Models.GNNs.TokenGNNs.gat_token_construction import GatTokenConstruction
 from Code.Training.Utils.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Training.Utils.eval_utils import evaluate_full_gat
@@ -20,7 +18,7 @@ from Code.Training.Utils.dataset_utils import get_processed_data_sample, get_lat
 from Code.Config import gec, gnnc
 from Code.Config import gcc
 
-
+"""how to name the preprocessed data files"""
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
 # MODEL_FOLDER = "context_model"
@@ -34,11 +32,25 @@ VERSION = None  # "wikihop"
 
 
 if __name__ == "__main__":
+    """
+        full meaning online text->embs
+    """
     print("starting gat model init")
-    embedder = gec.get_graph_embedder(gcc)
     if MODEL_FOLDER == "token_gat":
+        """
+            uses the configurable graph embedding system, but with token only settings
+            passes the graph embedding through a GNN, then through the huggingface span prediction output model
+            currently incompatible with wikihop. Ie squad only
+        """
         gat = get_span_composite_model(wrap_class=GatTokenConstruction)
     else:
+        """
+            the full configurable gnn. supports any node types and arbitrary connections
+            uses a custom output model which either does span prediction or candidate selection
+            
+            currently does not work  -  been trying to get this one working
+        """
+        embedder = gec.get_graph_embedder(gcc)
         gat = ContextGAT(embedder, gnnc)
 
     print('loading data')
@@ -52,7 +64,7 @@ if __name__ == "__main__":
     trainer.data_collator = composite_data_collator  # to handle non tensor inputs without error
 
     check = get_latest_model(DATASET, VERSION, MODEL_FOLDER)
-    check = None if check is None else os.path.join("../Play", model_loc, check)
+    check = None if check is None else os.path.join(model_loc, check)
     print("training from checkpoint:", check)
     trainer.train(model_path=check)
     trainer.save_model()

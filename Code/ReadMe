@@ -3,28 +3,11 @@ Todo:
 
 * Graph embedder
      * edge feature encodings. an embedder for subtype info
-     * more sophisticated attentive summarisation, possibly utilising sliding window att to pretransform a sequence
-        before using self attentive pooling
-
-* Graph construction
-     * node filters to allow for word nodes be filtered by query words
-     * AMR
+     * longformer as a sequence summariser instead of the self attentive pooling
 
 * GNNs
     * switch additive attention for dot-product
 
-* config summary graphs for visualisation
-    * graph construction summary graphs
-        * can include embedding information
-    * gnn layer switching summary graphs
-    * gnn summary graph which doesn't include switching info. just layers, types, sizes. like cdn diagram
-     * make fine tuning the contextual embedder optional
-
-* render sparse adjacency matrices
-
-
-* Make bert tokeniser cased
-* add in returning edges for the directed edges
 
 NLP Libs:
 Spacy - ineffective
@@ -34,7 +17,7 @@ StanfordNLP python wrapper has no coref
 Installs:
 ENV_NAME=gnn_env
 y
-conda create --name ${ENV_NAME} python=3.6
+conda create --name ${ENV_NAME} python=3.7
 conda activate ${ENV_NAME}
 
 CUDA=cu102
@@ -47,7 +30,9 @@ pip install torch-spline-conv -f https://pytorch-geometric.com/whl/torch-${TORCH
 pip install torch-geometric --user
 pip install transformers --user
 conda install -c conda-forge nlp
+# token only models do not need spacy
 pip install -U spacy==2.1.3 --user
-pip install neuralcoref --no-binary neuralcoref --user
 python -m spacy download en_core_web_sm
+# NC not needed unless corefs are used as nodes
+pip install neuralcoref --no-binary neuralcoref --user
 

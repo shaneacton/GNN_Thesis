@@ -109,7 +109,8 @@ def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset
     predictions = []
     with torch.no_grad():
         for batch in nlp.tqdm(dataloader):
-            if isinstance(model.output_model, SpanSelection):
+            if not hasattr(model, "output_model") or isinstance(model.output_model, SpanSelection):
+                """models which do not have a dedicated output module are assumed to be span prediction"""
                 _, start_scores, end_scores = model(batch)
                 if torch.sum(start_scores) == 0:
                     """null output due to too large of an input"""

@@ -14,9 +14,14 @@ from Code.Models.GNNs.TokenGNNs.composite import Wrap
 from Code.Training.Utils.eval_utils import evaluate_span_model
 from Code.Training.Utils.initialiser import get_trainer, get_span_composite_model
 
-
+"""
+    a wrap class takes a pretrained longformer, and an untrained longformer output model for span prediction
+    it sandwiches a GNN inbetween these two longformers
+    different wrap classes tested different pipeline elements, all have worked so far
+"""
 WRAP_CLASS = GatWrapLongEnc
 
+"""how to name the preprocessed data files"""
 TRAIN = 'long_train_data.pt'
 VALID = 'long_valid_data.pt'
 model_name = "GAT" if WRAP_CLASS == GatWrap else "Lin" if WRAP_CLASS == Wrap else "GATEnc"
@@ -29,6 +34,10 @@ VERSION = None
 
 
 if __name__ == "__main__":
+    """
+        data is preprocessed into token ids, and text is dropped
+        this approach is more inline with Longformer best practices
+    """
     print("starting token span model init")
     model = get_span_composite_model(wrap_class=WRAP_CLASS)
 

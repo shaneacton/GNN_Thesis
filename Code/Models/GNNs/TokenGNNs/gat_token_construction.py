@@ -20,6 +20,11 @@ MAX_NODES = 2900  # 2900
 
 class GatTokenConstruction(nn.Module):
 
+    """
+        sanity check which uses the configurable graph embedding system with tokens only
+        uses the same output as the GatWraps which work
+    """
+
     def __init__(self, _, output):
         super().__init__()
         self.middle_size = output.config.hidden_size
