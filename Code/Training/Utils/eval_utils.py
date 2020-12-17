@@ -104,8 +104,7 @@ def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset
     model = model.cuda()
     model.eval()
 
-    batch_size = 1
-    dataloader = DataLoader(processed_valid_dataset, batch_size=batch_size)
+    dataloader = DataLoader(processed_valid_dataset, batch_size=1)
     tokenizer = get_tokenizer()
 
     encoder = TextEncoder(get_tokenizer())
@@ -115,41 +114,40 @@ def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset
         for batch in nlp.tqdm(dataloader):
             start_scores = None
             if not hasattr(model, "output_model"):
-                """models which do not have a dedicated output module are assumed to be span prediction"""
+                """models which do not have a dedicated output modules are assumed to be span prediction"""
                 _, start_scores, end_scores = model(batch, return_dict=False)
-            if isinstance(model.output_model, SpanSelection):
+            elif isinstance(model.output_model, SpanSelection):
                 _, start_scores, end_scores = model(batch)
 
-            if start_scores:
+            elif isinstance(model.output_model, CandidateSelection):
+                _, probs = model(batch)
+                # print("probs:", probs, "cands:", candidates(batch), "ans:", batch['answer'], "q:", question(batch))
+            else:
+                raise Exception("unsupported output model: " + repr(model.output_model))
+
+            qa = encoder.get_encoding(batch)
+            if start_scores is not None:
                 if torch.sum(start_scores) == 0:
                     """null output due to too large of an input"""
                     predictions.append(None)
                     continue
-
-            elif isinstance(model.output_model, CandidateSelection):
-                _, probs = model(batch)
+                print("start scores 0:", start_scores.size(), start_scores)
+                print("end scores 0:", end_scores[0].size(), end_scores[0])
+                s, e = torch.argmax(start_scores[0]), torch.argmax(end_scores[0]) + 1
+                tokens = qa.tokens()[s: e]
+                ans_ids = tokenizer.convert_tokens_to_ids(tokens)
+                predicted = tokenizer.decode(ans_ids)
+                print("(s,e):", (s, e), "pred:", predicted, "total tokens:", len(qa.tokens()), "\n\n")
+            else:
                 if torch.sum(probs) == 0:
                     """null output due to too large of an input"""
                     predictions.append(None)
                     continue
-                print("probs:", probs, "cands:", candidates(batch), "ans:", batch['answer'], "q:", question(batch))
-            else:
-                raise Exception("unsupported output model: " + repr(model.output_model))
+                c = torch.argmax(probs[0])
+                predicted = candidates(batch).split('</s>')[c]
+                # print("predicted:", predicted)
 
-            for i in range(batch_size):
-                """for each batch item, get the string prediction of the model"""
-                qa = encoder.get_encoding(batch)
-                if isinstance(model.output_model, SpanSelection):
-                    s, e = torch.argmax(start_scores[i]), torch.argmax(end_scores[i]) + 1
-                    predicted = ' '.join(qa.tokens()[s: e])
-                    ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
-                    predicted = tokenizer.decode(ans_ids)
-                else:
-                    c = torch.argmax(probs[i])
-                    predicted = candidates(batch).split('</s>')[c]
-                    # print("predicted:", predicted)
-                # print("(s,e):", (s, e), "pred:", predicted, "total tokens:", len(qa.tokens()), "\n\n")
-                predictions.append(predicted)
+            predictions.append(predicted)
 
     _compare_predictions(dataset_name, version_name, predictions)
 
@@ -160,8 +158,7 @@ def evaluate_span_model(dataset_name, version_name, model, processed_valid_datas
     model = model.cuda()
     model.eval()
 
-    batch_size = 1
-    dataloader = DataLoader(processed_valid_dataset, batch_size=batch_size)
+    dataloader = DataLoader(processed_valid_dataset, batch_size=1)
 
     tokenizer = get_tokenizer()
 
@@ -176,14 +173,13 @@ def evaluate_span_model(dataset_name, version_name, model, processed_valid_datas
                 """null output due to too large of an input"""
                 predictions.append(None)
                 continue
-            for i in range(batch_size):
-                """for each batch item"""
-                all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
-                s, e = torch.argmax(start_scores[i]), torch.argmax(end_scores[i]) + 1
-                predicted = ' '.join(all_tokens[s: e])
-                ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
-                predicted = tokenizer.decode(ans_ids)
-                predictions.append(predicted)
+
+            all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][i])
+            s, e = torch.argmax(start_scores[i]), torch.argmax(end_scores[i]) + 1
+            predicted = ' '.join(all_tokens[s: e])
+            ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
+            predicted = tokenizer.decode(ans_ids)
+            predictions.append(predicted)
 
     _compare_predictions(dataset_name, version_name, predictions)
 

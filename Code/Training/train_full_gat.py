@@ -35,7 +35,7 @@ if __name__ == "__main__":
     """
         full meaning online text->embs
     """
-    print("starting gat model init")
+    print("starting", MODEL_FOLDER, "model init")
     if MODEL_FOLDER == "token_gat":
         """
             uses the configurable graph embedding system, but with token only settings
