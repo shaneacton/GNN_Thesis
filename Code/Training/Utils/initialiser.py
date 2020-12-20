@@ -30,11 +30,11 @@ def get_tokenizer() -> LongformerTokenizerFast:
     return _tokenizer
 
 
-def get_longformer_config():
+def get_longformer_config(hidden_size=FEATURES):
     configuration = LongformerConfig()
 
     configuration.attention_window = ATTENTION_WINDOW
-    configuration.hidden_size = FEATURES
+    configuration.hidden_size = hidden_size
     configuration.intermediate_size = INTERMEDIATE_FEATURES
     configuration.num_labels = 2
     configuration.max_position_embeddings = 4098
@@ -51,9 +51,9 @@ def get_pretrained_longformer():
     return pret.to(device)
 
 
-def get_fresh_span_longformer():
+def get_fresh_span_longformer(hidden_size=FEATURES):
     """no pretraining"""
-    configuration = get_longformer_config()
+    configuration = get_longformer_config(hidden_size=hidden_size)
     qa = LongformerForQuestionAnswering(configuration).to(device)
 
     return qa

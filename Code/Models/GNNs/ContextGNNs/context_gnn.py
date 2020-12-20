@@ -45,14 +45,14 @@ class ContextGNN(GNN, ContextNN, ABC):
     takes in context graphs as inputs, outputs graph encoding
     """
 
-    def __init__(self, embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None, longformer_config: LongformerConfig=None):
+    def __init__(self, graph_embedder: GraphEmbedder, gnnc: GNNConfig, configs: ConfigSet = None, longformer_config: LongformerConfig=None):
         GNN.__init__(self, None, gnnc, configs)
         ContextNN.__init__(self)
         if longformer_config is None:
             longformer_config = get_longformer_config()
         self.config:LongformerConfig = longformer_config
-        self.embedder: GraphEmbedder = embedder
-        self.constructor: QAGraphConstructor = QAGraphConstructor(embedder.gcc)
+        self.graph_embedder: GraphEmbedder = graph_embedder
+        self.constructor: QAGraphConstructor = QAGraphConstructor(graph_embedder.gcc)
 
         self.output_model: OutputModel = None
 
@@ -70,7 +70,8 @@ class ContextGNN(GNN, ContextNN, ABC):
         in_features = encoding.x.size(-1)
         out_features = self.init_layers(in_features)
         self.sizes = [in_features, 1]
-
+        if len(self.layers) == 0:
+            raise Exception("layers not instantiated")
         self.layer_list = nn.ModuleList(self.layers).to(device)  # registers modules with pytorch and moves to device
         self.init_output_model(example, out_features)
         print("initialising context gnn with", self.output_model)
@@ -127,12 +128,12 @@ class ContextGNN(GNN, ContextNN, ABC):
         if isinstance(graphs, List):
             """graph batching"""
             # todo this graph embedding can be done in parallel
-            datas: List[GraphEncoding] = [self.embedder(graph) for graph in graphs]
+            datas: List[GraphEncoding] = [self.graph_embedder(graph) for graph in graphs]
             data = GraphEncoding.batch(datas)
         else:
-            data: GraphEncoding = self.embedder(graphs)
+            data: GraphEncoding = self.graph_embedder(graphs)
         if vizconf.visualise_graphs:
-            render_graph(graphs[0] if isinstance(graphs, List) else graphs, self.embedder.text_encoder)
+            render_graph(graphs[0] if isinstance(graphs, List) else graphs, self.graph_embedder.text_encoder)
 
         return data
 
@@ -140,6 +141,10 @@ class ContextGNN(GNN, ContextNN, ABC):
     def pass_layer(self, layer, data: GraphEncoding):
         # send the graph encoding through this gnn layer, ie call its forward
         pass
+
+    def pass_through_output(self, data, **kwargs):
+        out = self.output_model(data, **kwargs)
+        return out
 
     def _forward(self, data: GraphEncoding, **kwargs) -> Union[Tensor, GraphEncoding]:
         """returns the transformed context graph encoding, and the loss"""
@@ -157,7 +162,7 @@ class ContextGNN(GNN, ContextNN, ABC):
             data = self.pass_layer(layer, data)
 
         kwargs.update({"source": CONTEXT})
-        out = self.output_model(data, **kwargs)
+        out = self.pass_through_output(data, **kwargs)
         # print("out:", out)
         if vizconf.visualise_graphs and vizconf.exit_after_first_viz:
             raise Exception("exiting after vizualisation")

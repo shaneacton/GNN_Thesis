@@ -32,18 +32,18 @@ class GraphEmbedder(nn.Module):
     """
 
     def __init__(self, gec: GraphEmbeddingConfig, tokeniser: PreTrainedTokenizerFast=None,
-                 embedder: Callable[[BatchEncoding], Tensor]=None, num_features=-1, gcc=None):
+                 long_embedder: Callable[[BatchEncoding], Tensor]=None, num_features=-1, gcc=None):
         """
-        :param embedder: any function which maps a batchencoding to a tensor of features
+        :param long_embedder: any function which maps a batchencoding to a tensor of features
         :param num_features: if -1 will default to dims of pretrained embedder
         """
         super().__init__()
         self.gcc: GraphConstructionConfig = gcc
-        if not embedder:
-            embedder = LongformerEmbedder(out_features=num_features)
+        if not long_embedder:
+            long_embedder = LongformerEmbedder(out_features=num_features)
         if not tokeniser:
             tokeniser = get_tokenizer()
-        self.embedder = embedder
+        self.long_embedder = long_embedder
         self.text_encoder = TextEncoder(tokeniser)
 
         self.gec: GraphEmbeddingConfig = gec
@@ -131,7 +131,7 @@ class GraphEmbedder(nn.Module):
         start_time = time.time()
         qa_encoding = self.text_encoder.get_encoding(graph.example)
         context_span, query_span, cands_span = self.get_source_spans(qa_encoding, graph.example)
-        full_embedded_sequence = self.embedder(qa_encoding)
+        full_embedded_sequence = self.long_embedder(qa_encoding)
         embedded_context_sequence: torch.Tensor = self.get_embedded_elements_in_span(full_embedded_sequence, context_span)
         embedded_query_sequence: torch.Tensor = self.get_embedded_elements_in_span(full_embedded_sequence, query_span)
         if cands_span:

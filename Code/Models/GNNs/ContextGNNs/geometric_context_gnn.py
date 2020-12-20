@@ -2,6 +2,7 @@ from typing import Type
 
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
+from Code.Training.Utils.initialiser import FEATURES
 from Code.constants import NUM_LAYERS
 
 
@@ -17,8 +18,8 @@ class GeometricContextGNN(ContextGNN):
     def init_layers(self, in_features, layer_type: Type) -> int:
         ContextGNN.init_layers(self, in_features)
         for l in range(self.gnnc.global_params[NUM_LAYERS]):
-            self.add_layer(in_features, 400, layer_type)
-            in_features = 400
+            self.add_layer(in_features, FEATURES, layer_type)
+            in_features = FEATURES
         return in_features
 
     def pass_layer(self, layer, data: GraphEncoding):

@@ -41,7 +41,6 @@ class GNN(GNNComponent, nn.Module):
         data.x = data.x + type_embeddings
         return data
 
-
     def _forward(self, data: GraphEncoding) -> GraphEncoding:
         if self.configs.gnnc.use_node_type_embeddings:
             data = self.add_node_type_embeddings(data)
