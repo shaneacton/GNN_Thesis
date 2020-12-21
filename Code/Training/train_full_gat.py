@@ -4,13 +4,13 @@ import sys
 import torch
 from transformers import WEIGHTS_NAME
 
-from Code.Models.GNNs.ContextGNNs.context_gat_longformer_output import ContextGATLongOutput
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
+from Code.Models.GNNs.ContextGNNs.context_gat_longformer_output import ContextGATLongOutput
 from Code.Models.GNNs.TokenGNNs.gat_token_construction import GatTokenConstruction
 from Code.Training.Utils.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT

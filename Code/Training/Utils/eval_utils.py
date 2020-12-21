@@ -6,6 +6,8 @@ from typing import List
 import nlp
 import torch
 from torch.utils.data import DataLoader
+from transformers import LongformerForQuestionAnswering
+
 from Code.Data.Text.text_utils import candidates, question
 from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
 from Code.Models.GNNs.OutputModules.span_selection import SpanSelection
@@ -113,7 +115,7 @@ def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset
     with torch.no_grad():
         for batch in nlp.tqdm(dataloader):
             start_scores = None
-            if not hasattr(model, "output_model"):
+            if not hasattr(model, "output_model") or isinstance(model.output_model, LongformerForQuestionAnswering):
                 """models which do not have a dedicated output modules are assumed to be span prediction"""
                 _, start_scores, end_scores = model(batch, return_dict=False)
             elif isinstance(model.output_model, SpanSelection):
