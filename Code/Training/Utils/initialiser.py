@@ -11,7 +11,6 @@ FEATURES = 402
 INTERMEDIATE_FEATURES = 600
 HEADS = 6
 ATTENTION_WINDOW = 128
-LAYERS = 1
 
 BATCH_SIZE = 1
 NUM_EPOCHS = 1
@@ -40,7 +39,7 @@ def get_longformer_config(hidden_size=FEATURES):
     configuration.max_position_embeddings = 4098
     configuration.type_vocab_size = 3
     configuration.num_attention_heads = HEADS
-    configuration.num_hidden_layers = LAYERS
+    configuration.num_hidden_layers = 1
 
     configuration.vocab_size = get_tokenizer().vocab_size
     return configuration

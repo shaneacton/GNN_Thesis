@@ -14,7 +14,7 @@ class GNNConfig(Config):
         self.global_params = {
             ACTIVATION_TYPE: nn.ReLU,
             DROPOUT_RATIO: 0.5,
-            NUM_LAYERS: 1
+            NUM_LAYERS: 2
         }
         #
         self.use_node_type_embeddings = False
