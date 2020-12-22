@@ -53,7 +53,7 @@ def get_pretrained_longformer():
     return pret.to(device)
 
 
-def get_fresh_span_longformer(hidden_size=FEATURES):
+def get_fresh_span_longformer(hidden_size=FEATURES) -> LongformerForQuestionAnswering:
     """no pretraining"""
     configuration = get_longformer_config(hidden_size=hidden_size)
     qa = LongformerForQuestionAnswering(configuration).to(device)

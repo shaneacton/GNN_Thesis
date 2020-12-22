@@ -4,12 +4,14 @@ import sys
 import torch
 from transformers import WEIGHTS_NAME
 
+from Code.Training import device
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
+from Code.Models.GNNs.ContextGNNs.context_gat_longformer_semi_output import ContextGATLongSemiOutput
 from Code.Models.GNNs.ContextGNNs.context_gat_longformer_output import ContextGATLongOutput
 from Code.Models.GNNs.TokenGNNs.gat_token_construction import GatTokenConstruction
 from Code.Training.Utils.text_and_tensor_coalator import composite_data_collator
@@ -26,8 +28,8 @@ from Code.Config import gcc
 """how to name the preprocessed data files"""
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
-MODEL_FOLDER = "context_model"
-# MODEL_FOLDER = "context_model_long_out"
+# MODEL_FOLDER = "context_model"
+MODEL_FOLDER = "context_model_long_out"
 # MODEL_FOLDER = "token_gat"
 
 
@@ -57,10 +59,10 @@ if __name__ == "__main__":
             currently does not work  -  been trying to get this one working
         """
         embedder = gec.get_graph_embedder(gcc)
-        gat = ContextGAT(embedder, gnnc)
+        gat = ContextGAT(embedder, gnnc).to(device)
     else:
         embedder = gec.get_graph_embedder(gcc)
-        gat = ContextGATLongOutput(embedder, gnnc, FEATURES)
+        gat = ContextGATLongSemiOutput(embedder, gnnc, FEATURES).to(device)
 
     print('loading data')
     process_gat_dataset(DATASET, VERSION, TRAIN, VALID)

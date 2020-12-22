@@ -1,3 +1,4 @@
+from Code.Data.Graph.context_graph import QAGraph
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.OutputModules.output_model import OutputModel
 from Code.Models.loss_funcs import get_span_loss
@@ -13,7 +14,7 @@ class SpanSelection(OutputModel):
         self.start_selector = TokenSelection(in_features)
         self.end_selector = TokenSelection(in_features)
 
-    def get_node_ids_from_graph(self, graph, **kwargs):
+    def get_node_ids_from_graph(self, graph: QAGraph, **kwargs):
         return self.start_selector.get_node_ids_from_graph(graph, **kwargs)
 
     def get_output_from_graph_encoding(self, data: GraphEncoding, **kwargs):

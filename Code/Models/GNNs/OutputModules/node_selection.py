@@ -29,7 +29,7 @@ class NodeSelection(OutputModel):
         output_ids = kwargs["output_ids"]
         return self.get_probabilities(x.squeeze(), output_ids)
 
-    def get_typed_node_ids_from_graph(self, graph, node_type, source=None, **kwargs) -> List[int]:
+    def get_typed_node_ids_from_graph(self, graph: QAGraph, node_type, source=None, **kwargs) -> List[int]:
         """return the node ids of each token"""
         token_nodes: List[int] = graph.typed_nodes[node_type]
         # print("getting", node_type, "nodes from", source)
@@ -67,19 +67,17 @@ class NodeSelection(OutputModel):
         # print("output ids:", len(output_ids), "*", [len(ids) for ids in output_ids], output_ids)
         for graph_node_ids in output_ids:
             """
-                for each node
+                for each batch
             """
             graph_node_ids = [id + node_offset for id in graph_node_ids]
             if not isinstance(output_ids, torch.Tensor):
                 node_ids = torch.tensor(graph_node_ids).to(device)
             else:
-                node_ids = graph_node_ids
+                node_ids = graph_node_ids.to(device)
             # print("selecting node:", node_ids, "\nfrom", vec.size())
             choices = torch.index_select(vec, 0, node_ids)
-            # print("choices:",choices.size())
             probabilities = self.probability_mapper(choices).view(-1)
             probabilities = self.softmax(probabilities)
-            # print("single probs:", probabilities.size(), probabilities)
             probs.append(probabilities)
             max_node_count = max(max_node_count, len(graph_node_ids))
 
