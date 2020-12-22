@@ -99,7 +99,7 @@ class QAGraphConstructor:
             span = TokenSpan(start, end)
             nodes.append(CandidateNode(span, i))
             start = end
-        node_ids = graph.add_nodes(nodes)
+        graph.add_nodes(nodes)
         connect_candidates_to_graph(graph)
 
     def build_hierarchies(self, single_example):

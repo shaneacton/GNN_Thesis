@@ -4,6 +4,7 @@ from transformers import LongformerModel, BatchEncoding
 
 from Code.Data.Text.embedder import Embedder
 from Code.Training import device
+from Code.Training.Utils.initialiser import get_pretrained_longformer
 
 
 class LongformerEmbedder(Embedder):
@@ -12,7 +13,7 @@ class LongformerEmbedder(Embedder):
     def __init__(self, longformer: LongformerModel=None, out_features=-1):
         super().__init__()
         if not longformer:
-            longformer = LongformerModel.from_pretrained("valhalla/longformer-base-4096-finetuned-squadv1")
+            longformer = get_pretrained_longformer()
 
         self.longformer: LongformerModel = longformer.to(device)
         self.feature_mapper = None

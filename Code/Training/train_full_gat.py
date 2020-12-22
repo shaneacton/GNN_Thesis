@@ -26,8 +26,8 @@ from Code.Config import gcc
 """how to name the preprocessed data files"""
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
-# MODEL_FOLDER = "context_model"
-MODEL_FOLDER = "context_model_long_out"
+MODEL_FOLDER = "context_model"
+# MODEL_FOLDER = "context_model_long_out"
 # MODEL_FOLDER = "token_gat"
 
 
@@ -65,10 +65,11 @@ if __name__ == "__main__":
     print('loading data')
     process_gat_dataset(DATASET, VERSION, TRAIN, VALID)
     train_dataset, valid_dataset = load_processed_datasets(DATASET, VERSION, TRAIN, VALID)
-    print('loading done')
+    print('data loading done')
 
     _ = gat(get_processed_data_sample(DATASET, VERSION, TRAIN))  # detect and init output model
-    print("inited:", gat)
+    print("inited model with:", sum(p.numel() for p in gat.parameters() if p.requires_grad), "trainable params")
+
     model_loc = data_loc(DATASET, VERSION, MODEL_FOLDER)
     trainer = get_trainer(gat, model_loc, train_dataset, valid_dataset)
     trainer.data_collator = composite_data_collator  # to handle non tensor inputs without error

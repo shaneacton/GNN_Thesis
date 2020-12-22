@@ -47,6 +47,9 @@ def get_longformer_config(hidden_size=FEATURES):
 
 def get_pretrained_longformer():
     pret = LongformerModel.from_pretrained(PRETRAINED)
+    for param in pret.parameters():
+        param.requires_grad = False
+    print("loading pretrained with:", sum(p.numel() for p in pret.parameters()), "params")
     return pret.to(device)
 
 

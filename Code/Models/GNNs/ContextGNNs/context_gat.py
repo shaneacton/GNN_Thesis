@@ -4,6 +4,8 @@ import time
 
 from torch_geometric.nn import GATConv
 
+from Code.Models.GNNs.Custom.asymmetrical_gat import AsymGat
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 dir_path_1 = os.path.join(dir_path_1, "..", "..")
@@ -16,7 +18,7 @@ from Code.Models.GNNs.ContextGNNs.geometric_context_gnn import GeometricContextG
 class ContextGAT(GeometricContextGNN):
 
     def init_layers(self, in_features) -> int:
-        return super().init_layers(in_features, GATConv)
+        return super().init_layers(in_features, AsymGat)
 
 
 if __name__ == "__main__":
