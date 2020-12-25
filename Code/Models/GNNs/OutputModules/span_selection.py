@@ -23,8 +23,7 @@ class SpanSelection(OutputModel):
         # print("span selection, kwargs:", kwargs)
         logits = self.start_selector(data, **kwargs), self.end_selector(data, **kwargs)
         if "start_positions" in kwargs and "end_positions" in kwargs:
-            positions = kwargs["start_positions"], kwargs["end_positions"]
-            loss = get_span_loss(positions[0], positions[1], logits[0], logits[1])
+            loss = get_span_loss(kwargs["start_positions"], kwargs["end_positions"], logits[0], logits[1])
 
             # print("num prediction options:", logits[0].size(), "ans pos:", positions)
             return (loss,) + logits
