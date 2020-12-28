@@ -18,6 +18,7 @@ class ContextGATLongSemiOutput2(ContextGAT):
     def __init__(self, graph_embedder: GraphEmbedder, gnnc: GNNConfig, in_features):
         super().__init__(graph_embedder, gnnc)
         self.output_model: LongformerForQuestionAnswering = get_fresh_span_longformer(in_features)
+        # self.output_model.forward
         self.in_features = in_features
         self.qa_outputs = nn.Linear(in_features, 2)
 
@@ -43,6 +44,7 @@ class ContextGATLongSemiOutput2(ContextGAT):
 
         logits = self.qa_outputs(embs)
         start_logits, end_logits = logits.split(1, dim=-1)
+        start_logits, end_logits = start_logits.squeeze().view(1, -1), end_logits.squeeze().view(1, -1)
         if start_positions and end_positions:
             loss = get_span_loss(kwargs["start_positions"], kwargs["end_positions"], start_logits, end_logits)
             return loss, start_logits, end_logits
