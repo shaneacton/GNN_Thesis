@@ -35,10 +35,10 @@ class ContextGATLongSemiOutput2(ContextGAT):
                           global_attention_mask=global_attention_mask, output_hidden_states=True)
 
         embs = out["hidden_states"][-1].squeeze()  # last hidden
-        embs = embs[1:node_embs.size(1), :]  # cuts off fake sep at start and padding at end
-        if embs.size() != x_shape:
-            raise Exception()
-        data.x = embs.to(device)
+        # embs = embs[1:node_embs.size(1), :]  # cuts off fake sep at start and padding at end
+        # if embs.size() != x_shape:
+        #     raise Exception()
+        # data.x = embs.to(device)
         kwargs["start_positions"] = start_positions
         kwargs["end_positions"] = end_positions
 
