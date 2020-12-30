@@ -29,7 +29,7 @@ class ContextGATLongSemiOutput2(ContextGAT):
         end_positions = kwargs.pop("end_positions", None)
         node_embs = torch.cat([torch.zeros(1, self.in_features).to(device), data.x], dim=0).view(1, -1, self.in_features)
         num_nodes = node_embs.shape[1]
-        num_context_tokens = len(data.graph.typed_nodes[TokenNode])
+        num_context_tokens = len(data.sample_graph.typed_nodes[TokenNode])
         global_attention_mask = self.graph_embedder.long_embedder.get_glob_att_mask_from(num_context_tokens, num_nodes)
 
         out = self.output_model(inputs_embeds=node_embs, return_dict=True,
