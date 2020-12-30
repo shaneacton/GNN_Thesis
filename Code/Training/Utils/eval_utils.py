@@ -121,7 +121,7 @@ def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset
             elif isinstance(model.output_model, SpanSelection):
                 _, start_scores, end_scores = model(batch)
 
-            elif isinstance(model.output_model, CandidateSelection):
+            elif isinstance(model.output_model, CandidateSelection) or model.output_model is None:
                 _, probs = model(batch)
                 # print("probs:", probs, "cands:", candidates(batch), "ans:", batch['answer'], "q:", question(batch))
             else:
