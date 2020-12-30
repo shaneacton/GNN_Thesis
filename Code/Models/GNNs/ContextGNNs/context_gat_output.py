@@ -15,7 +15,7 @@ from Code.Training import device
 from Code.Training.Utils.initialiser import get_fresh_span_longformer
 
 
-class ContextGATLongSemiOutput2(ContextGAT):
+class ContextGATOutput(ContextGAT):
 
     def __init__(self, graph_embedder: GraphEmbedder, gnnc: GNNConfig, in_features):
         super().__init__(graph_embedder, gnnc)
