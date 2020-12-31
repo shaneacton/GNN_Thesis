@@ -2,7 +2,7 @@ import os
 import sys
 import time
 
-from torch_geometric.nn import GATConv
+# from torch_geometric.nn import GATConv
 
 from Code.Models.GNNs.Custom.asymmetrical_gat import AsymGat
 
@@ -18,7 +18,7 @@ from Code.Models.GNNs.ContextGNNs.geometric_context_gnn import GeometricContextG
 class ContextGAT(GeometricContextGNN):
 
     def init_layers(self, in_features) -> int:
-        return super().init_layers(in_features, GATConv)
+        return super().init_layers(in_features, AsymGat)
 
 
 if __name__ == "__main__":
