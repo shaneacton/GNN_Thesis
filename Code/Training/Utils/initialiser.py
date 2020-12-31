@@ -4,7 +4,6 @@ import torch
 from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel, \
     TrainingArguments, Trainer
 
-from Code.Models.GNNs.TokenGNNs.composite import Wrap
 from Code.Training import device
 
 FEATURES = 402
@@ -59,16 +58,6 @@ def get_fresh_span_longformer(hidden_size=FEATURES) -> LongformerForQuestionAnsw
     qa = LongformerForQuestionAnswering(configuration).to(device)
 
     return qa
-
-
-def get_composit_qa_longformer(output_model, wrap_class: Type):
-    """frozen pretrained longformer base with a specialised trainable output longformer"""
-    qa = wrap_class(get_pretrained_longformer(), output_model)
-    return qa.to(device)
-
-
-def get_span_composite_model(wrap_class: Type = Wrap):
-    return get_composit_qa_longformer(get_fresh_span_longformer(), wrap_class).to(device)
 
 
 def get_trainer(model, outdir, train_dataset, valid_dataset):

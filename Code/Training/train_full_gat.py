@@ -17,7 +17,7 @@ from Code.Models.GNNs.ContextGNNs.context_gat_longformer_output import ContextGA
 from Code.Training.Utils.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Training.Utils.eval_utils import evaluate_full_gat
-from Code.Training.Utils.initialiser import get_trainer, get_span_composite_model, FEATURES
+from Code.Training.Utils.initialiser import get_trainer, FEATURES
 from Code.Training.Utils.dataset_utils import get_processed_data_sample, get_latest_model, process_gat_dataset, \
     load_processed_datasets, data_loc
 
