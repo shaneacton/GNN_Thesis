@@ -18,7 +18,7 @@ from Code.Models.GNNs.ContextGNNs.geometric_context_gnn import GeometricContextG
 class ContextGAT(GeometricContextGNN):
 
     def init_layers(self, in_features) -> int:
-        return super().init_layers(in_features, AsymGat)
+        return super().init_layers(in_features, GATConv)
 
 
 if __name__ == "__main__":

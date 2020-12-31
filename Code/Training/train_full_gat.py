@@ -12,10 +12,8 @@ sys.path.append(os.path.join(dir_path_1, 'Code'))
 
 from Code.Training import device
 from Code.Models.GNNs.ContextGNNs.context_gat_output import ContextGATOutput
-from Code.Models.GNNs.ContextGNNs.context_gat_longformer_semi_output import ContextGATLongSemiOutput
 from Code.Models.GNNs.ContextGNNs.context_gat_longformer_semi_output2 import ContextGATLongSemiOutput2
 from Code.Models.GNNs.ContextGNNs.context_gat_longformer_output import ContextGATLongOutput
-from Code.Models.GNNs.TokenGNNs.gat_token_construction import GatTokenConstruction
 from Code.Training.Utils.text_and_tensor_coalator import composite_data_collator
 from Code.Models.GNNs.ContextGNNs.context_gat import ContextGAT
 from Code.Training.Utils.eval_utils import evaluate_full_gat
@@ -31,8 +29,7 @@ from Code.Config import gcc
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
 # MODEL_FOLDER = "context_model"
-MODEL_FOLDER = "context_model_long_out"
-# MODEL_FOLDER = "token_gat"
+MODEL_FOLDER = "context_model_out"
 
 
 DATASET = "squad"  # "qangaroo"  # "squad"
@@ -46,14 +43,7 @@ if __name__ == "__main__":
         full meaning online text->embs
     """
     print("starting", MODEL_FOLDER, "model init")
-    if MODEL_FOLDER == "token_gat":
-        """
-            uses the configurable graph embedding system, but with token only settings
-            passes the graph embedding through a GNN, then through the huggingface span prediction output model
-            currently incompatible with wikihop. Ie squad only
-        """
-        gat = get_span_composite_model(wrap_class=GatTokenConstruction)
-    elif MODEL_FOLDER == "context_model":
+    if MODEL_FOLDER == "context_model":
         """
             the full configurable gnn. supports any node types and arbitrary connections
             uses a custom output model which either does span prediction or candidate selection
