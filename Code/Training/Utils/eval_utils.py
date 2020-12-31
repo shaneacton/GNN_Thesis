@@ -118,10 +118,10 @@ def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset
             if not hasattr(model, "output_model") or isinstance(model.output_model, LongformerForQuestionAnswering):
                 """models which do not have a dedicated output modules are assumed to be span prediction"""
                 _, start_scores, end_scores = model(batch, return_dict=False)
-            elif isinstance(model.output_model, SpanSelection):
+            elif isinstance(model.output_model, SpanSelection) or model.output_model is None:
                 _, start_scores, end_scores = model(batch)
 
-            elif isinstance(model.output_model, CandidateSelection) or model.output_model is None:
+            elif isinstance(model.output_model, CandidateSelection):
                 _, probs = model(batch)
                 # print("probs:", probs, "cands:", candidates(batch), "ans:", batch['answer'], "q:", question(batch))
             else:
