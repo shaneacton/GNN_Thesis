@@ -2,16 +2,17 @@ from typing import Type
 
 from torch_geometric.nn import MessagePassing
 
+from Code.Config import gnnc
 from Code.Data.Graph.graph_encoding import GraphEncoding
 from Code.Models.GNNs.ContextGNNs.context_gnn import ContextGNN
 from Code.Training.Utils.initialiser import FEATURES
-from Code.constants import NUM_LAYERS
+from Code.constants import NUM_LAYERS, DROPOUT_RATIO
 
 
 class GeometricContextGNN(ContextGNN):
 
     def add_layer(self, in_features, out_features, layer_type: Type[MessagePassing]):
-        layer = layer_type(in_features, out_features)
+        layer = layer_type(in_features, out_features, dropout=gnnc.global_params[DROPOUT_RATIO])
         self.layers.append(layer)
         if not "activation" in self.__dict__:
             self.init_activation()

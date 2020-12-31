@@ -29,7 +29,7 @@ from Code.Config import gcc
 TRAIN = 'train_data.pt'
 VALID = 'valid_data.pt'
 # MODEL_FOLDER = "context_model"
-MODEL_FOLDER = "context_model_out"
+MODEL_FOLDER = "context_model_out_dropout"
 
 
 DATASET = "squad"  # "qangaroo"  # "squad"
