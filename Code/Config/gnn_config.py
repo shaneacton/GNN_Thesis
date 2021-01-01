@@ -15,7 +15,7 @@ class GNNConfig(Config):
         self.global_params = {
             ACTIVATION_TYPE: nn.ReLU,
             DROPOUT_RATIO: 0,
-            NUM_LAYERS: 2
+            NUM_LAYERS: 1
         }
         self.layer_type = AsymGat  # GATConv
         #
