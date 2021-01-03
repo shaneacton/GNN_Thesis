@@ -12,7 +12,7 @@ HEADS = 6
 ATTENTION_WINDOW = 128
 
 BATCH_SIZE = 1
-NUM_EPOCHS = 1
+NUM_EPOCHS = 2
 
 # PRETRAINED = "valhalla/longformer-base-4096-finetuned-squadv1"
 PRETRAINED = "allenai/longformer-base-4096"
@@ -28,7 +28,7 @@ def get_tokenizer() -> LongformerTokenizerFast:
     return _tokenizer
 
 
-def get_longformer_config(hidden_size=FEATURES):
+def get_longformer_config(hidden_size=FEATURES, num_layers=1, num_types=3):
     configuration = LongformerConfig()
 
     configuration.attention_window = ATTENTION_WINDOW
@@ -36,9 +36,9 @@ def get_longformer_config(hidden_size=FEATURES):
     configuration.intermediate_size = INTERMEDIATE_FEATURES
     configuration.num_labels = 2
     configuration.max_position_embeddings = 4098
-    configuration.type_vocab_size = 3
+    configuration.type_vocab_size = num_types
     configuration.num_attention_heads = HEADS
-    configuration.num_hidden_layers = 1
+    configuration.num_hidden_layers = num_layers
 
     configuration.vocab_size = get_tokenizer().vocab_size
     return configuration
@@ -52,9 +52,9 @@ def get_pretrained_longformer():
     return pret.to(device)
 
 
-def get_fresh_span_longformer(hidden_size=FEATURES) -> LongformerForQuestionAnswering:
+def get_fresh_span_longformer(hidden_size=FEATURES, num_layers=1) -> LongformerForQuestionAnswering:
     """no pretraining"""
-    configuration = get_longformer_config(hidden_size=hidden_size)
+    configuration = get_longformer_config(hidden_size=hidden_size, num_layers=num_layers)
     qa = LongformerForQuestionAnswering(configuration).to(device)
 
     return qa

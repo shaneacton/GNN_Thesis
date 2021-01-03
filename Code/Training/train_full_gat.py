@@ -11,7 +11,7 @@ sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
 from Code.Training import device
-from Code.Models.GNNs.ContextGNNs.context_gat_longformer_output_posembs import ContextGATOutputPos
+from Code.Models.GNNs.ContextGNNs.context_gat_output_posembs import ContextGATOutputPos
 from Code.Models.GNNs.ContextGNNs.context_gat_output import ContextGATOutput
 from Code.Models.GNNs.ContextGNNs.context_gat_longformer_semi_output2 import ContextGATLongSemiOutput2
 from Code.Models.GNNs.ContextGNNs.context_gat_longformer_output import ContextGATLongOutput

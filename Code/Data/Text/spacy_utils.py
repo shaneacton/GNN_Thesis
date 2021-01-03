@@ -47,6 +47,16 @@ def get_sentence_char_spans(text, doc=None) -> List[Tuple[int]]:
     return sent_spans, doc
 
 
+def get_entity_char_spans(text, doc=None) -> List[Tuple[int]]:
+    doc = _init_doc(doc, text)
+
+    ent_spans = []
+    for ent in doc.ents:
+        ent_span = get_char_span_from_spacy_span(ent, doc)
+        ent_spans.append(ent_span)
+    return ent_spans
+
+
 def _get_coref_char_spans(doc) -> Dict[Tuple[int], List[Tuple[int]]]:
     corefs: List[Cluster] = doc._.coref_clusters
     print(corefs)
@@ -108,7 +118,7 @@ if __name__ == "__main__":
     doc = None
     # char_spans, doc = get_flat_entity_and_corefs_chars(text, doc=doc)
     # char_spans, doc = get_sentence_char_spans(text, doc=doc)
-    char_spans, doc = get_noun_char_spans(text, doc=doc)
-
+    # char_spans, doc = get_noun_char_spans(text, doc=doc)
+    char_spans = get_entity_char_spans(text)
     for s in char_spans:
         print(text[s[0]: s[1]])
