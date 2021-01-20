@@ -22,15 +22,18 @@ class LongformerEmbedder(Embedder):
             self.out_features = out_features
             self.feature_mapper = nn.Linear(longformer.config.hidden_size, out_features)
 
-    def embed(self, input_ids, attention_mask):
+    def embed(self, input_ids, attention_mask, all_global=False):
         position_ids = self.get_safe_pos_ids(input_ids)
         if len(input_ids.size()) == 1:
             #  batch size is 1
             input_ids = input_ids.view(1, -1)
             attention_mask = attention_mask.view(1, -1)
 
-        """we use <context><query>[cands] so global att is after sep, not before"""
-        global_attention_mask = self.get_glob_att_mask(input_ids).to(device)
+        if all_global:
+            global_attention_mask = torch.ones(input_ids.size()).to(device)
+        else:
+            """we use <context><query>[cands] so global att is after sep, not before"""
+            global_attention_mask = self.get_glob_att_mask(input_ids).to(device)
         with torch.no_grad():  # no finetuning the embedder
             embs = self.longformer(input_ids=input_ids, attention_mask=attention_mask, return_dict=True,
                                    global_attention_mask=global_attention_mask, position_ids=position_ids)

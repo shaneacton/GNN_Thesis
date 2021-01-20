@@ -1,29 +1,31 @@
 from typing import List, Tuple
 
-from torch import nn, Tensor
+import torch
+from torch import nn
 from torch.nn import ModuleList, ReLU
-from torch_geometric.nn import GATConv
-from transformers import TokenSpan, BatchEncoding
+from torch_geometric.nn import GATConv, MessagePassing
+from transformers import BatchEncoding, LongformerTokenizerFast
 
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
-from Code.Data.Text.spacy_utils import get_entity_char_spans
+from Code.HDE.graph import HDEGraph
+from Code.HDE.graph_utils import add_doc_nodes, add_entity_nodes, get_entities, add_candidate_nodes, \
+    connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions
 from Code.HDE.summariser import Summariser
 from Code.Training.Utils.initialiser import get_tokenizer
-import numpy as np
 
 
 class HDE(nn.Module):
 
     def __init__(self, num_layers=2, hidden_size=402):
         super().__init__()
-        self.tokeniser = get_tokenizer()
+        self.tokeniser: LongformerTokenizerFast = get_tokenizer()
         self.token_embedder = LongformerEmbedder(out_features=hidden_size)
 
         self.summariser = Summariser(hidden_size)
-        gnn_layers = []
+        self.relu = ReLU()
+        gnn_layers: List[MessagePassing] = []
         for i in range(num_layers):
             gnn_layers.append(GATConv(hidden_size, hidden_size))
-            gnn_layers.append(ReLU())
 
         self.gnn_layers = ModuleList(gnn_layers)
 
@@ -31,74 +33,41 @@ class HDE(nn.Module):
         """
             nodes are created for each support, as well as each candidate and each context entity
             nodes are concattenated as follows: supports, entities, candidates
+
+            nodes are connected according to the HDE paper
+            the graph is converted to a pytorch geometric datapoint
         """
 
         support_encodings, candidate_encodings = self.get_encodings(supports, query, candidates)
 
         support_embeddings = [self.token_embedder(sup_enc) for sup_enc in support_encodings]
 
-        candidate_summaries = [self.summariser(self.token_embedder(cand_enc)) for cand_enc in candidate_encodings]
+        candidate_summaries = [self.summariser(self.token_embedder(cand_enc, all_global=True)) for cand_enc in candidate_encodings]
         support_summaries = [self.summariser(sup_emb) for sup_emb in support_embeddings]
 
-        ent_summaries, ent_token_spans = self.get_entities(support_embeddings, support_encodings, supports)
-        flat_ent_summaries = np.array(ent_summaries).flatten()
+        ent_token_spans, ent_summaries, = get_entities(self.summariser, support_embeddings, support_encodings, supports)
 
-        candidate_containment = []  # indexed cc[support][containment_count]
+        graph = self.create_graph(candidates, ent_token_spans, support_encodings, supports)
 
-        for s, support in enumerate(supports):
-            candidates_contained = []
-            for c, cand in enumerate(candidates):
-                """
-                    finds which candidates are contained in which supports
-                    corresponds to edge type 1 in HDE paper
-                """
-                if cand in support:
-                    candidates_contained.append(c)
-            candidate_containment.append(candidates_contained)
+        x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
 
+        # print("x:", x.size())
 
+        edge_index = graph.edge_index
+        # print("edge index:", edge_index.size(), edge_index.type())
 
-    def get_entities(self, support_embeddings, support_encodings, supports):
-        """
-        :return: both 2d lists are indexed list[support_no][ent_no]
-        """
-        token_spans: List[List[Tuple[int]]] = []
-        summaries: List[List[Tensor]] = []
+        for layer in self.gnn_layers:
+            x = self.relu(layer(x, edge_index=edge_index))
 
-        for s, support in enumerate(supports):
-            """get entity node embeddings"""
-            ent_c_spans = get_entity_char_spans(support)
-            support_encoding = support_encodings[s]
-
-            ent_summaries: List[Tensor] = []
-            ent_token_spans: List[Tuple[int]] = []
-            for e, c_span in enumerate(ent_c_spans):
-                """clips out the entities token embeddings, and summarises them"""
-                ent_token_span = self.charspan_to_tokenspan(support_encoding, c_span)
-                ent_token_spans.append(ent_token_span)
-                ent_summaries.append(self.summariser(support_embeddings, ent_token_span))
-
-            token_spans.append(ent_token_spans)
-            summaries.append(ent_summaries)
-
-        return token_spans, summaries
-
-    def charspan_to_tokenspan(self, encoding, char_span: Tuple[int]) -> TokenSpan:
-        start = self.encoding.char_to_token(char_index=char_span[0], batch_or_char_index=self.batch_id)
-
-        recoveries = [-1, 0, -2, -3]  # which chars to try. To handle edge cases such as ending on dbl space ~ '  '
-        end = None
-        while end is None:
-            if len(recoveries) == 0:
-                raise Exception(
-                    "could not get end token span from char span:" + repr(char_span) + " num tokens: " + repr(
-                        len(self.encoding.tokens())) + " ~ " + repr(self.encoding))
-
-            offset = recoveries.pop(0)
-            end = self.encoding.char_to_token(char_index=char_span[1] + offset, batch_or_char_index=self.batch_id)
-
-        span = TokenSpan(start - 1, end)  # -1 to discount the <s> token
-        return span
+    def create_graph(self, candidates, ent_token_spans, support_encodings, supports):
+        graph = HDEGraph()
+        add_doc_nodes(graph, supports)
+        add_entity_nodes(graph, supports, support_encodings, ent_token_spans, self.tokeniser)
+        add_candidate_nodes(graph, candidates, supports)
+        connect_candidates_and_entities(graph)
+        connect_entity_mentions(graph)
+        connect_unconnected_entities(graph)
+        return graph
 
     def get_encodings(self, supports: List[str], query: str, candidates: List[str]) \
             -> Tuple[List[BatchEncoding], List[BatchEncoding]]:

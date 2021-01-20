@@ -1,15 +1,13 @@
 from typing import List, Tuple, Dict
 
 try:
-    from neuralcoref.neuralcoref import Cluster
     from spacy.tokens.span import Span
 
     try:
         import en_core_web_sm
-
         nlp = en_core_web_sm.load()
     except:
-        print("failed to load en_core_web_sm, trying in clisyer location")
+        print("failed to load en_core_web_sm, trying in cluster location")
         import spacy
 
         spacy.util.set_data_path('/home/sacton/.conda/envs/gnn_env/lib/python3.8/site-packages')
@@ -17,6 +15,11 @@ try:
 
 except:
     print("spacy not installed. tokens only")
+
+try:
+    from neuralcoref.neuralcoref import Cluster
+except:
+    print("neuralcoref not installed. cannot use coreferences")
 
 from Code.Data.Text.text_utils import context
 from Code.Play.examples import test_example

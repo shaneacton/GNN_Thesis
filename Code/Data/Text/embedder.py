@@ -13,8 +13,8 @@ class Embedder(nn.Module, ABC):
     def embed(self, input_ids, attention_mask):
         raise NotImplementedError()
 
-    def forward(self, encoding: BatchEncoding):
+    def forward(self, encoding: BatchEncoding, **kwargs):
         input_ids = Tensor(encoding["input_ids"]).type(torch.LongTensor).to(device)
         attention_mask = Tensor(encoding["attention_mask"]).type(torch.LongTensor).to(device)
-        return self.embed(input_ids, attention_mask)
+        return self.embed(input_ids, attention_mask, **kwargs)
 
