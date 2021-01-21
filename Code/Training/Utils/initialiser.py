@@ -55,6 +55,7 @@ def get_transformer_config(hidden_size=FEATURES, num_layers=1, num_types=3):
     configuration.vocab_size = get_tokenizer().vocab_size
     return configuration
 
+
 def get_pretrained_longformer():
     pret = LongformerModel.from_pretrained(PRETRAINED)
     for param in pret.parameters():

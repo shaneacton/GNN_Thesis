@@ -38,7 +38,7 @@ for epoch in range(NUM_EPOCHS):
         loss, ans = hde(supports, query, candidates, answer=answer)
         t = time.time()
         loss.backward()
-        print("back time:", (time.time() - t))
+        # print("back time:", (time.time() - t))
         t = time.time()
         optimizer.step()
         losses.append(loss.item())

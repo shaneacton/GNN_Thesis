@@ -33,7 +33,7 @@ class Summariser(nn.Module):
         if not span:
             span = (0, full_vec.size(-2))  # full span
         # else:
-            print("got span", span, "vec:", full_vec[:, span[0]: span[1], :].size(), "full vec:", full_vec.size())
+        #     print("got span", span, "vec:", full_vec[:, span[0]: span[1], :].size(), "full vec:", full_vec.size())
 
         vec = full_vec[:, span[0]: span[1], :]
         # out = self.longformer(inputs_embeds=vec, return_dict=True, output_hidden_states=True)
