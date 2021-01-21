@@ -1,3 +1,4 @@
+import torch
 from torch import nn, Tensor
 from transformers import LongformerModel
 
@@ -10,8 +11,9 @@ class Summariser(nn.Module):
         into fixed size node embedding
     """
 
-    def __init__(self, hidden_size, num_types=1):
+    def __init__(self, hidden_size, num_types=1, fine_tune=False):
         super().__init__()
+        self.fine_tune = fine_tune
         self.long_conf = get_longformer_config(num_layers=2, num_types=num_types, hidden_size=hidden_size)
         self.longformer = LongformerModel(self.long_conf)
         self.hidden_size = hidden_size
@@ -28,8 +30,8 @@ class Summariser(nn.Module):
 
         vec = full_vec[:, span[0]: span[1], :]
 
-        # print("full vec:", full_vec.size(), "span:", span, "cut vec:", vec.size())
         out = self.longformer(inputs_embeds=vec, return_dict=True, output_hidden_states=True)
+
         embs = out["hidden_states"][-1]  # last hidden
         # print("last hidden states:", embs.size())
         pooled_emb = embs[:, 0]  # the pooled out is the output of the classification token

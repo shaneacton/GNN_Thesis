@@ -2,15 +2,17 @@ from typing import List, Tuple
 
 import torch
 from torch import nn
-from torch.nn import ModuleList, ReLU
+from torch.nn import ModuleList, ReLU, CrossEntropyLoss
 from torch_geometric.nn import GATConv, MessagePassing
 from transformers import BatchEncoding, LongformerTokenizerFast
 
+from Code.Config import gcc
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
 from Code.HDE.graph import HDEGraph
 from Code.HDE.graph_utils import add_doc_nodes, add_entity_nodes, get_entities, add_candidate_nodes, \
     connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions
 from Code.HDE.summariser import Summariser
+from Code.Training import device
 from Code.Training.Utils.initialiser import get_tokenizer
 
 
@@ -29,7 +31,11 @@ class HDE(nn.Module):
 
         self.gnn_layers = ModuleList(gnn_layers)
 
-    def forward(self, supports: List[str], query: str, candidates: List[str]):
+        self.cand_prob_map = nn.Linear(hidden_size, 1)
+        self.loss_fn = CrossEntropyLoss()
+
+
+    def forward(self, supports: List[str], query: str, candidates: List[str], answer=None):
         """
             nodes are created for each support, as well as each candidate and each context entity
             nodes are concattenated as follows: supports, entities, candidates
@@ -59,6 +65,25 @@ class HDE(nn.Module):
         for layer in self.gnn_layers:
             x = self.relu(layer(x, edge_index=edge_index))
 
+        # x has now been transformed by the GNN layers. Must map to  a prob dist over candidates
+
+        cand_idxs = graph.candidate_nodes
+        cand_idxs = (cand_idxs[0], cand_idxs[-1])
+        cand_embs = x[cand_idxs[0]: cand_idxs[1] + 1, :]
+
+        probs = self.cand_prob_map(cand_embs).squeeze()
+        pred_id = torch.argmax(probs)
+        pred_ans = candidates[pred_id]
+        if answer is not None:
+            ans_id = candidates.index(answer)
+            probs = probs.view(1, -1)  # batch dim
+            ans = torch.tensor([ans_id]).to(device)
+            loss = self.loss_fn(probs, ans)
+
+            return loss, pred_ans
+
+        return pred_ans
+
     def create_graph(self, candidates, ent_token_spans, support_encodings, supports):
         graph = HDEGraph()
         add_doc_nodes(graph, supports)
@@ -71,7 +96,7 @@ class HDE(nn.Module):
 
     def get_encodings(self, supports: List[str], query: str, candidates: List[str]) \
             -> Tuple[List[BatchEncoding], List[BatchEncoding]]:
-
+        supports = [s[:gcc.max_context_chars] for s in supports]
         support_encodings = [self.tokeniser(support, query) for support in supports]
         candidate_encodings = [self.tokeniser(candidate) for candidate in candidates]
         return support_encodings, candidate_encodings
