@@ -1,3 +1,4 @@
+import time
 from typing import List, Tuple
 
 import torch
@@ -43,27 +44,41 @@ class HDE(nn.Module):
             nodes are connected according to the HDE paper
             the graph is converted to a pytorch geometric datapoint
         """
+        t = time.time()
 
         support_encodings, candidate_encodings = self.get_encodings(supports, query, candidates)
+
+        print("got encodings in:", (time.time() - t))
+        t = time.time()
 
         support_embeddings = [self.token_embedder(sup_enc) for sup_enc in support_encodings]
 
         candidate_summaries = [self.summariser(self.token_embedder(cand_enc, all_global=True)) for cand_enc in candidate_encodings]
         support_summaries = [self.summariser(sup_emb) for sup_emb in support_embeddings]
 
+        print("got summaries in", (time.time() - t))
+        t = time.time()
+
         ent_token_spans, ent_summaries, = get_entities(self.summariser, support_embeddings, support_encodings, supports)
+
+        print("got ents in", (time.time() - t))
+        t = time.time()
 
         graph = self.create_graph(candidates, ent_token_spans, support_encodings, supports)
 
-        x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
+        print("made graph in", (time.time() - t))
+        t = time.time()
 
-        # print("x:", x.size())
+        x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
 
         edge_index = graph.edge_index
         # print("edge index:", edge_index.size(), edge_index.type())
 
         for layer in self.gnn_layers:
             x = self.relu(layer(x, edge_index=edge_index))
+
+        print("passed gnn in", (time.time() - t))
+        t = time.time()
 
         # x has now been transformed by the GNN layers. Must map to  a prob dist over candidates
 
@@ -74,6 +89,10 @@ class HDE(nn.Module):
         probs = self.cand_prob_map(cand_embs).squeeze()
         pred_id = torch.argmax(probs)
         pred_ans = candidates[pred_id]
+
+        print("mapped probs in", (time.time() - t))
+        t = time.time()
+
         if answer is not None:
             ans_id = candidates.index(answer)
             probs = probs.view(1, -1)  # batch dim

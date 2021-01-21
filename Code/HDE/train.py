@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -35,9 +36,14 @@ for epoch in range(NUM_EPOCHS):
         supports = example["supports"]
 
         loss, ans = hde(supports, query, candidates, answer=answer)
+        t = time.time()
         loss.backward()
+        print("back time:", (time.time() - t))
+        t = time.time()
         optimizer.step()
+        print("step time:", (time.time() - t))
+        t = time.time()
         losses.append(loss.item())
 
         if len(losses) % PRINT_LOSS_EVERY == 0:
-            print("e", epoch, "i", i, "loss:", mean(losses[-PRINT_LOSS_EVERY:-1]))
+            print("e", epoch, "i", i, "loss:", mean(losses[-PRINT_LOSS_EVERY:-1]), "mean:", mean(losses))
