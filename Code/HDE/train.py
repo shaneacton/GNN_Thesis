@@ -26,6 +26,8 @@ hde = HDE().to(device)
 optimizer = optim.SGD(hde.parameters(), lr=0.001, momentum=0.9)
 
 losses = []
+last_print = time.time()
+print("num examples:", len(wikihop))
 for epoch in range(NUM_EPOCHS):
     for i, example in enumerate(wikihop):
         optimizer.zero_grad()
@@ -44,4 +46,5 @@ for epoch in range(NUM_EPOCHS):
         losses.append(loss.item())
 
         if len(losses) % PRINT_LOSS_EVERY == 0:
-            print("e", epoch, "i", i, "loss:", mean(losses[-PRINT_LOSS_EVERY:-1]), "mean:", mean(losses))
+            print("e", epoch, "i", i, "loss:", mean(losses[-PRINT_LOSS_EVERY:-1]), "mean:", mean(losses), "time:", (time.time() - last_print))
+            last_print = time.time()
