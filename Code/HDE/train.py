@@ -41,8 +41,6 @@ for epoch in range(NUM_EPOCHS):
         print("back time:", (time.time() - t))
         t = time.time()
         optimizer.step()
-        print("step time:", (time.time() - t))
-        t = time.time()
         losses.append(loss.item())
 
         if len(losses) % PRINT_LOSS_EVERY == 0:

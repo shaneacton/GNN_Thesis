@@ -2,7 +2,7 @@ from typing import Type
 
 import torch
 from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel, \
-    TrainingArguments, Trainer
+    TrainingArguments, Trainer, T5Config
 
 from Code.Training import device
 
@@ -43,6 +43,17 @@ def get_longformer_config(hidden_size=FEATURES, num_layers=1, num_types=3):
     configuration.vocab_size = get_tokenizer().vocab_size
     return configuration
 
+
+def get_transformer_config(hidden_size=FEATURES, num_layers=1, num_types=3):
+    configuration = T5Config()
+
+    configuration.d_model = hidden_size
+    configuration.d_ff = hidden_size * 4
+    configuration.num_heads = HEADS
+    configuration.num_layers = num_layers
+
+    configuration.vocab_size = get_tokenizer().vocab_size
+    return configuration
 
 def get_pretrained_longformer():
     pret = LongformerModel.from_pretrained(PRETRAINED)

@@ -90,9 +90,6 @@ class HDE(nn.Module):
         pred_id = torch.argmax(probs)
         pred_ans = candidates[pred_id]
 
-        print("mapped probs in", (time.time() - t))
-        t = time.time()
-
         if answer is not None:
             ans_id = candidates.index(answer)
             probs = probs.view(1, -1)  # batch dim
