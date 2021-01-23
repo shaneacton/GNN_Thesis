@@ -7,7 +7,7 @@ from torch.nn import ModuleList, ReLU, CrossEntropyLoss
 from torch_geometric.nn import GATConv, MessagePassing
 from transformers import BatchEncoding, LongformerTokenizerFast
 
-from Code.Config import gcc
+from Code.Config import gcc, sysconf
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
 from Code.HDE.graph import HDEGraph
 from Code.HDE.graph_utils import add_doc_nodes, add_entity_nodes, get_entities, add_candidate_nodes, \
@@ -17,7 +17,7 @@ from Code.Training import device
 from Code.Training.Utils.initialiser import get_tokenizer
 
 
-class HDE(nn.Module):
+class HDELongEmbed(nn.Module):
 
     def __init__(self, num_layers=2, hidden_size=402):
         super().__init__()
@@ -44,32 +44,37 @@ class HDE(nn.Module):
             nodes are connected according to the HDE paper
             the graph is converted to a pytorch geometric datapoint
         """
-        # t = time.time()
+        t = time.time()
 
         support_encodings, candidate_encodings = self.get_encodings(supports, query, candidates)
 
-        # print("got encodings in:", (time.time() - t))
+        if sysconf.print_times:
+            print("got encodings in:", (time.time() - t))
         t = time.time()
 
         support_embeddings = [self.token_embedder(sup_enc) for sup_enc in support_encodings]
 
-        # print("got embeddings in", (time.time() - t))
+        if sysconf.print_times:
+            print("got embeddings in", (time.time() - t))
         t = time.time()
 
         candidate_summaries = [self.summariser(self.token_embedder(cand_enc, all_global=True)) for cand_enc in candidate_encodings]
         support_summaries = [self.summariser(sup_emb) for sup_emb in support_embeddings]
 
-        # print("got summaries in", (time.time() - t))
+        if sysconf.print_times:
+            print("got summaries in", (time.time() - t))
         t = time.time()
 
         ent_token_spans, ent_summaries, = get_entities(self.summariser, support_embeddings, support_encodings, supports)
 
-        # print("got ents in", (time.time() - t))
+        if sysconf.print_times:
+            print("got ents in", (time.time() - t))
         t = time.time()
 
         graph = self.create_graph(candidates, ent_token_spans, support_encodings, supports)
 
-        # print("made graph in", (time.time() - t))
+        if sysconf.print_times:
+            print("made graph in", (time.time() - t))
         t = time.time()
 
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
@@ -106,7 +111,7 @@ class HDE(nn.Module):
     def create_graph(self, candidates, ent_token_spans, support_encodings, supports):
         graph = HDEGraph()
         add_doc_nodes(graph, supports)
-        add_entity_nodes(graph, supports, support_encodings, ent_token_spans, self.tokeniser)
+        add_entity_nodes(graph, supports, ent_token_spans, tokeniser=self.tokeniser, support_encodings=support_encodings)
         add_candidate_nodes(graph, candidates, supports)
         connect_candidates_and_entities(graph)
         connect_entity_mentions(graph)

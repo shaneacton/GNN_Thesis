@@ -116,7 +116,8 @@ def get_noun_char_spans(text, doc=None):
 if __name__ == "__main__":
     # text = "Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very " \
     #            "close to the Manhattan Bridge which is visible from the window."
-    text = context(test_example)
+    # text = context(test_example)
+    text = "Reptiles are tetrapod (four-limbed vertebrate) animals in the class Reptilia, comprising today's turtles, crocodilians, snakes, amphisbaenians, lizards, tuatara, and their extinct relatives. The study of these traditional reptile orders, historically combined with that of modern amphibians, is called herpetology."
     # print(sequence)
     doc = None
     # char_spans, doc = get_flat_entity_and_corefs_chars(text, doc=doc)

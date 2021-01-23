@@ -5,6 +5,7 @@ from torch import Tensor
 from transformers import LongformerTokenizerFast, BatchEncoding, TokenSpan
 
 from Code.Data.Text.spacy_utils import get_entity_char_spans
+from Code.HDE.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.edge import HDEEdge
 from Code.HDE.graph import HDEGraph
 from Code.HDE.node import HDENode
@@ -92,18 +93,22 @@ def fully_connect(node_ids, graph, type):
             graph.safe_add_edge(edge)
 
 
-def add_entity_nodes(graph: HDEGraph, supports, support_encodings: List[BatchEncoding],
-                     ent_token_spans: List[List[Tuple[int]]], tokeniser: LongformerTokenizerFast):
+def add_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List[Tuple[int]]],
+                     tokeniser: LongformerTokenizerFast=None, support_encodings: List[BatchEncoding]=None,
+                     glove_embedder: GloveEmbedder=None):
     for s, support in enumerate(supports):
 
         ent_spans = ent_token_spans[s]
-        sup_enc = support_encodings[s]
         sup_node = graph.get_doc_nodes()[s]
 
         ent_node_ids = []
         for ent_span in ent_spans:
-            ent_tok_ids = sup_enc["input_ids"][ent_span[0]: ent_span[1]]
-            text = tokeniser.decode(ent_tok_ids)
+            if glove_embedder is not None:
+                toks = glove_embedder.get_words(support)
+                text = " ".join(toks[ent_span[0]: ent_span[1]])
+            else:
+                ent_tok_ids = support_encodings[s]["input_ids"][ent_span[0]: ent_span[1]]
+                text = tokeniser.decode(ent_tok_ids)
             node = HDENode(ENTITY, doc_id=s, ent_token_spen=ent_span, text=text)
             ent_node_id = graph.add_node(node)
             ent_node_ids.append(ent_node_id)
@@ -114,8 +119,10 @@ def add_entity_nodes(graph: HDEGraph, supports, support_encodings: List[BatchEnc
         fully_connect(ent_node_ids, graph, CODOCUMENT)
 
 
-def charspan_to_tokenspan(encoding, char_span: Tuple[int]) -> TokenSpan:
+def charspan_to_tokenspan(encoding: BatchEncoding, char_span: Tuple[int]) -> TokenSpan:
     start = encoding.char_to_token(char_index=char_span[0], batch_or_char_index=0)
+    if start is None:
+        raise Exception("cannot get token span from charspan:", char_span, "given:", encoding.tokens())
 
     recoveries = [-1, 0, -2, -3]  # which chars to try. To handle edge cases such as ending on dbl space ~ '  '
     end = None
@@ -150,7 +157,12 @@ def get_entities(summariser, support_embeddings, support_encodings, supports) \
         ent_token_spans: List[Tuple[int]] = []
         for e, c_span in enumerate(ent_c_spans):
             """clips out the entities token embeddings, and summarises them"""
-            ent_token_span = charspan_to_tokenspan(support_encoding, c_span)
+            try:
+                ent_token_span = charspan_to_tokenspan(support_encoding, c_span)
+            except Exception as ex:
+                print("cannot get ent ", e, "token span. in supp", s)
+                print(ex)
+                continue
             ent_token_spans.append(ent_token_span)
             ent_summaries.append(summariser(support_embeddings[s], ent_token_span))
 
@@ -158,3 +170,6 @@ def get_entities(summariser, support_embeddings, support_encodings, supports) \
         summaries.extend(ent_summaries)
 
     return token_spans, summaries
+
+
+

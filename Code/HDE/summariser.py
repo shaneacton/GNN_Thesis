@@ -18,7 +18,7 @@ class Summariser(nn.Module):
         # self.long_conf = get_longformer_config(num_layers=2, num_types=num_types, hidden_size=hidden_size)
         # self.longformer = LongformerModel(self.long_conf)
 
-        encoder_layer = TransformerEncoderLayer(hidden_size, 6, hidden_size * 4, 0.1, 'relu')
+        encoder_layer = TransformerEncoderLayer(hidden_size, 5, hidden_size * 4, 0.1, 'relu')
         encoder_norm = LayerNorm(hidden_size)
         self.encoder = TransformerEncoder(encoder_layer, 2, encoder_norm)
         self.hidden_size = hidden_size

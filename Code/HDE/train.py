@@ -2,6 +2,11 @@ import os
 import sys
 import time
 
+from tqdm import tqdm
+
+from Code.Config import sysconf
+from Code.HDE.hde_glove import HDEGloveEmbed
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -11,7 +16,7 @@ import nlp
 from numpy import mean
 from torch import optim
 
-from Code.HDE.hde import HDE
+from Code.HDE.hde_long_embed import HDELongEmbed
 from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
@@ -22,14 +27,14 @@ print("loading data")
 
 wikihop = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.TRAIN)
 
-hde = HDE().to(device)
+hde = HDEGloveEmbed().to(device)
 optimizer = optim.SGD(hde.parameters(), lr=0.001, momentum=0.9)
 
 losses = []
 last_print = time.time()
 print("num examples:", len(wikihop))
 for epoch in range(NUM_EPOCHS):
-    for i, example in enumerate(wikihop):
+    for i, example in tqdm(enumerate(wikihop)):
         optimizer.zero_grad()
         # print(example)
         answer = example["answer"]
@@ -40,7 +45,8 @@ for epoch in range(NUM_EPOCHS):
         loss, ans = hde(supports, query, candidates, answer=answer)
         t = time.time()
         loss.backward()
-        # print("back time:", (time.time() - t))
+        if sysconf.print_times:
+            print("back time:", (time.time() - t))
         t = time.time()
         optimizer.step()
         losses.append(loss.item())
