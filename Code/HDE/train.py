@@ -4,9 +4,6 @@ import time
 
 from tqdm import tqdm
 
-from Code.Config import sysconf
-from Code.HDE.hde_glove import HDEGloveEmbed
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -16,6 +13,8 @@ import nlp
 from numpy import mean
 from torch import optim
 
+from Code.Config import sysconf
+from Code.HDE.hde_glove import HDEGloveEmbed
 from Code.HDE.hde_long_embed import HDELongEmbed
 from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset

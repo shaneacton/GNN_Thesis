@@ -26,7 +26,7 @@ class GloveEmbedder:
 
         self.unknown_token_emb = np.asarray([0] * self.dims, "float32")
 
-        self.regex = re.compile('[^a-zA-Z 0123456789]')
+        self.regex = re.compile('[^a-zA-Z 0123456789,]')
 
         self.embs = embeddings_dict
 
@@ -36,6 +36,8 @@ class GloveEmbedder:
     def get_words(self, string):
         string = string.replace("-", " ")
         string = string.replace("_", " ")
+        string = string.replace(".", " ")
+        string = string.replace(",", " , ")
         string = string.replace(" ", " ")  # weird space
         string = string.replace("'s", "")
 
@@ -65,4 +67,6 @@ if __name__ == "__main__":
 
     print("today's" in embedder.embs)
 
-    print(embedder.get_words("kilometers (over 760,000 sq mi), Mexico"))
+    print(embedder.get_words('Its official motto is "LÉtoile du Nord" (French: "Star of the North").Minnesota'))
+
+    print("x   x".split())
