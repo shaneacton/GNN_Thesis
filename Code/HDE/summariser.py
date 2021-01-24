@@ -1,9 +1,5 @@
-import torch
 from torch import nn, Tensor
-from torch.nn import Transformer, TransformerEncoderLayer, LayerNorm, TransformerEncoder
-from transformers import LongformerModel
-
-from Code.Training.Utils.initialiser import get_longformer_config
+from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 
 
 class Summariser(nn.Module):
@@ -36,6 +32,8 @@ class Summariser(nn.Module):
         #     print("got span", span, "vec:", full_vec[:, span[0]: span[1], :].size(), "full vec:", full_vec.size())
 
         vec = full_vec[:, span[0]: span[1], :]
+        if vec.size(1) < 1:
+            raise Exception("cannot get summary vec, no elements in sequence:" + repr(vec.size()) + " span: " + repr(span)  + " full: " + repr(full_vec.size()))
         # out = self.longformer(inputs_embeds=vec, return_dict=True, output_hidden_states=True)
         embs = self.encoder(vec)
         # embs = out["hidden_states"][-1]  # last hidden

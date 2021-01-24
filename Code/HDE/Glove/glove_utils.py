@@ -33,6 +33,8 @@ def get_glove_entities(summariser, support_embeddings, supports, glove_embedder:
             """clips out the entities token embeddings, and summarises them"""
             try:
                 entity_tokens = glove_embedder.get_words(support[c_span[0]: c_span[1]])
+                if len(entity_tokens) == 0:
+                    raise Exception("no entity tokens: " + repr(entity_tokens) + " char span: " + repr(c_span) + " ent: " + repr(support[c_span[0]: c_span[1]]))
                 matches = find_tokens_in_token_list(support_tokens, entity_tokens)
                 ent_hash = tuple(entity_tokens)
                 if not ent_hash in ent_counts:
@@ -45,7 +47,8 @@ def get_glove_entities(summariser, support_embeddings, supports, glove_embedder:
                 ent_token_span = TokenSpan(match, match + len(entity_tokens))
             except Exception as ex:
                 print("cannot get ent ", e, "token span. in supp", s, ":", support)
-                raise ex
+                print(ex)
+                continue
             ent_token_spans.append(ent_token_span)
             ent_summaries.append(summariser(support_embeddings[s], ent_token_span))
 
