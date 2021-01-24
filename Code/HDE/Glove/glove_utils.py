@@ -37,6 +37,9 @@ def get_glove_entities(summariser, support_embeddings, supports, glove_embedder:
                 ent_hash = tuple(entity_tokens)
                 if not ent_hash in ent_counts:
                     ent_counts[ent_hash] = 0
+                if ent_counts[ent_hash] >= len(matches):
+                    raise Exception("found " + repr(ent_counts[ent_hash] + 1) + " ent mentions but only " +
+                                    repr(len(matches)) + " matches    ent tokens: " + repr(entity_tokens) + "   all tokens: " + repr(support_tokens))
                 match = matches[ent_counts[ent_hash]]
                 ent_counts[ent_hash] += 1
                 ent_token_span = TokenSpan(match, match + len(entity_tokens))

@@ -36,6 +36,7 @@ class GloveEmbedder:
     def get_words(self, string):
         string = string.replace("-", " ")
         string = string.replace("_", " ")
+        string = string.replace("/", " ")
         string = string.replace(".", " ")
         string = string.replace(",", " , ")
         string = string.replace(" ", " ")  # weird space
