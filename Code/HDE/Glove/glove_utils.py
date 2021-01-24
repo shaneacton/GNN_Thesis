@@ -34,7 +34,7 @@ def get_glove_entities(summariser, support_embeddings, supports, glove_embedder:
             try:
                 entity_tokens = glove_embedder.get_words(support[c_span[0]: c_span[1]])
                 if len(entity_tokens) == 0:
-                    raise Exception("no entity tokens: " + repr(entity_tokens) + " char span: " + repr(c_span) + " ent: " + repr(support[c_span[0]: c_span[1]]))
+                    raise NoEntityTokens("no entity tokens: " + repr(entity_tokens) + " char span: " + repr(c_span) + " ent: " + repr(support[c_span[0]: c_span[1]]))
                 matches = find_tokens_in_token_list(support_tokens, entity_tokens)
                 ent_hash = tuple(entity_tokens)
                 if not ent_hash in ent_counts:
@@ -45,10 +45,13 @@ def get_glove_entities(summariser, support_embeddings, supports, glove_embedder:
                 match = matches[ent_counts[ent_hash]]
                 ent_counts[ent_hash] += 1
                 ent_token_span = TokenSpan(match, match + len(entity_tokens))
-            except Exception as ex:
-                print("cannot get ent ", e, "token span. in supp", s, ":", support)
+            except NoEntityTokens as ex:
                 print(ex)
                 continue
+            except Exception as exx:
+                print("cannot get ent ", e, "token span. in supp", s, ":", support)
+                raise exx
+
             ent_token_spans.append(ent_token_span)
             ent_summaries.append(summariser(support_embeddings[s], ent_token_span))
 
@@ -88,3 +91,7 @@ def add_glove_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List
             graph.add_edge(doc_edge)
 
         fully_connect(ent_node_ids, graph, CODOCUMENT)
+
+
+class NoEntityTokens(Exception):
+    pass
