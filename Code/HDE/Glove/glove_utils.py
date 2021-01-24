@@ -49,8 +49,9 @@ def get_glove_entities(summariser, support_embeddings, supports, glove_embedder:
                 print(ex)
                 continue
             except Exception as exx:
-                print("cannot get ent ", e, "token span. in supp", s, ":", support)
-                raise exx
+                # print("cannot get ent ", e, "token span. in supp", s, ":", support)
+                # raise exx
+                continue
 
             ent_token_spans.append(ent_token_span)
             ent_summaries.append(summariser(support_embeddings[s], ent_token_span))

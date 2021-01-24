@@ -56,12 +56,14 @@ class GloveEmbedder:
         if len(words) == 0:
             print("num words:", len(words), "string:", string, "words:", words)
             raise Exception("no words from string " + string)
-        embs = [self.embs[w] if w in self.embs else self.unknown_token_emb for w in words]
-        try:
-            embs = [torch.tensor(e).view(1, self.dims) for e in embs]
-        except Exception as e:
-            print([torch.tensor(e).size() for e in embs])
-            raise e
+        embs = []
+        for w in words:
+            emb = self.embs[w]
+            tens = torch.tensor(emb)
+            if tens.size(0) != self.dims:
+                raise Exception("word: " + w + " emb: " + repr(tens.size()) + " map: " + repr(self.embs[w]))
+            embs.append(tens.view(1, self.dims))
+
 
         embs = torch.cat(embs, dim=0).view(1, len(embs), -1)
 
