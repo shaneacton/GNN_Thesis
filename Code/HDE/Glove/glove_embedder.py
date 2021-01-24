@@ -25,13 +25,19 @@ class GloveEmbedder:
                 embeddings_dict[word] = vector
 
         self.unknown_token_emb = np.asarray([0] * self.dims, "float32")
-
         self.regex = re.compile('[^a-zA-Z 0123456789,.]')
 
         self.embs = embeddings_dict
 
     def __call__(self, string):
         return self.embed(string)
+
+    def get_emb(self, word):
+        if word in self.embs.keys():
+            emb = self.embs[word]
+        else:
+            emb = self.unknown_token_emb
+        return torch.tensor(emb)
 
     def get_words(self, string):
         string = string.replace(",", " , ")
@@ -58,10 +64,10 @@ class GloveEmbedder:
             raise Exception("no words from string " + string)
         embs = []
         for w in words:
-            emb = self.embs[w]
-            tens = torch.tensor(emb)
+            tens = self.get_emb(w)
             if tens.size(0) != self.dims:
-                raise Exception("word: " + w + " emb: " + repr(tens.size()) + " map: " + repr(self.embs[w]))
+                out = repr(self.embs[w]) if w in self.embs else "uknown"
+                raise Exception("word: " + w + " emb: " + repr(tens.size()) + " map: " + out)
             embs.append(tens.view(1, self.dims))
 
 
