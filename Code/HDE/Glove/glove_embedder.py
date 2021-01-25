@@ -25,7 +25,7 @@ class GloveEmbedder:
                 embeddings_dict[word] = vector
 
         self.unknown_token_emb = np.asarray([0] * self.dims, "float32")
-        self.regex = re.compile('[^a-zA-Z 0123456789,.]')
+        self.regex = re.compile('[^a-zA-Z 0123456789,.&]')
 
         self.embs = embeddings_dict
 
@@ -41,17 +41,11 @@ class GloveEmbedder:
 
     def get_words(self, string):
         string = string.replace(",", " , ")
+        string = string.replace("&", " & ")
         string = string.replace(".", "  ")
         string = string.replace("'s", "")
         string = string.replace("'", "")
 
-        # string = string.replace("-", " ")
-        # string = string.replace("_", " ")
-        # string = string.replace("/", " ")
-        # string = string.replace(".", " ")
-        # string = string.replace(".", " ")
-        # string = string.replace("$", " ")
-        # string = string.replace(" ", " ")  # weird space
 
         string = self.regex.sub(' ', string)  # remove all non alpha numeric characters
         words = string.lower().split()
@@ -84,7 +78,7 @@ if __name__ == "__main__":
     print("words:", embedder.get_words("hello world. shmeg 7"))
     print("embs:", embs)
 
-    print("hello" in embedder.embs.keys())
+    print("&" in embedder.embs.keys())
 
     text = 'Its official motto is "LÉtoile du Nord" (French: "Star of the North").Minnesota'
     print(embedder.get_words(text))
