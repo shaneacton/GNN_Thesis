@@ -4,7 +4,6 @@ import time
 
 from tqdm import tqdm
 
-from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -15,6 +14,7 @@ import nlp
 from numpy import mean
 from torch import optim
 
+from Code.Training.Utils.eval_utils import get_acc_and_f1
 from Code.Config import sysconf
 from Code.HDE.hde_glove import HDEGloveEmbed
 from Code.HDE.hde_long_embed import HDELongEmbed
@@ -23,7 +23,7 @@ from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
 NUM_EPOCHS = 2
 PRINT_LOSS_EVERY = 50
-MAX_EXAMPLES = 100
+MAX_EXAMPLES = -1
 
 print("loading data")
 
@@ -41,7 +41,7 @@ for epoch in range(NUM_EPOCHS):
     predictions = []
     for i, example in tqdm(enumerate(train)):
         optimizer.zero_grad()
-        if i >= MAX_EXAMPLES:
+        if i >= MAX_EXAMPLES and i != -1:
             break
 
         # print(example)
