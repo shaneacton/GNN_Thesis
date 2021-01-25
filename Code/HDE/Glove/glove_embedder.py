@@ -66,10 +66,8 @@ class GloveEmbedder:
         for w in words:
             tens = self.get_emb(w)
             if tens.size(0) != self.dims:
-                tens = self.get_emb("xaksjdbXXXunknownXXXlkhsdv")  # unknown
-
-                # out = repr(self.embs[w]) if w in self.embs else "uknown"
-                # raise Exception("word: " + w + " emb: " + repr(tens.size()) + " map: " + out)
+                out = repr(self.embs[w]) if w in self.embs else "uknown"
+                raise Exception("word: " + w + " emb: " + repr(tens.size()) + " map: " + out)
             embs.append(tens.view(1, self.dims))
 
 
