@@ -37,6 +37,7 @@ class HDEGloveEmbed(nn.Module):
 
         self.cand_prob_map = nn.Linear(hidden_size, 1)
         self.loss_fn = CrossEntropyLoss()
+        self.last_example = -1
 
     def forward(self, supports: List[str], query: str, candidates: List[str], answer=None):
         """

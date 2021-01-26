@@ -66,6 +66,9 @@ for epoch in range(NUM_EPOCHS):
         if i >= MAX_EXAMPLES and i != -1:
             break
 
+        if hde.last_example != -1 and i < hde.last_example:  # fast forward
+            continue
+
         # print(example)
         answer = example["answer"]
         candidates = example["candidates"]
@@ -92,5 +95,7 @@ for epoch in range(NUM_EPOCHS):
         if len(losses) % CHECKPOINT_EVERY == 0:
             print("saving model at e", epoch, "i:", i)
             torch.save(hde, MODEL_SAVE_PATH)
+
+    hde.last_example = -1
 
     print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions))
