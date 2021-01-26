@@ -8,9 +8,8 @@ class Summariser(nn.Module):
         into fixed size node embedding
     """
 
-    def __init__(self, hidden_size, num_types=1, fine_tune=False):
+    def __init__(self, hidden_size, num_types=1):
         super().__init__()
-        self.fine_tune = fine_tune
         # self.long_conf = get_longformer_config(num_layers=2, num_types=num_types, hidden_size=hidden_size)
         # self.longformer = LongformerModel(self.long_conf)
 

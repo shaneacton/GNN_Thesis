@@ -9,6 +9,7 @@ from torch_geometric.nn import GATConv, MessagePassing
 from Code.Config import sysconf
 from Code.HDE.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.Glove.glove_utils import get_glove_entities
+from Code.HDE.coattention import Coattention
 from Code.HDE.graph import HDEGraph
 from Code.HDE.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
     connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions
@@ -22,6 +23,7 @@ class HDEGloveEmbed(nn.Module):
         super().__init__()
         self.embedder = GloveEmbedder()
 
+        self.coattention = Coattention(self.embedder.dims)
         self.summariser = Summariser(self.embedder.dims)
         self.relu = ReLU()
         gnn_layers: List[MessagePassing] = []
@@ -46,7 +48,7 @@ class HDEGloveEmbed(nn.Module):
         """
         t = time.time()
 
-        support_embeddings = [self.embedder(sup) for sup in supports]
+        support_embeddings = self.get_query_aware_context_embeddings(supports, query)
 
         if sysconf.print_times:
             print("got embeddings in", (time.time() - t))
@@ -60,15 +62,6 @@ class HDEGloveEmbed(nn.Module):
         t = time.time()
 
         ent_token_spans, ent_summaries, = get_glove_entities(self.summariser, support_embeddings, supports, self.embedder)
-
-        # print("ent token spans:", ent_token_spans)
-        # tokens = [self.embedder.get_words(s) for s in supports]
-        # for s, supp in enumerate(supports):
-        #     toks = tokens[s]
-        #     ent_spans = ent_token_spans[s]
-        #     entities = [" ".join(toks[e[0]: e[1]]) for e in ent_spans]
-        #     print(entities)
-        # raise Exception()
 
         if sysconf.print_times:
             print("got ents in", (time.time() - t))
@@ -110,6 +103,12 @@ class HDEGloveEmbed(nn.Module):
             return loss, pred_ans
 
         return pred_ans
+
+    def get_query_aware_context_embeddings(self, supports: List[str], query: str):
+        support_embeddings = [self.embedder(sup) for sup in supports]
+        query_emb = self.embedder(query)
+        support_embeddings = [self.coattention(se, query_emb) for se in support_embeddings]
+        return support_embeddings
 
     def create_graph(self, candidates, ent_token_spans, supports):
         graph = HDEGraph()
