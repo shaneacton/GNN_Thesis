@@ -89,7 +89,8 @@ for epoch in range(NUM_EPOCHS):
         losses.append(loss.item())
 
         if len(losses) % PRINT_LOSS_EVERY == 0:
-            print("e", epoch, "i", i, "loss:", mean(losses[-PRINT_LOSS_EVERY:-1]), "mean:", mean(losses), "time:", (time.time() - last_print))
+            acc = get_acc_and_f1(answers[-PRINT_LOSS_EVERY:-1], predictions[-PRINT_LOSS_EVERY:-1])
+            print("e", epoch, "i", i, "loss:", mean(losses[-PRINT_LOSS_EVERY:-1]), "mean:", mean(losses), "time:", (time.time() - last_print), "acc:", acc)
             last_print = time.time()
 
         if len(losses) % CHECKPOINT_EVERY == 0:
