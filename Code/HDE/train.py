@@ -7,6 +7,7 @@ from os.path import join, exists
 import torch
 from tqdm import tqdm
 
+from Code.HDE.Glove.glove_embedder import NoWordsException
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -76,7 +77,10 @@ for epoch in range(NUM_EPOCHS):
         query = example["query"]
         supports = example["supports"]
 
-        loss, predicted = hde(supports, query, candidates, answer=answer)
+        try:
+            loss, predicted = hde(supports, query, candidates, answer=answer)
+        except NoWordsException as ne:
+            continue
 
         answers.append([answer])
         predictions.append(predicted)

@@ -55,7 +55,7 @@ class GloveEmbedder:
         words = self.get_words(string)
         if len(words) == 0:
             print("num words:", len(words), "string:", string, "words:", words)
-            raise Exception("no words from string " + string)
+            raise NoWordsException("no words from string " + string)
         embs = []
         for w in words:
             tens = self.get_emb(w)
@@ -70,6 +70,10 @@ class GloveEmbedder:
         # print("emb:", embs.size())
         # print(embs)
         return embs.to(device)
+
+
+class NoWordsException(Exception):
+    pass
 
 
 if __name__ == "__main__":
