@@ -52,6 +52,7 @@ def get_model():
 
     return hde
 
+
 hde = get_model()
 optimizer = optim.SGD(hde.parameters(), lr=0.001, momentum=0.9)
 
@@ -95,6 +96,7 @@ for epoch in range(NUM_EPOCHS):
 
         if len(losses) % CHECKPOINT_EVERY == 0:
             print("saving model at e", epoch, "i:", i)
+            hde.last_example = i
             torch.save(hde, MODEL_SAVE_PATH)
 
     hde.last_example = -1
