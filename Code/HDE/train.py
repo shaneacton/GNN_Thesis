@@ -1,7 +1,10 @@
 import os
+import pathlib
 import sys
 import time
+from os.path import join, exists
 
+import torch
 from tqdm import tqdm
 
 
@@ -22,15 +25,34 @@ from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
 NUM_EPOCHS = 2
-PRINT_LOSS_EVERY = 50
-MAX_EXAMPLES = -1
+PRINT_LOSS_EVERY = 500
+MAX_EXAMPLES = 39000
+
+CHECKPOINT_EVERY = 10
+file_path = pathlib.Path(__file__).parent.absolute()
+MODEL_SAVE_PATH = join(file_path, "Checkpoint", "hde_model")
 
 print("loading data")
 
 train = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.TRAIN)
 test = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.VALIDATION)
 
-hde = HDEGloveEmbed().to(device)
+
+def get_model():
+    hde = None
+    if exists(MODEL_SAVE_PATH):
+        try:
+            hde = torch.load(MODEL_SAVE_PATH).to(device)
+            print("loading checkpoint model")
+        except Exception as e:
+            print(e)
+            print("cannot load model at", MODEL_SAVE_PATH)
+    if hde is None:
+        hde = HDEGloveEmbed().to(device)
+
+    return hde
+
+hde = get_model()
 optimizer = optim.SGD(hde.parameters(), lr=0.001, momentum=0.9)
 
 losses = []
@@ -67,4 +89,8 @@ for epoch in range(NUM_EPOCHS):
             print("e", epoch, "i", i, "loss:", mean(losses[-PRINT_LOSS_EVERY:-1]), "mean:", mean(losses), "time:", (time.time() - last_print))
             last_print = time.time()
 
-    print("e", epoch, "completed", get_acc_and_f1(answers, predictions))
+        if len(losses) % CHECKPOINT_EVERY == 0:
+            print("saving model at e", epoch, "i:", i)
+            torch.save(hde, MODEL_SAVE_PATH)
+
+    print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions))

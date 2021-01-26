@@ -73,7 +73,7 @@ if __name__ == "__main__":
     check = None if check is None else os.path.join(model_loc, check)
     if check is not None:
         gat.load_state_dict(torch.load(os.path.join(check, WEIGHTS_NAME)))
-    print("training from checkpoint:", check)
+    print("training from Checkpoint:", check)
     trainer.train(model_path=check)
     trainer.save_model()
     evaluate_full_gat(DATASET, VERSION, gat, valid_dataset)
