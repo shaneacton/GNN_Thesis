@@ -28,7 +28,7 @@ NUM_EPOCHS = 2
 PRINT_LOSS_EVERY = 500
 MAX_EXAMPLES = 39000
 
-CHECKPOINT_EVERY = 10
+CHECKPOINT_EVERY = 1000
 file_path = pathlib.Path(__file__).parent.absolute()
 MODEL_SAVE_PATH = join(file_path, "Checkpoint", "hde_model")
 

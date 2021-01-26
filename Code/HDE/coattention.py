@@ -5,12 +5,12 @@ from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 
 class Coattention(nn.Module):
 
-    def __init__(self, hidden_size):
+    def __init__(self, hidden_size, num_layers=1):
         super().__init__()
 
-        encoder_layer = TransformerEncoderLayer(hidden_size, 5, hidden_size * 4, 0.1, 'relu')
+        encoder_layer = TransformerEncoderLayer(hidden_size, 5, hidden_size * 2, 0.1, 'relu')
         encoder_norm = LayerNorm(hidden_size)
-        self.encoder = TransformerEncoder(encoder_layer, 2, encoder_norm)
+        self.encoder = TransformerEncoder(encoder_layer, num_layers, encoder_norm)
         self.hidden_size = hidden_size
 
     def forward(self, suport_embedding, query_embedding):
