@@ -26,9 +26,9 @@ from Code.HDE.hde_long_embed import HDELongEmbed
 from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
-NUM_EPOCHS = 1
+NUM_EPOCHS = 2
 PRINT_LOSS_EVERY = 500
-MAX_EXAMPLES = 20
+MAX_EXAMPLES = -1
 
 CHECKPOINT_EVERY = 1000
 file_path = pathlib.Path(__file__).parent.absolute()
