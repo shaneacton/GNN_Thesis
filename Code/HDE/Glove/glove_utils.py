@@ -49,7 +49,7 @@ def get_glove_entities(summariser, support_embeddings, supports, glove_embedder:
                 ent_counts[ent_hash] += 1
                 ent_token_span = TokenSpan(match, match + len(entity_tokens))
             except NoEntityTokens as ex:
-                print(ex)
+                # print(ex)
                 continue
             except Exception as exx:
                 # print("cannot get ent ", e, "token span. in supp", s, ":", support)

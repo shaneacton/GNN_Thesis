@@ -26,8 +26,12 @@ class HDEGraph:
 
     @property
     def edge_index(self) -> torch.LongTensor:
-        froms = [e.from_id for e in self.ordered_edges]
-        tos = [e.to_id for e in self.ordered_edges]
+        froms = []
+        tos = []
+
+        for e in self.ordered_edges:  # adds both directions
+            froms += [e.from_id, e.to_id]
+            tos += [e.to_id, e.from_id]
         return torch.tensor([froms, tos]).to(device).long()
 
     def add_node(self, node: HDENode) -> int:
