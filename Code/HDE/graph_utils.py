@@ -27,6 +27,10 @@ def connect_unconnected_entities(graph: HDEGraph):
             graph.safe_add_edge(edge)
 
 
+def similar(text1, text2):
+    return text1 in text2 or text2 in text1
+
+
 def connect_entity_mentions(graph: HDEGraph):
 
     for e1, ent_node1 in enumerate(graph.get_entity_nodes()):
@@ -36,7 +40,7 @@ def connect_entity_mentions(graph: HDEGraph):
             if e1 == e2:  # same mention
                 continue
             ent_text2 = clean(ent_node2.text)
-            if ent_text1 in ent_text2 or ent_text2 in ent_text1:
+            if similar(ent_text1, ent_text2):
                 """same entity, different mention"""
                 edge = HDEEdge(ent_node1.id_in_graph, ent_node2.id_in_graph, type=COMENTION)
                 graph.safe_add_edge(edge)
@@ -47,9 +51,9 @@ def connect_candidates_and_entities(graph: HDEGraph):
     for cand_node in graph.get_candidate_nodes():
 
         for ent_node in graph.get_entity_nodes():
-
-            edge = HDEEdge(cand_node.id_in_graph, ent_node.id_in_graph, graph=graph)
-            graph.add_edge(edge)
+            if similar(cand_node.text, ent_node.text):
+                edge = HDEEdge(cand_node.id_in_graph, ent_node.id_in_graph, graph=graph)
+                graph.add_edge(edge)
 
 
 def add_candidate_nodes(graph: HDEGraph, candidates: List[str], supports: List[str]):
@@ -87,7 +91,7 @@ def add_doc_nodes(graph: HDEGraph, supports: List[str]):
 def fully_connect(node_ids, graph, type):
     for id1 in node_ids:
         for id2 in node_ids:
-            if id1 == id2:
+            if id1 == id2:  # no self loops
                 continue
             edge = HDEEdge(id1, id2, type=type, graph=graph)
             graph.safe_add_edge(edge)

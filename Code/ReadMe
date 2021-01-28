@@ -1,9 +1,12 @@
 Todo:
 
+* add a classification embedding to the summariser
+* eval code
+* factor entity nodes into final prediction as epr HDE
+* update cand->ent connection to only link cands to ent mentions
 
 * Graph embedder
      * edge feature encodings. an embedder for subtype info
-     * longformer as a sequence summariser instead of the self attentive pooling
 
 * GNNs
     * switch additive attention for dot-product

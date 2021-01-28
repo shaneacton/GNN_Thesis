@@ -6,20 +6,22 @@ from torch import nn
 from torch.nn import ModuleList, ReLU, CrossEntropyLoss
 from torch_geometric.nn import GATConv, MessagePassing
 
-from Code.Config import sysconf
+from Code.Config import sysconf, vizconf
 from Code.HDE.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.Glove.glove_utils import get_glove_entities
 from Code.HDE.coattention import Coattention
 from Code.HDE.graph import HDEGraph
 from Code.HDE.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
-    connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions
+    connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions, similar
+from Code.HDE.scorer import HDEScorer
 from Code.HDE.summariser import Summariser
+from Code.HDE.visualiser import render_graph
 from Code.Training import device
 
 
 class HDEGloveEmbed(nn.Module):
 
-    def __init__(self, num_layers=2, hidden_size=402):
+    def __init__(self, num_layers=2, hidden_size=100):
         super().__init__()
         self.embedder = GloveEmbedder()
 
@@ -35,9 +37,12 @@ class HDEGloveEmbed(nn.Module):
 
         self.gnn_layers = ModuleList(gnn_layers)
 
-        self.cand_prob_map = nn.Linear(hidden_size, 1)
+        self.candidate_scorer = HDEScorer(hidden_size)
+        self.entity_scorer = HDEScorer(hidden_size)
+
         self.loss_fn = CrossEntropyLoss()
         self.last_example = -1
+        self.last_epoch = -1
 
     def forward(self, supports: List[str], query: str, candidates: List[str], answer=None):
         """
@@ -69,6 +74,10 @@ class HDEGloveEmbed(nn.Module):
         t = time.time()
 
         graph = self.create_graph(candidates, ent_token_spans, supports)
+        if vizconf.visualise_graphs:
+            render_graph(graph)
+            if vizconf.exit_after_first_viz:
+                exit()
 
         if sysconf.print_times:
             print("made graph in", (time.time() - t))
@@ -82,22 +91,51 @@ class HDEGloveEmbed(nn.Module):
         for layer in self.gnn_layers:
             x = self.relu(layer(x, edge_index=edge_index))
 
-        # print("passed gnn in", (time.time() - t))
+        if sysconf.print_times:
+            print("passed gnn in", (time.time() - t))
         t = time.time()
 
         # x has now been transformed by the GNN layers. Must map to  a prob dist over candidates
 
         cand_idxs = graph.candidate_nodes
-        cand_idxs = (cand_idxs[0], cand_idxs[-1])
-        cand_embs = x[cand_idxs[0]: cand_idxs[1] + 1, :]
 
-        probs = self.cand_prob_map(cand_embs).squeeze()
-        pred_id = torch.argmax(probs)
+        cand_embs = x[cand_idxs[0]: cand_idxs[-1] + 1, :]
+        cand_probs = self.candidate_scorer(cand_embs).view(len(graph.candidate_nodes))
+        # print("cand probs:", cand_probs.size())
+
+        ent_probs = []
+        for c, cand in enumerate(candidates):
+            """find all entities which match this candidate, and score them each, returning the maximum score"""
+            cand_node = graph.ordered_nodes[cand_idxs[c]]
+            linked_ent_nodes = set()
+            for ent_text in graph.entity_text_to_nodes.keys():  # find all entities with similar text
+                if similar(cand_node.text, ent_text):
+                    # print("\tcand:", cand, "ents:", ent_text)
+                    linked_ent_nodes.update(graph.entity_text_to_nodes[ent_text])
+
+            if len(linked_ent_nodes) == 0:
+                max_prob = torch.tensor(0.).to(device)
+            else:
+                linked_ent_nodes = sorted(list(linked_ent_nodes))  # node ids of all entities linked to this candidate
+                linked_ent_nodes = torch.tensor(linked_ent_nodes).to(device).long()
+                ent_embs = torch.index_select(x, dim=0, index=linked_ent_nodes)
+
+                # print("ent embs:", ent_embs.size())
+                cand_ent_probs = self.entity_scorer(ent_embs)
+                # print("ent probs:", cand_ent_probs.size())
+                max_prob = torch.max(cand_ent_probs)
+            ent_probs += [max_prob]
+            # print("max:", max_prob)
+        ent_probs = torch.stack(ent_probs, dim=0)
+        # print("ent probs:", ent_probs.size())
+
+        final_probs = cand_probs + ent_probs
+        pred_id = torch.argmax(final_probs)
         pred_ans = candidates[pred_id]
 
         if answer is not None:
             ans_id = candidates.index(answer)
-            probs = probs.view(1, -1)  # batch dim
+            probs = final_probs.view(1, -1)  # batch dim
             ans = torch.tensor([ans_id]).to(device)
             loss = self.loss_fn(probs, ans)
 

@@ -57,12 +57,17 @@ def get_model():
 hde = get_model()
 optimizer = optim.SGD(hde.parameters(), lr=0.001, momentum=0.9)
 
-losses = []
 last_print = time.time()
 print("num examples:", len(train))
 for epoch in range(NUM_EPOCHS):
+    if hde.last_epoch != -1 and epoch < hde.last_epoch:  # fast forward
+        continue
+
     answers = []
     predictions = []
+    chances = []
+    losses = []
+
     for i, example in tqdm(enumerate(train)):
         optimizer.zero_grad()
         if i >= MAX_EXAMPLES and i != -1:
@@ -84,6 +89,7 @@ for epoch in range(NUM_EPOCHS):
 
         answers.append([answer])
         predictions.append(predicted)
+        chances.append(1./len(candidates))
 
         t = time.time()
         loss.backward()
@@ -93,16 +99,19 @@ for epoch in range(NUM_EPOCHS):
         optimizer.step()
         losses.append(loss.item())
 
-        if len(losses) % PRINT_LOSS_EVERY == 0:
-            acc = get_acc_and_f1(answers[-PRINT_LOSS_EVERY:-1], predictions[-PRINT_LOSS_EVERY:-1])
-            print("e", epoch, "i", i, "loss:", mean(losses[-PRINT_LOSS_EVERY:-1]), "mean:", mean(losses), "time:", (time.time() - last_print), "acc:", acc)
+        if len(losses) % PRINT_LOSS_EVERY == 0:  # print loss
+            acc = get_acc_and_f1(answers[-PRINT_LOSS_EVERY:-1], predictions[-PRINT_LOSS_EVERY:-1])['exact_match']
+            print("e", epoch, "i", i, "loss:", mean(losses[-PRINT_LOSS_EVERY:-1]), "mean:", mean(losses),
+                  "time:", (time.time() - last_print), "acc:", acc, "chance:", mean(chances[-PRINT_LOSS_EVERY:-1]))
             last_print = time.time()
 
-        if len(losses) % CHECKPOINT_EVERY == 0:
+        if len(losses) % CHECKPOINT_EVERY == 0:  # save model
             print("saving model at e", epoch, "i:", i)
             hde.last_example = i
+            hde.last_epoch = epoch
             torch.save(hde, MODEL_SAVE_PATH)
 
     hde.last_example = -1
 
-    print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions))
+    print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
+          "chance:", mean(chances))

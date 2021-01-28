@@ -32,3 +32,14 @@ class HDEEdge:
         ids = sorted([self.from_id, self.to_id])
 
         return hash(ids[0]) * 7 + hash(ids[1]) * 13
+
+
+if __name__ == "__main__":
+
+    e1 = HDEEdge(0, 1, type="whatever")
+    e2 = HDEEdge(1, 0, type="whatever")
+    print("hashes:", e1.__hash__(), e2.__hash__())
+    print("eq:", e1 == e2)
+    edges = {e1}
+
+    print(e2 in edges)

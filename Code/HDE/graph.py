@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict
 
 import torch
 
@@ -17,6 +17,7 @@ class HDEGraph:
     def __init__(self):
         self.ordered_nodes: List[HDENode] = []
         self.entity_nodes: List[int] = []
+        self.entity_text_to_nodes: Dict[str, List[int]] = {}
         self.doc_nodes: List[int] = []
         self.candidate_nodes: List[int] = []
 
@@ -33,7 +34,12 @@ class HDEGraph:
         next_id = len(self.ordered_nodes)
         node.id_in_graph = next_id
         if node.type == ENTITY:
+            node.ent_id = len(self.entity_nodes)
             self.entity_nodes.append(next_id)
+            if not node.text in self.entity_text_to_nodes:
+                self.entity_text_to_nodes[node.text] = []
+            self.entity_text_to_nodes[node.text].append(next_id)
+
         if node.type == DOCUMENT:
             self.doc_nodes.append(next_id)
         if node.type == CANDIDATE:
@@ -53,6 +59,7 @@ class HDEGraph:
         if self.has_edge(edge):
             print("warning, adding  an edge between two nodes which are already connected")
         self.ordered_edges.append(edge)
+        self.unique_edges.add(edge)
 
     def get_doc_nodes(self) -> List[HDENode]:
         """returns the actual nodes, in order"""

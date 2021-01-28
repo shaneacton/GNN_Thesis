@@ -110,19 +110,19 @@ def get_flat_entity_and_corefs_chars(text, doc=None):
 def get_noun_char_spans(text, doc=None):
     doc = _init_doc(doc, text)
     nouns = [n for n in doc.noun_chunks]
-    return [get_char_span_from_spacy_span(n, doc) for n in nouns], doc
+    return [get_char_span_from_spacy_span(n, doc) for n in nouns]
 
 
 if __name__ == "__main__":
     # text = "Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very " \
     #            "close to the Manhattan Bridge which is visible from the window."
     # text = context(test_example)
-    text = "Reptiles are tetrapod (four-limbed vertebrate) animals in the class Reptilia, comprising today's turtles, crocodilians, snakes, amphisbaenians, lizards, tuatara, and their extinct relatives. The study of these traditional reptile orders, historically combined with that of modern amphibians, is called herpetology."
-    # print(sequence)
+    text = 'A Christian (or ) is a person who follows or adheres to Christianity, an Abrahamic, monotheistic religion based on the life and teachings of Jesus Christ. "Christian" derives from the Koine Greek word "Christós" (), a translation of the Biblical Hebrew term "mashiach".'
+    print(text)
     doc = None
     # char_spans, doc = get_flat_entity_and_corefs_chars(text, doc=doc)
     # char_spans, doc = get_sentence_char_spans(text, doc=doc)
     # char_spans, doc = get_noun_char_spans(text, doc=doc)
-    char_spans = get_entity_char_spans(text)
+    char_spans = get_noun_char_spans(text)
     for s in char_spans:
         print(text[s[0]: s[1]])

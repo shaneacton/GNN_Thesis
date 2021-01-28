@@ -3,7 +3,7 @@ from typing import List, Tuple
 from torch import Tensor
 from transformers import TokenSpan
 
-from Code.Data.Text.spacy_utils import get_entity_char_spans
+from Code.Data.Text.spacy_utils import get_entity_char_spans, get_noun_char_spans
 from Code.HDE.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.edge import HDEEdge
 from Code.HDE.graph import HDEGraph
@@ -12,7 +12,7 @@ from Code.HDE.node import HDENode
 from Code.constants import CODOCUMENT, ENTITY
 
 
-def get_glove_entities(summariser, support_embeddings, supports, glove_embedder: GloveEmbedder) \
+def get_glove_entities(summariser, support_embeddings, supports, glove_embedder: GloveEmbedder, use_nouns=False) \
         -> Tuple[List[List[Tuple[int]]], List[Tensor]]:
     """
         token_spans is indexed list[support_no][ent_no]
@@ -23,7 +23,10 @@ def get_glove_entities(summariser, support_embeddings, supports, glove_embedder:
 
     for s, support in enumerate(supports):
         """get entity node embeddings"""
-        ent_c_spans = get_entity_char_spans(support)
+        if use_nouns:
+            ent_c_spans = get_noun_char_spans(support)
+        else:
+            ent_c_spans = get_entity_char_spans(support)
 
         ent_summaries: List[Tensor] = []
         ent_token_spans: List[Tuple[int]] = []
