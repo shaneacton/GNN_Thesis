@@ -7,6 +7,7 @@ from os.path import join, exists
 import torch
 from tqdm import tqdm
 
+from Code.HDE.eval import evaluate
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -25,9 +26,9 @@ from Code.HDE.hde_long_embed import HDELongEmbed
 from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
-NUM_EPOCHS = 2
+NUM_EPOCHS = 1
 PRINT_LOSS_EVERY = 500
-MAX_EXAMPLES = 39000
+MAX_EXAMPLES = 20
 
 CHECKPOINT_EVERY = 1000
 file_path = pathlib.Path(__file__).parent.absolute()
@@ -36,7 +37,6 @@ MODEL_SAVE_PATH = join(file_path, "Checkpoint", "hde_model")
 print("loading data")
 
 train = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.TRAIN)
-test = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.VALIDATION)
 
 
 def get_model():
@@ -115,3 +115,6 @@ for epoch in range(NUM_EPOCHS):
 
     print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
           "chance:", mean(chances))
+
+
+evaluate(hde)

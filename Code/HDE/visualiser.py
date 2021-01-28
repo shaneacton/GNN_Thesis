@@ -1,7 +1,10 @@
 import os
 import textwrap
 
-import graphviz
+try:
+    import graphviz
+except:
+    print("python-graphviz not installed. cannot visualise graphs")
 
 from Code.HDE.graph import HDEGraph
 from Code.HDE.node import HDENode

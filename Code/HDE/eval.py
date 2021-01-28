@@ -1,0 +1,39 @@
+import nlp
+from numpy import mean
+from tqdm import tqdm
+
+from Code.HDE.Glove.glove_embedder import NoWordsException
+from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
+from Code.Training.Utils.eval_utils import get_acc_and_f1
+
+test = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.VALIDATION)
+MAX_EXAMPLES = 20
+
+
+def evaluate(hde):
+    answers = []
+    predictions = []
+    chances = []
+
+    for i, example in tqdm(enumerate(test)):
+        if i >= MAX_EXAMPLES and i != -1:
+            break
+
+        answer = example["answer"]
+        candidates = example["candidates"]
+        query = example["query"]
+        supports = example["supports"]
+
+        try:
+            _, predicted = hde(supports, query, candidates, answer=answer)
+        except NoWordsException as ne:
+            continue
+
+        answers.append([answer])
+        predictions.append(predicted)
+        chances.append(1./len(candidates))
+
+    hde.last_example = -1
+
+    print("eval completed. Validation acc:", get_acc_and_f1(answers, predictions)['exact_match'],
+          "chance:", mean(chances))
