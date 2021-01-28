@@ -7,8 +7,6 @@ from os.path import join, exists
 import torch
 from tqdm import tqdm
 
-from Code.HDE.eval import evaluate
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -18,6 +16,7 @@ import nlp
 from numpy import mean
 from torch import optim
 
+from Code.HDE.eval import evaluate
 from Code.HDE.Glove.glove_embedder import NoWordsException
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 from Code.Config import sysconf
@@ -70,7 +69,7 @@ for epoch in range(NUM_EPOCHS):
 
     for i, example in tqdm(enumerate(train)):
         optimizer.zero_grad()
-        if i >= MAX_EXAMPLES and i != -1:
+        if i >= MAX_EXAMPLES != -1:
             break
 
         if hde.last_example != -1 and i < hde.last_example:  # fast forward
