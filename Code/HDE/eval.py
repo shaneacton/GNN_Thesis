@@ -16,7 +16,7 @@ def evaluate(hde):
     chances = []
 
     for i, example in tqdm(enumerate(test)):
-        if i >= MAX_EXAMPLES and i != -1:
+        if i >= MAX_EXAMPLES != -1:
             break
 
         answer = example["answer"]
