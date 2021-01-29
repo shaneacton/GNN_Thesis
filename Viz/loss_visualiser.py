@@ -75,6 +75,7 @@ def plot_losses_from_lines(lines: List[str]):
         losses = [line["loss"] for line in lines]
         accuracies=None
     else:
+
         epochs = list(range(len(lines)))
         losses = [float(l.split()[5]) for l in lines]
         accuracies = [float(l.split()[11]) for l in lines]

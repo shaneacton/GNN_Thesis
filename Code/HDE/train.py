@@ -25,7 +25,7 @@ from Code.HDE.hde_long_embed import HDELongEmbed
 from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
-NUM_EPOCHS = 2
+NUM_EPOCHS = 4
 PRINT_LOSS_EVERY = 500
 MAX_EXAMPLES = -1
 
@@ -54,7 +54,8 @@ def get_model():
 
 
 hde = get_model()
-optimizer = optim.SGD(hde.parameters(), lr=0.001, momentum=0.9)
+
+optimizer = optim.AdamW(hde.parameters(), lr=0.001)
 
 last_print = time.time()
 print("num examples:", len(train))
