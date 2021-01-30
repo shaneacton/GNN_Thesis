@@ -7,6 +7,8 @@ from os.path import join, exists
 import torch
 from tqdm import tqdm
 
+from Code.HDE.hde_glove_stack import HDEGloveStack
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -27,7 +29,7 @@ from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
 NUM_EPOCHS = 4
 PRINT_LOSS_EVERY = 500
-MAX_EXAMPLES = -1
+MAX_EXAMPLES = 10
 
 CHECKPOINT_EVERY = 1000
 file_path = pathlib.Path(__file__).parent.absolute()
@@ -48,14 +50,18 @@ def get_model():
             print(e)
             print("cannot load model at", MODEL_SAVE_PATH)
     if hde is None:
-        hde = HDEGloveEmbed().to(device)
+        # hde = HDEGloveEmbed().to(device)
+        hde = HDEGloveStack().to(device)
+        print("inited model with:", sum(p.numel() for p in hde.parameters() if p.requires_grad), "trainable params")
 
     return hde
 
 
 hde = get_model()
 
-optimizer = optim.AdamW(hde.parameters(), lr=0.001)
+# optimizer = optim.AdamW(hde.parameters(), lr=0.001)
+optimizer = optim.SGD(hde.parameters(), lr=0.001)
+
 
 last_print = time.time()
 print("num examples:", len(train))
@@ -67,6 +73,7 @@ for epoch in range(NUM_EPOCHS):
     predictions = []
     chances = []
     losses = []
+    hde.train()
 
     for i, example in tqdm(enumerate(train)):
         optimizer.zero_grad()
@@ -117,4 +124,4 @@ for epoch in range(NUM_EPOCHS):
           "chance:", mean(chances))
 
 
-evaluate(hde)
+    evaluate(hde)
