@@ -33,6 +33,7 @@ MAX_EXAMPLES = -1
 
 CHECKPOINT_EVERY = 1000
 file_path = pathlib.Path(__file__).parent.absolute()
+# MODEL_SAVE_PATH = join(file_path, "Checkpoint", "hde_model_shared")
 MODEL_SAVE_PATH = join(file_path, "Checkpoint", "hde_model_shared")
 
 print("loading data")
@@ -48,11 +49,12 @@ def get_model():
             print("loading checkpoint model")
         except Exception as e:
             print(e)
-            print("cannot load model at", MODEL_SAVE_PATH)
+            print("cannot load model at", MODEL_SAVE_PATH,
+                  "with:", sum(p.numel() for p in hde.parameters() if p.requires_grad), "trainable params")
     if hde is None:
         hde = HDEGloveEmbed().to(device)
         # hde = HDEGloveStack().to(device)
-        print("inited model with:", sum(p.numel() for p in hde.parameters() if p.requires_grad), "trainable params")
+        print("inited model", repr(hde), "with:", sum(p.numel() for p in hde.parameters() if p.requires_grad), "trainable params")
 
     return hde
 

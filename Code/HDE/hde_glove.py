@@ -23,7 +23,7 @@ class HDEGloveEmbed(nn.Module):
 
     def __init__(self, num_layers=3, hidden_size=500):
         super().__init__()
-        self.embedder = GloveEmbedder(dims=200)
+        self.embedder = GloveEmbedder(dims=100)
 
         self.coattention = Coattention(self.embedder.dims)
         self.summariser = Summariser(self.embedder.dims)
