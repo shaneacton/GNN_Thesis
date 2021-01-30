@@ -7,7 +7,6 @@ from os.path import join, exists
 import torch
 from tqdm import tqdm
 
-from Code.HDE.hde_glove_stack import HDEGloveStack
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -18,6 +17,7 @@ import nlp
 from numpy import mean
 from torch import optim
 
+from Code.HDE.hde_glove_stack import HDEGloveStack
 from Code.HDE.eval import evaluate
 from Code.HDE.Glove.glove_embedder import NoWordsException
 from Code.Training.Utils.eval_utils import get_acc_and_f1
@@ -29,7 +29,7 @@ from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
 NUM_EPOCHS = 4
 PRINT_LOSS_EVERY = 500
-MAX_EXAMPLES = 10
+MAX_EXAMPLES = -1
 
 CHECKPOINT_EVERY = 1000
 file_path = pathlib.Path(__file__).parent.absolute()
