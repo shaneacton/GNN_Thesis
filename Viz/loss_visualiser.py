@@ -75,10 +75,11 @@ def plot_losses_from_lines(lines: List[str]):
         losses = [line["loss"] for line in lines]
         accuracies=None
     else:
-
+        has_tqdm = True
+        off = 2 if has_tqdm else 0
         epochs = list(range(len(lines)))
-        losses = [float(l.split()[5]) for l in lines]
-        accuracies = [float(l.split()[11]) for l in lines]
+        losses = [float(l.split()[5 + off]) for l in lines]
+        accuracies = [float(l.split()[11 + off]) for l in lines]
     print("epochs:", epochs)
     print("losses:", losses)
     plot_losses(epochs, losses, accuracies=accuracies)

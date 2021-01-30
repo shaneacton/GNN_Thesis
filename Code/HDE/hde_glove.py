@@ -21,9 +21,9 @@ from Code.Training import device
 
 class HDEGloveEmbed(nn.Module):
 
-    def __init__(self, num_layers=2, hidden_size=100):
+    def __init__(self, num_layers=3, hidden_size=500):
         super().__init__()
-        self.embedder = GloveEmbedder()
+        self.embedder = GloveEmbedder(dims=200)
 
         self.coattention = Coattention(self.embedder.dims)
         self.summariser = Summariser(self.embedder.dims)
@@ -32,8 +32,10 @@ class HDEGloveEmbed(nn.Module):
         for i in range(num_layers):
             if i == 0:
                 gnn_layers.append(GATConv(self.embedder.dims, hidden_size))
-            else:
+            elif i == 1:
                 gnn_layers.append(GATConv(hidden_size, hidden_size))
+            else:
+                gnn_layers.append(gnn_layers[-1])  # shared params between layers
 
         self.gnn_layers = ModuleList(gnn_layers)
 
