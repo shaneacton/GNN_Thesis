@@ -36,11 +36,10 @@ MAX_EXAMPLES = -1
 
 CHECKPOINT_EVERY = 1000
 file_path = pathlib.Path(__file__).parent.absolute()
-# MODEL_SAVE_PATH = join(file_path, "Checkpoint", "hde_model_shared")
 CHECKPOINT_FOLDER = join(file_path, "Checkpoint")
 
-MODEL_NAME = "hde_model_shared"
-#MODEL_NAME = "hde_model_stack"
+# MODEL_NAME = "hde_model_shared"
+MODEL_NAME = "hde_model_stack"
 
 MODEL_SAVE_PATH = join(CHECKPOINT_FOLDER, MODEL_NAME)
 
@@ -75,8 +74,8 @@ def get_model():
             print(e)
             print("cannot load model at", MODEL_SAVE_PATH)
     if hde is None:
-        hde = HDEGloveEmbed().to(device)
-        # hde = HDEGloveStack().to(device)
+        # hde = HDEGloveEmbed().to(device)
+        hde = HDEGloveStack().to(device)
         optimizer = optim.SGD(hde.parameters(), lr=0.001)
         print("inited model", repr(hde), "with:", sum(p.numel() for p in hde.parameters() if p.requires_grad), "trainable params")
 

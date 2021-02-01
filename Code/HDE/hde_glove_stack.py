@@ -22,9 +22,9 @@ from Code.Training import device
 
 class HDEGloveStack(nn.Module):
 
-    def __init__(self, num_layers=2, hidden_size=100):
+    def __init__(self, num_layers=2, hidden_size=100, embedded_dims=50):
         super().__init__()
-        self.embedder = GloveEmbedder()
+        self.embedder = GloveEmbedder(dims=embedded_dims)
 
         self.coattention = Coattention(self.embedder.dims)
         self.summariser = Summariser(self.embedder.dims)
