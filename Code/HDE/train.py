@@ -51,6 +51,7 @@ train = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.TRAIN)
 p_losses=[]
 plot_accuracies=[]
 
+
 def get_model():
     global  p_losses
     global plot_accuracies
@@ -58,29 +59,31 @@ def get_model():
     hde = None
     if exists(MODEL_SAVE_PATH):
         try:
-            hde = torch.load(MODEL_SAVE_PATH).to(device)
+            checkpoint = torch.load(MODEL_SAVE_PATH)
+            hde = checkpoint["model"].to(device)
+            optimizer = optim.SGD(hde.parameters(), lr=0.001)
+            optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+
             print("loading checkpoint model at:", MODEL_SAVE_PATH, "with",
                   sum(p.numel() for p in hde.parameters() if p.requires_grad), "trainable params")
             filehandler = open(MODEL_SAVE_PATH + "_losses.data", 'rb')
             p_losses = pickle.load(filehandler)
             filehandler = open(MODEL_SAVE_PATH + "_accuracies.data", 'rb')
             plot_accuracies = pickle.load(filehandler)
-            print("loaded losses:", len(losses), losses)
+            print("loaded losses:", len(p_losses), p_losses)
         except Exception as e:
             print(e)
             print("cannot load model at", MODEL_SAVE_PATH)
     if hde is None:
         hde = HDEGloveEmbed().to(device)
         # hde = HDEGloveStack().to(device)
+        optimizer = optim.SGD(hde.parameters(), lr=0.001)
         print("inited model", repr(hde), "with:", sum(p.numel() for p in hde.parameters() if p.requires_grad), "trainable params")
 
-    return hde
+    return hde, optimizer
 
 
-hde = get_model()
-
-# optimizer = optim.AdamW(hde.parameters(), lr=0.001)
-optimizer = optim.SGD(hde.parameters(), lr=0.001)
+hde, optimizer = get_model()
 
 
 last_print = time.time()
@@ -152,7 +155,7 @@ for epoch in range(NUM_EPOCHS):
             print("saving model at e", epoch, "i:", i)
             hde.last_example = i
             hde.last_epoch = epoch
-            torch.save(hde, MODEL_SAVE_PATH)
+            torch.save({"model":hde, "optimizer_state_dict": optimizer.state_dict()}, MODEL_SAVE_PATH)
             plot_training_results(p_losses, plot_accuracies)
 
     hde.last_example = -1
