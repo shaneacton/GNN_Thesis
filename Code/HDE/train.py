@@ -9,7 +9,6 @@ import pickle
 import torch
 from tqdm import tqdm
 
-from Viz.loss_visualiser import plot_losses
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -20,6 +19,7 @@ import nlp
 from numpy import mean
 from torch import optim
 
+from Viz.loss_visualiser import plot_losses
 from Code.HDE.hde_glove_stack import HDEGloveStack
 from Code.HDE.eval import evaluate
 from Code.HDE.Glove.glove_embedder import NoWordsException
