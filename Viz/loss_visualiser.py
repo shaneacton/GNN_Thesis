@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 import numpy
 
 
-def plot_losses(epochs, losses, accuracies=None):
+def plot_losses(losses, epochs=None, accuracies=None, show=False, save_path=None):
+    if epochs is None:
+        epochs = list(range(len(losses)))
     losses = remove_outliers(losses)
     losses = get_rolling_averages(losses)
     fig = plt.figure()
@@ -26,7 +28,10 @@ def plot_losses(epochs, losses, accuracies=None):
         for tl in ax2.get_yticklabels():
             tl.set_color('r')
 
-    plt.show()
+    if show:
+        plt.show()
+    if save_path is not None:
+        plt.savefig(save_path)
 
 
 def get_rolling_averages(losses: List[int], alph=0.95):
@@ -75,14 +80,14 @@ def plot_losses_from_lines(lines: List[str]):
         losses = [line["loss"] for line in lines]
         accuracies=None
     else:
-        has_tqdm = True
+        has_tqdm = False
         off = 2 if has_tqdm else 0
-        epochs = list(range(len(lines)))
+        epochs = None
         losses = [float(l.split()[5 + off]) for l in lines]
         accuracies = [float(l.split()[11 + off]) for l in lines]
     print("epochs:", epochs)
     print("losses:", losses)
-    plot_losses(epochs, losses, accuracies=accuracies)
+    plot_losses(losses, accuracies=accuracies, epochs=epochs)
 
 
 def plot_losses_from_paste_file():

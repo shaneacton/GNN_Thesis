@@ -1,9 +1,9 @@
 Todo:
 
 * add a classification embedding to the summariser
-* eval code
-* factor entity nodes into final prediction as epr HDE
 * update cand->ent connection to only link cands to ent mentions
+* make things plot their own damn losses
+* save optimiser states
 
 * Graph embedder
      * edge feature encodings. an embedder for subtype info
