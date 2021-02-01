@@ -31,10 +31,10 @@ from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
 NUM_EPOCHS = 5
-PRINT_LOSS_EVERY = 2
+PRINT_LOSS_EVERY = 500
 MAX_EXAMPLES = -1
 
-CHECKPOINT_EVERY = 4
+CHECKPOINT_EVERY = 1000
 file_path = pathlib.Path(__file__).parent.absolute()
 # MODEL_SAVE_PATH = join(file_path, "Checkpoint", "hde_model_shared")
 CHECKPOINT_FOLDER = join(file_path, "Checkpoint")
