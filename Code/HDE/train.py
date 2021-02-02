@@ -1,14 +1,12 @@
 import os
 import pathlib
+import pickle
 import sys
 import time
-from builtins import float
 from os.path import join, exists
-import pickle
 
 import torch
 from tqdm import tqdm
-
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -25,8 +23,6 @@ from Code.HDE.eval import evaluate
 from Code.HDE.Glove.glove_embedder import NoWordsException
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 from Code.Config import sysconf, gcc
-from Code.HDE.hde_glove import HDEGloveEmbed
-from Code.HDE.hde_long_embed import HDELongEmbed
 from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
@@ -38,8 +34,8 @@ CHECKPOINT_EVERY = 1000
 file_path = pathlib.Path(__file__).parent.absolute()
 CHECKPOINT_FOLDER = join(file_path, "Checkpoint")
 
-# MODEL_NAME = "hde_model_shared"
-MODEL_NAME = "hde_model_stack"
+# MODEL_NAME = "hde_model_stack"
+MODEL_NAME = "hde_model_stack_large"
 
 MODEL_SAVE_PATH = join(CHECKPOINT_FOLDER, MODEL_NAME)
 
@@ -74,8 +70,7 @@ def get_model():
             print(e)
             print("cannot load model at", MODEL_SAVE_PATH)
     if hde is None:
-        # hde = HDEGloveEmbed().to(device)
-        hde = HDEGloveStack().to(device)
+        hde = HDEGloveStack(hidden_size=200, embedded_dims=100, num_layers=2).to(device)
         optimizer = optim.SGD(hde.parameters(), lr=0.001)
         print("inited model", repr(hde), "with:", sum(p.numel() for p in hde.parameters() if p.requires_grad), "trainable params")
 

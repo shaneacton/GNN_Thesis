@@ -35,14 +35,15 @@ def plot_losses(losses, epochs=None, accuracies=None, show=False, save_path=None
 
 
 def get_rolling_averages(losses: List[int], alph=0.95):
+    """over the first 10 items, interp the alph value between (a-0.1) and a"""
     losses = copy.deepcopy(losses)
     avgs = [losses.pop(0)]
     while losses:
         next = losses.pop(0)
-        try:
-            avg = avgs[-1] * alph + next * (1-alph)
-        except:
-            print("last av:", avgs[-1], "next:")
+
+        alph_offset = max(0, 0.1 * (10 - len(avgs)))
+        eff_alph = alph - alph_offset
+        avg = avgs[-1] * eff_alph + next * (1-eff_alph)
         avgs.append(avg)
     return avgs
 
@@ -66,7 +67,7 @@ def remove_outliers(losses):
     return cleans
 
 
-def plot_losses_from_lines(lines: List[str]):
+def plot_losses_from_lines(lines: List[str], show=False):
     """
         json lines (no commas between top level items)
         eg: {'loss': 4.89647998046875, 'learning_rate': 4.942921722850718e-05, 'epoch': 0.011415655429856505}
@@ -87,13 +88,13 @@ def plot_losses_from_lines(lines: List[str]):
         accuracies = [float(l.split()[11 + off]) for l in lines]
     print("epochs:", epochs)
     print("losses:", losses)
-    plot_losses(losses, accuracies=accuracies, epochs=epochs)
+    plot_losses(losses, accuracies=accuracies, epochs=epochs, show=show)
 
 
-def plot_losses_from_paste_file():
+def plot_losses_from_paste_file(show=True):
     with open("paste_loss_print.txt") as f:
         j_lines = f.readlines()
-        plot_losses_from_lines(j_lines)
+        plot_losses_from_lines(j_lines, show=show)
 
 
 if __name__ == "__main__":

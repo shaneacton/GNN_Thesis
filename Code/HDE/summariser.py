@@ -8,12 +8,12 @@ class Summariser(nn.Module):
         into fixed size node embedding
     """
 
-    def __init__(self, hidden_size, num_types=1, num_layers=1):
+    def __init__(self, hidden_size, num_layers=1, num_heads=5, intermediate_fac=2, dropout=0.1):
         super().__init__()
         # self.long_conf = get_longformer_config(num_layers=2, num_types=num_types, hidden_size=hidden_size)
         # self.longformer = LongformerModel(self.long_conf)
 
-        encoder_layer = TransformerEncoderLayer(hidden_size, 5, hidden_size * 2, 0.1, 'relu')
+        encoder_layer = TransformerEncoderLayer(hidden_size, num_heads, hidden_size * intermediate_fac, dropout, 'relu')
         encoder_norm = LayerNorm(hidden_size)
         self.encoder = TransformerEncoder(encoder_layer, num_layers, encoder_norm)
         self.hidden_size = hidden_size
