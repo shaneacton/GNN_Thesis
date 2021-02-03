@@ -5,6 +5,7 @@ import torch
 
 from Code.HDE.hde_glove_stack import HDEGloveStack
 from Code.Training import device
+from Viz.loss_visualiser import visualise_training_data
 
 
 def num_params(model):
@@ -36,12 +37,32 @@ def get_training_data(save_path):
     if exists(save_path):
         filehandler = open(save_path + ".data", 'rb')
         data = pickle.load(filehandler)
+        filehandler.close()
         return data
 
     return {"losses": [], "train_accs": [], "valid_accs": []}
+
 
 def get_optimizer(model, type="sgd"):
     if type == "sgd":
         return torch.optim.SGD(model.parameters(), lr=0.001)
     if type == "adamw":
         return torch.optim.AdamW(model.parameters, lr=0.001)
+
+
+def plot_training_data(data, save_path, print_loss_every, num_training_examples):
+    path = save_path + "_losses.png"
+    losses, train_accs, valid_accs = data["losses"], data["train_accs"], data["valid_accs"]
+
+    num_prints = len(losses)
+    num_trained_examples = num_prints * print_loss_every
+    num_epochs = num_trained_examples / num_training_examples
+    epochs = [num_epochs * i/len(losses) for i in range(len(losses))]
+
+    visualise_training_data(losses, accuracies=train_accs, show=False, save_path=path, epochs=epochs, valid_accs=valid_accs)
+
+
+def save_training_data(data, save_path):
+    filehandler = open(save_path + ".data", 'wb')
+    pickle.dump(data, filehandler)
+    filehandler.close()

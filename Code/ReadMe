@@ -1,5 +1,6 @@
 Todo:
 
+* speed up graph construction
 * add a classification embedding to the summariser
 * test AdamW
 * asymmetrical GAT
@@ -7,7 +8,8 @@ Todo:
 * edge info
 
 * make some sort of scheduler
-    * extract model specifics from trainer.
+    * extract model specifics from trainer
+    * create model config system
 
 * GNNs
     * switch additive attention for dot-product
