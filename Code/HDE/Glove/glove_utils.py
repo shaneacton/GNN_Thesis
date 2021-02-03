@@ -5,10 +5,10 @@ from transformers import TokenSpan
 
 from Code.Data.Text.spacy_utils import get_entity_char_spans, get_noun_char_spans
 from Code.HDE.Glove.glove_embedder import GloveEmbedder
-from Code.HDE.edge import HDEEdge
-from Code.HDE.graph import HDEGraph
-from Code.HDE.graph_utils import fully_connect
-from Code.HDE.node import HDENode
+from Code.HDE.Graph.edge import HDEEdge
+from Code.HDE.Graph.graph import HDEGraph
+from Code.HDE.Graph.graph_utils import fully_connect
+from Code.HDE.Graph.node import HDENode
 from Code.constants import CODOCUMENT, ENTITY
 
 

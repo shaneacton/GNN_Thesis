@@ -9,8 +9,8 @@ from transformers import BatchEncoding, LongformerTokenizerFast
 
 from Code.Config import gcc, sysconf
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
-from Code.HDE.graph import HDEGraph
-from Code.HDE.graph_utils import add_doc_nodes, add_entity_nodes, get_entities, add_candidate_nodes, \
+from Code.HDE.Graph.graph import HDEGraph
+from Code.HDE.Graph.graph_utils import add_doc_nodes, add_entity_nodes, get_entities, add_candidate_nodes, \
     connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions
 from Code.HDE.summariser import Summariser
 from Code.Training import device

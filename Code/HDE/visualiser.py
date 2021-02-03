@@ -6,8 +6,8 @@ try:
 except:
     print("python-graphviz not installed. cannot visualise graphs")
 
-from Code.HDE.graph import HDEGraph
-from Code.HDE.node import HDENode
+from Code.HDE.Graph.graph import HDEGraph
+from Code.HDE.Graph.node import HDENode
 from Code.constants import CANDIDATE, DOCUMENT, ENTITY
 
 

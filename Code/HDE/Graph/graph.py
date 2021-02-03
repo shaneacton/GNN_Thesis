@@ -8,8 +8,8 @@ from Code.Training import device
 from Code.constants import ENTITY, DOCUMENT, CANDIDATE
 
 if TYPE_CHECKING:
-    from Code.HDE.edge import HDEEdge
-    from Code.HDE.node import HDENode
+    from Code.HDE.Graph.edge import HDEEdge
+    from Code.HDE.Graph.node import HDENode
 
 
 class HDEGraph:

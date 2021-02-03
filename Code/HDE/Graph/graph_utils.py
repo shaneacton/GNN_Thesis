@@ -6,9 +6,9 @@ from transformers import LongformerTokenizerFast, BatchEncoding, TokenSpan
 
 from Code.Data.Text.spacy_utils import get_entity_char_spans
 from Code.HDE.Glove.glove_embedder import GloveEmbedder
-from Code.HDE.edge import HDEEdge
-from Code.HDE.graph import HDEGraph
-from Code.HDE.node import HDENode
+from Code.HDE.Graph.edge import HDEEdge
+from Code.HDE.Graph.graph import HDEGraph
+from Code.HDE.Graph.node import HDENode
 from Code.constants import DOCUMENT, ENTITY, CODOCUMENT, CANDIDATE, COMENTION
 
 only_letters = re.compile('[^a-zA-Z]')

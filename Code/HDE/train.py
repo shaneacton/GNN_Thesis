@@ -1,6 +1,7 @@
 import os
 import pathlib
 import pickle
+import random
 import sys
 import time
 from os.path import join, exists
@@ -17,7 +18,7 @@ import nlp
 from numpy import mean
 from torch import optim
 
-from Viz.loss_visualiser import plot_losses
+from Viz.loss_visualiser import plot_training_data
 from Code.HDE.hde_glove_stack import HDEGloveStack
 from Code.HDE.eval import evaluate
 from Code.HDE.Glove.glove_embedder import NoWordsException
@@ -26,15 +27,15 @@ from Code.Config import sysconf, gcc
 from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
-NUM_EPOCHS = 5
+NUM_EPOCHS = 8
 PRINT_LOSS_EVERY = 500
 MAX_EXAMPLES = -1
 
-CHECKPOINT_EVERY = 1000
+CHECKPOINT_EVERY = 43000
 file_path = pathlib.Path(__file__).parent.absolute()
 CHECKPOINT_FOLDER = join(file_path, "Checkpoint")
 
-# MODEL_NAME = "hde_model_stack"
+# MODEL_NAME = "hde_model_stack_large_deep"
 MODEL_NAME = "hde_model_stack_large"
 
 MODEL_SAVE_PATH = join(CHECKPOINT_FOLDER, MODEL_NAME)
@@ -43,13 +44,15 @@ print("loading data")
 
 train = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.TRAIN)
 
-p_losses=[]
-plot_accuracies=[]
+plot_losses = []
+plot_train_accs = []
+plot_valid_accs = []
 
 
 def get_model():
-    global  p_losses
-    global plot_accuracies
+    global plot_losses
+    global plot_train_accs
+    global plot_valid_accs
 
     hde = None
     if exists(MODEL_SAVE_PATH):
@@ -61,11 +64,11 @@ def get_model():
 
             print("loading checkpoint model at:", MODEL_SAVE_PATH, "with",
                   sum(p.numel() for p in hde.parameters() if p.requires_grad), "trainable params")
-            filehandler = open(MODEL_SAVE_PATH + "_losses.data", 'rb')
-            p_losses = pickle.load(filehandler)
-            filehandler = open(MODEL_SAVE_PATH + "_accuracies.data", 'rb')
-            plot_accuracies = pickle.load(filehandler)
-            print("loaded losses:", len(p_losses), p_losses)
+            filehandler = open(MODEL_SAVE_PATH + ".data", 'rb')
+            train_data = pickle.load(filehandler)
+            plot_losses, plot_train_accs, plot_valid_accs = train_data["losses"], train_data["train_accs"], \
+                                                            train_data["valid_accs"]
+            print("loaded losses:", len(plot_losses), plot_losses)
         except Exception as e:
             print(e)
             print("cannot load model at", MODEL_SAVE_PATH)
@@ -81,16 +84,20 @@ hde, optimizer = get_model()
 
 
 last_print = time.time()
-print("num examples:", len(train))
+num_examples = len(train)
+print("num examples:", num_examples)
 
 
-def plot_training_results(losses, accuracies):
+def plot_training_results(losses, train_accs, valid_accs):
     path = MODEL_SAVE_PATH + "_losses.png"
-    plot_losses(losses, accuracies=accuracies, show=False, save_path=path)
-    filehandler = open(MODEL_SAVE_PATH + "_losses.data", 'wb')
-    pickle.dump(losses, filehandler)
-    filehandler = open(MODEL_SAVE_PATH + "_accuracies.data", 'wb')
-    pickle.dump(accuracies, filehandler)
+    num_prints = len(losses)
+    num_trained_examples = num_prints * PRINT_LOSS_EVERY
+    num_epochs = num_trained_examples / num_examples
+    epochs = [num_epochs * i/len(losses) for i in range(len(losses))]
+    plot_training_data(losses, accuracies=train_accs, show=False, save_path=path, epochs=epochs, valid_accs=valid_accs)
+    filehandler = open(MODEL_SAVE_PATH + ".data", 'wb')
+    data = {"losses": losses, "train_accs": train_accs, "valid_accs": valid_accs}
+    pickle.dump(data, filehandler)
 
 
 for epoch in range(NUM_EPOCHS):
@@ -119,7 +126,8 @@ for epoch in range(NUM_EPOCHS):
         supports = [s[:gcc.max_context_chars] if gcc.max_context_chars != -1 else s for s in supports]
 
         try:
-            loss, predicted = hde(supports, query, candidates, answer=answer)
+            # loss, predicted = hde(supports, query, candidates, answer=answer)
+            loss, predicted = torch.tensor(0), random.choice(candidates)
         except NoWordsException as ne:
             continue
 
@@ -128,11 +136,11 @@ for epoch in range(NUM_EPOCHS):
         chances.append(1./len(candidates))
 
         t = time.time()
-        loss.backward()
+        # loss.backward()
         if sysconf.print_times:
             print("back time:", (time.time() - t))
         t = time.time()
-        optimizer.step()
+        # optimizer.step()
         losses.append(loss.item())
 
         if len(losses) % PRINT_LOSS_EVERY == 0:  # print loss
@@ -142,20 +150,22 @@ for epoch in range(NUM_EPOCHS):
                   "time:", (time.time() - last_print), "acc:", acc, "chance:", mean(chances[-PRINT_LOSS_EVERY:-1]))
             last_print = time.time()
 
-            p_losses.append(mean_loss)
-            plot_accuracies.append(acc)
+            plot_losses.append(mean_loss)
+            plot_train_accs.append(acc)
 
         if len(losses) % CHECKPOINT_EVERY == 0:  # save model
             print("saving model at e", epoch, "i:", i)
             hde.last_example = i
             hde.last_epoch = epoch
-            torch.save({"model":hde, "optimizer_state_dict": optimizer.state_dict()}, MODEL_SAVE_PATH)
-            plot_training_results(p_losses, plot_accuracies)
+            torch.save({"model": hde, "optimizer_state_dict": optimizer.state_dict()}, MODEL_SAVE_PATH)
+            plot_training_results(plot_losses, plot_train_accs, plot_valid_accs)
 
     hde.last_example = -1
 
     print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
           "chance:", mean(chances))
 
+    valid_acc = evaluate(hde)
+    plot_valid_accs.append(valid_acc)
 
-    evaluate(hde)
+plot_training_results(plot_losses, plot_train_accs, plot_valid_accs)

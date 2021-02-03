@@ -1,4 +1,4 @@
-from Code.HDE.graph import HDEGraph
+from Code.HDE.Graph.graph import HDEGraph
 
 
 class HDEEdge:

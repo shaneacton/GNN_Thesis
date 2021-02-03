@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy
 
 
-def plot_losses(losses, epochs=None, accuracies=None, show=False, save_path=None):
+def plot_training_data(losses, epochs=None, accuracies=None, show=False, save_path=None, valid_accs=None):
     if epochs is None:
         epochs = list(range(len(losses)))
     losses = remove_outliers(losses)
@@ -27,6 +27,9 @@ def plot_losses(losses, epochs=None, accuracies=None, show=False, save_path=None
         ax2.set_ylabel('accuracy', color='r')
         for tl in ax2.get_yticklabels():
             tl.set_color('r')
+
+        if valid_accs is not None:
+            ax2.plot(list(range(1, len(valid_accs) + 1)), valid_accs, "ro")
 
     if show:
         plt.show()
@@ -88,7 +91,7 @@ def plot_losses_from_lines(lines: List[str], show=False):
         accuracies = [float(l.split()[11 + off]) for l in lines]
     print("epochs:", epochs)
     print("losses:", losses)
-    plot_losses(losses, accuracies=accuracies, epochs=epochs, show=show)
+    plot_training_data(losses, accuracies=accuracies, epochs=epochs, show=show)
 
 
 def plot_losses_from_paste_file(show=True):

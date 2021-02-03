@@ -7,7 +7,7 @@ from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 test = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.VALIDATION)
-MAX_EXAMPLES = -1
+MAX_EXAMPLES = 10
 
 
 def evaluate(hde):
@@ -36,5 +36,6 @@ def evaluate(hde):
 
     hde.last_example = -1
 
-    print("eval completed. Validation acc:", get_acc_and_f1(answers, predictions)['exact_match'],
-          "chance:", mean(chances))
+    valid_acc = get_acc_and_f1(answers, predictions)['exact_match']
+    print("eval completed. Validation acc:", valid_acc, "chance:", mean(chances))
+    return valid_acc

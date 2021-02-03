@@ -9,16 +9,12 @@ Todo:
 * make some sort of scheduler
     * extract model specifics from trainer.
 
-* Graph embedder
-     * edge feature encodings. an embedder for subtype info
-
 * GNNs
     * switch additive attention for dot-product
 
 
-NLP Libs:
-Spacy - ineffective
-StanfordNLP python wrapper has no coref
+
+
 
 
 Installs:

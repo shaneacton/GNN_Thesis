@@ -3,16 +3,16 @@ from typing import List
 
 import torch
 from torch import nn
-from torch.nn import ModuleList, ReLU, CrossEntropyLoss
-from torch_geometric.nn import GATConv, MessagePassing
+from torch.nn import ReLU, CrossEntropyLoss
+from torch_geometric.nn import GATConv
 
 from Code.Config import sysconf, vizconf
 from Code.HDE.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.Glove.glove_utils import get_glove_entities
 from Code.HDE.coattention import Coattention
 from Code.HDE.gnn_stack import GNNStack
-from Code.HDE.graph import HDEGraph
-from Code.HDE.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
+from Code.HDE.Graph.graph import HDEGraph
+from Code.HDE.Graph.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
     connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions, similar
 from Code.HDE.scorer import HDEScorer
 from Code.HDE.summariser import Summariser
