@@ -12,7 +12,7 @@ def num_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-def get_model(save_path):
+def get_model(save_path, hidden_size=200, embedded_dims=100, num_layers=2):
     hde = None
     if exists(save_path):
         try:
@@ -26,7 +26,7 @@ def get_model(save_path):
             print(e)
             print("cannot load model at", save_path)
     if hde is None:
-        hde = HDEGloveStack(hidden_size=200, embedded_dims=100, num_layers=2).to(device)
+        hde = HDEGloveStack(hidden_size=hidden_size, embedded_dims=embedded_dims, num_layers=num_layers).to(device)
         optimizer = get_optimizer(hde)
         print("inited model", repr(hde), "with:", num_params(hde), "trainable params")
 

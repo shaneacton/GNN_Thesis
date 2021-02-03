@@ -4,7 +4,9 @@ Todo:
 * add a classification embedding to the summariser
 * test AdamW
 * asymmetrical GAT
+* clean up hde glove stack
 * node type embeddings
+* try up glove embs, try large ass model
 * edge info
 
 * make some sort of scheduler

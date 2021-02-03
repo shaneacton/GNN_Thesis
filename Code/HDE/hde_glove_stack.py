@@ -47,26 +47,16 @@ class HDEGloveStack(nn.Module):
             nodes are connected according to the HDE paper
             the graph is converted to a pytorch geometric datapoint
         """
-        t = time.time()
-
         support_embeddings = self.get_query_aware_context_embeddings(supports, query)
-
-        if sysconf.print_times:
-            print("got embeddings in", (time.time() - t))
-        t = time.time()
-
         candidate_summaries = [self.summariser(self.embedder(cand)) for cand in candidates]
         support_summaries = [self.summariser(sup_emb) for sup_emb in support_embeddings]
 
-        if sysconf.print_times:
-            print("got summaries in", (time.time() - t))
         t = time.time()
 
         ent_token_spans, ent_summaries, = get_glove_entities(self.summariser, support_embeddings, supports, self.embedder)
 
         if sysconf.print_times:
             print("got ents in", (time.time() - t))
-        t = time.time()
 
         graph = self.create_graph(candidates, ent_token_spans, supports)
         if vizconf.visualise_graphs:
@@ -74,8 +64,6 @@ class HDEGloveStack(nn.Module):
             if vizconf.exit_after_first_viz:
                 exit()
 
-        if sysconf.print_times:
-            print("made graph in", (time.time() - t))
         t = time.time()
 
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
@@ -95,7 +83,6 @@ class HDEGloveStack(nn.Module):
 
         cand_embs = x[cand_idxs[0]: cand_idxs[-1] + 1, :]
         cand_probs = self.candidate_scorer(cand_embs).view(len(graph.candidate_nodes))
-        # print("cand probs:", cand_probs.size())
 
         ent_probs = []
         for c, cand in enumerate(candidates):
@@ -104,7 +91,6 @@ class HDEGloveStack(nn.Module):
             linked_ent_nodes = set()
             for ent_text in graph.entity_text_to_nodes.keys():  # find all entities with similar text
                 if similar(cand_node.text, ent_text):
-                    # print("\tcand:", cand, "ents:", ent_text)
                     linked_ent_nodes.update(graph.entity_text_to_nodes[ent_text])
 
             if len(linked_ent_nodes) == 0:
@@ -114,18 +100,17 @@ class HDEGloveStack(nn.Module):
                 linked_ent_nodes = torch.tensor(linked_ent_nodes).to(device).long()
                 ent_embs = torch.index_select(x, dim=0, index=linked_ent_nodes)
 
-                # print("ent embs:", ent_embs.size())
                 cand_ent_probs = self.entity_scorer(ent_embs)
-                # print("ent probs:", cand_ent_probs.size())
                 max_prob = torch.max(cand_ent_probs)
             ent_probs += [max_prob]
-            # print("max:", max_prob)
         ent_probs = torch.stack(ent_probs, dim=0)
-        # print("ent probs:", ent_probs.size())
 
         final_probs = cand_probs + ent_probs
         pred_id = torch.argmax(final_probs)
         pred_ans = candidates[pred_id]
+
+        if sysconf.print_times:
+            print("passed output model in", (time.time() - t))
 
         if answer is not None:
             ans_id = candidates.index(answer)
@@ -144,6 +129,7 @@ class HDEGloveStack(nn.Module):
         return support_embeddings
 
     def create_graph(self, candidates, ent_token_spans, supports):
+        start_t = time.time()
         graph = HDEGraph()
         add_doc_nodes(graph, supports)
         add_entity_nodes(graph, supports, ent_token_spans, glove_embedder=self.embedder)
@@ -151,4 +137,8 @@ class HDEGloveStack(nn.Module):
         connect_candidates_and_entities(graph)
         connect_entity_mentions(graph)
         connect_unconnected_entities(graph)
+
+        if sysconf.print_times:
+            print("made full graph in", (time.time() - start_t))
+
         return graph

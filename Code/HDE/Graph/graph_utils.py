@@ -1,4 +1,5 @@
 import re
+import time
 from typing import Tuple, List
 
 from torch import Tensor
@@ -17,33 +18,42 @@ def clean(text):
 
 
 def connect_unconnected_entities(graph: HDEGraph):
-    """should be called last, after all other nodes are connected"""
+    """type 7. should be called last, after all other nodes are connected"""
+    t = time.time()
+
     for e1, ent_node1 in enumerate(graph.get_entity_nodes()):
         for e2, ent_node2 in enumerate(graph.get_entity_nodes()):
             if e1 == e2:  # same mention
                 continue
-
+            if graph.has_connection(ent_node1.id_in_graph, ent_node2.id_in_graph):
+                continue
             edge = HDEEdge(ent_node1.id_in_graph, ent_node2.id_in_graph, type=ENTITY)
-            graph.safe_add_edge(edge)
-
+            graph.add_edge(edge)
 
 def similar(text1, text2):
     return text1 in text2 or text2 in text1
 
 
 def connect_entity_mentions(graph: HDEGraph):
-
+    """
+        type 5. mentions of the same entity.
+        currently connects all such cases, not only for query and cand ents as in HDE
+    """
     for e1, ent_node1 in enumerate(graph.get_entity_nodes()):
         ent_text1 = clean(ent_node1.text)
 
         for e2, ent_node2 in enumerate(graph.get_entity_nodes()):
             if e1 == e2:  # same mention
                 continue
+
             ent_text2 = clean(ent_node2.text)
             if similar(ent_text1, ent_text2):
                 """same entity, different mention"""
+                if graph.has_connection(ent_node1.id_in_graph, ent_node2.id_in_graph):
+                    continue
+
                 edge = HDEEdge(ent_node1.id_in_graph, ent_node2.id_in_graph, type=COMENTION)
-                graph.safe_add_edge(edge)
+                graph.add_edge(edge)
 
 
 def connect_candidates_and_entities(graph: HDEGraph):

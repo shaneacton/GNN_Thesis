@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING, Dict
+from typing import List, TYPE_CHECKING, Dict, Generator, Tuple, Set
 
 import torch
 
@@ -22,7 +22,7 @@ class HDEGraph:
         self.candidate_nodes: List[int] = []
 
         self.ordered_edges: List[HDEEdge] = []
-        self.unique_edges = set()
+        self.unique_edges: Set[Tuple[int]] = set()  # set of (t, f) ids, which are always sorted, ie: t<f
 
     @property
     def edge_index(self) -> torch.LongTensor:
@@ -53,17 +53,24 @@ class HDEGraph:
         return next_id
 
     def has_edge(self, edge):
-        return edge in self.unique_edges
+        key = tuple(sorted([edge.to_id, edge.from_id]))
+        return key in self.unique_edges
+
+    def has_connection(self, to_id, from_id):
+        key = tuple(sorted([to_id, from_id]))
+        return key in self.unique_edges
 
     def safe_add_edge(self, edge):
         if not self.has_edge(edge):
             self.add_edge(edge)
+            return True
+        return False
 
     def add_edge(self, edge):
         if self.has_edge(edge):
             print("warning, adding  an edge between two nodes which are already connected")
         self.ordered_edges.append(edge)
-        self.unique_edges.add(edge)
+        self.unique_edges.add(tuple(sorted([edge.to_id, edge.from_id])))
 
     def get_doc_nodes(self) -> List[HDENode]:
         """returns the actual nodes, in order"""
@@ -72,5 +79,5 @@ class HDEGraph:
     def get_candidate_nodes(self) -> List[HDENode]:
         return [self.ordered_nodes[c] for c in self.candidate_nodes]
 
-    def get_entity_nodes(self) -> List[HDENode]:
-        return [self.ordered_nodes[e] for e in self.entity_nodes]
+    def get_entity_nodes(self) -> Generator[HDENode]:
+        return (self.ordered_nodes[e] for e in self.entity_nodes)

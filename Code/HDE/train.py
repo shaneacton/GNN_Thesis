@@ -42,7 +42,7 @@ print("loading data")
 train = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.TRAIN)
 
 
-hde, optimizer = get_model(MODEL_SAVE_PATH)
+hde, optimizer = get_model(MODEL_SAVE_PATH, num_layers=4)
 results = get_training_data(MODEL_SAVE_PATH)
 
 
