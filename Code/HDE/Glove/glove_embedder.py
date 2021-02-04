@@ -2,16 +2,17 @@ from os.path import join
 
 import numpy as np
 import torch
-from torch import Tensor
+from torch import Tensor, nn
 import re
 import pathlib
 
 from Code.Training import device
 
 
-class GloveEmbedder:
+class GloveEmbedder(nn.Module):
 
     def __init__(self, dims=50):
+        super().__init__()
         file_path = pathlib.Path(__file__).parent.absolute()
         print("file path:", file_path)
         embeddings_dict = {}

@@ -63,7 +63,6 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
             loss.backward()
             if sysconf.print_times:
                 print("back time:", (time.time() - t))
-            t = time.time()
             optimizer.step()
             losses.append(loss.item())
 

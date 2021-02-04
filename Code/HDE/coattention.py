@@ -22,10 +22,10 @@ class Coattention(nn.Module):
             adds a type embedding to supp and query embeddings
             passes through transformer, returns a transformed sequence shaped as the sup emb
         """
-        supp_idxs = torch.zeros(suport_embedding.size(1)).long().to(device).view(1, -1, self.hidden_size)
-        query_idxs = torch.ones(query_embedding.size(1)).long().to(device).view(1, -1, self.hidden_size)
-        suport_embedding += self.type_embedder(supp_idxs)
-        query_embedding += self.type_embedder(query_idxs)
+        supp_idxs = torch.zeros(suport_embedding.size(1)).long().to(device)
+        query_idxs = torch.ones(query_embedding.size(1)).long().to(device)
+        suport_embedding += self.type_embedder(supp_idxs).view(1, -1, self.hidden_size)
+        query_embedding += self.type_embedder(query_idxs).view(1, -1, self.hidden_size)
         full = torch.cat([suport_embedding, query_embedding], dim=1)
         # print("full:", full.size())
         full = self.encoder(full)

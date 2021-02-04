@@ -57,7 +57,7 @@ def get_glove_entities(summariser, support_embeddings, supports, glove_embedder:
                 continue
 
             ent_token_spans.append(ent_token_span)
-            ent_summaries.append(summariser(support_embeddings[s], ent_token_span))
+            ent_summaries.append(summariser(support_embeddings[s], ENTITY, ent_token_span))
 
         token_spans.append(ent_token_spans)
         summaries.extend(ent_summaries)

@@ -18,6 +18,7 @@ from Code.HDE.scorer import HDEScorer
 from Code.HDE.summariser import Summariser
 from Code.HDE.visualiser import render_graph
 from Code.Training import device
+from Code.constants import CANDIDATE, DOCUMENT
 
 
 class HDEGloveStack(nn.Module):
@@ -49,8 +50,8 @@ class HDEGloveStack(nn.Module):
             the graph is converted to a pytorch geometric datapoint
         """
         support_embeddings = self.get_query_aware_context_embeddings(supports, query)
-        candidate_summaries = [self.summariser(self.embedder(cand)) for cand in candidates]
-        support_summaries = [self.summariser(sup_emb) for sup_emb in support_embeddings]
+        candidate_summaries = [self.summariser(self.embedder(cand), CANDIDATE) for cand in candidates]
+        support_summaries = [self.summariser(sup_emb, DOCUMENT) for sup_emb in support_embeddings]
 
         t = time.time()
 
