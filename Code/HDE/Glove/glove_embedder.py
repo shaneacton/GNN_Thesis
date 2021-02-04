@@ -11,7 +11,7 @@ from Code.Training import device
 
 class GloveEmbedder(nn.Module):
 
-    def __init__(self, dims=50):
+    def __init__(self, dims=50, max_positions=4050):
         super().__init__()
         file_path = pathlib.Path(__file__).parent.absolute()
         print("file path:", file_path)
@@ -29,6 +29,8 @@ class GloveEmbedder(nn.Module):
         self.regex = re.compile('[^a-zA-Z 0123456789,.&]')
 
         self.embs = embeddings_dict
+
+        self.positional_embs = nn.Embedding(max_positions, dims)
 
     def __call__(self, string):
         return self.embed(string)
@@ -65,12 +67,16 @@ class GloveEmbedder(nn.Module):
                 raise Exception("word: " + w + " emb: " + repr(tens.size()) + " map: " + out)
             embs.append(tens.view(1, self.dims))
 
-
-        embs = torch.cat(embs, dim=0).view(1, len(embs), -1)
+        seq_len = len(embs)
+        embs = torch.cat(embs, dim=0).view(1, seq_len, -1)
+        pos_ids = torch.tensor([i for i in range(seq_len)]).long().to(device)
+        pos_embs = self.positional_embs(pos_ids).view(1, seq_len, -1)
+        embs = embs.to(device)
+        embs += pos_embs
 
         # print("emb:", embs.size())
         # print(embs)
-        return embs.to(device)
+        return embs
 
 
 class NoWordsException(Exception):
