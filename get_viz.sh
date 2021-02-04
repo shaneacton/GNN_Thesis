@@ -1,5 +1,5 @@
 #!/bin/bash
-MODEL_NAMES="stack_large stack_large_deep"
+MODEL_NAMES="stack_large_deep stack_large"
 
 
 for val in $MODEL_NAMES; do

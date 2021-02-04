@@ -1,6 +1,5 @@
 Todo:
 
-* speed up graph construction
 * add a classification embedding to the summariser
 * test AdamW
 * asymmetrical GAT

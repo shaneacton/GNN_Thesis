@@ -30,6 +30,7 @@ def connect_unconnected_entities(graph: HDEGraph):
             edge = HDEEdge(ent_node1.id_in_graph, ent_node2.id_in_graph, type=ENTITY)
             graph.add_edge(edge)
 
+
 def similar(text1, text2):
     return text1 in text2 or text2 in text1
 

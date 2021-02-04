@@ -1,0 +1,43 @@
+import os
+import pathlib
+import sys
+from os.path import join
+
+from Code.HDE.Config import load_configs, load_checkpoint_model_config
+from Code.HDE.trainer import train_model
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
+sys.path.append(dir_path_1)
+sys.path.append(os.path.join(dir_path_1, 'Code'))
+
+
+file_path = pathlib.Path(__file__).parent.absolute()
+CHECKPOINT_FOLDER = join(file_path, "Checkpoint")
+
+
+def train_config(config_name, train_cfg_name="standard_train"):
+    """train/continue a model using a model config in HDE/Config"""
+    cfg = load_configs(config_name, train_cfg_name=train_cfg_name)
+
+    if "name" in cfg:
+        model_name = cfg["name"]
+    else:
+        model_name = config_name
+
+    path = join(CHECKPOINT_FOLDER, model_name)
+    train_model(path, **cfg)
+
+
+def continue_model(model_name):
+    """
+        continue a partly trained model using its name
+        you don't have to reference the original config to continue a models training
+    """
+    path = join(CHECKPOINT_FOLDER, model_name)
+    cfg = load_checkpoint_model_config(path)
+    train_model(path, **cfg)
+
+
+train_config("base")
+# continue_model("hde")

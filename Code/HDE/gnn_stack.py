@@ -5,12 +5,12 @@ from torch.nn import Linear, Dropout, LayerNorm, ModuleList
 
 class GNNStack(nn.Module):
 
-    def __init__(self, GNNClass, num_layers, in_channels, hidden_size, **layer_kwargs):
+    def __init__(self, GNNClass, num_layers, in_channels, hidden_size, dropout=0.1, **layer_kwargs):
         super().__init__()
         layers = []
         for layer_i in range(num_layers):
             in_size = in_channels if layer_i == 0 else hidden_size
-            layer = GNNLayer(GNNClass, in_size, hidden_size, **layer_kwargs)
+            layer = GNNLayer(GNNClass, in_size, hidden_size, dropout=dropout, **layer_kwargs)
             layers.append(layer)
 
         self.layers = ModuleList(layers)

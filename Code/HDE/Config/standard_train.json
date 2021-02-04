@@ -1,0 +1,6 @@
+{
+  "num_epochs": 5,
+  "max_examples": -1,
+  "print_loss_every": 3,
+  "checkpoint_every": 9
+}

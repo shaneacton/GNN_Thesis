@@ -1,0 +1,9 @@
+{
+  "name": "hde",
+  "num_layers": 3,
+  "hidden_size": 200,
+  "embedded_dims": 200,
+  "heads": 1,
+  "dropout": 0.3,
+  "optimizer_type": "adamw"
+}

@@ -1,0 +1,37 @@
+import copy
+import json
+import pathlib
+import pickle
+from os.path import join, exists
+from typing import Dict
+
+config_folder = pathlib.Path(__file__).parent.absolute()
+
+
+def load_checkpoint_model_config(path):
+    filehandler = open(path + ".cfg", 'rb')
+    cfg = pickle.load(filehandler)
+    filehandler.close()
+    return cfg
+
+
+def load_config(name):
+    if ".json" not in name:
+        name += ".json"
+    path = join(config_folder, name)
+    if not exists(path):
+        raise Exception("no such config file as:", name, "in HDE/Config/")
+    kwargs = json.load(open(path, "r"))
+    return kwargs
+
+
+def load_configs(model_cfg_name, train_cfg_name="standard_train"):
+    train_kwargs = load_config(train_cfg_name)
+    model_kwargs = load_config(model_cfg_name)
+
+    all_kwargs: Dict = copy.deepcopy(train_kwargs)
+    all_kwargs.update(model_kwargs)
+
+    print("loaded config for model:", model_cfg_name)
+
+    return all_kwargs

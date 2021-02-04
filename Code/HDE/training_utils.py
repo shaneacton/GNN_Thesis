@@ -12,22 +12,23 @@ def num_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-def get_model(save_path, hidden_size=200, embedded_dims=100, num_layers=2):
+def get_model(save_path, hidden_size=200, embedded_dims=100, optimizer_type="sgd", **model_kwargs):
     hde = None
     if exists(save_path):
         try:
             checkpoint = torch.load(save_path)
-            hde = checkpoint["model"].to(device)
-            optimizer = get_optimizer(hde)
+            hde: HDEGloveStack = checkpoint["model"].to(device)
+            optimizer = get_optimizer(hde, type=optimizer_type)
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
-            print("loading checkpoint model at:", save_path, "with", num_params(hde), "trainable params")
+            print("loading checkpoint model at:", save_path, "e:", hde.last_epoch, "i:", hde.last_example,
+                  "with", num_params(hde), "trainable params")
         except Exception as e:
             print(e)
             print("cannot load model at", save_path)
     if hde is None:
-        hde = HDEGloveStack(hidden_size=hidden_size, embedded_dims=embedded_dims, num_layers=num_layers).to(device)
-        optimizer = get_optimizer(hde)
+        hde = HDEGloveStack(hidden_size=hidden_size, embedded_dims=embedded_dims, **model_kwargs).to(device)
+        optimizer = get_optimizer(hde, type=optimizer_type)
         print("inited model", repr(hde), "with:", num_params(hde), "trainable params")
 
     return hde, optimizer
@@ -44,10 +45,13 @@ def get_training_data(save_path):
 
 
 def get_optimizer(model, type="sgd"):
+    print("using", type, "optimiser")
     if type == "sgd":
         return torch.optim.SGD(model.parameters(), lr=0.001)
     if type == "adamw":
-        return torch.optim.AdamW(model.parameters, lr=0.001)
+            return torch.optim.AdamW(model.parameters(), lr=0.001)
+
+    raise Exception("unreckognised optimizer arg: " + type)
 
 
 def plot_training_data(data, save_path, print_loss_every, num_training_examples):
@@ -65,4 +69,10 @@ def plot_training_data(data, save_path, print_loss_every, num_training_examples)
 def save_training_data(data, save_path):
     filehandler = open(save_path + ".data", 'wb')
     pickle.dump(data, filehandler)
+    filehandler.close()
+
+
+def save_config(cfg, save_path):
+    filehandler = open(save_path + ".cfg", 'wb')
+    pickle.dump(cfg, filehandler)
     filehandler.close()

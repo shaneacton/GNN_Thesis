@@ -2,6 +2,8 @@ import torch
 from torch import nn
 from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 
+from Code.Training import device
+
 
 class Coattention(nn.Module):
 
@@ -12,9 +14,18 @@ class Coattention(nn.Module):
         encoder_norm = LayerNorm(hidden_size)
         self.encoder = TransformerEncoder(encoder_layer, num_layers, encoder_norm)
         self.hidden_size = hidden_size
+        self.type_embedder = nn.Embedding(2, hidden_size)
 
     def forward(self, suport_embedding, query_embedding):
-        # print("supp:", suport_embedding.size(), "query:", query_embedding.size())
+        """
+            (batch, seq, size)
+            adds a type embedding to supp and query embeddings
+            passes through transformer, returns a transformed sequence shaped as the sup emb
+        """
+        supp_idxs = torch.zeros(suport_embedding.size(1)).long().to(device).view(1, -1, self.hidden_size)
+        query_idxs = torch.ones(query_embedding.size(1)).long().to(device).view(1, -1, self.hidden_size)
+        suport_embedding += self.type_embedder(supp_idxs)
+        query_embedding += self.type_embedder(query_idxs)
         full = torch.cat([suport_embedding, query_embedding], dim=1)
         # print("full:", full.size())
         full = self.encoder(full)
