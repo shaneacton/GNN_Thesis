@@ -5,17 +5,20 @@ import matplotlib.pyplot as plt
 import numpy
 
 
-def visualise_training_data(losses, epochs=None, accuracies=None, show=False, save_path=None, valid_accs=None):
+def visualise_training_data(losses, epochs=None, accuracies=None, show=False, save_path=None, valid_accs=None, title=None):
     if epochs is None:
         epochs = list(range(len(losses)))
     losses = remove_outliers(losses)
     losses = get_rolling_averages(losses)
     fig = plt.figure()
-    fig.suptitle(save_path.split("/")[-1])
-    fig.xlabel("Epoch")
+    if title is None:
+        fig.suptitle(save_path.split("/")[-1])
+    else:
+        fig.suptitle(title)
 
     ax1 = fig.add_subplot(111)
     ax1.plot(epochs, losses)
+    ax1.set_xlabel("Epoch")
     ax1.set_ylabel('loss', color='b')
     for tl in ax1.get_yticklabels():
         tl.set_color('b')
@@ -93,7 +96,7 @@ def plot_losses_from_lines(lines: List[str], show=False):
         accuracies = [float(l.split()[11 + off]) for l in lines]
     print("epochs:", epochs)
     print("losses:", losses)
-    visualise_training_data(losses, accuracies=accuracies, epochs=epochs, show=show)
+    visualise_training_data(losses, accuracies=accuracies, epochs=epochs, show=show, title="paste")
 
 
 def plot_losses_from_paste_file(show=True):
