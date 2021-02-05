@@ -5,5 +5,5 @@
   "embedded_dims": 100,
   "heads": 1,
   "dropout": 0.1,
-  "optimizer_type": "sdg"
+  "optimizer_type": "sgd"
 }
