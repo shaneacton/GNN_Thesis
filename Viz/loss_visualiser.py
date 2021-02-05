@@ -11,6 +11,8 @@ def visualise_training_data(losses, epochs=None, accuracies=None, show=False, sa
     losses = remove_outliers(losses)
     losses = get_rolling_averages(losses)
     fig = plt.figure()
+    fig.suptitle(save_path.split("/")[-1])
+    fig.xlabel("Epoch")
 
     ax1 = fig.add_subplot(111)
     ax1.plot(epochs, losses)
