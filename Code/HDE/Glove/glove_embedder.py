@@ -11,8 +11,9 @@ from Code.Training import device
 
 class GloveEmbedder(nn.Module):
 
-    def __init__(self, dims=50, max_positions=4050, use_positional_embeddings=False):
+    def __init__(self, dims=50, max_positions=4050, use_positional_embeddings=True):
         super().__init__()
+        self.use_positional_embeddings = use_positional_embeddings
         file_path = pathlib.Path(__file__).parent.absolute()
         print("file path:", file_path)
         embeddings_dict = {}
@@ -65,10 +66,11 @@ class GloveEmbedder(nn.Module):
 
         seq_len = len(embs)
         embs = torch.cat(embs, dim=0).view(1, seq_len, -1)
-        pos_ids = torch.tensor([i for i in range(seq_len)]).long().to(device)
-        pos_embs = self.positional_embs(pos_ids).view(1, seq_len, -1)
         embs = embs.to(device)
-        embs += pos_embs
+        if self.use_positional_embeddings:
+            pos_ids = torch.tensor([i for i in range(seq_len)]).long().to(device)
+            pos_embs = self.positional_embs(pos_ids).view(1, seq_len, -1)
+            embs += pos_embs
 
         # print("emb:", embs.size())
         # print(embs)
