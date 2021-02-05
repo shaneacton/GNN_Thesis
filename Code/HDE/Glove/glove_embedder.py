@@ -11,7 +11,7 @@ from Code.Training import device
 
 class GloveEmbedder(nn.Module):
 
-    def __init__(self, dims=50, max_positions=4050):
+    def __init__(self, dims=50, max_positions=4050, use_positional_embeddings=False):
         super().__init__()
         file_path = pathlib.Path(__file__).parent.absolute()
         print("file path:", file_path)
@@ -32,9 +32,6 @@ class GloveEmbedder(nn.Module):
 
         self.positional_embs = nn.Embedding(max_positions, dims)
 
-    def __call__(self, string):
-        return self.embed(string)
-
     def get_emb(self, word):
         if word in self.embs.keys():
             emb = self.embs[word]
@@ -48,7 +45,6 @@ class GloveEmbedder(nn.Module):
         string = string.replace(".", "  ")
         string = string.replace("'s", "")
         string = string.replace("'", "")
-
 
         string = self.regex.sub(' ', string)  # remove all non alpha numeric characters
         words = string.lower().split()
@@ -77,6 +73,9 @@ class GloveEmbedder(nn.Module):
         # print("emb:", embs.size())
         # print(embs)
         return embs
+
+    def forward(self, string):
+        return self.embed(string)
 
 
 class NoWordsException(Exception):
