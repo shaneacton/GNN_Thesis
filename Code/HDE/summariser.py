@@ -15,12 +15,13 @@ class Summariser(nn.Module):
         into fixed size node embedding
     """
 
-    def __init__(self, hidden_size, num_layers=1, num_heads=5, intermediate_fac=2, dropout=0.1):
+    def __init__(self, hidden_size, num_layers=1, num_heads=5, intermediate_fac=2, dropout=0.1, use_type_embedder=True):
         super().__init__()
         # self.long_conf = get_longformer_config(num_layers=2, num_types=num_types, hidden_size=hidden_size)
         # self.longformer = LongformerModel(self.long_conf)
         # self.longformer.forward
 
+        self.use_type_embedder = use_type_embedder
         encoder_layer = TransformerEncoderLayer(hidden_size, num_heads, hidden_size * intermediate_fac, dropout, 'relu')
         encoder_norm = LayerNorm(hidden_size)
         self.encoder = TransformerEncoder(encoder_layer, num_layers, encoder_norm)
@@ -40,12 +41,12 @@ class Summariser(nn.Module):
             span = (0, full_vec.size(-2))  # full span
 
         vec = full_vec[:, span[0]: span[1], :].clone()
+        if self.use_type_embedder:
+            type_id = TYPE_MAP[type]
+            type_ids = torch.tensor([type_id for _ in range(vec.size(1))]).long().to(device)
 
-        type_id = TYPE_MAP[type]
-        type_ids = torch.tensor([type_id for _ in range(vec.size(1))]).long().to(device)
-
-        type_emb = self.type_embedder(type_ids).view(1, -1, self.hidden_size)
-        vec += type_emb
+            type_emb = self.type_embedder(type_ids).view(1, -1, self.hidden_size)
+            vec += type_emb
 
         if vec.size(1) < 1:
             raise Exception("cannot get summary vec, no elements in sequence:" + repr(vec.size()) + " span: " + repr(span)  + " full: " + repr(full_vec.size()))

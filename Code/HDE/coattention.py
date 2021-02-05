@@ -7,9 +7,10 @@ from Code.Training import device
 
 class Coattention(nn.Module):
 
-    def __init__(self, hidden_size, num_layers=1):
+    def __init__(self, hidden_size, num_layers=1, use_type_embeddings=True):
         super().__init__()
 
+        self.use_type_embeddings = use_type_embeddings
         encoder_layer = TransformerEncoderLayer(hidden_size, 5, hidden_size * 2, 0.1, 'relu')
         encoder_norm = LayerNorm(hidden_size)
         self.encoder = TransformerEncoder(encoder_layer, num_layers, encoder_norm)
@@ -22,10 +23,11 @@ class Coattention(nn.Module):
             adds a type embedding to supp and query embeddings
             passes through transformer, returns a transformed sequence shaped as the sup emb
         """
-        supp_idxs = torch.zeros(suport_embedding.size(1)).long().to(device)
-        query_idxs = torch.ones(query_embedding.size(1)).long().to(device)
-        suport_embedding += self.type_embedder(supp_idxs).view(1, -1, self.hidden_size)
-        query_embedding += self.type_embedder(query_idxs).view(1, -1, self.hidden_size)
+        if self.use_type_embeddings:
+            supp_idxs = torch.zeros(suport_embedding.size(1)).long().to(device)
+            query_idxs = torch.ones(query_embedding.size(1)).long().to(device)
+            suport_embedding += self.type_embedder(supp_idxs).view(1, -1, self.hidden_size)
+            query_embedding += self.type_embedder(query_idxs).view(1, -1, self.hidden_size)
         full = torch.cat([suport_embedding, query_embedding], dim=1)
         # print("full:", full.size())
         full = self.encoder(full)
