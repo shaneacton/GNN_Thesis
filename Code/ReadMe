@@ -1,5 +1,6 @@
 Todo:
 
+* ssh keygen for viz
 * add a classification embedding to the summariser
 * test AdamW
 * asymmetrical GAT

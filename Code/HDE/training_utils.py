@@ -29,7 +29,7 @@ def get_model(save_path, hidden_size=200, embedded_dims=100, optimizer_type="sgd
     if hde is None:
         hde = HDEGloveStack(hidden_size=hidden_size, embedded_dims=embedded_dims, **model_kwargs).to(device)
         optimizer = get_optimizer(hde, type=optimizer_type)
-        print("inited model", repr(hde), "with:", num_params(hde), "trainable params")
+        print("inited model",hde.name, repr(hde), "with:", num_params(hde), "trainable params")
 
     return hde, optimizer
 

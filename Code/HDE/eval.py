@@ -7,7 +7,7 @@ from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 test = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.VALIDATION)
-MAX_EXAMPLES = 10
+MAX_EXAMPLES = -1
 
 
 def evaluate(hde):
