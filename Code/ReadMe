@@ -23,8 +23,8 @@ Todo:
 
 Installs:
 ENV_NAME=gnn_env
-y
 conda create --name ${ENV_NAME} python=3.7
+y
 conda activate ${ENV_NAME}
 
 CUDA=cu102

@@ -179,7 +179,7 @@ def get_entities(summariser, support_embeddings, support_encodings, supports) \
                 print(ex)
                 continue
             ent_token_spans.append(ent_token_span)
-            ent_summaries.append(summariser(support_embeddings[s], ent_token_span))
+            ent_summaries.append(summariser(support_embeddings[s], ENTITY, span=ent_token_span))
 
         token_spans.append(ent_token_spans)
         summaries.extend(ent_summaries)

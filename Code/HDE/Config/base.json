@@ -1,7 +1,7 @@
 {
-  "name": "hde",
+  "name": "hde_long",
   "num_layers": 3,
-  "hidden_size": 200,
+  "hidden_size": -1,
   "embedded_dims": 100,
   "heads": 1,
   "dropout": 0.1,

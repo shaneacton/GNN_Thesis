@@ -1,4 +1,6 @@
+import random
 import time
+from random import shuffle
 from statistics import mean
 
 import nlp
@@ -14,6 +16,7 @@ from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 print("loading data")
 train = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.TRAIN)
+train = list(train)
 num_examples = len(train)
 print("num examples:", num_examples)
 
@@ -27,6 +30,8 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
     for epoch in range(num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
             continue
+        random.seed(epoch)
+        shuffle(train)
 
         answers = []
         predictions = []
