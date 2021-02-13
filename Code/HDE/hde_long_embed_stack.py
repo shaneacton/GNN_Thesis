@@ -65,8 +65,6 @@ class HDELongStack(nn.Module):
             tok_ids = [torch.tensor(sup_enc["input_ids"]).long().to(device).view(1, -1) for sup_enc in support_encodings]
             support_embeddings = [self.non_ctx_embedder(input_ids=tok_id) for tok_id in tok_ids]
 
-        print("supp embs:", [s.size() for s in support_embeddings])
-
         if sysconf.print_times:
             print("got support embeddings in", (time.time() - t))
 

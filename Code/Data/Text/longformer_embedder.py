@@ -14,6 +14,8 @@ class LongformerEmbedder(Embedder):
         super().__init__()
         if not longformer:
             longformer = get_pretrained_longformer()
+        for param in longformer.parameters():
+            param.requires_grad = False
 
         self.longformer: LongformerModel = longformer.to(device)
         self.feature_mapper = None
