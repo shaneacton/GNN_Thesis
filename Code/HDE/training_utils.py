@@ -50,12 +50,13 @@ def get_training_data(save_path):
 
 def get_optimizer(model, type="sgd", lr=0.001):
     print("using", type, "optimiser")
+    params = (p for p in model.parameters() if p.requires_grad)
     if type == "sgd":
-        return torch.optim.SGD(model.parameters(), lr=lr)
+        return torch.optim.SGD(params, lr=lr)
     if type == "adamw":
-            return torch.optim.AdamW(model.parameters(), lr=lr)
+            return torch.optim.AdamW(params, lr=lr)
     if type == "adam":
-        return torch.optim.Adam(model.parameters(), lr=lr)
+        return torch.optim.Adam(params, lr=lr)
 
     raise Exception("unreckognised optimizer arg: " + type)
 

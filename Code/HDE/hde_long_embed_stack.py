@@ -23,9 +23,10 @@ from Code.constants import CANDIDATE, DOCUMENT
 
 class HDELongStack(nn.Module):
 
-    def __init__(self, num_layers=2, hidden_size=-1, heads=1, dropout=0.1, name=None):
+    def __init__(self, num_layers=2, hidden_size=-1, heads=1, dropout=0.1, name=None, use_contextual_embs=False):
         """hidden size = -1 leaves hidden to be same as pretrained emb dim"""
         super().__init__()
+        self.use_contextual_embs = use_contextual_embs
         self.name = name
         self.tokeniser: LongformerTokenizerFast = get_tokenizer()
         self.token_embedder = LongformerEmbedder(out_features=hidden_size)
@@ -43,6 +44,10 @@ class HDELongStack(nn.Module):
         self.last_example = -1
         self.last_epoch = -1
 
+    @property
+    def non_ctx_embedder(self):
+        return self.token_embedder.longformer.embeddings
+
     def forward(self, supports: List[str], query: str, candidates: List[str], answer=None):
         """
             nodes are created for each support, as well as each candidate and each context entity
@@ -54,17 +59,20 @@ class HDELongStack(nn.Module):
         support_encodings, candidate_encodings = self.get_encodings(supports, query, candidates)
         t = time.time()
 
-        support_embeddings = [self.token_embedder(sup_enc) for sup_enc in support_encodings]
+        if self.use_contextual_embs:
+            support_embeddings = [self.token_embedder(sup_enc) for sup_enc in support_encodings]
+        else:
+            tok_ids = [torch.tensor(sup_enc["input_ids"]).long().to(device).view(1, -1) for sup_enc in support_encodings]
+            support_embeddings = [self.non_ctx_embedder(input_ids=tok_id) for tok_id in tok_ids]
+
+        print("supp embs:", [s.size() for s in support_embeddings])
 
         if sysconf.print_times:
             print("got support embeddings in", (time.time() - t))
 
         t = time.time()
-        # candidate_summaries = [self.summariser(self.token_embedder(cand_enc, all_global=True), CANDIDATE) for cand_enc in
-        #                        candidate_encodings]
-        non_ctx_embedder = self.token_embedder.longformer.embeddings.word_embeddings
         cand_tok_ids = [torch.tensor(cand_enc["input_ids"]).long().to(device).view(1, -1) for cand_enc in candidate_encodings]
-        cand_embeddings = [non_ctx_embedder.forward(ids) for ids in cand_tok_ids]
+        cand_embeddings = [self.non_ctx_embedder(input_ids=ids) for ids in cand_tok_ids]
         candidate_summaries = [self.summariser(emb, CANDIDATE) for emb in cand_embeddings]
 
         if sysconf.print_times:
