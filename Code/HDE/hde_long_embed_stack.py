@@ -52,10 +52,23 @@ class HDELongStack(nn.Module):
             the graph is converted to a pytorch geometric datapoint
         """
         support_encodings, candidate_encodings = self.get_encodings(supports, query, candidates)
+        t = time.time()
+
         support_embeddings = [self.token_embedder(sup_enc) for sup_enc in support_encodings]
 
-        candidate_summaries = [self.summariser(self.token_embedder(cand_enc, all_global=True), CANDIDATE) for cand_enc in
-                               candidate_encodings]
+        if sysconf.print_times:
+            print("got support embeddings in", (time.time() - t))
+
+        t = time.time()
+        # candidate_summaries = [self.summariser(self.token_embedder(cand_enc, all_global=True), CANDIDATE) for cand_enc in
+        #                        candidate_encodings]
+        non_ctx_embedder = self.token_embedder.longformer.embeddings.word_embeddings
+        cand_tok_ids = [torch.tensor(cand_enc["input_ids"]).long().to(device).view(1, -1) for cand_enc in candidate_encodings]
+        cand_embeddings = [non_ctx_embedder.forward(ids) for ids in cand_tok_ids]
+        candidate_summaries = [self.summariser(emb, CANDIDATE) for emb in cand_embeddings]
+
+        if sysconf.print_times:
+            print("got candidate embeddings in", (time.time() - t))
         support_summaries = [self.summariser(sup_emb, DOCUMENT) for sup_emb in support_embeddings]
 
         t = time.time()
