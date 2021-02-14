@@ -15,11 +15,13 @@ from Code.HDE.Graph.graph_utils import add_doc_nodes, add_entity_nodes, add_cand
 from Code.HDE.coattention import Coattention
 from Code.HDE.gnn_stack import GNNStack
 from Code.HDE.scorer import HDEScorer
-from Code.HDE.summariser import Summariser
+from Code.HDE.summariser import Summariser, NODE_TYPE_MAP
 from Code.HDE.visualiser import render_graph
 from Code.Training import device
 from Code.Training.Utils.initialiser import get_tokenizer
-from Code.constants import CANDIDATE, DOCUMENT
+from Code.constants import CANDIDATE, DOCUMENT, QUERY
+
+SOURCE_TYPE_MAP = {QUERY: 0, DOCUMENT: 1, CANDIDATE: 2}
 
 
 class HDELongStack(nn.Module):
@@ -55,6 +57,12 @@ class HDELongStack(nn.Module):
     def non_ctx_embedder(self):
         return self.token_embedder.longformer.embeddings
 
+    def pass_non_ctx_embedder(self, encoding, type):
+        ids = torch.tensor(encoding["input_ids"]).long().to(device).view(1, -1)
+        type_ids = self.summariser.get_type_tensor(type, ids.size(-1), type_map=SOURCE_TYPE_MAP)
+        embs = self.non_ctx_embedder(input_ids=ids, token_type_ids=type_ids)
+        return embs
+
     def forward(self, supports: List[str], query: str, candidates: List[str], answer=None):
         """
             nodes are created for each support, as well as each candidate and each context entity
@@ -73,19 +81,16 @@ class HDELongStack(nn.Module):
                 must do coattention between context and query to get local contexts 
                 and to incorporate query info into nodes
             """
-            tok_ids = [torch.tensor(sup_enc["input_ids"]).long().to(device).view(1, -1) for sup_enc in support_encodings]
-            support_embeddings = [self.non_ctx_embedder(input_ids=tok_id) for tok_id in tok_ids]
+            support_embeddings = [self.pass_non_ctx_embedder(sup_enc, DOCUMENT) for sup_enc in support_encodings]
 
             query_encoding = self.tokeniser(query)
-            q_ids = torch.tensor(query_encoding["input_ids"]).long().to(device).view(1, -1)
-            query_embedding = self.non_ctx_embedder(input_ids=q_ids)
+            query_embedding = self.pass_non_ctx_embedder(query_encoding, QUERY)
             support_embeddings = [self.coattention(emb, query_embedding) for emb in support_embeddings]
         if sysconf.print_times:
             print("got support embeddings in", (time.time() - t))
 
         t = time.time()
-        cand_tok_ids = [torch.tensor(cand_enc["input_ids"]).long().to(device).view(1, -1) for cand_enc in candidate_encodings]
-        cand_embeddings = [self.non_ctx_embedder(input_ids=ids) for ids in cand_tok_ids]
+        cand_embeddings = [self.pass_non_ctx_embedder(cand_enc, CANDIDATE) for cand_enc in candidate_encodings]
         candidate_summaries = [self.summariser(emb, CANDIDATE) for emb in cand_embeddings]
 
         if sysconf.print_times:

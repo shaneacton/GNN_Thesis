@@ -10,12 +10,14 @@ from Code.Training.Utils.initialiser import get_pretrained_longformer
 class LongformerEmbedder(Embedder):
     """a convenience wrapper around the Longformer which returns the last hidden states"""
 
-    def __init__(self, longformer: LongformerModel=None, out_features=-1):
+    def __init__(self, longformer: LongformerModel=None, out_features=-1, num_types=3):
         super().__init__()
         if not longformer:
             longformer = get_pretrained_longformer()
         for param in longformer.parameters():
             param.requires_grad = False
+
+        longformer.embeddings.token_type_embeddings = nn.Embedding(num_types, longformer.config.hidden_size)
 
         self.longformer: LongformerModel = longformer.to(device)
         self.feature_mapper = None

@@ -4,7 +4,6 @@ Todo:
 * add a classification embedding to the summariser
 * clean up hde glove stack
 * edge info
-*
 
 * make some sort of scheduler
     * extract model specifics from trainer

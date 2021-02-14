@@ -3,9 +3,8 @@ from os.path import exists
 
 import torch
 
-from Code.HDE.hde_glove_stack import HDEGloveStack
-from Code.HDE.hde_long_embed import HDELongEmbed
-from Code.HDE.hde_long_embed_stack import HDELongStack
+from Code.HDE.hde_glove import HDEGloveStack
+from Code.HDE.hde_long import HDELongStack
 from Code.Training import device
 from Viz.loss_visualiser import visualise_training_data
 

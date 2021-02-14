@@ -6,7 +6,7 @@ from transformers import LongformerModel
 from Code.Training import device
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT
 
-TYPE_MAP = {ENTITY: 0, DOCUMENT: 1, CANDIDATE: 2}
+NODE_TYPE_MAP = {ENTITY: 0, DOCUMENT: 1, CANDIDATE: 2}
 
 
 class Summariser(nn.Module):
@@ -30,6 +30,12 @@ class Summariser(nn.Module):
 
         nn.Transformer()
 
+    @staticmethod
+    def get_type_tensor(type, length, type_map=NODE_TYPE_MAP):
+        type_id = type_map[type]
+        type_ids = torch.tensor([type_id for _ in range(length)]).long().to(device)
+        return type_ids
+
     def get_summary_vec(self, full_vec: Tensor, type, span=None):
         """
             if provided span is the [start,end) indices of the full vec which are to be summarised
@@ -42,8 +48,7 @@ class Summariser(nn.Module):
 
         vec = full_vec[:, span[0]: span[1], :].clone()
         if self.use_type_embedder:
-            type_id = TYPE_MAP[type]
-            type_ids = torch.tensor([type_id for _ in range(vec.size(1))]).long().to(device)
+            type_ids = self.get_type_tensor(type, vec.size(1))
 
             type_emb = self.type_embedder(type_ids).view(1, -1, self.hidden_size)
             vec += type_emb
