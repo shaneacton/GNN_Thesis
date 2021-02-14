@@ -21,6 +21,7 @@ from Code.Training import device
 from Code.Training.Utils.initialiser import get_tokenizer
 from Code.constants import CANDIDATE, DOCUMENT
 
+
 class HDELongStack(nn.Module):
 
     def __init__(self, num_layers=2, hidden_size=-1, heads=1, dropout=0.1, name=None, use_contextual_embs=False):
@@ -76,7 +77,7 @@ class HDELongStack(nn.Module):
             support_embeddings = [self.non_ctx_embedder(input_ids=tok_id) for tok_id in tok_ids]
 
             query_encoding = self.tokeniser(query)
-            q_ids = query_encoding["input_ids"].long().to(device).view(1, -1)
+            q_ids = torch.tensor(query_encoding["input_ids"]).long().to(device).view(1, -1)
             query_embedding = self.non_ctx_embedder(input_ids=q_ids)
             support_embeddings = [self.coattention(emb, query_embedding) for emb in support_embeddings]
         if sysconf.print_times:
