@@ -20,7 +20,6 @@ from Code.Training import device
 from Code.Training.Utils.initialiser import get_tokenizer
 from Code.constants import CANDIDATE, DOCUMENT
 
-
 class HDELongStack(nn.Module):
 
     def __init__(self, num_layers=2, hidden_size=-1, heads=1, dropout=0.1, name=None, use_contextual_embs=False):
@@ -30,6 +29,10 @@ class HDELongStack(nn.Module):
         self.name = name
         self.tokeniser: LongformerTokenizerFast = get_tokenizer()
         self.token_embedder = LongformerEmbedder(out_features=hidden_size)
+        if not use_contextual_embs:  # fine tune embs
+            for param in self.non_ctx_embedder.parameters():
+                param.requires_grad = True
+
         hidden_size = self.token_embedder.out_features
 
         self.summariser = Summariser(hidden_size)
