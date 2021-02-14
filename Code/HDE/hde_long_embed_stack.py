@@ -12,6 +12,7 @@ from Code.Data.Text.longformer_embedder import LongformerEmbedder
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
     connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions, similar, get_entities
+from Code.HDE.coattention import Coattention
 from Code.HDE.gnn_stack import GNNStack
 from Code.HDE.scorer import HDEScorer
 from Code.HDE.summariser import Summariser
@@ -29,11 +30,13 @@ class HDELongStack(nn.Module):
         self.name = name
         self.tokeniser: LongformerTokenizerFast = get_tokenizer()
         self.token_embedder = LongformerEmbedder(out_features=hidden_size)
+        hidden_size = self.token_embedder.out_features
+
         if not use_contextual_embs:  # fine tune embs
             for param in self.non_ctx_embedder.parameters():
                 param.requires_grad = True
 
-        hidden_size = self.token_embedder.out_features
+            self.coattention = Coattention(hidden_size)
 
         self.summariser = Summariser(hidden_size)
         self.relu = ReLU()
@@ -65,9 +68,17 @@ class HDELongStack(nn.Module):
         if self.use_contextual_embs:
             support_embeddings = [self.token_embedder(sup_enc) for sup_enc in support_encodings]
         else:
+            """
+                must do coattention between context and query to get local contexts 
+                and to incorporate query info into nodes
+            """
             tok_ids = [torch.tensor(sup_enc["input_ids"]).long().to(device).view(1, -1) for sup_enc in support_encodings]
             support_embeddings = [self.non_ctx_embedder(input_ids=tok_id) for tok_id in tok_ids]
 
+            query_encoding = self.tokeniser(query)
+            q_ids = query_encoding["input_ids"].long().to(device).view(1, -1)
+            query_embedding = self.non_ctx_embedder(input_ids=q_ids)
+            support_embeddings = [self.coattention(emb, query_embedding) for emb in support_embeddings]
         if sysconf.print_times:
             print("got support embeddings in", (time.time() - t))
 
@@ -154,7 +165,11 @@ class HDELongStack(nn.Module):
     def get_encodings(self, supports: List[str], query: str, candidates: List[str]) \
             -> Tuple[List[BatchEncoding], List[BatchEncoding]]:
         supports = [s[:gcc.max_context_chars] for s in supports]
-        support_encodings = [self.tokeniser(support, query) for support in supports]
+        if self.use_contextual_embs:
+            support_encodings = [self.tokeniser(support, query) for support in supports]
+        else:  # non contextual embs need a coattention module between query and context
+            support_encodings = [self.tokeniser(support) for support in supports]
+
         candidate_encodings = [self.tokeniser(candidate) for candidate in candidates]
         return support_encodings, candidate_encodings
 
