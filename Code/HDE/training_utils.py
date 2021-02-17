@@ -1,12 +1,39 @@
 import pickle
 from os.path import exists
 
+import nlp
 import torch
+from tqdm import tqdm
 
 from Code.HDE.hde_glove import HDEGloveStack
 from Code.HDE.hde_long import HDELongStack
+from Code.HDE.wikipoint import Wikipoint
 from Code.Training import device
+from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 from Viz.loss_visualiser import visualise_training_data
+
+
+def get_processed_wikihop(save_path, glove_embedder, max_examples=-1, split=nlp.Split.TRAIN):
+    global has_loaded
+    save_path = "/".join(save_path.split("/")[:-1]) + "/"  # processed data can be used by all model variants
+    suffix = split._name + ".data"
+    data_path = save_path + suffix
+    if exists(data_path):  # has been processed before
+        print("loading preprocessed wikihop", split)
+        filehandler = open(data_path, 'rb')
+        data = pickle.load(filehandler)
+        filehandler.close()
+        return data
+
+    print("loading wikihop unprocessed")
+    train = list(load_unprocessed_dataset("qangaroo", "wikihop", split))
+    train = train[:max_examples] if max_examples > 0 else train
+    print("num examples:", len(train))
+
+    print("processing wikihop")
+    processed_examples = [Wikipoint(ex, glove_embedder=glove_embedder) for ex in tqdm(train)]
+    save_training_data(processed_examples, save_path, suffix=suffix)
+    return processed_examples
 
 
 def num_params(model):
@@ -72,8 +99,8 @@ def plot_training_data(data, save_path, print_loss_every, num_training_examples)
     visualise_training_data(losses, accuracies=train_accs, show=False, save_path=path, epochs=epochs, valid_accs=valid_accs)
 
 
-def save_training_data(data, save_path):
-    filehandler = open(save_path + ".data", 'wb')
+def save_training_data(data, save_path, suffix=".data"):
+    filehandler = open(save_path + suffix, 'wb')
     pickle.dump(data, filehandler)
     filehandler.close()
 

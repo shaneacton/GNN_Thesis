@@ -154,37 +154,48 @@ def charspan_to_tokenspan(encoding: BatchEncoding, char_span: Tuple[int]) -> Tok
     return span
 
 
-def get_entities(summariser, support_embeddings, support_encodings, supports) \
-        -> Tuple[List[List[Tuple[int]]], List[Tensor]]:
-    """
-        token_spans is indexed list[support_no][ent_no]
-        summaries is a flat list
-    """
-    token_spans: List[List[Tuple[int]]] = []
-    summaries: List[Tensor] = []
+def get_entity_summaries(tok_spans: List[List[Tuple[int]]], support_embeddings: List[Tensor], summariser):
+    flat_spans = []
+    flat_vecs = []
+    for s, spans in enumerate(tok_spans):  # for each support document
+        flat_spans.extend(spans)
+        flat_vecs.extend([support_embeddings[s]] * len(spans))
+    return [summariser(vec, ENTITY, flat_spans[i]) for i, vec in enumerate(flat_vecs)]
+    # return summariser(flat_vecs, ENTITY, flat_spans)
 
-    for s, support in enumerate(supports):
-        """get entity node embeddings"""
-        ent_c_spans = get_entity_char_spans(support)
-        support_encoding = support_encodings[s]
 
-        ent_summaries: List[Tensor] = []
-        ent_token_spans: List[Tuple[int]] = []
-        for e, c_span in enumerate(ent_c_spans):
-            """clips out the entities token embeddings, and summarises them"""
-            try:
-                ent_token_span = charspan_to_tokenspan(support_encoding, c_span)
-            except Exception as ex:
-                print("cannot get ent ", e, "token span. in supp", s)
-                print(ex)
-                continue
-            ent_token_spans.append(ent_token_span)
-            ent_summaries.append(summariser(support_embeddings[s], ENTITY, span=ent_token_span))
 
-        token_spans.append(ent_token_spans)
-        summaries.extend(ent_summaries)
-
-    return token_spans, summaries
+# def get_entities(summariser, support_embeddings, support_encodings, supports) \
+#         -> Tuple[List[List[Tuple[int]]], List[Tensor]]:
+#     """
+#         token_spans is indexed list[support_no][ent_no]
+#         summaries is a flat list
+#     """
+#     token_spans: List[List[Tuple[int]]] = []
+#     summaries: List[Tensor] = []
+#
+#     for s, support in enumerate(supports):
+#         """get entity node embeddings"""
+#         ent_c_spans = get_entity_char_spans(support)
+#         support_encoding = support_encodings[s]
+#
+#         ent_summaries: List[Tensor] = []
+#         ent_token_spans: List[Tuple[int]] = []
+#         for e, c_span in enumerate(ent_c_spans):
+#             """clips out the entities token embeddings, and summarises them"""
+#             try:
+#                 ent_token_span = charspan_to_tokenspan(support_encoding, c_span)
+#             except Exception as ex:
+#                 print("cannot get ent ", e, "token span. in supp", s)
+#                 print(ex)
+#                 continue
+#             ent_token_spans.append(ent_token_span)
+#             ent_summaries.append(summariser(support_embeddings[s], ENTITY, span=ent_token_span))
+#
+#         token_spans.append(ent_token_spans)
+#         summaries.extend(ent_summaries)
+#
+#     return token_spans, summaries
 
 
 

@@ -10,15 +10,9 @@ from tqdm import tqdm
 from Code.Config import gcc, sysconf
 from Code.HDE.Glove.glove_embedder import NoWordsException
 from Code.HDE.eval import evaluate
-from Code.HDE.training_utils import plot_training_data, save_training_data, get_model, get_training_data, save_config
-from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
+from Code.HDE.training_utils import plot_training_data, save_training_data, get_model, get_training_data, save_config, \
+    get_processed_wikihop
 from Code.Training.Utils.eval_utils import get_acc_and_f1
-
-print("loading data")
-train = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.TRAIN)
-train = list(train)
-num_examples = len(train)
-print("num examples:", num_examples)
 
 
 def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, checkpoint_every=1000, **model_cfg):
@@ -26,12 +20,15 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
     results = get_training_data(save_path)
     save_config(model_cfg, save_path)
 
+    train = get_processed_wikihop(save_path, model.embedder, max_examples=max_examples)
+    num_examples = len(train)
+
     last_print = time.time()
     for epoch in range(num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
             continue
         random.seed(epoch)
-        shuffle(train)
+        # shuffle(train)
 
         answers = []
         predictions = []
@@ -47,22 +44,14 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
             if model.last_example != -1 and i < model.last_example:  # fast forward
                 continue
 
-            # print(example)
-            answer = example["answer"]
-            candidates = example["candidates"]
-            query = example["query"]
-            supports = example["supports"]
-            supports = [s[:gcc.max_context_chars] if gcc.max_context_chars != -1 else s for s in supports]
-
             try:
-                loss, predicted = model(supports, query, candidates, answer=answer)
-                # loss, predicted = torch.tensor(0), random.choice(candidates)
+                loss, predicted = model(example)
             except NoWordsException as ne:
                 continue
 
-            answers.append([answer])
+            answers.append([example.answer])
             predictions.append(predicted)
-            chances.append(1. / len(candidates))
+            chances.append(1. / len(example.candidates))
 
             t = time.time()
             loss.backward()
@@ -93,7 +82,7 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
         print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
               "chance:", mean(chances))
 
-        valid_acc = evaluate(model)
+        valid_acc = evaluate(model, save_path, max_examples)
         results["valid_accs"].append(valid_acc)
 
     plot_training_data(results, save_path, print_loss_every, num_examples)

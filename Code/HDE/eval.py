@@ -3,36 +3,38 @@ from numpy import mean
 from tqdm import tqdm
 
 from Code.HDE.Glove.glove_embedder import NoWordsException
-from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
+from Code.HDE.training_utils import get_processed_wikihop
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 
-test = load_unprocessed_dataset("qangaroo", "wikihop", nlp.Split.VALIDATION)
-MAX_EXAMPLES = -1
+_test = None
 
 
-def evaluate(hde):
+def get_test(save_path, embedder, max_examples=-1):
+    global _test
+    if _test is None:
+        _test = get_processed_wikihop(save_path, embedder, max_examples=max_examples, split=nlp.Split.TRAIN)
+    return _test
+
+
+def evaluate(hde, save_path, max_examples):
+    test = get_test(save_path, hde.embedder, max_examples)
+
     answers = []
     predictions = []
     chances = []
 
     hde.eval()
     for i, example in tqdm(enumerate(test)):
-        if i >= MAX_EXAMPLES != -1:
+        if i >= max_examples != -1:
             break
-
-        answer = example["answer"]
-        candidates = example["candidates"]
-        query = example["query"]
-        supports = example["supports"]
-
         try:
-            _, predicted = hde(supports, query, candidates, answer=answer)
+            _, predicted = hde(example)
         except NoWordsException as ne:
             continue
 
-        answers.append([answer])
+        answers.append([example.answer])
         predictions.append(predicted)
-        chances.append(1./len(candidates))
+        chances.append(1./len(example.candidates))
 
     hde.last_example = -1
 

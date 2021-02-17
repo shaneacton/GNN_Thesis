@@ -11,7 +11,7 @@ from Code.Config import sysconf, vizconf, gcc
 from Code.Data.Text.longformer_embedder import LongformerEmbedder
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
-    connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions, similar, get_entities
+    connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions, similar
 from Code.HDE.coattention import Coattention
 from Code.HDE.gnn_stack import GNNStack
 from Code.HDE.scorer import HDEScorer
