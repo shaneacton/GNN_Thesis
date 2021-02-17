@@ -7,7 +7,7 @@ from Code.Training import device
 
 class Coattention(nn.Module):
 
-    def __init__(self, hidden_size, num_layers=1, use_type_embeddings=True, num_heads=8):
+    def __init__(self, hidden_size, num_layers=1, use_type_embeddings=True, num_heads=6):
         super().__init__()
 
         self.use_type_embeddings = use_type_embeddings

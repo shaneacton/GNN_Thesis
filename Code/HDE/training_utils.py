@@ -28,8 +28,8 @@ def get_model(save_path, hidden_size=200, embedded_dims=100, optimizer_type="sgd
             print(e)
             print("cannot load model at", save_path)
     if hde is None:
-        # hde = HDEGloveStack(hidden_size=hidden_size, embedded_dims=embedded_dims, **model_kwargs).to(device)
-        hde = HDELongStack(hidden_size=hidden_size, **model_kwargs).to(device)
+        hde = HDEGloveStack(hidden_size=hidden_size, embedded_dims=embedded_dims, **model_kwargs).to(device)
+        # hde = HDELongStack(hidden_size=hidden_size, **model_kwargs).to(device)
 
         optimizer = get_optimizer(hde, type=optimizer_type)
         print("inited model", hde.name, repr(hde), "with:", num_params(hde), "trainable params")
