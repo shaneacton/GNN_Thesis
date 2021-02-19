@@ -69,7 +69,7 @@ def render_graph(graph: QAGraph, text_encoder: TextEncoder,
             continue
         dot.edge(name(edge[0]), name(edge[1]), label=edge.get_label())
 
-    path = os.path.join('/home/shane/Documents/Thesis/Viz/', graph_folder, graph_name)
+    path = os.path.join('/home/shane/Documents/GNN_Thesis/Viz/', graph_folder, graph_name)
     dot.render(path, view=True, format="png")
 
 

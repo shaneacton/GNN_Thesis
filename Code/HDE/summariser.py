@@ -1,7 +1,10 @@
+from typing import List
+
 import torch
 from torch import nn, Tensor
+from torch.nn.utils.rnn import pad_sequence
 from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
-from transformers import LongformerModel
+from transformers import LongformerModel, TokenSpan
 
 from Code.Training import device
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT
@@ -31,10 +34,38 @@ class Summariser(nn.Module):
         nn.Transformer()
 
     @staticmethod
-    def get_type_tensor(type, length, type_map=NODE_TYPE_MAP):
+    def get_type_ids(type, length, type_map=NODE_TYPE_MAP):
         type_id = type_map[type]
         type_ids = torch.tensor([type_id for _ in range(length)]).long().to(device)
         return type_ids
+
+    def get_type_tensor(self, type, length, type_map=NODE_TYPE_MAP):
+        ids = Summariser.get_type_ids(type, length, type_map)
+        return self.type_embedder(ids).view(1, -1, self.hidden_size)
+
+    @staticmethod
+    def get_vec_extract(full_vec, span):
+        if span is None:
+            span = (0, full_vec.size(-2))  # full span
+        vec = full_vec[:, span[0]: span[1], :].clone()
+        return vec
+
+    def get_batched_summary_vec(self, vecs: List[Tensor], _type, spans: List[TokenSpan]=None):
+        if spans is None:
+            spans = [None] * len(vecs)
+        extracts = [self.get_vec_extract(v, spans[i]) for i, v in enumerate(vecs)]
+        if self.use_type_embedder:
+            extracts = [(ex + self.get_type_tensor(_type, ex.size(1))).view(-1, self.hidden_size) for ex in extracts]
+        # print("before:", [ex.size() for ex in extracts])
+        batch = pad_sequence(extracts, batch_first=True)
+        # print("batch:", batch.size())
+        batch = self.encoder(batch)
+        summaries = batch[:, 0, :]  # (ents, hidd)
+        # print("summs:", summaries.size())
+        summaries = summaries.split(dim=0, split_size=1)
+        # summaries = [s.view(1, 1, -1) for s in summaries]
+        # print("split sums:", [s.size() for s in summaries], type(summaries))
+        return list(summaries)
 
     def get_summary_vec(self, full_vec: Tensor, type, span=None):
         """
@@ -43,25 +74,15 @@ class Summariser(nn.Module):
 
             returns (batch, features)
         """
-        if not span:
-            span = (0, full_vec.size(-2))  # full span
-
-        vec = full_vec[:, span[0]: span[1], :].clone()
+        vec = self.get_vec_extract(full_vec, span)
         if self.use_type_embedder:
-            type_ids = self.get_type_tensor(type, vec.size(1))
+            vec += self.get_type_tensor(type, vec.size(1))
 
-            type_emb = self.type_embedder(type_ids).view(1, -1, self.hidden_size)
-            vec += type_emb
-
-        if vec.size(1) < 1:
-            raise Exception("cannot get summary vec, no elements in sequence:" + repr(vec.size()) + " span: " + repr(span)  + " full: " + repr(full_vec.size()))
-        # out = self.longformer(inputs_embeds=vec, return_dict=True, output_hidden_states=True)
         embs = self.encoder(vec)
-
         pooled_emb = embs[:, 0]  # the pooled out is the output of the classification token
-        # print("pooled size:", pooled_emb.size())
-
         return pooled_emb
 
-    def forward(self, full_vec: Tensor, type, span=None):
-        return self.get_summary_vec(full_vec, type, span=span)
+    def forward(self, vec_or_vecs: Tensor, type, span_or_spans=None):
+        if isinstance(vec_or_vecs, List):
+            return self.get_batched_summary_vec(vec_or_vecs, type, span_or_spans)
+        return self.get_summary_vec(vec_or_vecs, type, span_or_spans)

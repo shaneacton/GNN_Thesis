@@ -51,9 +51,11 @@ class HDEGloveStack(nn.Module):
             the graph is converted to a pytorch geometric datapoint
         """
         support_embeddings = self.get_query_aware_context_embeddings(example.supports, example.query)
-        candidate_summaries = [self.summariser(self.embedder(cand), CANDIDATE) for cand in example.candidates]
-        support_summaries = [self.summariser(sup_emb, DOCUMENT) for sup_emb in support_embeddings]
-
+        cand_embs = [self.embedder(cand) for cand in example.candidates]
+        # candidate_summaries = [self.summariser(self.embedder(cand), CANDIDATE) for cand in example.candidates]
+        candidate_summaries = self.summariser(cand_embs, CANDIDATE)
+        # support_summaries = [self.summariser(sup_emb, DOCUMENT) for sup_emb in support_embeddings]
+        support_summaries = self.summariser(support_embeddings, DOCUMENT)
         t = time.time()
 
         # ent_token_spans, ent_summaries, = get_glove_entities(self.summariser, support_embeddings, example.supports, self.embedder)

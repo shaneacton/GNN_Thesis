@@ -160,8 +160,8 @@ def get_entity_summaries(tok_spans: List[List[Tuple[int]]], support_embeddings: 
     for s, spans in enumerate(tok_spans):  # for each support document
         flat_spans.extend(spans)
         flat_vecs.extend([support_embeddings[s]] * len(spans))
-    return [summariser(vec, ENTITY, flat_spans[i]) for i, vec in enumerate(flat_vecs)]
-    # return summariser(flat_vecs, ENTITY, flat_spans)
+    # return [summariser(vec, ENTITY, flat_spans[i]) for i, vec in enumerate(flat_vecs)]
+    return summariser(flat_vecs, ENTITY, flat_spans)
 
 
 

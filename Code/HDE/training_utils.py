@@ -30,7 +30,7 @@ def get_processed_wikihop(save_path, glove_embedder, max_examples=-1, split=nlp.
     train = train[:max_examples] if max_examples > 0 else train
     print("num examples:", len(train))
 
-    print("processing wikihop")
+    print("processing wikihop", split)
     processed_examples = [Wikipoint(ex, glove_embedder=glove_embedder) for ex in tqdm(train)]
     save_training_data(processed_examples, save_path, suffix=suffix)
     return processed_examples
