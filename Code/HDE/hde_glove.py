@@ -50,31 +50,8 @@ class HDEGloveStack(nn.Module):
             nodes are connected according to the HDE paper
             the graph is converted to a pytorch geometric datapoint
         """
-        support_embeddings = self.get_query_aware_context_embeddings(example.supports, example.query)
-        cand_embs = [self.embedder(cand) for cand in example.candidates]
-        # candidate_summaries = [self.summariser(self.embedder(cand), CANDIDATE) for cand in example.candidates]
-        candidate_summaries = self.summariser(cand_embs, CANDIDATE)
-        # support_summaries = [self.summariser(sup_emb, DOCUMENT) for sup_emb in support_embeddings]
-        support_summaries = self.summariser(support_embeddings, DOCUMENT)
-        t = time.time()
 
-        # ent_token_spans, ent_summaries, = get_glove_entities(self.summariser, support_embeddings, example.supports, self.embedder)
-
-        if sysconf.print_times:
-            print("got ents in", (time.time() - t))
-
-        graph = self.create_graph(example.candidates, example.ent_token_spans, example.supports)
-        if vizconf.visualise_graphs:
-            render_graph(graph)
-            if vizconf.exit_after_first_viz:
-                exit()
-
-        ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser)
-
-        t = time.time()
-
-        x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
-
+        x, graph = self.get_graph_features(example)
         edge_index = graph.edge_index
         # print("edge index:", edge_index.size(), edge_index.type())
 
@@ -85,7 +62,48 @@ class HDEGloveStack(nn.Module):
         t = time.time()
 
         # x has now been transformed by the GNN layers. Must map to  a prob dist over candidates
+        final_probs = self.pass_output_model(x, example, graph)
+        pred_id = torch.argmax(final_probs)
+        pred_ans = example.candidates[pred_id]
 
+        if sysconf.print_times:
+            print("passed output model in", (time.time() - t))
+
+        if example.answer is not None:
+            ans_id = example.candidates.index(example.answer)
+            probs = final_probs.view(1, -1)  # batch dim
+            ans = torch.tensor([ans_id]).to(device)
+            loss = self.loss_fn(probs, ans)
+
+            return loss, pred_ans
+
+        return pred_ans
+
+    def get_graph_features(self, example):
+        support_embeddings = self.get_query_aware_context_embeddings(example.supports, example.query)
+        cand_embs = [self.embedder(cand) for cand in example.candidates]
+        candidate_summaries = self.summariser(cand_embs, CANDIDATE)
+        support_summaries = self.summariser(support_embeddings, DOCUMENT)
+
+        graph = self.create_graph(example.candidates, example.ent_token_spans, example.supports)
+        if vizconf.visualise_graphs:
+            render_graph(graph)
+            if vizconf.exit_after_first_viz:
+                exit()
+
+        t = time.time()
+
+        ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser)
+        if sysconf.print_times:
+            print("got ents in", (time.time() - t))
+
+        t = time.time()
+
+        x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
+
+        return x, graph
+
+    def pass_output_model(self, x, example, graph):
         cand_idxs = graph.candidate_nodes
 
         cand_embs = x[cand_idxs[0]: cand_idxs[-1] + 1, :]
@@ -113,21 +131,7 @@ class HDEGloveStack(nn.Module):
         ent_probs = torch.stack(ent_probs, dim=0)
 
         final_probs = cand_probs + ent_probs
-        pred_id = torch.argmax(final_probs)
-        pred_ans = example.candidates[pred_id]
-
-        if sysconf.print_times:
-            print("passed output model in", (time.time() - t))
-
-        if example.answer is not None:
-            ans_id = example.candidates.index(example.answer)
-            probs = final_probs.view(1, -1)  # batch dim
-            ans = torch.tensor([ans_id]).to(device)
-            loss = self.loss_fn(probs, ans)
-
-            return loss, pred_ans
-
-        return pred_ans
+        return final_probs
 
     def get_query_aware_context_embeddings(self, supports: List[str], query: str):
         support_embeddings = [self.embedder(sup) for sup in supports]

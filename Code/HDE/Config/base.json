@@ -1,5 +1,5 @@
 {
-  "name": "hde_large",
+  "name": "hde_large_batch",
   "num_layers": 3,
   "hidden_size": 300,
   "embedded_dims": 300,
