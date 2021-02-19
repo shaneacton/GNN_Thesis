@@ -8,14 +8,14 @@ from torch_geometric.nn import GATConv
 
 from Code.Config import sysconf, vizconf
 from Code.HDE.Glove.glove_embedder import GloveEmbedder
-from Code.HDE.coattention import Coattention
+from Code.HDE.Transformers.coattention import Coattention
 from Code.HDE.gnn_stack import GNNStack
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
     connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions, similar, \
     get_entity_summaries
 from Code.HDE.scorer import HDEScorer
-from Code.HDE.summariser import Summariser
+from Code.HDE.Transformers.summariser import Summariser
 from Code.HDE.visualiser import render_graph
 from Code.HDE.wikipoint import Wikipoint
 from Code.Training import device
@@ -55,6 +55,7 @@ class HDEGloveStack(nn.Module):
         edge_index = graph.edge_index
         # print("edge index:", edge_index.size(), edge_index.type())
 
+        t = time.time()
         x = self.gnn(x, edge_index)
 
         if sysconf.print_times:
@@ -97,8 +98,6 @@ class HDEGloveStack(nn.Module):
         if sysconf.print_times:
             print("got ents in", (time.time() - t))
 
-        t = time.time()
-
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
 
         return x, graph
@@ -136,7 +135,8 @@ class HDEGloveStack(nn.Module):
     def get_query_aware_context_embeddings(self, supports: List[str], query: str):
         support_embeddings = [self.embedder(sup) for sup in supports]
         query_emb = self.embedder(query)
-        support_embeddings = [self.coattention(se, query_emb) for se in support_embeddings]
+        support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)
+        # support_embeddings = [self.coattention(se, query_emb) for se in support_embeddings]
         return support_embeddings
 
     def create_graph(self, candidates, ent_token_spans, supports):
