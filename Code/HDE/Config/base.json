@@ -1,6 +1,7 @@
 {
-  "name": "hde_large_batch",
+  "name": "hde_large_2L",
   "num_layers": 3,
+  "num_transformer_layers": 2,
   "hidden_size": 300,
   "embedded_dims": 300,
   "heads": 1,

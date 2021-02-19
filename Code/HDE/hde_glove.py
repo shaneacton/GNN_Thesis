@@ -24,13 +24,13 @@ from Code.constants import CANDIDATE, DOCUMENT
 
 class HDEGloveStack(nn.Module):
 
-    def __init__(self, num_layers=2, hidden_size=100, embedded_dims=50, heads=1, dropout=0.1, name=None):
+    def __init__(self, num_layers=2, hidden_size=100, embedded_dims=50, heads=1, dropout=0.1, name=None, **kwargs):
         super().__init__()
         self.name = name
         self.embedder = GloveEmbedder(dims=embedded_dims)
 
-        self.coattention = Coattention(self.embedder.dims)
-        self.summariser = Summariser(self.embedder.dims)
+        self.coattention = Coattention(self.embedder.dims, **kwargs)
+        self.summariser = Summariser(self.embedder.dims, **kwargs)
         self.relu = ReLU()
 
         self.gnn = GNNStack(GATConv, num_layers, self.embedder.dims, hidden_size, dropout=dropout, heads=heads)

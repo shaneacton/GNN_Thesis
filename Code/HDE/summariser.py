@@ -18,16 +18,12 @@ class Summariser(nn.Module):
         into fixed size node embedding
     """
 
-    def __init__(self, hidden_size, num_layers=1, num_heads=6, intermediate_fac=2, dropout=0.1, use_type_embedder=True):
+    def __init__(self, hidden_size, num_transformer_layers=1, num_heads=6, intermediate_fac=2, dropout=0.1, use_type_embedder=True, **kwargs):
         super().__init__()
-        # self.long_conf = get_longformer_config(num_layers=2, num_types=num_types, hidden_size=hidden_size)
-        # self.longformer = LongformerModel(self.long_conf)
-        # self.longformer.forward
-
         self.use_type_embedder = use_type_embedder
         encoder_layer = TransformerEncoderLayer(hidden_size, num_heads, hidden_size * intermediate_fac, dropout, 'relu')
         encoder_norm = LayerNorm(hidden_size)
-        self.encoder = TransformerEncoder(encoder_layer, num_layers, encoder_norm)
+        self.encoder = TransformerEncoder(encoder_layer, num_transformer_layers, encoder_norm)
         self.hidden_size = hidden_size
         self.type_embedder = nn.Embedding(3, hidden_size)  # entity, candidate, document
 
@@ -50,6 +46,21 @@ class Summariser(nn.Module):
         vec = full_vec[:, span[0]: span[1], :].clone()
         return vec
 
+    def pad(self, extracts):
+        """pytorches transformer layer wants 1=pad, 0=seq"""
+        # print("sizes:", [ex.size() for ex in extracts])
+        lengths = [ex.size(-2) for ex in extracts]
+        # print("lens:", lengths)
+        max_len = max(lengths)
+        masks = [[0] * size + [1] * (max_len - size) for size in lengths]
+        # for size in lengths:
+        #     print("size:", size, "comp:", (max_len - size))
+            # print([0] * size, [1] * (max_len - size), [0] * size + [1] * (max_len - size))
+        masks = torch.tensor(masks).to(device)
+        print("mask:", masks.size(), masks)
+        batch = pad_sequence(extracts, batch_first=True)
+        return batch, masks
+
     def get_batched_summary_vec(self, vecs: List[Tensor], _type, spans: List[TokenSpan]=None):
         if spans is None:
             spans = [None] * len(vecs)
@@ -57,7 +68,7 @@ class Summariser(nn.Module):
         if self.use_type_embedder:
             extracts = [(ex + self.get_type_tensor(_type, ex.size(1))).view(-1, self.hidden_size) for ex in extracts]
         # print("before:", [ex.size() for ex in extracts])
-        batch = pad_sequence(extracts, batch_first=True)
+        batch, masks = self.pad(extracts)
         # print("batch:", batch.size())
         batch = self.encoder(batch)
         summaries = batch[:, 0, :]  # (ents, hidd)

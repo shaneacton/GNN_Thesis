@@ -7,13 +7,13 @@ from Code.Training import device
 
 class Coattention(nn.Module):
 
-    def __init__(self, hidden_size, num_layers=1, use_type_embeddings=True, num_heads=6):
+    def __init__(self, hidden_size, num_transformer_layers=1, use_type_embeddings=True, num_heads=6, **kwargs):
         super().__init__()
 
         self.use_type_embeddings = use_type_embeddings
         encoder_layer = TransformerEncoderLayer(hidden_size, num_heads, hidden_size * 2, 0.1, 'relu')
         encoder_norm = LayerNorm(hidden_size)
-        self.encoder = TransformerEncoder(encoder_layer, num_layers, encoder_norm)
+        self.encoder = TransformerEncoder(encoder_layer, num_transformer_layers, encoder_norm)
         self.hidden_size = hidden_size
         self.type_embedder = nn.Embedding(2, hidden_size)
 
