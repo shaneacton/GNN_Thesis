@@ -1,5 +1,5 @@
 {
-  "name": "hde_large_mask3",
+  "name": "hde_mask",
   "num_layers": 3,
   "num_transformer_layers": 1,
   "hidden_size": 300,

@@ -47,18 +47,18 @@ class Summariser(nn.Module):
         return vec
 
     def pad(self, extracts):
-        """pytorches transformer layer wants 1=pad, 0=seq"""
-        # print("sizes:", [ex.size() for ex in extracts])
+        """
+            pytorches transformer layer wants 1=pad, 0=seq
+            it also wants (seq, batch, emb)
+        """
         lengths = [ex.size(-2) for ex in extracts]
-        # print("lens:", lengths)
         max_len = max(lengths)
-        masks = [[0] * size + [1] * (max_len - size) for size in lengths]
-        # for size in lengths:
-        #     print("size:", size, "comp:", (max_len - size))
-            # print([0] * size, [1] * (max_len - size), [0] * size + [1] * (max_len - size))
+        masks = [[False] * size + [True] * (max_len - size) for size in lengths]
         masks = torch.tensor(masks).to(device)
+        batch = pad_sequence(extracts, batch_first=False)
+
         # print("mask:", masks.size(), masks)
-        batch = pad_sequence(extracts, batch_first=True)
+        # print("batch:", batch.size())
         return batch, masks
 
     def get_batched_summary_vec(self, vecs: List[Tensor], _type, spans: List[TokenSpan]=None):
@@ -70,7 +70,7 @@ class Summariser(nn.Module):
         # print("before:", [ex.size() for ex in extracts])
         batch, masks = self.pad(extracts)
         # print("batch:", batch.size())
-        batch = self.encoder(batch)
+        batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)
         summaries = batch[:, 0, :]  # (ents, hidd)
         # print("summs:", summaries.size())
         summaries = summaries.split(dim=0, split_size=1)
