@@ -57,7 +57,7 @@ class Summariser(nn.Module):
         #     print("size:", size, "comp:", (max_len - size))
             # print([0] * size, [1] * (max_len - size), [0] * size + [1] * (max_len - size))
         masks = torch.tensor(masks).to(device)
-        print("mask:", masks.size(), masks)
+        # print("mask:", masks.size(), masks)
         batch = pad_sequence(extracts, batch_first=True)
         return batch, masks
 

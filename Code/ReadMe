@@ -1,5 +1,6 @@
 Todo:
 
+* loss scheduler
 * ssh keygen for viz
 * add a classification embedding to the summariser
 * clean up hde glove stack

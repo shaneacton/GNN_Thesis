@@ -15,7 +15,7 @@ class GloveEmbedder(nn.Module):
         super().__init__()
         self.use_positional_embeddings = use_positional_embeddings
         file_path = pathlib.Path(__file__).parent.absolute()
-        print("file path:", file_path)
+        print("glove path:", file_path)
         embeddings_dict = {}
         self.dims = dims
         path = join(file_path, "glove.6B", "glove.6B." + repr(self.dims) + "d.txt")

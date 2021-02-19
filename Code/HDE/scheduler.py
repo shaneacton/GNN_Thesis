@@ -38,5 +38,6 @@ def continue_model(model_name):
     train_model(path, **cfg)
 
 
-train_config("base")
-# continue_model("hde")
+if __name__ == "__main__":
+    train_config("base")
+    # continue_model("hde")

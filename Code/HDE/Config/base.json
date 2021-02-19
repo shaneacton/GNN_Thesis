@@ -1,7 +1,7 @@
 {
-  "name": "hde_large_2L",
+  "name": "hde_large_mask3",
   "num_layers": 3,
-  "num_transformer_layers": 2,
+  "num_transformer_layers": 1,
   "hidden_size": 300,
   "embedded_dims": 300,
   "heads": 1,

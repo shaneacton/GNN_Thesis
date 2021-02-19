@@ -85,4 +85,4 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
         valid_acc = evaluate(model, save_path, max_examples)
         results["valid_accs"].append(valid_acc)
 
-    plot_training_data(results, save_path, print_loss_every, num_examples)
+        plot_training_data(results, save_path, print_loss_every, num_examples)

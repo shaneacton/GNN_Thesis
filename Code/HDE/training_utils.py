@@ -10,7 +10,7 @@ from Code.HDE.hde_long import HDELongStack
 from Code.HDE.wikipoint import Wikipoint
 from Code.Training import device
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
-from Viz.loss_visualiser import visualise_training_data
+from Viz.loss_visualiser import visualise_training_data, get_continuous_epochs
 
 
 def get_processed_wikihop(save_path, glove_embedder, max_examples=-1, split=nlp.Split.TRAIN):
@@ -23,15 +23,16 @@ def get_processed_wikihop(save_path, glove_embedder, max_examples=-1, split=nlp.
         filehandler = open(data_path, 'rb')
         data = pickle.load(filehandler)
         filehandler.close()
+        print("num examples:", len(data))
         return data
 
     print("loading wikihop unprocessed")
-    train = list(load_unprocessed_dataset("qangaroo", "wikihop", split))
-    train = train[:max_examples] if max_examples > 0 else train
-    print("num examples:", len(train))
+    data = list(load_unprocessed_dataset("qangaroo", "wikihop", split))
+    data = data[:max_examples] if max_examples > 0 else data
+    print("num examples:", len(data))
 
     print("processing wikihop", split)
-    processed_examples = [Wikipoint(ex, glove_embedder=glove_embedder) for ex in tqdm(train)]
+    processed_examples = [Wikipoint(ex, glove_embedder=glove_embedder) for ex in tqdm(data)]
     save_training_data(processed_examples, save_path, suffix=suffix)
     return processed_examples
 
@@ -90,13 +91,10 @@ def get_optimizer(model, type="sgd", lr=0.001):
 def plot_training_data(data, save_path, print_loss_every, num_training_examples):
     path = save_path + "_losses.png"
     losses, train_accs, valid_accs = data["losses"], data["train_accs"], data["valid_accs"]
+    print("num training ex:", num_training_examples)
+    epochs = get_continuous_epochs(losses, num_training_examples, )
 
-    num_prints = len(losses)
-    num_trained_examples = num_prints * print_loss_every
-    num_epochs = num_trained_examples / num_training_examples
-    epochs = [num_epochs * i/len(losses) for i in range(len(losses))]
-
-    visualise_training_data(losses, accuracies=train_accs, show=False, save_path=path, epochs=epochs, valid_accs=valid_accs)
+    visualise_training_data(losses, train_accs, epochs, show=False, save_path=path, valid_accs=valid_accs)
 
 
 def save_training_data(data, save_path, suffix=".data"):

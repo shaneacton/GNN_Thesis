@@ -1,40 +1,101 @@
 import copy
 import json
+from os.path import join
 from typing import List
 import matplotlib.pyplot as plt
 import numpy
 
+from Code.HDE.Config import load_config
 
-def visualise_training_data(losses, epochs=None, accuracies=None, show=False, save_path=None, valid_accs=None, title=None):
-    if epochs is None:
-        epochs = list(range(len(losses)))
-    losses = remove_outliers(losses)
-    losses = get_rolling_averages(losses)
+
+def compare(save_paths: List[str]=None, names=None, num_training_examples=10, show=True):
+    from Code.HDE.scheduler import CHECKPOINT_FOLDER
+    from Code.HDE.training_utils import get_training_data
+
+    if save_paths is None:
+        save_paths = [join(CHECKPOINT_FOLDER, n) for n in names]
+
+    loss_ax, acc_ax = None, None
+    colours = ["g", "b", "r"]
+    for i, save_path in enumerate(save_paths):
+        data = get_training_data(save_path)
+        losses = smooth(data["losses"])
+        print("got losses:", losses)
+        print("from:", save_path)
+        train_accs = smooth(data["train_accs"])
+        valid_accs = data["valid_accs"]
+        epochs = get_continuous_epochs(losses, num_training_examples)
+        loss_ax, acc_ax = plot_loss_and_acc(losses, train_accs, save_path=save_path, valid_accs=valid_accs,
+                                            epochs=epochs, loss_ax=loss_ax, acc_ax=acc_ax, colour=colours[i])
+
+
+    # plt.legend()
+
+    if show:
+        plt.show()
+    compare_save_path = "/".join(save_paths[0].split("/")[:-1]) + "compare_"
+    compare_save_path += "_".join([save_path_to_name(s) for s in save_paths])
+    compare_save_path += ".png"
+    plt.savefig(compare_save_path)
+
+
+def save_path_to_name(save_path):
+    name = save_path.split("/")[-1].split(".")[0].replace("_losses", "").replace("_", " ")
+    return name
+
+
+def smooth(seq):
+    seq = remove_outliers(seq)
+    seq = get_rolling_averages(seq)
+    return seq
+
+
+def get_continuous_epochs(losses, num_training_examples, print_loss_every=None):
+    if print_loss_every is None:
+        train_conf = load_config("standard_train")
+        print_loss_every = train_conf["print_loss_every"]
+    num_prints = len(losses)
+    num_trained_examples = num_prints * print_loss_every
+    num_epochs = num_trained_examples / num_training_examples
+    epochs = [num_epochs * i / len(losses) for i in range(len(losses))]
+    return epochs
+
+
+def plot_loss_and_acc(losses, accs, epochs, name=None, save_path=None, valid_accs=None, fig=None, loss_ax=None, acc_ax=None, colour="g"):
+    if fig is None and loss_ax is None:
+        fig = plt.figure()
+
+    if name is None:
+        name = save_path_to_name(save_path)
+
+    if loss_ax is None:
+        loss_ax = fig.add_subplot(111)
+        loss_ax.set_xlabel("Epoch")
+        loss_ax.set_ylabel('loss')
+        acc_ax = loss_ax.twinx()
+        acc_ax.set_ylabel('accuracy')
+    loss_ax.plot(epochs, losses, colour + "-.")
+    acc_ax.plot(epochs, accs, colour + "-", label=name)
+    if valid_accs is not None:
+        acc_ax.plot(list(range(1, len(valid_accs) + 1)), valid_accs, colour + "o")
+
+    return loss_ax, acc_ax
+
+
+def visualise_training_data(losses, accuracies, epochs, show=False, save_path=None, valid_accs=None, title=None):
+    # if epochs is None:
+    #     epochs = list(range(len(losses)))
+    losses = smooth(losses)
+    accuracies = smooth(accuracies)
+    plt.xlabel("Epoch")
     fig = plt.figure()
     if title is None:
         fig.suptitle(save_path.split("/")[-1])
     else:
         fig.suptitle(title)
 
-    ax1 = fig.add_subplot(111)
-    ax1.plot(epochs, losses)
-    ax1.set_xlabel("Epoch")
-    ax1.set_ylabel('loss', color='b')
-    for tl in ax1.get_yticklabels():
-        tl.set_color('b')
-
-    if accuracies is not None:
-        accuracies = remove_outliers(accuracies)
-        accuracies = get_rolling_averages(accuracies)
-
-        ax2 = ax1.twinx()
-        ax2.plot(epochs, accuracies, 'r-')
-        ax2.set_ylabel('accuracy', color='r')
-        for tl in ax2.get_yticklabels():
-            tl.set_color('r')
-
-        if valid_accs is not None:
-            ax2.plot(list(range(1, len(valid_accs) + 1)), valid_accs, "ro")
+    plot_loss_and_acc(losses, accuracies, epochs, valid_accs=valid_accs, save_path=save_path, fig=fig)
+    plt.legend()
 
     if show:
         plt.show()
@@ -106,4 +167,5 @@ def plot_losses_from_paste_file(show=True):
 
 
 if __name__ == "__main__":
-    plot_losses_from_paste_file()
+    # plot_losses_from_paste_file()
+    compare(names=["hde_large_mask", "hde_large_mask2", "hde_large_mask3"])
