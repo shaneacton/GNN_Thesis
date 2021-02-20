@@ -26,7 +26,7 @@ def evaluate(hde, save_path, max_examples):
 
     hde.eval()
 
-    with not torch.no_grad():
+    with torch.no_grad():
         for i, example in tqdm(enumerate(test)):
             if i >= max_examples != -1:
                 break

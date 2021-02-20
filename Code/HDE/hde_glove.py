@@ -134,6 +134,9 @@ class HDEGloveStack(nn.Module):
 
     def get_query_aware_context_embeddings(self, supports: List[str], query: str):
         support_embeddings = [self.embedder(sup) for sup in supports]
+        # print("supps:", [s.size() for s in support_embeddings])
+        pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
+        print("pad vol:", pad_volume)
         query_emb = self.embedder(query)
         support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)
         # support_embeddings = [self.coattention(se, query_emb) for se in support_embeddings]
