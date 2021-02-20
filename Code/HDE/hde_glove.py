@@ -6,7 +6,7 @@ from torch import nn
 from torch.nn import ReLU, CrossEntropyLoss
 from torch_geometric.nn import GATConv
 
-from Code.Config import sysconf, vizconf
+from Code.Config import sysconf, vizconf, gec
 from Code.HDE.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.Transformers.coattention import Coattention
 from Code.HDE.gnn_stack import GNNStack
@@ -136,7 +136,9 @@ class HDEGloveStack(nn.Module):
         support_embeddings = [self.embedder(sup) for sup in supports]
         # print("supps:", [s.size() for s in support_embeddings])
         pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
-        print("pad vol:", pad_volume)
+        if pad_volume > gec.max_pad_volume:
+            raise PadVolumeOverflow()
+        # print("pad vol:", pad_volume)
         query_emb = self.embedder(query)
         support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)
         # support_embeddings = [self.coattention(se, query_emb) for se in support_embeddings]
@@ -156,3 +158,7 @@ class HDEGloveStack(nn.Module):
             print("made full graph in", (time.time() - start_t))
 
         return graph
+
+
+class PadVolumeOverflow(Exception):
+    pass

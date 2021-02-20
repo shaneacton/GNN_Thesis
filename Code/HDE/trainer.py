@@ -10,6 +10,7 @@ from tqdm import tqdm
 from Code.Config import gcc, sysconf
 from Code.HDE.Glove.glove_embedder import NoWordsException
 from Code.HDE.eval import evaluate
+from Code.HDE.hde_glove import PadVolumeOverflow
 from Code.HDE.training_utils import plot_training_data, save_training_data, get_model, get_training_data, save_config, \
     get_processed_wikihop
 from Code.Training.Utils.eval_utils import get_acc_and_f1
@@ -46,7 +47,7 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
 
             try:
                 loss, predicted = model(example)
-            except NoWordsException as ne:
+            except (NoWordsException, PadVolumeOverflow) as ne:
                 continue
 
             answers.append([example.answer])

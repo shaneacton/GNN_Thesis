@@ -9,36 +9,7 @@ class GraphEmbeddingConfig(Config):
 
     def __init__(self):
         super().__init__()
-        self.use_query_aware_context_vectors = False
-
-        # how to reduce the n feature vectors to 1 for each type of node
-        self.span_summarisation_methods = {
-            CONTEXT: {
-                WORD: HEAD_AND_TAIL_CAT,
-                SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2},
-                PARAGRAPH: HEAD_AND_TAIL_CAT,
-                DOCUMENT: HEAD_AND_TAIL_CAT
-            },
-            QUERY: {
-                WORD: HEAD_AND_TAIL_CAT,
-                SENTENCE: {SUMMARISER_NAME: SELF_ATTENTIVE_POOLING, NUM_LAYERS: 2}
-            },
-            CANDIDATE: {WORD: HEAD_AND_TAIL_CAT}
-        }
-
-        # used for relative positional embeddings
-        # self.relative_embeddings_window_per_level = {
-        #     CONTEXT: {
-        #         TOKEN: 20,
-        #         WORD: 10,
-        #         SENTENCE: 5,
-        #         PARAGRAPH: 3,
-        #     },
-        #     QUERY: {
-        #         TOKEN: 20,
-        #         WORD: 10
-        #     }
-        # }
+        self.max_pad_volume = 50000
 
     def get_graph_embedder(self, gcc):
         from Code.Data.Graph.Embedders.graph_embedder import GraphEmbedder
