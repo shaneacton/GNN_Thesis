@@ -4,15 +4,7 @@ from collections import Counter
 from typing import List
 
 import nlp
-import torch
-from torch.utils.data import DataLoader
-from transformers import LongformerForQuestionAnswering
 
-from Code.Data.Text.text_utils import candidates, question
-from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
-from Code.Models.GNNs.OutputModules.span_selection import SpanSelection
-from Code.Training.Utils.initialiser import get_tokenizer
-from Code.Training.Utils.text_encoder import TextEncoder
 from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 
 
@@ -95,95 +87,6 @@ def get_acc_and_f1(gold_answers: List[List[str]], predictions: List[str]):
     f1 = 100.0 * f1 / total
 
     return {'exact_match': exact_match, 'f1': f1}
-
-
-def evaluate_full_gat(dataset_name, version_name, model, processed_valid_dataset):
-    """
-        evaluates a gat with a custom node selection based output
-        input to these models is the example style input dict
-    """
-    print("evaluating model on", dataset_name, version_name)
-    model = model.cuda()
-    model.eval()
-
-    dataloader = DataLoader(processed_valid_dataset, batch_size=1)
-    tokenizer = get_tokenizer()
-
-    encoder = TextEncoder(get_tokenizer())
-
-    predictions = []
-    with torch.no_grad():
-        for batch in nlp.tqdm(dataloader):
-            start_scores = None
-            if not hasattr(model, "output_model") or isinstance(model.output_model, LongformerForQuestionAnswering):
-                """models which do not have a dedicated output modules are assumed to be span prediction"""
-                _, start_scores, end_scores = model(batch, return_dict=False)
-            elif isinstance(model.output_model, SpanSelection) or model.output_model is None:
-                _, start_scores, end_scores = model(batch)
-
-            elif isinstance(model.output_model, CandidateSelection):
-                _, probs = model(batch)
-                # print("probs:", probs, "cands:", candidates(batch), "ans:", batch['answer'], "q:", question(batch))
-            else:
-                raise Exception("unsupported output model: " + repr(model.output_model))
-
-            qa = encoder.get_encoding(batch)
-            if start_scores is not None:
-                if torch.sum(start_scores) == 0:
-                    """null output due to too large of an input"""
-                    predictions.append(None)
-                    continue
-                # print("start scores 0:", start_scores.size(), start_scores)
-                # print("end scores 0:", end_scores[0].size(), end_scores[0])
-                s, e = torch.argmax(start_scores[0]), torch.argmax(end_scores[0]) + 1
-                tokens = qa.tokens()[s: e]
-                ans_ids = tokenizer.convert_tokens_to_ids(tokens)
-                predicted = tokenizer.decode(ans_ids)
-                # print("(s,e):", (s, e), "pred:", predicted, "total tokens:", len(qa.tokens()), "\n\n")
-            else:
-                if torch.sum(probs) == 0:
-                    """null output due to too large of an input"""
-                    predictions.append(None)
-                    continue
-                c = torch.argmax(probs[0])
-                predicted = candidates(batch).split('</s>')[c]
-                # print("predicted:", predicted)
-
-            predictions.append(predicted)
-
-    _compare_predictions(dataset_name, version_name, predictions)
-
-
-def evaluate_span_model(dataset_name, version_name, model, processed_valid_dataset):
-    """evaluates  token style models which input input_ids"""
-    print("evaluating model on", dataset_name, version_name)
-    model = model.cuda()
-    model.eval()
-
-    dataloader = DataLoader(processed_valid_dataset, batch_size=1)
-
-    tokenizer = get_tokenizer()
-
-    predictions = []
-    with torch.no_grad():
-        for batch in nlp.tqdm(dataloader):
-            # print("model:", model)
-            start_scores, end_scores = model(input_ids=batch['input_ids'].cuda(),
-                                             attention_mask=batch['attention_mask'].cuda(), return_dict=False)
-            # print("batch:", batch, "\nstart probs:", start_scores, "\n:end probs:", end_scores)
-            if torch.sum(start_scores) == 0:
-                """null output due to too large of an input"""
-                predictions.append(None)
-                continue
-
-            all_tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][0])
-            s, e = torch.argmax(start_scores[0]), torch.argmax(end_scores[0]) + 1
-            predicted = ' '.join(all_tokens[s: e])
-            ans_ids = tokenizer.convert_tokens_to_ids(predicted.split())
-            predicted = tokenizer.decode(ans_ids)
-            predictions.append(predicted)
-
-    _compare_predictions(dataset_name, version_name, predictions)
 
 
 def _compare_predictions(dataset_name, version_name, predictions):

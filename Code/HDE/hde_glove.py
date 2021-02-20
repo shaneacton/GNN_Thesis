@@ -6,7 +6,7 @@ from torch import nn
 from torch.nn import ReLU, CrossEntropyLoss
 from torch_geometric.nn import GATConv
 
-from Code.Config import sysconf, vizconf, gec
+from Code.Config import sysconf, vizconf, gec, gcc
 from Code.HDE.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.Transformers.coattention import Coattention
 from Code.HDE.gnn_stack import GNNStack
@@ -53,7 +53,9 @@ class HDEGloveStack(nn.Module):
 
         x, graph = self.get_graph_features(example)
         edge_index = graph.edge_index
-        # print("edge index:", edge_index.size(), edge_index.type())
+        num_edges = len(graph.unique_edges)
+        if num_edges > gcc.max_edges != -1:
+            raise TooManyEdges()
 
         t = time.time()
         x = self.gnn(x, edge_index)
@@ -161,4 +163,8 @@ class HDEGloveStack(nn.Module):
 
 
 class PadVolumeOverflow(Exception):
+    pass
+
+
+class TooManyEdges(Exception):
     pass

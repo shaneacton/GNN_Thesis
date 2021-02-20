@@ -2,9 +2,9 @@ from typing import Dict
 
 from torch import nn
 
-from Code.Models.GNNs.OutputModules.candidate_selection import CandidateSelection
-from Code.Models.GNNs.OutputModules.output_model import OutputModel
-from Code.Models.GNNs.OutputModules.span_selection import SpanSelection
+from Code.GNNs import CandidateSelection
+from Code.GNNs import OutputModel
+from Code.GNNs import SpanSelection
 from Code.Training import device
 
 
