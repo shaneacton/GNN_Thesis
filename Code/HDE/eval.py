@@ -1,4 +1,5 @@
 import nlp
+import torch
 from numpy import mean
 from tqdm import tqdm
 
@@ -24,17 +25,19 @@ def evaluate(hde, save_path, max_examples):
     chances = []
 
     hde.eval()
-    for i, example in tqdm(enumerate(test)):
-        if i >= max_examples != -1:
-            break
-        try:
-            _, predicted = hde(example)
-        except NoWordsException as ne:
-            continue
 
-        answers.append([example.answer])
-        predictions.append(predicted)
-        chances.append(1./len(example.candidates))
+    with not torch.no_grad():
+        for i, example in tqdm(enumerate(test)):
+            if i >= max_examples != -1:
+                break
+            try:
+                _, predicted = hde(example)
+            except NoWordsException as ne:
+                continue
+
+            answers.append([example.answer])
+            predictions.append(predicted)
+            chances.append(1./len(example.candidates))
 
     hde.last_example = -1
 
