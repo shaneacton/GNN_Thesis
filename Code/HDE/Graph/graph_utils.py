@@ -5,8 +5,7 @@ from typing import Tuple, List
 from torch import Tensor
 from transformers import LongformerTokenizerFast, BatchEncoding, TokenSpan
 
-from Code.Data.Text.spacy_utils import get_entity_char_spans
-from Code.HDE.Glove.glove_embedder import GloveEmbedder
+from Code.Embedding.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode

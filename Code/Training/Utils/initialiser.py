@@ -64,14 +64,6 @@ def get_pretrained_longformer():
     return pret.to(device)
 
 
-def get_fresh_span_longformer(hidden_size=FEATURES, num_layers=1) -> LongformerForQuestionAnswering:
-    """no pretraining"""
-    configuration = get_longformer_config(hidden_size=hidden_size, num_layers=num_layers)
-    qa = LongformerForQuestionAnswering(configuration).to(device)
-
-    return qa
-
-
 def get_trainer(model, outdir, train_dataset, valid_dataset):
     train_args = TrainingArguments(outdir)
     train_args.per_device_train_batch_size = BATCH_SIZE
@@ -93,4 +85,5 @@ def get_trainer(model, outdir, train_dataset, valid_dataset):
         train_dataset=train_dataset,
         eval_dataset=valid_dataset,
     )
+    trainer.train()
     return trainer

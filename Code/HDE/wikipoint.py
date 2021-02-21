@@ -1,7 +1,7 @@
 from typing import Tuple, List
 
 from Code.Config import gcc
-from Code.HDE.Glove.glove_utils import get_glove_entity_token_spans
+from Code.Embedding.Glove.glove_utils import get_glove_entity_token_spans
 
 
 class Wikipoint:

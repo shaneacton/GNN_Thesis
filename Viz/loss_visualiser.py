@@ -9,8 +9,8 @@ from Code.HDE.Config import load_config
 
 
 def compare(save_paths: List[str]=None, names=None, num_training_examples=10, show=True):
-    from Code.HDE.scheduler import CHECKPOINT_FOLDER
-    from Code.HDE.training_utils import get_training_data
+    from Code.Main.scheduler import CHECKPOINT_FOLDER
+    from Code.Training.Utils.training_utils import get_training_data
 
     if save_paths is None:
         save_paths = [join(CHECKPOINT_FOLDER, n) for n in names]

@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
+from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder, GRU
 from torch.nn.utils.rnn import pad_sequence
 
 from Code.Training import device
@@ -17,6 +17,7 @@ class Transformer(nn.Module):
         self.type_embedder = nn.Embedding(num_types, hidden_size)
 
         encoder_layer = TransformerEncoderLayer(hidden_size, num_heads, hidden_size * intermediate_fac, dropout, 'relu')
+        GRU.forward
         encoder_norm = LayerNorm(hidden_size)
         self.encoder = TransformerEncoder(encoder_layer, num_transformer_layers, encoder_norm)
 
