@@ -22,7 +22,6 @@ def get_processed_wikihop(save_path, glove_embedder, max_examples=-1, split=nlp.
         filehandler = open(data_path, 'rb')
         data = pickle.load(filehandler)
         filehandler.close()
-        print("num examples:", len(data))
         return data
 
     print("loading wikihop unprocessed")
@@ -88,7 +87,6 @@ def get_optimizer(model, type="sgd", lr=0.001):
 def plot_training_data(data, save_path, print_loss_every, num_training_examples):
     path = save_path + "_losses.png"
     losses, train_accs, valid_accs = data["losses"], data["train_accs"], data["valid_accs"]
-    print("num training ex:", num_training_examples)
     epochs = get_continuous_epochs(losses, num_training_examples, )
 
     visualise_training_data(losses, train_accs, epochs, show=False, save_path=path, valid_accs=valid_accs)

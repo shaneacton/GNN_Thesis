@@ -14,20 +14,24 @@ from Code.HDE.training_utils import plot_training_data, save_training_data, get_
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 
-def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, checkpoint_every=1000, **model_cfg):
+def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, checkpoint_every=1000,
+                max_accumulated_edges=300000, **model_cfg):
     model, optimizer = get_model(save_path, **model_cfg)
     results = get_training_data(save_path)
     save_config(model_cfg, save_path)
 
     train = get_processed_wikihop(save_path, model.embedder, max_examples=max_examples)
     num_examples = len(train)
+    print("num training ex:", num_examples)
 
     last_print = time.time()
+    accumulated_edges = 0
+
     for epoch in range(num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
             continue
         random.seed(epoch)
-        # random.shuffle(train)
+        random.shuffle(train)
 
         answers = []
         predictions = []
@@ -36,7 +40,6 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
         model.train()
 
         for i, example in tqdm(enumerate(train)):
-            optimizer.zero_grad()
             if i >= max_examples != -1:
                 break
 
@@ -44,7 +47,21 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
                 continue
 
             try:
-                loss, predicted = model(example)
+                graph = model.create_graph(example)
+                num_edges = len(graph.unique_edges)
+                if accumulated_edges + num_edges > max_accumulated_edges:
+                    """
+                        this new graph would send us over the accumulated edges budget,
+                        so we must first wipe previous gradients by stepping
+                    """
+                    optimizer.step()
+                    optimizer.zero_grad()
+                    accumulated_edges = 0
+
+                loss, predicted = model(example, graph=graph)
+                loss.backward()
+                accumulated_edges += num_edges
+
             except (NoWordsException, PadVolumeOverflow, TooManyEdges) as ne:
                 continue
 
@@ -53,10 +70,9 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
             chances.append(1. / len(example.candidates))
 
             t = time.time()
-            loss.backward()
             if sysconf.print_times:
                 print("back time:", (time.time() - t))
-            optimizer.step()
+
             losses.append(loss.item())
 
             if len(losses) % print_loss_every == 0:  # print loss

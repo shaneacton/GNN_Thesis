@@ -42,7 +42,7 @@ class HDEGloveStack(nn.Module):
         self.last_example = -1
         self.last_epoch = -1
 
-    def forward(self, example: Wikipoint, return_num_edges=False):
+    def forward(self, example: Wikipoint, graph=None):
         """
             nodes are created for each support, as well as each candidate and each context entity
             nodes are concattenated as follows: supports, entities, candidates
@@ -50,8 +50,10 @@ class HDEGloveStack(nn.Module):
             nodes are connected according to the HDE paper
             the graph is converted to a pytorch geometric datapoint
         """
+        if graph is None:
+            graph = self.create_graph(example)
+        x = self.get_graph_features(example)
 
-        x, graph = self.get_graph_features(example)
         edge_index = graph.edge_index
         num_edges = len(graph.unique_edges)
         if num_edges > gcc.max_edges != -1:
@@ -72,30 +74,21 @@ class HDEGloveStack(nn.Module):
         if sysconf.print_times:
             print("passed output model in", (time.time() - t))
 
-        return_vals = (pred_ans,)
         if example.answer is not None:
             ans_id = example.candidates.index(example.answer)
             probs = final_probs.view(1, -1)  # batch dim
             ans = torch.tensor([ans_id]).to(device)
             loss = self.loss_fn(probs, ans)
 
-            return_vals = loss, pred_ans
-        if return_num_edges:
-            return_vals += (num_edges,)
+            return loss, pred_ans
 
-        return return_vals
+        return pred_ans
 
     def get_graph_features(self, example):
         support_embeddings = self.get_query_aware_context_embeddings(example.supports, example.query)
         cand_embs = [self.embedder(cand) for cand in example.candidates]
         candidate_summaries = self.summariser(cand_embs, CANDIDATE)
         support_summaries = self.summariser(support_embeddings, DOCUMENT)
-
-        graph = self.create_graph(example.candidates, example.ent_token_spans, example.supports)
-        if vizconf.visualise_graphs:
-            render_graph(graph)
-            if vizconf.exit_after_first_viz:
-                exit()
 
         t = time.time()
 
@@ -105,7 +98,7 @@ class HDEGloveStack(nn.Module):
 
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
 
-        return x, graph
+        return x
 
     def pass_output_model(self, x, example, graph):
         cand_idxs = graph.candidate_nodes
@@ -149,18 +142,23 @@ class HDEGloveStack(nn.Module):
         # support_embeddings = [self.coattention(se, query_emb) for se in support_embeddings]
         return support_embeddings
 
-    def create_graph(self, candidates, ent_token_spans, supports):
+    def create_graph(self, example):
         start_t = time.time()
         graph = HDEGraph()
-        add_doc_nodes(graph, supports)
-        add_entity_nodes(graph, supports, ent_token_spans, glove_embedder=self.embedder)
-        add_candidate_nodes(graph, candidates, supports)
+        add_doc_nodes(graph, example.supports)
+        add_entity_nodes(graph, example.supports, example.ent_token_spans, glove_embedder=self.embedder)
+        add_candidate_nodes(graph, example.candidates, example.supports)
         connect_candidates_and_entities(graph)
         connect_entity_mentions(graph)
         connect_unconnected_entities(graph)
 
         if sysconf.print_times:
             print("made full graph in", (time.time() - start_t))
+
+        if vizconf.visualise_graphs:
+            render_graph(graph)
+            if vizconf.exit_after_first_viz:
+                exit()
 
         return graph
 

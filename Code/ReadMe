@@ -1,20 +1,31 @@
 Todo:
 
-* bring back shuffle
-* loss scheduler
-* ssh keygen for viz
-* add a classification embedding to the summariser
-* clean up hde glove stack
-* edge info
 
-* make some sort of scheduler
-    * extract model specifics from trainer
-    * create model config system
+* Transformers:
+    * add a classification embedding to the summariser
+
+
 
 * GNNs
     * switch additive attention for dot-product
+    * edge info
 
 
+
+* General:
+    * loss scheduler
+    * ssh keygen for viz
+
+
+* Tests:
+    * adam
+    * gradient accumulation
+    *
+
+
+* house keeping:
+    * move val and train.data out of checkpoints
+    * make some sort of experiment scheduler
 
 
 

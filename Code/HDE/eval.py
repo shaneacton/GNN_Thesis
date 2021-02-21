@@ -15,6 +15,7 @@ def get_test(save_path, embedder, max_examples=-1):
     global _test
     if _test is None:
         _test = get_processed_wikihop(save_path, embedder, max_examples=max_examples, split=nlp.Split.VALIDATION)
+        print("num valid ex:", len(_test))
     return _test
 
 

@@ -1,3 +1,4 @@
+import argparse
 import os
 import pathlib
 import sys
@@ -15,14 +16,14 @@ file_path = pathlib.Path(__file__).parent.absolute()
 CHECKPOINT_FOLDER = join(file_path, "Checkpoint")
 
 
-def train_config(config_name, train_cfg_name="standard_train"):
+def train_config(model_cfg_name, train_cfg_name="standard_train"):
     """train/continue a model using a model config in HDE/Config"""
-    cfg = load_configs(config_name, train_cfg_name=train_cfg_name)
+    cfg = load_configs(model_cfg_name, train_cfg_name=train_cfg_name)
 
     if "name" in cfg:
         model_name = cfg["name"]
     else:
-        model_name = config_name
+        model_name = model_cfg_name
 
     path = join(CHECKPOINT_FOLDER, model_name)
     train_model(path, **cfg)
@@ -39,5 +40,11 @@ def continue_model(model_name):
 
 
 if __name__ == "__main__":
-    train_config("base")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_conf', '-m', help='Hyper params for model', default="base")
+    parser.add_argument('--train_conf', '-t', help='Training details and memory budgeting', default="standard_train")
+
+    args = parser.parse_args()
+
+    train_config(args.model_conf, train_cfg_name=args.train_conf)
     # continue_model("hde")
