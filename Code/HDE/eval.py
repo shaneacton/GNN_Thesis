@@ -4,6 +4,7 @@ from numpy import mean
 from tqdm import tqdm
 
 from Code.HDE.Glove.glove_embedder import NoWordsException
+from Code.HDE.hde_glove import PadVolumeOverflow, TooManyEdges
 from Code.HDE.training_utils import get_processed_wikihop
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 
@@ -32,7 +33,7 @@ def evaluate(hde, save_path, max_examples):
                 break
             try:
                 _, predicted = hde(example)
-            except NoWordsException as ne:
+            except (NoWordsException, PadVolumeOverflow, TooManyEdges) as ne:
                 continue
 
             answers.append([example.answer])

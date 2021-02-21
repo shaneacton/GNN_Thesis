@@ -42,7 +42,7 @@ class HDEGloveStack(nn.Module):
         self.last_example = -1
         self.last_epoch = -1
 
-    def forward(self, example: Wikipoint):
+    def forward(self, example: Wikipoint, return_num_edges=False):
         """
             nodes are created for each support, as well as each candidate and each context entity
             nodes are concattenated as follows: supports, entities, candidates
@@ -72,15 +72,18 @@ class HDEGloveStack(nn.Module):
         if sysconf.print_times:
             print("passed output model in", (time.time() - t))
 
+        return_vals = (pred_ans,)
         if example.answer is not None:
             ans_id = example.candidates.index(example.answer)
             probs = final_probs.view(1, -1)  # batch dim
             ans = torch.tensor([ans_id]).to(device)
             loss = self.loss_fn(probs, ans)
 
-            return loss, pred_ans
+            return_vals = loss, pred_ans
+        if return_num_edges:
+            return_vals += (num_edges,)
 
-        return pred_ans
+        return return_vals
 
     def get_graph_features(self, example):
         support_embeddings = self.get_query_aware_context_embeddings(example.supports, example.query)
