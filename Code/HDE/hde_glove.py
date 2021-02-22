@@ -6,7 +6,7 @@ from torch import nn
 from torch.nn import ReLU, CrossEntropyLoss
 from torch_geometric.nn import GATConv
 
-from Code.Config import sysconf, vizconf, gec, gcc
+from Code.Config.config import config
 from Code.Embedding.Glove.glove_embedder import GloveEmbedder
 from Code.GNNs.asymmetrical_gat import AsymGat
 from Code.GNNs.r_gat import RGat
@@ -26,20 +26,21 @@ from Code.constants import CANDIDATE, DOCUMENT
 
 class HDEGloveStack(nn.Module):
 
-    def __init__(self, num_layers=2, hidden_size=100, embedded_dims=50, heads=1, dropout=0.1, name=None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__()
-        self.name = name
-        self.embedder = GloveEmbedder(dims=embedded_dims)
+        self.name = config.model_name
+        self.embedder = GloveEmbedder()
+        self.hidden_size = config.hidden_size
 
-        self.coattention = Coattention(self.embedder.dims, **kwargs)
-        self.summariser = Summariser(self.embedder.dims, **kwargs)
+        self.coattention = Coattention(**kwargs)
+        self.summariser = Summariser(**kwargs)
         self.relu = ReLU()
 
-        # self.gnn = GNNStack(RGat, num_layers, self.embedder.dims, hidden_size, dropout=dropout, heads=heads, num_types=7)
-        self.gnn = GNNStack(GATConv, num_layers, self.embedder.dims, hidden_size, dropout=dropout, heads=heads)
+        # self.gnn = GNNStack(RGat, num_types=7)
+        self.gnn = GNNStack(GATConv)
 
-        self.candidate_scorer = HDEScorer(hidden_size)
-        self.entity_scorer = HDEScorer(hidden_size)
+        self.candidate_scorer = HDEScorer(config.hidden_size)
+        self.entity_scorer = HDEScorer(config.hidden_size)
 
         self.loss_fn = CrossEntropyLoss()
         self.last_example = -1
@@ -59,13 +60,13 @@ class HDEGloveStack(nn.Module):
 
         edge_index = graph.edge_index
         num_edges = len(graph.unique_edges)
-        if num_edges > gcc.max_edges != -1:
+        if num_edges > config.max_edges != -1:
             raise TooManyEdges()
 
         t = time.time()
         x = self.gnn(x, edge_index)
 
-        if sysconf.print_times:
+        if config.print_times:
             print("passed gnn in", (time.time() - t))
         t = time.time()
 
@@ -74,7 +75,7 @@ class HDEGloveStack(nn.Module):
         pred_id = torch.argmax(final_probs)
         pred_ans = example.candidates[pred_id]
 
-        if sysconf.print_times:
+        if config.print_times:
             print("passed output model in", (time.time() - t))
 
         if example.answer is not None:
@@ -96,7 +97,7 @@ class HDEGloveStack(nn.Module):
         t = time.time()
 
         ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser)
-        if sysconf.print_times:
+        if config.print_times:
             print("got ents in", (time.time() - t))
 
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
@@ -137,7 +138,7 @@ class HDEGloveStack(nn.Module):
         support_embeddings = [self.embedder(sup) for sup in supports]
         # print("supps:", [s.size() for s in support_embeddings])
         pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
-        if pad_volume > gec.max_pad_volume:
+        if pad_volume > config.max_pad_volume:
             raise PadVolumeOverflow()
         # print("pad vol:", pad_volume)
         query_emb = self.embedder(query)
@@ -155,12 +156,12 @@ class HDEGloveStack(nn.Module):
         connect_entity_mentions(graph)
         connect_unconnected_entities(graph)
 
-        if sysconf.print_times:
+        if config.print_times:
             print("made full graph in", (time.time() - start_t))
 
-        if vizconf.visualise_graphs:
+        if config.visualise_graphs:
             render_graph(graph)
-            if vizconf.exit_after_first_viz:
+            if config.exit_after_first_viz:
                 exit()
 
         return graph

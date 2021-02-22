@@ -2,15 +2,17 @@ import torch
 from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
 
+from Code.Config.config import config
+
 
 class GNNStack(nn.Module):
 
-    def __init__(self, GNNClass, num_layers, in_channels, hidden_size, dropout=0.1, **layer_kwargs):
+    def __init__(self, GNNClass, **layer_kwargs):
         super().__init__()
         layers = []
-        for layer_i in range(num_layers):
-            in_size = in_channels if layer_i == 0 else hidden_size
-            layer = GNNLayer(GNNClass, in_size, hidden_size, dropout=dropout, **layer_kwargs)
+        for layer_i in range(config.num_layers):
+            in_size = config.embedded_dims if layer_i == 0 else config.hidden_size
+            layer = GNNLayer(GNNClass, in_size, **layer_kwargs)
             layers.append(layer)
 
         self.layers = ModuleList(layers)
@@ -23,20 +25,20 @@ class GNNStack(nn.Module):
 
 class GNNLayer(nn.Module):
 
-    def __init__(self, GNNClass, in_channels, hidden_size, dropout=0.1, heads=1, **layer_kwargs):
+    def __init__(self, GNNClass, in_channels, intermediate_fac=2, **layer_kwargs):
         super().__init__()
         self.in_channels = in_channels
-        self.hidden_size = hidden_size
-        self.gnn = GNNClass(in_channels, hidden_size//heads, heads=heads, **layer_kwargs)
+        self.hidden_size = config.hidden_size
+        self.gnn = GNNClass(in_channels, config.hidden_size//config.heads, heads=config.heads, **layer_kwargs)
 
-        self.linear1 = Linear(hidden_size, hidden_size * 2)
-        self.dropout = Dropout(dropout)
-        self.linear2 = Linear(hidden_size * 2, hidden_size)
+        self.linear1 = Linear(config.hidden_size, config.hidden_size * intermediate_fac)
+        self.dropout = Dropout(config.dropout)
+        self.linear2 = Linear(config.hidden_size * intermediate_fac, config.hidden_size)
 
-        self.norm1 = LayerNorm(hidden_size)
-        self.norm2 = LayerNorm(hidden_size)
-        self.dropout1 = Dropout(dropout)
-        self.dropout2 = Dropout(dropout)
+        self.norm1 = LayerNorm(config.hidden_size)
+        self.norm2 = LayerNorm(config.hidden_size)
+        self.dropout1 = Dropout(config.dropout)
+        self.dropout2 = Dropout(config.dropout)
 
     def forward(self, x, edge_index):
         "x ~ (N, in_channels)"

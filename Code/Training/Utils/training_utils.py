@@ -2,53 +2,27 @@ import math
 import pickle
 from os.path import exists
 
-import nlp
 import torch
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LambdaLR
-from tqdm import tqdm
 
+from Code.Config.config import config
 from Code.HDE.hde_glove import HDEGloveStack
-from Code.HDE.wikipoint import Wikipoint
 from Code.Training import device
-from Code.Training.Utils.dataset_utils import load_unprocessed_dataset
 from Viz.loss_visualiser import visualise_training_data, get_continuous_epochs
-
-
-def get_processed_wikihop(save_path, glove_embedder, max_examples=-1, split=nlp.Split.TRAIN):
-    global has_loaded
-    save_path = "/".join(save_path.split("/")[:-1]) + "/"  # processed data can be used by all model variants
-    suffix = split._name + ".data"
-    data_path = save_path + suffix
-    if exists(data_path):  # has been processed before
-        print("loading preprocessed wikihop", split)
-        filehandler = open(data_path, 'rb')
-        data = pickle.load(filehandler)
-        filehandler.close()
-        return data
-
-    print("loading wikihop unprocessed")
-    data = list(load_unprocessed_dataset("qangaroo", "wikihop", split))
-    data = data[:max_examples] if max_examples > 0 else data
-    print("num examples:", len(data))
-
-    print("processing wikihop", split)
-    processed_examples = [Wikipoint(ex, glove_embedder=glove_embedder) for ex in tqdm(data)]
-    save_training_data(processed_examples, save_path, suffix=suffix)
-    return processed_examples
 
 
 def num_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-def get_model(save_path, hidden_size=200, embedded_dims=100, optimizer_type="sgd", **model_kwargs):
+def get_model(save_path, **model_kwargs):
     hde = None
     if exists(save_path):
         try:
             checkpoint = torch.load(save_path)
             hde = checkpoint["model"].to(device)
-            optimizer = get_optimizer(hde, type=optimizer_type)
+            optimizer = get_optimizer(hde, type=config.optimizer_type)
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
             print("loading checkpoint model", hde.name, "at:", save_path, "e:", hde.last_epoch, "i:", hde.last_example,
@@ -57,8 +31,8 @@ def get_model(save_path, hidden_size=200, embedded_dims=100, optimizer_type="sgd
             print(e)
             print("cannot load model at", save_path)
     if hde is None:
-        hde = HDEGloveStack(hidden_size=hidden_size, embedded_dims=embedded_dims, **model_kwargs).to(device)
-        optimizer = get_optimizer(hde, type=optimizer_type)
+        hde = HDEGloveStack(**model_kwargs).to(device)
+        optimizer = get_optimizer(hde, type=config.optimizer_type)
         print("inited model", hde.name, repr(hde), "with:", num_params(hde), "trainable params")
 
     return hde, optimizer
@@ -95,7 +69,7 @@ def plot_training_data(data, save_path, print_loss_every, num_training_examples)
     visualise_training_data(losses, train_accs, epochs, show=False, save_path=path, valid_accs=valid_accs)
 
 
-def save_training_data(data, save_path, suffix=".data"):
+def save_data(data, save_path, suffix=".data"):
     filehandler = open(save_path + suffix, 'wb')
     pickle.dump(data, filehandler)
     filehandler.close()

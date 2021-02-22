@@ -12,10 +12,8 @@ SOURCE_TYPE_MAP = {DOCUMENT: 0, QUERY: 1}
 
 class Coattention(Transformer):
 
-    def __init__(self, hidden_size, num_transformer_layers=1, num_heads=6, intermediate_fac=2, dropout=0.1,
-                 use_type_embedder=True, **kwargs):
-        super().__init__(hidden_size, 2, use_type_embeddings=use_type_embedder, intermediate_fac=intermediate_fac,
-                         dropout=dropout, num_transformer_layers=num_transformer_layers, num_heads=num_heads)
+    def __init__(self, intermediate_fac=2, use_type_embedder=True):
+        super().__init__(2, use_type_embeddings=use_type_embedder, intermediate_fac=intermediate_fac)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, SOURCE_TYPE_MAP)

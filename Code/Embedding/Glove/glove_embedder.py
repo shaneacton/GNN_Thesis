@@ -6,18 +6,19 @@ from torch import Tensor, nn
 import re
 import pathlib
 
+from Code.Config.config import config
 from Code.Training import device
 
 
 class GloveEmbedder(nn.Module):
 
-    def __init__(self, dims=50, max_positions=4050, use_positional_embeddings=True):
+    def __init__(self, max_positions=4050, use_positional_embeddings=True):
         super().__init__()
         self.use_positional_embeddings = use_positional_embeddings
         file_path = pathlib.Path(__file__).parent.absolute()
         print("glove path:", file_path)
         embeddings_dict = {}
-        self.dims = dims
+        self.dims = config.embedded_dims
         path = join(file_path, "glove.6B", "glove.6B." + repr(self.dims) + "d.txt")
         with open(path, 'r', encoding="utf-8") as f:
             for line in f:
@@ -31,7 +32,7 @@ class GloveEmbedder(nn.Module):
 
         self.embs = embeddings_dict
 
-        self.positional_embs = nn.Embedding(max_positions, dims)
+        self.positional_embs = nn.Embedding(max_positions, self.dims)
 
     def get_emb(self, word):
         if word in self.embs.keys():

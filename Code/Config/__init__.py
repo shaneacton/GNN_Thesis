@@ -1,17 +1,41 @@
-from Code.Config.config_set import ConfigSet
-from Code.Config.evaluation_config import EvaluationConfig
-from Code.Config.gnn_config import GNNConfig
-from Code.Config.graph_construction_config import GraphConstructionConfig
-from Code.Config.graph_embedding_config import GraphEmbeddingConfig
-from Code.Config.system_config import SystemConfig
-from Code.Config.visualisation_config import VisualisationConfig
+import copy
+import json
+import pathlib
+import pickle
+from os.path import join, exists
+from typing import Dict
 
-gcc = GraphConstructionConfig()
-gec = GraphEmbeddingConfig()
-gnnc = GNNConfig()
+config_folder = pathlib.Path(__file__).parent.absolute()
 
-configs = ConfigSet(configs=[gcc, gec, gnnc])
 
-eval_conf = EvaluationConfig()
-sysconf = SystemConfig()
-vizconf = VisualisationConfig()
+def load_checkpoint_model_config(path):
+    filehandler = open(path + ".cfg", 'rb')
+    cfg = pickle.load(filehandler)
+    filehandler.close()
+    return cfg
+
+
+def load_config(name) -> Dict:
+    if ".json" not in name:
+        name += ".json"
+    path = join(config_folder, name)
+    if not exists(path):
+        raise Exception("no such config file as:", name, "in HDE/Config/")
+    kwargs = json.load(open(path, "r"))
+    return kwargs
+
+
+def load_configs(model_cfg_name, train_cfg_name="standard_train"):
+    train_kwargs = load_config(train_cfg_name)
+    if train_cfg_name != "standard_train":
+        std_train: Dict = load_config("standard_train")
+        std_train.update(train_kwargs)  # the conf args are overwritten
+        train_kwargs = std_train
+    model_kwargs = load_config(model_cfg_name)
+
+    all_kwargs = copy.deepcopy(train_kwargs)
+    all_kwargs.update(model_kwargs)
+
+    print("loaded config for model:", model_cfg_name)
+
+    return all_kwargs

@@ -8,12 +8,12 @@ import os
 import sys
 from os.path import join
 
+from Code.Config import load_config
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
-
-from Code.HDE.Config import load_config
 
 
 def compare(save_paths: List[str]=None, names=None, num_training_examples=43700, show=True, print_loss_every=None):

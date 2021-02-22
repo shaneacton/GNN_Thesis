@@ -3,24 +3,25 @@ import torch
 from numpy import mean
 from tqdm import tqdm
 
+from Code.Config.config import config
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.HDE.hde_glove import PadVolumeOverflow, TooManyEdges
-from Code.Training.Utils.training_utils import get_processed_wikihop
+from Data.dataset_utils import get_processed_wikihop
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 _test = None
 
 
-def get_test(save_path, embedder, max_examples=-1):
+def get_test(embedder):
     global _test
     if _test is None:
-        _test = get_processed_wikihop(save_path, embedder, max_examples=max_examples, split=nlp.Split.VALIDATION)
+        _test = get_processed_wikihop(embedder, split=nlp.Split.VALIDATION)
         print("num valid ex:", len(_test))
     return _test
 
 
-def evaluate(hde, save_path, max_examples):
-    test = get_test(save_path, hde.embedder, max_examples)
+def evaluate(hde):
+    test = get_test(hde.embedder)
 
     answers = []
     predictions = []
@@ -30,7 +31,7 @@ def evaluate(hde, save_path, max_examples):
 
     with torch.no_grad():
         for i, example in tqdm(enumerate(test)):
-            if i >= max_examples != -1:
+            if i >= config.max_examples != -1:
                 break
             try:
                 _, predicted = hde(example)
