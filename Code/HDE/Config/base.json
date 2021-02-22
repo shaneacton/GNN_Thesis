@@ -1,5 +1,5 @@
 {
-  "name": "hde_mask_coat",
+  "name": "hde",
   "num_layers": 3,
   "num_transformer_layers": 1,
   "hidden_size": 300,

@@ -14,20 +14,26 @@ Todo:
 
 * General:
     * loss scheduler
-    * ssh keygen for viz
     * layer norms in output model, ie scorer
     * data/model parallelism with pytorch to use multiple GPU's for faster training
 
 
 * Tests:
+    * heads=3
+    * scheduler
+    * edge info
     * adam
     * gradient accumulation
-    * test scheduler
-    * test edge info
+
+
 
 * house keeping:
+    * ssh keygen for viz
     * move val and train.data out of checkpoints
     * make some sort of experiment scheduler
+    * count discarded examples
+    * unify config systems
+
 
 
 

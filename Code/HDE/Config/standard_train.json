@@ -3,5 +3,7 @@
   "max_examples": -1,
   "print_loss_every": 500,
   "checkpoint_every": 500,
-  "max_accumulated_edges": 300000
+  "max_accumulated_edges": 300000,
+  "max_edges": 400000,
+  "max_pad_volume": 50000
 }

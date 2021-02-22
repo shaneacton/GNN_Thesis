@@ -23,11 +23,11 @@ class GNNStack(nn.Module):
 
 class GNNLayer(nn.Module):
 
-    def __init__(self, GNNClass, in_channels, hidden_size, dropout=0.1, **layer_kwargs):
+    def __init__(self, GNNClass, in_channels, hidden_size, dropout=0.1, heads=1, **layer_kwargs):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_size = hidden_size
-        self.gnn = GNNClass(in_channels, hidden_size, **layer_kwargs)
+        self.gnn = GNNClass(in_channels, hidden_size//heads, heads=heads, **layer_kwargs)
 
         self.linear1 = Linear(hidden_size, hidden_size * 2)
         self.dropout = Dropout(dropout)
@@ -41,7 +41,8 @@ class GNNLayer(nn.Module):
     def forward(self, x, edge_index):
         "x ~ (N, in_channels)"
         x2 = self.dropout1(self.gnn(x, edge_index))  # # (N, out_channels)
-        if self.hidden_size == self.in_channels:
+        # print("x:", x.size(), "x2:", x2.size())
+        if x.size(-1) == x2.size(-1):
             x = x + x2  # residual
             x = self.norm1(x)
         else:  # no residual if this layer is changing the model dim

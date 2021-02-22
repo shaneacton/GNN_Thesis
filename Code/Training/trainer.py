@@ -40,6 +40,9 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
         model.train()
 
         for i, example in tqdm(enumerate(train)):
+            def e_frac():
+                return epoch + i/num_examples
+
             if i >= max_examples != -1:
                 break
 
@@ -49,7 +52,7 @@ def train_model(save_path, num_epochs=5, max_examples=-1, print_loss_every=500, 
             try:
                 graph = model.create_graph(example)
                 num_edges = len(graph.unique_edges)
-                if accumulated_edges + num_edges > max_accumulated_edges:
+                if accumulated_edges + num_edges > max_accumulated_edges:  # always true if mae=-1
                     """
                         this new graph would send us over the accumulated edges budget,
                         so we must first wipe previous gradients by stepping

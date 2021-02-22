@@ -3,7 +3,6 @@ from typing import List
 import torch
 from torch import Tensor
 
-from Code.HDE.Transformers.summariser import Summariser
 from Code.HDE.Transformers.transformer import Transformer
 from Code.Training import device
 from Code.constants import QUERY, DOCUMENT

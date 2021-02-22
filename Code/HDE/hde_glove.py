@@ -8,6 +8,8 @@ from torch_geometric.nn import GATConv
 
 from Code.Config import sysconf, vizconf, gec, gcc
 from Code.Embedding.Glove.glove_embedder import GloveEmbedder
+from Code.GNNs.asymmetrical_gat import AsymGat
+from Code.GNNs.r_gat import RGat
 from Code.HDE.Transformers.coattention import Coattention
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.Graph.graph import HDEGraph
@@ -33,6 +35,7 @@ class HDEGloveStack(nn.Module):
         self.summariser = Summariser(self.embedder.dims, **kwargs)
         self.relu = ReLU()
 
+        # self.gnn = GNNStack(RGat, num_layers, self.embedder.dims, hidden_size, dropout=dropout, heads=heads, num_types=7)
         self.gnn = GNNStack(GATConv, num_layers, self.embedder.dims, hidden_size, dropout=dropout, heads=heads)
 
         self.candidate_scorer = HDEScorer(hidden_size)
