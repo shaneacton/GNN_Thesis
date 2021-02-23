@@ -8,7 +8,7 @@ from tqdm import tqdm
 from Code.Config.config import config
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Training.eval import evaluate
-from Code.HDE.hde_glove import PadVolumeOverflow, TooManyEdges
+from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training.Utils.training_utils import plot_training_data, save_data, get_model, get_training_data
 from Data.dataset_utils import get_processed_wikihop
 from Code.Training.Utils.eval_utils import get_acc_and_f1

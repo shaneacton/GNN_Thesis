@@ -110,6 +110,10 @@ def fully_connect(node_ids, graph, type):
 def add_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List[Tuple[int]]],
                      tokeniser: LongformerTokenizerFast=None, support_encodings: List[BatchEncoding]=None,
                      glove_embedder: GloveEmbedder=None):
+
+    if tokeniser is not None and support_encodings is None:
+        support_encodings = [tokeniser(support) for support in supports]
+
     for s, support in enumerate(supports):
 
         ent_spans = ent_token_spans[s]

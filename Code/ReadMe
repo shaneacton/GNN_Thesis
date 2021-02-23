@@ -13,17 +13,14 @@ Todo:
 
 
 * General:
-    * loss scheduler
     * layer norms in output model, ie scorer
     * data/model parallelism with pytorch to use multiple GPU's for faster training
 
 
 * Tests:
-    * heads=3
     * scheduler
     * edge info
     * adam
-    * gradient accumulation
 
 
 

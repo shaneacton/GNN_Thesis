@@ -13,6 +13,7 @@ from Code.Config.config import config
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
+dir_path_1 = join(dir_path_1, "GNN_Thesis")
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
@@ -179,6 +180,6 @@ def plot_losses_from_paste_file(show=True):
 
 
 if __name__ == "__main__":
-    num_examples = 43700 if config.max_examples == -1 else config.max_examples
+    num_examples = 43738 if config.max_examples == -1 else config.max_examples
     print("num ex:", num_examples, "print:", config.print_loss_every)
-    compare(names=["hde", "hde_heads"], num_training_examples=num_examples, print_loss_every=config.print_loss_every)
+    compare(names=["hde", "hde_bert"], num_training_examples=num_examples, print_loss_every=config.print_loss_every)

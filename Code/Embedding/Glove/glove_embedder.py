@@ -7,12 +7,14 @@ import re
 import pathlib
 
 from Code.Config.config import config
+from Code.Embedding.positional_embedder import PositionalEmbedder
+from Code.Embedding.string_embedder import StringEmbedder
 from Code.Training import device
 
 
-class GloveEmbedder(nn.Module):
+class GloveEmbedder(StringEmbedder):
 
-    def __init__(self, max_positions=4050, use_positional_embeddings=True):
+    def __init__(self, use_positional_embeddings=True):
         super().__init__()
         self.use_positional_embeddings = use_positional_embeddings
         file_path = pathlib.Path(__file__).parent.absolute()
@@ -32,7 +34,8 @@ class GloveEmbedder(nn.Module):
 
         self.embs = embeddings_dict
 
-        self.positional_embs = nn.Embedding(max_positions, self.dims)
+        if use_positional_embeddings:
+            self.positional_embedder = PositionalEmbedder()
 
     def get_emb(self, word):
         if word in self.embs.keys():
@@ -69,16 +72,10 @@ class GloveEmbedder(nn.Module):
         embs = torch.cat(embs, dim=0).view(1, seq_len, -1)
         embs = embs.to(device)
         if self.use_positional_embeddings:
-            pos_ids = torch.tensor([i for i in range(seq_len)]).long().to(device)
-            pos_embs = self.positional_embs(pos_ids).view(1, seq_len, -1)
+            pos_embs = self.positional_embedder.get_pos_embs(seq_len)
             embs += pos_embs
 
-        # print("emb:", embs.size())
-        # print(embs)
         return embs
-
-    def forward(self, string):
-        return self.embed(string)
 
 
 class NoWordsException(Exception):

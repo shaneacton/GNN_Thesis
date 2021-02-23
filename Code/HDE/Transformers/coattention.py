@@ -3,6 +3,7 @@ from typing import List
 import torch
 from torch import Tensor
 
+from Code.Config.config import config
 from Code.HDE.Transformers.transformer import Transformer
 from Code.Training import device
 from Code.constants import QUERY, DOCUMENT
@@ -13,7 +14,7 @@ SOURCE_TYPE_MAP = {DOCUMENT: 0, QUERY: 1}
 class Coattention(Transformer):
 
     def __init__(self, intermediate_fac=2, use_type_embedder=True):
-        super().__init__(2, use_type_embeddings=use_type_embedder, intermediate_fac=intermediate_fac)
+        super().__init__(config.embedded_dims, 2, use_type_embeddings=use_type_embedder, intermediate_fac=intermediate_fac)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, SOURCE_TYPE_MAP)

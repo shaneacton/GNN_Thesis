@@ -5,7 +5,7 @@ import pickle
 from os.path import join, exists
 from typing import Dict
 
-config_folder = pathlib.Path(__file__).parent.absolute()
+CONFIG_FOLDER = pathlib.Path(__file__).parent.absolute()
 
 
 def load_checkpoint_model_config(path):
@@ -18,7 +18,7 @@ def load_checkpoint_model_config(path):
 def load_config(name) -> Dict:
     if ".json" not in name:
         name += ".json"
-    path = join(config_folder, name)
+    path = join(CONFIG_FOLDER, name)
     if not exists(path):
         raise Exception("no such config file as:", name, "in HDE/Config/")
     kwargs = json.load(open(path, "r"))

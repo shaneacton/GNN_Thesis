@@ -9,12 +9,12 @@ from Code.Training import device
 
 class Transformer(nn.Module):
 
-    def __init__(self, num_types, intermediate_fac=2, use_type_embeddings=True):
+    def __init__(self, hidden_size, num_types, intermediate_fac=2, use_type_embeddings=True):
         super().__init__()
         self.num_heads = config.heads
         self.use_type_embeddings = use_type_embeddings
         self.num_types = num_types
-        self.hidden_size = config.hidden_size
+        self.hidden_size = hidden_size
         self.type_embedder = nn.Embedding(num_types, self.hidden_size)
 
         encoder_layer = TransformerEncoderLayer(self.hidden_size, config.transformer_heads,

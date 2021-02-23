@@ -5,7 +5,8 @@ import torch
 from torch.optim.lr_scheduler import LambdaLR
 
 from Code.Config.config import config
-from Code.HDE.hde_glove import HDEGloveStack
+from Code.HDE.hde_bert import HDEBert
+from Code.HDE.hde_glove import HDEGlove
 from Code.Training import device
 from Viz.loss_visualiser import visualise_training_data, get_continuous_epochs
 
@@ -30,7 +31,9 @@ def get_model(save_path, **model_kwargs):
             print(e)
             print("cannot load model at", save_path)
     if hde is None:
-        hde = HDEGloveStack(**model_kwargs).to(device)
+        # hde = HDEGlove(**model_kwargs).to(device)
+        hde = HDEBert(**model_kwargs).to(device)
+
         optimizer = get_optimizer(hde, type=config.optimizer_type)
         scheduler = get_exponential_schedule_with_warmup(optimizer)
         print("inited model", hde.name, repr(hde), "with:", num_params(hde), "trainable params")
@@ -51,7 +54,7 @@ def get_training_data(save_path):
 def get_optimizer(model, type="sgd"):
     print("using", type, "optimiser")
     params = (p for p in model.parameters() if p.requires_grad)
-    lr = config.lr
+    lr = config.initial_lr
     if type == "sgd":
         return torch.optim.SGD(params, lr=lr)
     if type == "adamw":
