@@ -29,10 +29,11 @@ Todo:
 
 * house keeping:
     * ssh keygen for viz
-    * move val and train.data out of checkpoints
     * make some sort of experiment scheduler
     * count discarded examples
-    * unify config systems
+    * move all viz into viz folder
+    * rename .data to .training_data
+        * fix bug where a valid acc can be double included
 
 
 

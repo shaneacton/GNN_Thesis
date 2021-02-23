@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from transformers import TokenSpan
 
-from Code.Training.Utils.spacy_utils import get_entity_char_spans, get_noun_char_spans
+from Code.Embedding.spacy_utils import get_entity_char_spans, get_noun_char_spans
 from Code.Embedding.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph

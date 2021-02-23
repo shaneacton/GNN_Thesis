@@ -15,7 +15,7 @@ from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 
 def train_model(save_path):
-    model, optimizer = get_model(save_path)
+    model, optimizer, scheduler = get_model(save_path)
     results = get_training_data(save_path)
 
     train = get_processed_wikihop(model.embedder)
@@ -56,6 +56,8 @@ def train_model(save_path):
                         so we must first wipe previous gradients by stepping
                     """
                     optimizer.step()
+                    if config.use_lr_scheduler:
+                        scheduler.step(epoch=e_frac())
                     optimizer.zero_grad()
                     accumulated_edges = 0
 
@@ -90,7 +92,8 @@ def train_model(save_path):
                 print("saving model at e", epoch, "i:", i)
                 model.last_example = i
                 model.last_epoch = epoch
-                torch.save({"model": model, "optimizer_state_dict": optimizer.state_dict()}, save_path)
+                model_save_data = {"model": model, "optimizer_state_dict": optimizer.state_dict(), "scheduler_state_dict": scheduler.state_dict()}
+                torch.save(model_save_data, save_path)
                 plot_training_data(results, save_path, config.print_loss_every, num_examples)
                 save_data(results, save_path)
         model.last_example = -1

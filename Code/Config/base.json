@@ -1,10 +1,10 @@
 {
-  "model_name": "hde",
+  "model_name": "hde_heads",
   "num_layers": 3,
   "num_transformer_layers": 1,
   "hidden_size": 300,
   "embedded_dims": 300,
-  "heads": 1,
+  "heads": 3,
   "transformer_heads": 6,
   "dropout": 0.1,
   "optimizer_type": "sgd"

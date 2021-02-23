@@ -23,8 +23,9 @@ def train_config(model_cfg_name=None, train_cfg_name=None):
     global config
 
     if model_cfg_name is not None or train_cfg_name is not None:
-        overrides = [n for n in [model_cfg_name, train_cfg_name] if n is not None]
-        config = Config(*overrides)
+        names = {"model_cfg_name": model_cfg_name, "train_cfg_name": train_cfg_name}
+        overrides = {k: v for k, v in names.items() if v is not None}
+        config = Config(**overrides)
     path = join(CHECKPOINT_FOLDER, config.model_name)
     train_model(path)
 

@@ -9,6 +9,7 @@ import sys
 from os.path import join
 
 from Code.Config import load_config
+from Code.Config.config import config
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -178,5 +179,6 @@ def plot_losses_from_paste_file(show=True):
 
 
 if __name__ == "__main__":
-    # plot_losses_from_paste_file()
-    compare(names=["hde_asym", "hde_asym_heads"], num_training_examples=10, print_loss_every=2)
+    num_examples = 43700 if config.max_examples == -1 else config.max_examples
+    print("num ex:", num_examples, "print:", config.print_loss_every)
+    compare(names=["hde", "hde_heads"], num_training_examples=num_examples, print_loss_every=config.print_loss_every)

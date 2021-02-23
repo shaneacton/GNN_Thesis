@@ -1,9 +1,7 @@
-import math
 import pickle
 from os.path import exists
 
 import torch
-from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LambdaLR
 
 from Code.Config.config import config
@@ -24,7 +22,8 @@ def get_model(save_path, **model_kwargs):
             hde = checkpoint["model"].to(device)
             optimizer = get_optimizer(hde, type=config.optimizer_type)
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-
+            scheduler = get_exponential_schedule_with_warmup(optimizer)
+            scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
             print("loading checkpoint model", hde.name, "at:", save_path, "e:", hde.last_epoch, "i:", hde.last_example,
                   "with", num_params(hde), "trainable params")
         except Exception as e:
@@ -33,9 +32,10 @@ def get_model(save_path, **model_kwargs):
     if hde is None:
         hde = HDEGloveStack(**model_kwargs).to(device)
         optimizer = get_optimizer(hde, type=config.optimizer_type)
+        scheduler = get_exponential_schedule_with_warmup(optimizer)
         print("inited model", hde.name, repr(hde), "with:", num_params(hde), "trainable params")
 
-    return hde, optimizer
+    return hde, optimizer, scheduler
 
 
 def get_training_data(save_path):
@@ -48,9 +48,10 @@ def get_training_data(save_path):
     return {"losses": [], "train_accs": [], "valid_accs": []}
 
 
-def get_optimizer(model, type="sgd", lr=0.001):
+def get_optimizer(model, type="sgd"):
     print("using", type, "optimiser")
     params = (p for p in model.parameters() if p.requires_grad)
+    lr = config.lr
     if type == "sgd":
         return torch.optim.SGD(params, lr=lr)
     if type == "adamw":
@@ -81,36 +82,15 @@ def save_config(cfg, save_path):
     filehandler.close()
 
 
-def get_cosine_schedule_with_warmup(
-    optimizer: Optimizer, num_warmup_steps: int, num_training_steps: int, num_cycles: float = 0.5, last_epoch: int = -1
-):
-    """
-    Create a schedule with a learning rate that decreases following the values of the cosine function between the
-    initial lr set in the optimizer to 0, after a warmup period during which it increases linearly between 0 and the
-    initial lr set in the optimizer.
+def get_exponential_schedule_with_warmup(optimizer, num_grace_epochs=1, decay_fac=0.9):
+    """roughly halves the lr every 7 epochs. at e 50, lr is 200 times lower"""
 
-    Args:
-        optimizer (:class:`~torch.optim.Optimizer`):
-            The optimizer for which to schedule the learning rate.
-        num_warmup_steps (:obj:`int`):
-            The number of steps for the warmup phase.
-        num_training_steps (:obj:`int`):
-            The total number of training steps.
-        num_cycles (:obj:`float`, `optional`, defaults to 0.5):
-            The number of waves in the cosine schedule (the defaults is to just decrease from the max value to 0
-            following a half-cosine).
-        last_epoch (:obj:`int`, `optional`, defaults to -1):
-            The index of the last epoch when resuming training.
+    def lr_lambda(epoch: float):
+        if epoch <= num_grace_epochs:
+            return 1
+        t = epoch - num_grace_epochs
+        # print("e:", epoch, "lr_f:", decay_fac ** t)
 
-    Return:
-        :obj:`torch.optim.lr_scheduler.LambdaLR` with the appropriate schedule.
-    """
+        return decay_fac ** t
 
-    def lr_lambda(current_step):
-        if current_step < num_warmup_steps:
-            return float(current_step) / float(max(1, num_warmup_steps))
-        progress = float(current_step - num_warmup_steps) / float(max(1, num_training_steps - num_warmup_steps))
-        cos_val = math.cos(math.pi * float(num_cycles) * 2.0 * progress)  # -1:1
-        return max(0.0, 0.5 * (1.0 + cos_val))  # 0 - 1
-
-    return LambdaLR(optimizer, lr_lambda, last_epoch)
+    return LambdaLR(optimizer, lr_lambda)

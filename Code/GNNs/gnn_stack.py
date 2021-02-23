@@ -43,7 +43,6 @@ class GNNLayer(nn.Module):
     def forward(self, x, edge_index):
         "x ~ (N, in_channels)"
         x2 = self.dropout1(self.gnn(x, edge_index))  # # (N, out_channels)
-        # print("x:", x.size(), "x2:", x2.size())
         if x.size(-1) == x2.size(-1):
             x = x + x2  # residual
             x = self.norm1(x)
