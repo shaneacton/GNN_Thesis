@@ -23,7 +23,7 @@ class BertEmbedder(StringEmbedder):
         model_name = "prajjwal1/bert-" + self.size
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
-        self.dims = self.model.config.hidden_size
+        self.dims = self.model.conf.hidden_size
         from Code.Training.Utils.training_utils import num_params
         print("Loaded bert model with", self.dims, "dims and ", num_params(self), ("trainable" if fine_tune else "static"), "params")
         if self.dims != config.embedded_dims:

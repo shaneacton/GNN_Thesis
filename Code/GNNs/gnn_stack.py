@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
 
-from Config import config
+from Config.config import conf
 
 
 class GNNStack(nn.Module):
@@ -10,8 +10,8 @@ class GNNStack(nn.Module):
     def __init__(self, GNNClass, **layer_kwargs):
         super().__init__()
         layers = []
-        for layer_i in range(config.num_layers):
-            in_size = config.embedded_dims if layer_i == 0 else config.hidden_size
+        for layer_i in range(conf.num_layers):
+            in_size = conf.embedded_dims if layer_i == 0 else conf.hidden_size
             layer = GNNLayer(GNNClass, in_size, **layer_kwargs)
             layers.append(layer)
 
@@ -28,17 +28,17 @@ class GNNLayer(nn.Module):
     def __init__(self, GNNClass, in_channels, intermediate_fac=2, **layer_kwargs):
         super().__init__()
         self.in_channels = in_channels
-        self.hidden_size = config.hidden_size
-        self.gnn = GNNClass(in_channels, config.hidden_size//config.heads, heads=config.heads, **layer_kwargs)
+        self.hidden_size = conf.hidden_size
+        self.gnn = GNNClass(in_channels, conf.hidden_size//conf.heads, heads=conf.heads, **layer_kwargs)
 
-        self.linear1 = Linear(config.hidden_size, config.hidden_size * intermediate_fac)
-        self.dropout = Dropout(config.dropout)
-        self.linear2 = Linear(config.hidden_size * intermediate_fac, config.hidden_size)
+        self.linear1 = Linear(conf.hidden_size, conf.hidden_size * intermediate_fac)
+        self.dropout = Dropout(conf.dropout)
+        self.linear2 = Linear(conf.hidden_size * intermediate_fac, conf.hidden_size)
 
-        self.norm1 = LayerNorm(config.hidden_size)
-        self.norm2 = LayerNorm(config.hidden_size)
-        self.dropout1 = Dropout(config.dropout)
-        self.dropout2 = Dropout(config.dropout)
+        self.norm1 = LayerNorm(conf.hidden_size)
+        self.norm2 = LayerNorm(conf.hidden_size)
+        self.dropout1 = Dropout(conf.dropout)
+        self.dropout2 = Dropout(conf.dropout)
 
     def forward(self, x, edge_index):
         "x ~ (N, in_channels)"

@@ -1,11 +1,11 @@
 import time
 
-from Config import config
 from Code.Embedding.bert_embedder import BertEmbedder
 from Code.HDE.hde_model import HDEModel
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
     connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions
+from Config.config import conf
 from Viz.graph_visualiser import render_graph
 
 
@@ -26,12 +26,12 @@ class HDEBert(HDEModel):
         connect_entity_mentions(graph)
         connect_unconnected_entities(graph)
 
-        if config.print_times:
+        if conf.print_times:
             print("made full graph in", (time.time() - start_t))
 
-        if config.visualise_graphs:
+        if conf.visualise_graphs:
             render_graph(graph)
-            if config.exit_after_first_viz:
+            if conf.exit_after_first_viz:
                 exit()
 
         return graph

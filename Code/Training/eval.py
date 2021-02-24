@@ -3,9 +3,9 @@ import torch
 from numpy import mean
 from tqdm import tqdm
 
-from Config import config
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
+from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 
@@ -31,7 +31,7 @@ def evaluate(hde):
 
     with torch.no_grad():
         for i, example in tqdm(enumerate(test)):
-            if i >= config.max_examples != -1:
+            if i >= conf.max_examples != -1:
                 break
             try:
                 _, predicted = hde(example)

@@ -23,10 +23,10 @@ parser.add_argument('--train_conf', '-t', help='Training details and memory budg
 
 args = parser.parse_args()
 
-config = Config(args.model_conf, train_cfg_name=args.train_conf)
+conf = Config(args.model_conf, train_cfg_name=args.train_conf)
 
 if __name__ == "__main__":
 
-    config = Config("base", "debug_train")
-    print(config.max_visualised_candidates)
-    print(config.checkpoint_every)
+    conf = Config("base", "debug_train")
+    print(conf.max_visualised_candidates)
+    print(conf.checkpoint_every)

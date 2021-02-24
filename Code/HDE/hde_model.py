@@ -6,7 +6,6 @@ from torch import nn
 from torch.nn import CrossEntropyLoss, ReLU
 from torch_geometric.nn import GATConv
 
-from Config import config
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.Graph.graph_utils import similar, get_entity_summaries
@@ -16,14 +15,15 @@ from Code.HDE.scorer import HDEScorer
 from Code.HDE.wikipoint import Wikipoint
 from Code.Training import device
 from Code.constants import DOCUMENT, CANDIDATE
+from Config.config import conf
 
 
 class HDEModel(nn.Module):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.name = config.model_name
-        self.hidden_size = config.hidden_size
+        self.name = conf.model_name
+        self.hidden_size = conf.hidden_size
 
         self.coattention = Coattention(**kwargs)
         self.summariser = Summariser(**kwargs)
@@ -33,8 +33,8 @@ class HDEModel(nn.Module):
         # self.gnn = GNNStack(RGat, num_types=7)
         self.gnn = GNNStack(GATConv)
 
-        self.candidate_scorer = HDEScorer(config.hidden_size)
-        self.entity_scorer = HDEScorer(config.hidden_size)
+        self.candidate_scorer = HDEScorer(conf.hidden_size)
+        self.entity_scorer = HDEScorer(conf.hidden_size)
 
         self.loss_fn = CrossEntropyLoss()
         self.last_example = -1
@@ -56,13 +56,13 @@ class HDEModel(nn.Module):
 
         edge_index = graph.edge_index
         num_edges = len(graph.unique_edges)
-        if num_edges > config.max_edges != -1:
+        if num_edges > conf.max_edges != -1:
             raise TooManyEdges()
 
         t = time.time()
         x = self.gnn(x, edge_index)
 
-        if config.print_times:
+        if conf.print_times:
             print("passed gnn in", (time.time() - t))
         t = time.time()
 
@@ -71,7 +71,7 @@ class HDEModel(nn.Module):
         pred_id = torch.argmax(final_probs)
         pred_ans = example.candidates[pred_id]
 
-        if config.print_times:
+        if conf.print_times:
             print("passed output model in", (time.time() - t))
 
         if example.answer is not None:
@@ -93,7 +93,7 @@ class HDEModel(nn.Module):
         t = time.time()
 
         ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser)
-        if config.print_times:
+        if conf.print_times:
             print("got ents in", (time.time() - t))
 
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
@@ -134,7 +134,7 @@ class HDEModel(nn.Module):
         support_embeddings = [self.embedder(sup) for sup in supports]
         # print("supps:", [s.size() for s in support_embeddings])
         pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
-        if pad_volume > config.max_pad_volume:
+        if pad_volume > conf.max_pad_volume:
             raise PadVolumeOverflow()
         # print("pad vol:", pad_volume)
         query_emb = self.embedder(query)

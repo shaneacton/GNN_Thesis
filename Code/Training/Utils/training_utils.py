@@ -4,9 +4,9 @@ from os.path import exists
 import torch
 from torch.optim.lr_scheduler import LambdaLR
 
-from Config import config
 from Code.HDE.hde_bert import HDEBert
 from Code.Training import device
+from Config.config import conf
 from Viz.loss_visualiser import visualise_training_data, get_continuous_epochs
 
 
@@ -20,7 +20,7 @@ def get_model(save_path, **model_kwargs):
         try:
             checkpoint = torch.load(save_path)
             hde = checkpoint["model"].to(device)
-            optimizer = get_optimizer(hde, type=config.optimizer_type)
+            optimizer = get_optimizer(hde, type=conf.optimizer_type)
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
             scheduler = get_exponential_schedule_with_warmup(optimizer)
             scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
@@ -33,7 +33,7 @@ def get_model(save_path, **model_kwargs):
         # hde = HDEGlove(**model_kwargs).to(device)
         hde = HDEBert(**model_kwargs).to(device)
 
-        optimizer = get_optimizer(hde, type=config.optimizer_type)
+        optimizer = get_optimizer(hde, type=conf.optimizer_type)
         scheduler = get_exponential_schedule_with_warmup(optimizer)
         print("inited model", hde.name, repr(hde), "with:", num_params(hde), "trainable params")
 
@@ -53,7 +53,7 @@ def get_training_results(save_path):
 def get_optimizer(model, type="sgd"):
     print("using", type, "optimiser")
     params = (p for p in model.parameters() if p.requires_grad)
-    lr = config.initial_lr
+    lr = conf.initial_lr
     if type == "sgd":
         return torch.optim.SGD(params, lr=lr)
     if type == "adamw":
@@ -78,7 +78,7 @@ def save_data(data, save_path, suffix=".data"):
     filehandler.close()
 
 
-def save_config(cfg, save_path):
+def save_conf(cfg, save_path):
     filehandler = open(save_path + ".cfg", 'wb')
     pickle.dump(cfg, filehandler)
     filehandler.close()
