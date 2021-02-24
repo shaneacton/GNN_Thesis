@@ -3,7 +3,6 @@ import pathlib
 import sys
 from os.path import join
 
-from Config.config import Config, conf
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -13,6 +12,7 @@ sys.path.append(os.path.join(dir_path_1, 'Config'))
 
 from Code.Training.trainer import train_model
 from Config import load_checkpoint_model_config
+from Config.config import conf
 
 file_path = pathlib.Path(__file__).parent.absolute()
 CHECKPOINT_FOLDER = join(file_path, "../HDE/Checkpoint")
@@ -20,12 +20,12 @@ CHECKPOINT_FOLDER = join(file_path, "../HDE/Checkpoint")
 
 def train_config(model_cfg_name=None, train_cfg_name=None):
     """train/continue a model using a model config in HDE/Config"""
-    global conf
-
-    if model_cfg_name is not None or train_cfg_name is not None:
-        names = {"model_cfg_name": model_cfg_name, "train_cfg_name": train_cfg_name}
-        overrides = {k: v for k, v in names.items() if v is not None}
-        conf = Config(**overrides)
+    # global conf
+    #
+    # if model_cfg_name is not None or train_cfg_name is not None:
+    #     names = {"model_cfg_name": model_cfg_name, "train_cfg_name": train_cfg_name}
+    #     overrides = {k: v for k, v in names.items() if v is not None}
+    #     conf = Config(**overrides)
     path = join(CHECKPOINT_FOLDER, conf.model_name)
     train_model(path)
 
