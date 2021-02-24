@@ -5,9 +5,9 @@ from os.path import exists, join
 import nlp
 from tqdm import tqdm
 
-from Config import config
 from Code.HDE.wikipoint import Wikipoint
 from Code.Training.Utils.training_utils import save_data
+from Config.config import conf
 
 DATA_FOLDER = str(pathlib.Path(__file__).parent.absolute())
 print("Data folder:", DATA_FOLDER)
@@ -47,7 +47,7 @@ def get_processed_wikihop(model, split=nlp.Split.TRAIN):
 
     print("loading wikihop unprocessed")
     data = list(load_unprocessed_dataset("qangaroo", "wikihop", split))
-    data = data[:config.max_examples] if config.max_examples > 0 else data
+    data = data[:conf.max_examples] if conf.max_examples > 0 else data
     print("num examples:", len(data))
 
     print("processing wikihop", split)
