@@ -184,4 +184,4 @@ def plot_losses_from_paste_file(show=True):
 if __name__ == "__main__":
     num_examples = 43738 if conf.max_examples == -1 else conf.max_examples
     print("num ex:", num_examples, "print:", conf.print_loss_every)
-    compare(names=["hde", "hde_bert"], num_training_examples=num_examples, print_loss_every=conf.print_loss_every)
+    compare(names=["hde_grad", "hde_bert"], num_training_examples=num_examples, print_loss_every=conf.print_loss_every)
