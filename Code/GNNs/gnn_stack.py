@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
 
-from Code.Config.config import config
+from Config import config
 
 
 class GNNStack(nn.Module):

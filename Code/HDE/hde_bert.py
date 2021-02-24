@@ -1,11 +1,11 @@
 import time
 
-from Code.Config.config import config
+from Config import config
 from Code.Embedding.bert_embedder import BertEmbedder
 from Code.HDE.hde_model import HDEModel
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
-    connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions, get_entity_summaries
+    connect_candidates_and_entities, connect_unconnected_entities, connect_entity_mentions
 from Viz.graph_visualiser import render_graph
 
 
@@ -14,6 +14,7 @@ class HDEBert(HDEModel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.embedder = BertEmbedder()
+        self.embedder_name = "bert"
 
     def create_graph(self, example):
         start_t = time.time()

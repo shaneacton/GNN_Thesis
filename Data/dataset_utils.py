@@ -1,4 +1,3 @@
-import os
 import pathlib
 import pickle
 from os.path import exists, join
@@ -6,7 +5,7 @@ from os.path import exists, join
 import nlp
 from tqdm import tqdm
 
-from Code.Config.config import config
+from Config import config
 from Code.HDE.wikipoint import Wikipoint
 from Code.Training.Utils.training_utils import save_data
 
@@ -33,10 +32,10 @@ def load_unprocessed_dataset(dataset_name, version_name, split):
     return dataset
 
 
-def get_processed_wikihop(glove_embedder, split=nlp.Split.TRAIN):
+def get_processed_wikihop(model, split=nlp.Split.TRAIN):
     global has_loaded
 
-    file_name = split._name + ".data"
+    file_name = model.embedder_name + "_" + split._name + ".data"
     data_path = join(DATA_FOLDER, file_name)
 
     if exists(data_path):  # has been processed before
@@ -52,6 +51,9 @@ def get_processed_wikihop(glove_embedder, split=nlp.Split.TRAIN):
     print("num examples:", len(data))
 
     print("processing wikihop", split)
-    processed_examples = [Wikipoint(ex, glove_embedder=glove_embedder) for ex in tqdm(data)]
+    if model.embedder_name == "bert":
+        processed_examples = [Wikipoint(ex, tokeniser=model.embedder.tokenizer) for ex in tqdm(data)]
+    else:
+        processed_examples = [Wikipoint(ex, glove_embedder=model.embedder) for ex in tqdm(data)]
     save_data(processed_examples, DATA_FOLDER + "/", suffix=file_name)
     return processed_examples

@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 from torch.nn.utils.rnn import pad_sequence
 
-from Code.Config.config import config
+from Config import config
 from Code.Training import device
 
 

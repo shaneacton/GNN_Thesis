@@ -4,9 +4,8 @@ from os.path import exists
 import torch
 from torch.optim.lr_scheduler import LambdaLR
 
-from Code.Config.config import config
+from Config import config
 from Code.HDE.hde_bert import HDEBert
-from Code.HDE.hde_glove import HDEGlove
 from Code.Training import device
 from Viz.loss_visualiser import visualise_training_data, get_continuous_epochs
 
@@ -41,7 +40,7 @@ def get_model(save_path, **model_kwargs):
     return hde, optimizer, scheduler
 
 
-def get_training_data(save_path):
+def get_training_results(save_path):
     if exists(save_path):
         filehandler = open(save_path + ".data", 'rb')
         data = pickle.load(filehandler)

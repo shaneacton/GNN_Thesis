@@ -1,7 +1,7 @@
 import torch
 from transformers import AutoTokenizer, AutoModel
 
-from Code.Config.config import config
+from Config import config
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.Training import device
 

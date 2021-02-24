@@ -1,6 +1,6 @@
 import argparse
 
-from Code.Config import load_configs
+from Config import load_configs
 
 
 class Config:

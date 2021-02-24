@@ -1,6 +1,6 @@
 import time
 
-from Code.Config.config import config
+from Config import config
 from Code.Embedding.Glove.glove_embedder import GloveEmbedder
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import add_doc_nodes, add_entity_nodes, add_candidate_nodes, \
@@ -14,6 +14,7 @@ class HDEGlove(HDEModel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.embedder = GloveEmbedder()
+        self.embedder_name = "glove"
 
     def create_graph(self, example):
         start_t = time.time()

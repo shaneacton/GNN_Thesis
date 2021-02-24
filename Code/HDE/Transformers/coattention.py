@@ -3,7 +3,7 @@ from typing import List
 import torch
 from torch import Tensor
 
-from Code.Config.config import config
+from Config import config
 from Code.HDE.Transformers.transformer import Transformer
 from Code.Training import device
 from Code.constants import QUERY, DOCUMENT

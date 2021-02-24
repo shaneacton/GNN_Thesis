@@ -1,4 +1,3 @@
-import argparse
 import os
 import pathlib
 import sys
@@ -10,8 +9,8 @@ sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
 from Code.Training.trainer import train_model
-from Code.Config import load_checkpoint_model_config
-from Code.Config.config import config, Config
+from Config import load_checkpoint_model_config
+from Config import Config
 
 file_path = pathlib.Path(__file__).parent.absolute()
 CHECKPOINT_FOLDER = join(file_path, "../HDE/Checkpoint")

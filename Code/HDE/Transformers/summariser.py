@@ -3,7 +3,7 @@ from typing import List
 from torch import Tensor
 from transformers import TokenSpan
 
-from Code.Config.config import config
+from Config import config
 from Code.HDE.Transformers.transformer import Transformer
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT
 

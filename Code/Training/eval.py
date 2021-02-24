@@ -3,7 +3,7 @@ import torch
 from numpy import mean
 from tqdm import tqdm
 
-from Code.Config.config import config
+from Config import config
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Data.dataset_utils import get_processed_wikihop
@@ -12,16 +12,16 @@ from Code.Training.Utils.eval_utils import get_acc_and_f1
 _test = None
 
 
-def get_test(embedder):
+def get_test(model):
     global _test
     if _test is None:
-        _test = get_processed_wikihop(embedder, split=nlp.Split.VALIDATION)
+        _test = get_processed_wikihop(model, split=nlp.Split.VALIDATION)
         print("num valid ex:", len(_test))
     return _test
 
 
 def evaluate(hde):
-    test = get_test(hde.embedder)
+    test = get_test(hde)
 
     answers = []
     predictions = []

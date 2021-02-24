@@ -6,6 +6,7 @@ from torch import Tensor
 from transformers import LongformerTokenizerFast, BatchEncoding, TokenSpan
 
 from Code.Embedding.Glove.glove_embedder import GloveEmbedder
+from Code.Embedding.spacy_utils import get_entity_char_spans
 from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode
@@ -165,6 +166,34 @@ def get_entity_summaries(tok_spans: List[List[Tuple[int]]], support_embeddings: 
         flat_vecs.extend([support_embeddings[s]] * len(spans))
     # return [summariser(vec, ENTITY, flat_spans[i]) for i, vec in enumerate(flat_vecs)]
     return summariser(flat_vecs, ENTITY, flat_spans)
+
+
+def get_transformer_entity_token_spans(support_encodings, supports) -> List[List[Tuple[int]]]:
+    """
+        token_spans is indexed list[support_no][ent_no]
+        summaries is a flat list
+    """
+    token_spans: List[List[Tuple[int]]] = []
+
+    for s, support in enumerate(supports):
+        """get entity node embeddings"""
+        ent_c_spans = get_entity_char_spans(support)
+        support_encoding = support_encodings[s]
+
+        ent_token_spans: List[Tuple[int]] = []
+        for e, c_span in enumerate(ent_c_spans):
+            """clips out the entities token embeddings, and summarises them"""
+            try:
+                ent_token_span = charspan_to_tokenspan(support_encoding, c_span)
+            except Exception as ex:
+                print("cannot get ent ", e, "token span. in supp", s)
+                print(ex)
+                continue
+            ent_token_spans.append(ent_token_span)
+
+        token_spans.append(ent_token_spans)
+
+    return token_spans
 
 
 

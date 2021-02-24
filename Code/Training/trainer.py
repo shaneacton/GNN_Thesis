@@ -5,20 +5,20 @@ from statistics import mean
 import torch
 from tqdm import tqdm
 
-from Code.Config.config import config
+from Config import config
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Training.eval import evaluate
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
-from Code.Training.Utils.training_utils import plot_training_data, save_data, get_model, get_training_data
+from Code.Training.Utils.training_utils import plot_training_data, save_data, get_model, get_training_results
 from Data.dataset_utils import get_processed_wikihop
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 
 def train_model(save_path):
     model, optimizer, scheduler = get_model(save_path)
-    results = get_training_data(save_path)
+    results = get_training_results(save_path)
 
-    train = get_processed_wikihop(model.embedder)
+    train = get_processed_wikihop(model)
     num_examples = len(train)
     print("num training ex:", num_examples)
 

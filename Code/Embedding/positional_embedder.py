@@ -1,7 +1,7 @@
 import torch
 from torch import nn, Tensor
 
-from Code.Config.config import config
+from Config import config
 from Code.Training import device
 
 

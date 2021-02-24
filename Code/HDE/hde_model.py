@@ -6,7 +6,7 @@ from torch import nn
 from torch.nn import CrossEntropyLoss, ReLU
 from torch_geometric.nn import GATConv
 
-from Code.Config.config import config
+from Config import config
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.Graph.graph_utils import similar, get_entity_summaries
@@ -15,8 +15,6 @@ from Code.HDE.Transformers.summariser import Summariser
 from Code.HDE.scorer import HDEScorer
 from Code.HDE.wikipoint import Wikipoint
 from Code.Training import device
-from Code.GNNs.asymmetrical_gat import AsymGat
-from Code.GNNs.r_gat import RGat
 from Code.constants import DOCUMENT, CANDIDATE
 
 

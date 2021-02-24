@@ -1,5 +1,7 @@
 Todo:
 
+* need to reparse data for bert due to different tokenisation.
+
 
 * Transformers:
     * add a classification embedding to the summariser

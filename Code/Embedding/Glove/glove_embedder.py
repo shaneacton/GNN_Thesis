@@ -2,11 +2,11 @@ from os.path import join
 
 import numpy as np
 import torch
-from torch import Tensor, nn
+from torch import Tensor
 import re
 import pathlib
 
-from Code.Config.config import config
+from Config import config
 from Code.Embedding.positional_embedder import PositionalEmbedder
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.Training import device

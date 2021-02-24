@@ -8,19 +8,19 @@ import os
 import sys
 from os.path import join
 
-from Code.Config import load_config
-from Code.Config.config import config
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 dir_path_1 = join(dir_path_1, "GNN_Thesis")
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 
+from Config import load_config
+from Config import config
+
 
 def compare(save_paths: List[str]=None, names=None, num_training_examples=43700, show=True, print_loss_every=None):
     from Code.Main.scheduler import CHECKPOINT_FOLDER
-    from Code.Training.Utils.training_utils import get_training_data
+    from Code.Training.Utils.training_utils import get_training_results
 
     if save_paths is None:
         save_paths = [join(CHECKPOINT_FOLDER, n) for n in names]
@@ -28,7 +28,7 @@ def compare(save_paths: List[str]=None, names=None, num_training_examples=43700,
     loss_ax, acc_ax = None, None
     colours = ["g", "b", "r"]
     for i, save_path in enumerate(save_paths):
-        data = get_training_data(save_path)
+        data = get_training_results(save_path)
         losses = smooth(data["losses"])
         # print("got losses:", losses)
         # print("from:", save_path)
