@@ -3,24 +3,24 @@ from torch import nn
 from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 from torch.nn.utils.rnn import pad_sequence
 
-from Config import config
 from Code.Training import device
+from Config.config import conf
 
 
 class Transformer(nn.Module):
 
     def __init__(self, hidden_size, num_types, intermediate_fac=2, use_type_embeddings=True):
         super().__init__()
-        self.num_heads = config.heads
+        self.num_heads = conf.heads
         self.use_type_embeddings = use_type_embeddings
         self.num_types = num_types
         self.hidden_size = hidden_size
         self.type_embedder = nn.Embedding(num_types, self.hidden_size)
 
-        encoder_layer = TransformerEncoderLayer(self.hidden_size, config.transformer_heads,
-                                                self.hidden_size * intermediate_fac, config.dropout, 'relu')
+        encoder_layer = TransformerEncoderLayer(self.hidden_size, conf.transformer_heads,
+                                                self.hidden_size * intermediate_fac, conf.dropout, 'relu')
         encoder_norm = LayerNorm(self.hidden_size)
-        self.encoder = TransformerEncoder(encoder_layer, config.num_transformer_layers, encoder_norm)
+        self.encoder = TransformerEncoder(encoder_layer, conf.num_transformer_layers, encoder_norm)
 
     @staticmethod
     def get_type_ids(type, length, type_map):
