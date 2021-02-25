@@ -1,8 +1,8 @@
 import torch
 from torch import nn, Tensor
 
-from Config import config
 from Code.Training import device
+from Config.config import conf
 
 
 class PositionalEmbedder(nn.Module):
@@ -10,7 +10,7 @@ class PositionalEmbedder(nn.Module):
     def __init__(self, dims=None, max_positions=4050):
         super().__init__()
         if dims is None:
-            dims = config.embedded_dims
+            dims = conf.embedded_dims
         self.dims = dims
         self.max_positions = max_positions
         self.positional_embs = nn.Embedding(max_positions, self.dims)

@@ -1,13 +1,13 @@
 {
-  "model_name": "hde_bert_fine",
+  "model_name": "hde",
   "num_layers": 3,
   "num_transformer_layers": 1,
-  "hidden_size": 512,
-  "embedded_dims": 512,
+  "hidden_size": 300,
+  "embedded_dims": 300,
   "fine_tune_embedder": true,
   "bert_size": "small",
   "heads": 1,
-  "transformer_heads": 8,
+  "transformer_heads": 6,
   "dropout": 0.1,
   "optimizer_type": "sgd"
 }

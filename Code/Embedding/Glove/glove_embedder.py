@@ -6,10 +6,10 @@ from torch import Tensor
 import re
 import pathlib
 
-from Config import config
 from Code.Embedding.positional_embedder import PositionalEmbedder
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.Training import device
+from Config.config import conf
 
 
 class GloveEmbedder(StringEmbedder):
@@ -20,7 +20,7 @@ class GloveEmbedder(StringEmbedder):
         file_path = pathlib.Path(__file__).parent.absolute()
         print("glove path:", file_path)
         embeddings_dict = {}
-        self.dims = config.embedded_dims
+        self.dims = conf.embedded_dims
         path = join(file_path, "glove.6B", "glove.6B." + repr(self.dims) + "d.txt")
         with open(path, 'r', encoding="utf-8") as f:
             for line in f:

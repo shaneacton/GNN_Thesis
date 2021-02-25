@@ -5,6 +5,8 @@ import torch
 from torch.optim.lr_scheduler import LambdaLR
 
 from Code.HDE.hde_bert import HDEBert
+from Code.HDE.hde_glove import HDEGlove
+from Code.Pooling.hde_pool import HDEPool
 from Code.Training import device
 from Config.config import conf
 from Viz.loss_visualiser import visualise_training_data, get_continuous_epochs
@@ -30,8 +32,9 @@ def get_model(save_path, **model_kwargs):
             print(e)
             print("cannot load model at", save_path)
     if hde is None:
-        # hde = HDEGlove(**model_kwargs).to(device)
-        hde = HDEBert(**model_kwargs).to(device)
+        hde = HDEGlove(**model_kwargs).to(device)
+        # hde = HDEBert(**model_kwargs).to(device)
+        # hde = HDEPool(**model_kwargs).to(device)
 
         optimizer = get_optimizer(hde, type=conf.optimizer_type)
         scheduler = get_exponential_schedule_with_warmup(optimizer)
