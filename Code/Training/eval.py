@@ -4,6 +4,7 @@ from numpy import mean
 from tqdm import tqdm
 
 from Code.Embedding.Glove.glove_embedder import NoWordsException
+from Code.Embedding.bert_embedder import TooManyTokens
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
@@ -35,7 +36,7 @@ def evaluate(hde):
                 break
             try:
                 _, predicted = hde(example)
-            except (NoWordsException, PadVolumeOverflow, TooManyEdges) as ne:
+            except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
                 continue
 
             answers.append([example.answer])

@@ -6,6 +6,7 @@ import torch
 from tqdm import tqdm
 
 from Code.Embedding.Glove.glove_embedder import NoWordsException
+from Code.Embedding.bert_embedder import TooManyTokens
 from Code.Training.eval import evaluate
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training.Utils.training_utils import plot_training_data, save_data, get_model, get_training_results
@@ -65,7 +66,7 @@ def train_model(save_path):
                 loss.backward()
                 accumulated_edges += num_edges
 
-            except (NoWordsException, PadVolumeOverflow, TooManyEdges) as ne:
+            except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
                 continue
 
             answers.append([example.answer])
