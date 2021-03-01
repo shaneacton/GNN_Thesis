@@ -6,5 +6,6 @@
   "max_accumulated_edges": 50000,
   "max_edges": 100000,
   "max_pad_volume": 50000,
-  "print_times": false
+  "print_times": false,
+  "use_lr_scheduler": false
 }

@@ -1,5 +1,5 @@
 {
-  "model_name": "hde",
+  "model_name": "hde_no_pool",
   "num_layers": 3,
   "num_transformer_layers": 1,
   "hidden_size": 300,
@@ -9,5 +9,6 @@
   "heads": 1,
   "transformer_heads": 6,
   "dropout": 0.1,
-  "optimizer_type": "sgd"
+  "optimizer_type": "sgd",
+  "pool_ratio": 1
 }

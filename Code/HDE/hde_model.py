@@ -20,7 +20,7 @@ from Config.config import conf
 
 class HDEModel(nn.Module):
 
-    def __init__(self, **kwargs):
+    def __init__(self, GNNClass=GATConv, **kwargs):
         super().__init__()
         self.name = conf.model_name
         self.hidden_size = conf.hidden_size
@@ -31,7 +31,8 @@ class HDEModel(nn.Module):
         self.relu = ReLU()
 
         # self.gnn = GNNStack(RGat, num_types=7)
-        self.gnn = GNNStack(GATConv)
+        if GNNClass is not None:
+            self.gnn = GNNStack(GNNClass)
 
         self.candidate_scorer = HDEScorer(conf.hidden_size)
         self.entity_scorer = HDEScorer(conf.hidden_size)
@@ -100,11 +101,17 @@ class HDEModel(nn.Module):
 
         return x
 
-    def pass_output_model(self, x, example, graph):
+    def pass_output_model(self, x, example, graph, node_id_map=None):
+        """
+            transformations like pooling can change the effective node ids.
+            node_id_map maps the original node ids, to the new effective node ids
+        """
         cand_idxs = graph.candidate_nodes
+        if node_id_map is not None:
+            cand_idxs = [node_id_map[c] for c in cand_idxs]
 
-        cand_embs = x[cand_idxs[0]: cand_idxs[-1] + 1, :]
-        cand_probs = self.candidate_scorer(cand_embs).view(len(graph.candidate_nodes))
+        cand_embs = x[torch.tensor(cand_idxs).to(device).long(), :]
+        cand_probs = self.candidate_scorer(cand_embs).view(len(cand_idxs))
 
         ent_probs = []
         for c, cand in enumerate(example.candidates):
@@ -113,7 +120,10 @@ class HDEModel(nn.Module):
             linked_ent_nodes = set()
             for ent_text in graph.entity_text_to_nodes.keys():  # find all entities with similar text
                 if similar(cand_node.text, ent_text):
-                    linked_ent_nodes.update(graph.entity_text_to_nodes[ent_text])
+                    ent_node_ids = graph.entity_text_to_nodes[ent_text]
+                    if node_id_map is not None:
+                        ent_node_ids = [node_id_map[e] for e in ent_node_ids if e in node_id_map]
+                    linked_ent_nodes.update(ent_node_ids)
 
             if len(linked_ent_nodes) == 0:
                 max_prob = torch.tensor(0.).to(device)

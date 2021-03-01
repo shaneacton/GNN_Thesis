@@ -100,7 +100,7 @@ def train_model(save_path):
         model.last_example = -1
 
         print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
-              "chance:", mean(chances))
+              "chance:", mean(chances) if len(chances) > 0 else 0)
 
         valid_acc = evaluate(model)
         results["valid_accs"].append(valid_acc)
