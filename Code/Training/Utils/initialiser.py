@@ -1,7 +1,5 @@
-from typing import Type
-
 import torch
-from transformers import LongformerConfig, LongformerTokenizerFast, LongformerForQuestionAnswering, LongformerModel, \
+from transformers import LongformerConfig, LongformerTokenizerFast, LongformerModel, \
     TrainingArguments, Trainer, T5Config
 
 from Code.Training import device
@@ -19,49 +17,6 @@ PRETRAINED = "allenai/longformer-base-4096"
 
 
 _tokenizer = None
-
-
-def get_tokenizer() -> LongformerTokenizerFast:
-    global _tokenizer
-    if _tokenizer is None:
-        _tokenizer = LongformerTokenizerFast.from_pretrained(PRETRAINED)
-    return _tokenizer
-
-
-def get_longformer_config(hidden_size=FEATURES, num_layers=1, num_types=3):
-    configuration = LongformerConfig()
-
-    configuration.attention_window = ATTENTION_WINDOW
-    configuration.hidden_size = hidden_size
-    configuration.intermediate_size = INTERMEDIATE_FEATURES
-    configuration.num_labels = 2
-    configuration.max_position_embeddings = 4098
-    configuration.type_vocab_size = num_types
-    configuration.num_attention_heads = HEADS
-    configuration.num_hidden_layers = num_layers
-
-    configuration.vocab_size = get_tokenizer().vocab_size
-    return configuration
-
-
-def get_transformer_config(hidden_size=FEATURES, num_layers=1, num_types=3):
-    configuration = T5Config()
-
-    configuration.d_model = hidden_size
-    configuration.d_ff = hidden_size * 4
-    configuration.num_heads = HEADS
-    configuration.num_layers = num_layers
-
-    configuration.vocab_size = get_tokenizer().vocab_size
-    return configuration
-
-
-def get_pretrained_longformer():
-    pret = LongformerModel.from_pretrained(PRETRAINED)
-    for param in pret.parameters():
-        param.requires_grad = False
-    print("loading pretrained with:", sum(p.numel() for p in pret.parameters()), "params")
-    return pret.to(device)
 
 
 def get_trainer(model, outdir, train_dataset, valid_dataset):

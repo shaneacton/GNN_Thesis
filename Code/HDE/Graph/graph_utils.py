@@ -11,6 +11,8 @@ from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode
 from Code.constants import DOCUMENT, ENTITY, CODOCUMENT, CANDIDATE, COMENTION
+from Config.config import conf
+from Viz.graph_visualiser import render_graph
 
 only_letters = re.compile('[^a-zA-Z]')
 def clean(text):
@@ -194,6 +196,30 @@ def get_transformer_entity_token_spans(support_encodings, supports) -> List[List
         token_spans.append(ent_token_spans)
 
     return token_spans
+
+
+def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings=None):
+    start_t = time.time()
+    graph = HDEGraph(example)
+    add_doc_nodes(graph, example.supports)
+    add_entity_nodes(graph, example.supports, example.ent_token_spans, glove_embedder=glove_embedder,
+                     tokeniser=tokeniser, support_encodings=support_encodings)
+
+    add_candidate_nodes(graph, example.candidates, example.supports)
+    connect_candidates_and_entities(graph)
+
+    connect_entity_mentions(graph)
+    connect_unconnected_entities(graph)
+
+    if conf.print_times:
+        print("made full graph in", (time.time() - start_t))
+
+    if conf.visualise_graphs:
+        render_graph(graph)
+        if conf.exit_after_first_viz:
+            exit()
+
+    return graph
 
 
 

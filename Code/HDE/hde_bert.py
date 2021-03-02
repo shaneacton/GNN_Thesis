@@ -18,7 +18,7 @@ class HDEBert(HDEModel):
 
     def create_graph(self, example):
         start_t = time.time()
-        graph = HDEGraph()
+        graph = HDEGraph(example)
         add_doc_nodes(graph, example.supports)
         add_entity_nodes(graph, example.supports, example.ent_token_spans, tokeniser=self.embedder.tokenizer)
         add_candidate_nodes(graph, example.candidates, example.supports)

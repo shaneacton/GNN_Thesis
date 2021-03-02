@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 
 class HDEGraph:
 
-    def __init__(self):
+    def __init__(self, example):
+        self.example = example
         self.ordered_nodes: List[HDENode] = []
         self.entity_nodes: List[int] = []
         self.entity_text_to_nodes: Dict[str, List[int]] = {}

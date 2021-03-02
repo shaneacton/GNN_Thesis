@@ -1,36 +1,30 @@
-import random
 import time
 from statistics import mean
 
 import torch
-from tqdm import tqdm
 
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Embedding.bert_embedder import TooManyTokens
-from Code.Training.eval import evaluate
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
+from Code.Training.Utils.eval_utils import get_acc_and_f1
 from Code.Training.Utils.training_utils import plot_training_data, save_data, get_model, get_training_results
+from Code.Training.eval import evaluate
+from Code.Training.graph_gen import GraphGenerator
 from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
-from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 
 def train_model(save_path):
     model, optimizer, scheduler = get_model(save_path)
     results = get_training_results(save_path)
 
-    train = get_processed_wikihop(model)
-    num_examples = len(train)
-    print("num training ex:", num_examples)
+    train_gen = GraphGenerator(get_processed_wikihop(model), model)
 
-    last_print = time.time()
     accumulated_edges = 0
-
     for epoch in range(conf.num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
             continue
-        random.seed(epoch)
-        random.shuffle(train)
+        train_gen.shuffle(epoch)
 
         answers = []
         predictions = []
@@ -38,13 +32,10 @@ def train_model(save_path):
         losses = []
         model.train()
 
-        total_graph_time = 0
-        total_model_time = 0
-
         start_time = time.time()
-        for i, example in tqdm(enumerate(train)):
+        for i, graph in enumerate(train_gen.graphs()):
             def e_frac():
-                return epoch + i/num_examples
+                return epoch + i/train_gen.num_examples
 
             if i >= conf.max_examples != -1:
                 break
@@ -53,9 +44,6 @@ def train_model(save_path):
                 continue
 
             try:
-                ti = time.time()
-                graph = model.create_graph(example)
-                total_graph_time += time.time() - ti
                 num_edges = len(graph.unique_edges)
                 if accumulated_edges + num_edges > conf.max_accumulated_edges:  # always true if mae=-1
                     """
@@ -68,43 +56,39 @@ def train_model(save_path):
                     optimizer.zero_grad()
                     accumulated_edges = 0
 
-                ti = time.time()
-                loss, predicted = model(example, graph=graph)
+                loss, predicted = model(graph=graph)
+                t = time.time()
                 loss.backward()
-                total_model_time += time.time() - ti
+                if conf.print_times:
+                    print("back time:", (time.time() - t))
+
                 accumulated_edges += num_edges
 
             except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
                 continue
 
-            answers.append([example.answer])
+            answers.append([graph.example.answer])
             predictions.append(predicted)
-            chances.append(1. / len(example.candidates))
-
-            t = time.time()
-            if conf.print_times:
-                print("back time:", (time.time() - t))
+            chances.append(1. / len(graph.example.candidates))
 
             losses.append(loss.item())
 
             if len(losses) % conf.print_loss_every == 0:  # print loss
                 acc = get_acc_and_f1(answers[-conf.print_loss_every:-1], predictions[-conf.print_loss_every:-1])['exact_match']
                 mean_loss = mean(losses[-conf.print_loss_every:-1])
-                print("e", epoch, "i", i, "loss:", mean_loss, "mean:", mean(losses),
-                      "time:", (time.time() - last_print), "acc:", acc, "chance:", mean(chances[-conf.print_loss_every:-1]))
-                last_print = time.time()
+                print("e", epoch, "i", i, "loss:", mean_loss, "acc:", acc, "chance:", mean(chances[-conf.print_loss_every:-1]))
 
                 results["losses"].append(mean_loss)
                 results["train_accs"].append(acc)
 
             if len(losses) % conf.checkpoint_every == 0:  # save model and data
-                print("saving model at e", epoch, "i:", i)
                 save_time = time.time()
+                print("saving model at e", epoch, "i:", i)
                 model.last_example = i
                 model.last_epoch = epoch
                 model_save_data = {"model": model, "optimizer_state_dict": optimizer.state_dict(), "scheduler_state_dict": scheduler.state_dict()}
                 torch.save(model_save_data, save_path)
-                plot_training_data(results, save_path, conf.print_loss_every, num_examples)
+                plot_training_data(results, save_path, conf.print_loss_every, train_gen.num_examples)
                 save_data(results, save_path)
                 save_time = time.time() - save_time
                 start_time += save_time
@@ -113,9 +97,8 @@ def train_model(save_path):
         print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
               "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - start_time))
 
-        print("graph time:", total_graph_time, "model time:", total_model_time, "graph frac:", total_graph_time/(total_graph_time + total_model_time))
 
         valid_acc = evaluate(model)
         results["valid_accs"].append(valid_acc)
 
-        plot_training_data(results, save_path, conf.print_loss_every, num_examples)
+        plot_training_data(results, save_path, conf.print_loss_every, train_gen.num_examples)

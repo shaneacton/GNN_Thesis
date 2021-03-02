@@ -18,11 +18,12 @@ class HDEGlove(HDEModel):
 
     def create_graph(self, example):
         start_t = time.time()
-        graph = HDEGraph()
+        graph = HDEGraph(example)
         add_doc_nodes(graph, example.supports)
         add_entity_nodes(graph, example.supports, example.ent_token_spans, glove_embedder=self.embedder)
         add_candidate_nodes(graph, example.candidates, example.supports)
         connect_candidates_and_entities(graph)
+
         connect_entity_mentions(graph)
         connect_unconnected_entities(graph)
 
@@ -35,5 +36,6 @@ class HDEGlove(HDEModel):
                 exit()
 
         return graph
+
 
 

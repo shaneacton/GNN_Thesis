@@ -1,14 +1,14 @@
 import nlp
 import torch
 from numpy import mean
-from tqdm import tqdm
 
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Embedding.bert_embedder import TooManyTokens
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
+from Code.Training.Utils.eval_utils import get_acc_and_f1
+from Code.Training.graph_gen import GraphGenerator
 from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
-from Code.Training.Utils.eval_utils import get_acc_and_f1
 
 _test = None
 
@@ -22,7 +22,7 @@ def get_test(model):
 
 
 def evaluate(hde):
-    test = get_test(hde)
+    test_gen = GraphGenerator(get_test(hde), hde)
 
     answers = []
     predictions = []
@@ -31,17 +31,17 @@ def evaluate(hde):
     hde.eval()
 
     with torch.no_grad():
-        for i, example in tqdm(enumerate(test)):
+        for i, graph in enumerate(test_gen.graphs()):
             if i >= conf.max_examples != -1:
                 break
             try:
-                _, predicted = hde(example)
+                _, predicted = hde(graph=graph)
             except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
                 continue
 
-            answers.append([example.answer])
+            answers.append([graph.example.answer])
             predictions.append(predicted)
-            chances.append(1./len(example.candidates))
+            chances.append(1./len(graph.example.candidates))
 
     hde.last_example = -1
 

@@ -43,7 +43,7 @@ class HDEModel(nn.Module):
 
         self.embedder:StringEmbedder = None  #  must set in subclasses
 
-    def forward(self, example: Wikipoint, graph=None):
+    def forward(self, example: Wikipoint=None, graph=None):
         """
             nodes are created for each support, as well as each candidate and each context entity
             nodes are concattenated as follows: supports, entities, candidates
@@ -53,6 +53,8 @@ class HDEModel(nn.Module):
         """
         if graph is None:
             graph = self.create_graph(example)
+        else:
+            example = graph.example
         x = self.get_graph_features(example)
 
         edge_index = graph.edge_index

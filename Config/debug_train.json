@@ -1,8 +1,8 @@
 {
   "num_epochs": 1000,
-  "max_examples": 30,
-  "print_loss_every": 5,
-  "checkpoint_every": 12,
+  "max_examples": 100,
+  "print_loss_every": 9,
+  "checkpoint_every": 48,
   "max_accumulated_edges": 50000,
   "max_edges": 100000,
   "max_pad_volume": 50000,
