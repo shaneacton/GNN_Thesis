@@ -9,7 +9,7 @@ from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 from Code.Training.Utils.training_utils import plot_training_data, save_data, get_model, get_training_results
 from Code.Training.eval import evaluate
-from Code.Training.graph_gen import GraphGenerator
+from Code.Training.graph_gen import GraphGenerator, SKIP
 from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
 
@@ -18,7 +18,7 @@ def train_model(save_path):
     model, optimizer, scheduler = get_model(save_path)
     results = get_training_results(save_path)
 
-    train_gen = GraphGenerator(get_processed_wikihop(model), model)
+    train_gen = GraphGenerator(get_processed_wikihop(model), model=model)
 
     accumulated_edges = 0
     for epoch in range(conf.num_epochs):
@@ -33,14 +33,14 @@ def train_model(save_path):
         model.train()
 
         start_time = time.time()
-        for i, graph in enumerate(train_gen.graphs()):
+        for i, graph in enumerate(train_gen.graphs(start_at=model.last_example)):
             def e_frac():
                 return epoch + i/train_gen.num_examples
 
             if i >= conf.max_examples != -1:
                 break
 
-            if model.last_example != -1 and i < model.last_example:  # fast forward
+            if graph == SKIP:
                 continue
 
             try:

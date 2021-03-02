@@ -1,5 +1,5 @@
 {
-  "model_name": "hde_speed",
+  "model_name": "hde_no_pool",
   "num_layers": 3,
   "num_transformer_layers": 1,
   "hidden_size": 300,

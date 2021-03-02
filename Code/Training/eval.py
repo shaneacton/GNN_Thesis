@@ -22,7 +22,7 @@ def get_test(model):
 
 
 def evaluate(hde):
-    test_gen = GraphGenerator(get_test(hde), hde)
+    test_gen = GraphGenerator(get_test(hde), model=hde)
 
     answers = []
     predictions = []
