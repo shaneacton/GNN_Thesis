@@ -26,11 +26,15 @@ class HDEGraph:
         self.unique_edges: Set[Tuple[int]] = set()  # set of (t, f) ids, which are always sorted, ie: t<f
 
     @property
-    def edge_index(self) -> torch.LongTensor:
+    def edge_index(self, type=None) -> torch.LongTensor:
+        """if type arg is given, only the edges of that type are returned"""
         froms = []
         tos = []
 
         for e in self.ordered_edges:  # adds both directions
+            if type is not None:
+                if e.type() != type:
+                    continue
             froms += [e.from_id, e.to_id]
             tos += [e.to_id, e.from_id]
         return torch.tensor([froms, tos]).to(device).long()

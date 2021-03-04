@@ -10,7 +10,7 @@ sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 sys.path.append(os.path.join(dir_path_1, 'Config'))
 
-from Code.Training.p_trainer import train_model
+from Code.Training.trainer import train_model
 from Config import load_checkpoint_model_config
 from Config.config import conf
 

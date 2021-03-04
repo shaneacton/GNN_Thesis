@@ -211,8 +211,8 @@ def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings
     connect_entity_mentions(graph)
     connect_unconnected_entities(graph)
 
-    if conf.print_times:
-        print("made full graph in", (time.time() - start_t))
+    # if conf.print_times:
+    #     print("made full graph in", (time.time() - start_t))
 
     if conf.visualise_graphs:
         render_graph(graph)

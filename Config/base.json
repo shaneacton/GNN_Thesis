@@ -1,5 +1,5 @@
 {
-  "model_name": "hde_no_pool",
+  "model_name": "hde_switch",
   "num_layers": 3,
   "num_transformer_layers": 1,
   "hidden_size": 300,

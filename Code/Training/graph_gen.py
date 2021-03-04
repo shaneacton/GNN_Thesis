@@ -7,7 +7,7 @@ from nlp import tqdm
 
 from Code.HDE.Graph.graph_utils import create_graph
 
-BUF_SIZE = 30
+BUF_SIZE = 1500
 graph_queue = Queue(BUF_SIZE)
 SKIP = "skip"
 
@@ -17,7 +17,8 @@ def produce_graphs(q, start_at, dataset=None, glove_embedder=None, tokeniser=Non
     for i, example in tqdm(enumerate(dataset)):
         # if q is full, spin until one is consumed
         while q.full():
-            time.sleep(0.05)
+            time.sleep(0.01)
+            # print("q full")
 
         if start_at != -1 and i < start_at:  # fast forward
             q.put(SKIP)
@@ -54,9 +55,9 @@ class GraphGenerator:
         self.start(start_at)  # begins generation
 
         for i in range(self.num_examples):  # consume full epoch
-            if graph_queue.empty():
-                print("empty graph queue")
-            yield graph_queue.get()  # will hang until graph is ready
+            # if graph_queue.empty():
+                # print("empty graph queue")
+            yield graph_queue.get()  # will hang until next graph is ready
 
         self.p.join()
         self.p.close()

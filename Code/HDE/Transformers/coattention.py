@@ -27,13 +27,10 @@ class Coattention(Transformer):
         supps = [s.view(-1, self.hidden_size) for s in supps]
         query = query.view(-1, self.hidden_size)
 
-        # print("supps:", [s.size() for s in supps])
-        # print("query:", query.size())
         cats = [torch.cat([supp, query], dim=0) for supp in supps]
-        # print("cats:", [c.size() for c in cats])
         batch, masks = self.pad(cats)
+        # print("coat batch:", batch.size(), "num supps:", len(supps))
         batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)
-        # print("batch:", batch.size())
         seqs = list(batch.split(dim=0, split_size=1))
         assert len(seqs) == len(supps)
         for s, seq in enumerate(seqs):
@@ -41,22 +38,5 @@ class Coattention(Transformer):
         # print("seqs:", [s.size() for s in seqs])
         return seqs
 
-    def forward(self, suport_embedding, query_embedding):
-        """
-            (batch, seq, size)
-            adds a type embedding to supp and query embeddings
-            passes through transformer, returns a transformed sequence shaped as the sup emb
-        """
-        if self.use_type_embeddings:
-            supp_idxs = torch.zeros(suport_embedding.size(1)).long().to(device)
-            query_idxs = torch.ones(query_embedding.size(1)).long().to(device)
-            suport_embedding += self.type_embedder(supp_idxs).view(1, -1, self.hidden_size)
-            query_embedding += self.type_embedder(query_idxs).view(1, -1, self.hidden_size)
-        full = torch.cat([suport_embedding, query_embedding], dim=1)
-        # print("full:", full.size())
-        full = self.encoder(full)
-
-        query_aware_context = full[:, :suport_embedding.size(1), :]
-        # print("query aware:", query_aware_context.size())
-
-        return query_aware_context
+    def forward(self, supps: List[Tensor], query: Tensor):
+        return self.batched_coattention(supps, query)

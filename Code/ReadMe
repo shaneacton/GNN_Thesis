@@ -1,11 +1,7 @@
 Todo:
 
-* need to reparse data for bert due to different tokenisation.
-
-
 * Transformers:
     * add a classification embedding to the summariser
-
 
 
 * GNNs
@@ -15,16 +11,22 @@ Todo:
 
 
 * General:
-    * layer norms in output model, ie scorer
+    * wandb
     * data/model parallelism with pytorch to use multiple GPU's for faster training
 
 
 * Tests:
-    * scheduler
+    * HDE cannon gnn
+        * pooling ratios
+    * softmax pool scores
+    * 2L transformers
+    * 2,4L GNN
+    * bert with only last layer tunable + dropout
     * edge info
     * adam
-
-
+    * without complement edges
+    * add more layer norms
+    * try type switching instead of type embeddings for summ
 
 * house keeping:
     * ssh keygen for viz

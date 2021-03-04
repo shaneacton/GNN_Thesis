@@ -32,16 +32,18 @@ class Summariser(Transformer):
     def forward(self, vecs: List[Tensor], _type, spans: List[TokenSpan]=None):
         if spans is None:
             spans = [None] * len(vecs)
-        extracts = [self.get_vec_extract(v, spans[i]) for i, v in enumerate(vecs)]
+
+        extracts = [self.get_vec_extract(v, spans[i]).view(-1, self.hidden_size) for i, v in enumerate(vecs)]
+        print("extracts:", [e.size() for e in extracts])
+
         if self.use_type_embeddings:
-            extracts = [(ex + self.get_type_tensor(_type, ex.size(1))).view(-1, self.hidden_size) for ex in extracts]
-        # print("before:", [ex.size() for ex in extracts])
+            extracts = [ex + self.get_type_tensor(_type, ex.size(-2)).view(-1, self.hidden_size) for ex in extracts]
+        print("typed extracts:", [e.size() for e in extracts])
+
         batch, masks = self.pad(extracts)
-        # print("batch:", batch.size())
         batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)
+        print("summ batch:", batch.size(), "num vecs:", len(vecs))
+
         summaries = batch[:, 0, :]  # (ents, hidd)
-        # print("summs:", summaries.size())
         summaries = summaries.split(dim=0, split_size=1)
-        # summaries = [s.view(1, 1, -1) for s in summaries]
-        # print("split sums:", [s.size() for s in summaries], type(summaries))
         return list(summaries)

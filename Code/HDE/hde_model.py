@@ -11,6 +11,7 @@ from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.Graph.graph_utils import similar, get_entity_summaries
 from Code.HDE.Transformers.coattention import Coattention
 from Code.HDE.Transformers.summariser import Summariser
+from Code.HDE.Transformers.switch_summariser import SwitchSummariser
 from Code.HDE.scorer import HDEScorer
 from Code.HDE.wikipoint import Wikipoint
 from Code.Training import device
@@ -26,7 +27,7 @@ class HDEModel(nn.Module):
         self.hidden_size = conf.hidden_size
 
         self.coattention = Coattention(**kwargs)
-        self.summariser = Summariser(**kwargs)
+        self.summariser = SwitchSummariser(**kwargs)
 
         self.relu = ReLU()
 
@@ -74,8 +75,8 @@ class HDEModel(nn.Module):
         pred_id = torch.argmax(final_probs)
         pred_ans = example.candidates[pred_id]
 
-        if conf.print_times:
-            print("passed output model in", (time.time() - t))
+        # if conf.print_times:
+        #     print("passed output model in", (time.time() - t))
 
         if example.answer is not None:
             ans_id = example.candidates.index(example.answer)
@@ -88,7 +89,10 @@ class HDEModel(nn.Module):
         return pred_ans
 
     def get_graph_features(self, example):
+        t = time.time()
         support_embeddings = self.get_query_aware_context_embeddings(example.supports, example.query)
+        if conf.print_times:
+            print("got supp embs in", (time.time() - t))
         cand_embs = [self.embedder(cand) for cand in example.candidates]
         candidate_summaries = self.summariser(cand_embs, CANDIDATE)
         support_summaries = self.summariser(support_embeddings, DOCUMENT)
@@ -97,7 +101,7 @@ class HDEModel(nn.Module):
 
         ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser)
         if conf.print_times:
-            print("got ents in", (time.time() - t))
+            print("got ent summaries in", (time.time() - t))
 
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
 
@@ -151,7 +155,6 @@ class HDEModel(nn.Module):
         # print("pad vol:", pad_volume)
         query_emb = self.embedder(query)
         support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)
-        # support_embeddings = [self.coattention(se, query_emb) for se in support_embeddings]
         return support_embeddings
 
 
