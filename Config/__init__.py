@@ -33,8 +33,8 @@ def load_configs(model_cfg_name, train_cfg_name="standard_train"):
         train_kwargs = std_train
     model_kwargs = load_config(model_cfg_name)
 
-    all_kwargs = copy.deepcopy(train_kwargs)
-    all_kwargs.update(model_kwargs)
+    all_kwargs = copy.deepcopy(model_kwargs)
+    all_kwargs.update(train_kwargs)
 
     print("loaded config for model:", model_cfg_name)
 

@@ -29,7 +29,10 @@ class GNNLayer(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_size = conf.hidden_size
-        self.gnn = GNNClass(in_channels, conf.hidden_size//conf.heads, heads=conf.heads, **layer_kwargs)
+        if "heads" in layer_kwargs:
+            self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **layer_kwargs)
+        else:
+            self.gnn = GNNClass(in_channels, conf.hidden_size, **layer_kwargs)
 
         self.linear1 = Linear(conf.hidden_size, conf.hidden_size * intermediate_fac)
         self.dropout = Dropout(conf.dropout)

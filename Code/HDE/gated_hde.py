@@ -1,23 +1,21 @@
 import time
-from typing import List
 
 import torch
-from torch_geometric.nn import GATConv
 
-from Code.GNNs.gnn_pool_stack import GNNPoolStack
+from Code.GNNs.gnn_stack import GNNStack
+from Code.GNNs.hde_gnn import HDEGNN
 from Code.HDE.hde_glove import HDEGlove
 from Code.HDE.hde_model import TooManyEdges
 from Code.HDE.wikipoint import Wikipoint
-from Code.Pooling.custom_sag_pool import SAGPool
 from Code.Training import device
 from Config.config import conf
 
 
-class HDEPool(HDEGlove):
+class GatedHDE(HDEGlove):
 
-    def __init__(self, GNNClass=GATConv, PoolerClass=SAGPool, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(GNNClass=None, **kwargs)
-        self.gnn = GNNPoolStack(GNNClass, PoolerClass)
+        self.gnn = GNNStack(HDEGNN)
 
     def forward(self, example: Wikipoint=None, graph=None):
         """
@@ -33,20 +31,19 @@ class HDEPool(HDEGlove):
             example = graph.example
         x = self.get_graph_features(example)
 
-        edge_index = graph.edge_index()
         num_edges = len(graph.unique_edges)
         if num_edges > conf.max_edges != -1:
             raise TooManyEdges()
 
         t = time.time()
-        x, edge_index, node_id_map = self.gnn(x, edge_index, graph.candidate_nodes)
+        x = self.gnn(x, graph)
 
         if conf.print_times:
             print("passed gnn in", (time.time() - t))
         t = time.time()
 
         # x has now been transformed by the GNN layers. Must map to  a prob dist over candidates
-        final_probs = self.pass_output_model(x, example, graph, node_id_map=node_id_map)
+        final_probs = self.pass_output_model(x, example, graph)
         pred_id = torch.argmax(final_probs)
         pred_ans = example.candidates[pred_id]
 
@@ -62,5 +59,3 @@ class HDEPool(HDEGlove):
             return loss, pred_ans
 
         return pred_ans
-
-

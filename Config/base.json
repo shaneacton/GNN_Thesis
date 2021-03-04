@@ -1,5 +1,5 @@
 {
-  "model_name": "hde_switch",
+  "model_name": "hde_gate",
   "num_layers": 3,
   "num_transformer_layers": 1,
   "hidden_size": 300,

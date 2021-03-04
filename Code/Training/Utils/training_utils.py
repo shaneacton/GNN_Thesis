@@ -4,6 +4,7 @@ from os.path import exists
 import torch
 from torch.optim.lr_scheduler import LambdaLR
 
+from Code.HDE.gated_hde import GatedHDE
 from Code.HDE.hde_bert import HDEBert
 from Code.HDE.hde_glove import HDEGlove
 from Code.Pooling.hde_pool import HDEPool
@@ -32,9 +33,10 @@ def get_model(save_path, **model_kwargs):
             print(e)
             print("cannot load model at", save_path)
     if hde is None:
-        hde = HDEGlove(**model_kwargs).to(device)
+        # hde = HDEGlove(**model_kwargs).to(device)
         # hde = HDEBert(**model_kwargs).to(device)
         # hde = HDEPool(**model_kwargs).to(device)
+        hde = GatedHDE(**model_kwargs).to(device)
 
         optimizer = get_optimizer(hde, type=conf.optimizer_type)
         scheduler = get_exponential_schedule_with_warmup(optimizer)

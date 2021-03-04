@@ -8,6 +8,7 @@ from torch_geometric.nn import GATConv
 
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
+from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import similar, get_entity_summaries
 from Code.HDE.Transformers.coattention import Coattention
 from Code.HDE.Transformers.summariser import Summariser
@@ -27,13 +28,17 @@ class HDEModel(nn.Module):
         self.hidden_size = conf.hidden_size
 
         self.coattention = Coattention(**kwargs)
-        self.summariser = SwitchSummariser(**kwargs)
+        self.summariser = Summariser(**kwargs)
 
         self.relu = ReLU()
 
         # self.gnn = GNNStack(RGat, num_types=7)
         if GNNClass is not None:
-            self.gnn = GNNStack(GNNClass)
+            if GNNClass == GATConv:
+                self.gnn = GNNStack(GNNClass, heads=conf.heads)
+            else:
+                self.gnn = GNNStack(GNNClass)
+
 
         self.candidate_scorer = HDEScorer(conf.hidden_size)
         self.entity_scorer = HDEScorer(conf.hidden_size)
@@ -44,7 +49,7 @@ class HDEModel(nn.Module):
 
         self.embedder:StringEmbedder = None  #  must set in subclasses
 
-    def forward(self, example: Wikipoint=None, graph=None):
+    def forward(self, example: Wikipoint=None, graph:HDEGraph=None):
         """
             nodes are created for each support, as well as each candidate and each context entity
             nodes are concattenated as follows: supports, entities, candidates
@@ -56,9 +61,10 @@ class HDEModel(nn.Module):
             graph = self.create_graph(example)
         else:
             example = graph.example
+        # print("types:", sorted(list(graph.unique_edge_types)))
         x = self.get_graph_features(example)
 
-        edge_index = graph.edge_index
+        edge_index = graph.edge_index()
         num_edges = len(graph.unique_edges)
         if num_edges > conf.max_edges != -1:
             raise TooManyEdges()

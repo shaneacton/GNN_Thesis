@@ -24,8 +24,8 @@ class HDEGraph:
 
         self.ordered_edges: List[HDEEdge] = []
         self.unique_edges: Set[Tuple[int]] = set()  # set of (t, f) ids, which are always sorted, ie: t<f
+        self.unique_edge_types: Set[str] = set()
 
-    @property
     def edge_index(self, type=None) -> torch.LongTensor:
         """if type arg is given, only the edges of that type are returned"""
         froms = []
@@ -39,7 +39,6 @@ class HDEGraph:
             tos += [e.to_id, e.from_id]
         return torch.tensor([froms, tos]).to(device).long()
 
-    @property
     def edge_types(self):
         types = sorted(list(set([edge.type() for edge in self.ordered_edges])))
         edge_type_map = {t: i for i, t in enumerate(types)}
@@ -81,9 +80,10 @@ class HDEGraph:
             return True
         return False
 
-    def add_edge(self, edge):
+    def add_edge(self, edge: HDEEdge):
         if self.has_edge(edge):
             print("warning, adding  an edge between two nodes which are already connected")
+        self.unique_edge_types.add(edge.type())
         self.ordered_edges.append(edge)
         self.unique_edges.add(tuple(sorted([edge.to_id, edge.from_id])))
 
