@@ -24,20 +24,30 @@ def compare(save_paths: List[str]=None, names=None, num_training_examples=43700,
     from Code.Training.Utils.training_utils import get_training_results
 
     if save_paths is None:
-        save_paths = [join(CHECKPOINT_FOLDER, n) for n in names]
+        save_paths=[]
+        for n in names:
+            if isinstance(n, List):
+                save_paths.append([join(CHECKPOINT_FOLDER, ni) for ni in n])
+            else:
+                save_paths.append(join(CHECKPOINT_FOLDER, n))
 
     loss_ax, acc_ax = None, None
-    colours = ["g", "b", "r"]
-    for i, save_path in enumerate(save_paths):
-        data = get_training_results(save_path)
-        losses = smooth(data["losses"])
-        # print("got losses:", losses)
-        # print("from:", save_path)
-        train_accs = smooth(data["train_accs"])
-        valid_accs = data["valid_accs"]
-        epochs = get_continuous_epochs(losses, num_training_examples, print_loss_every=print_loss_every)
-        loss_ax, acc_ax = plot_loss_and_acc(losses, train_accs, save_path=save_path, valid_accs=valid_accs,
-                                            epochs=epochs, loss_ax=loss_ax, acc_ax=acc_ax, colour=colours[i])
+    colours = ["g", "b", "r", "y"]
+    for i, save_path_or_group in enumerate(save_paths):
+        if not isinstance(save_path_or_group, List):
+            save_paths = [save_path_or_group]
+        else:
+            save_paths = save_path_or_group
+        for path in save_paths:
+            data = get_training_results(path)
+            losses = smooth(data["losses"])
+            # print("got losses:", losses)
+            # print("from:", save_path)
+            train_accs = smooth(data["train_accs"])
+            valid_accs = data["valid_accs"]
+            epochs = get_continuous_epochs(losses, num_training_examples, print_loss_every=print_loss_every)
+            loss_ax, acc_ax = plot_loss_and_acc(losses, train_accs, save_path=path, valid_accs=valid_accs,
+                                                epochs=epochs, loss_ax=loss_ax, acc_ax=acc_ax, colour=colours[i])
 
     plt.legend()
 
@@ -183,4 +193,4 @@ def plot_losses_from_paste_file(show=True):
 if __name__ == "__main__":
     num_examples = 43738 if conf.max_examples == -1 else conf.max_examples
     print("num ex:", num_examples, "print:", conf.print_loss_every)
-    compare(names=["hde", "hde_no_pool", "hde_pool_5"], num_training_examples=num_examples, print_loss_every=conf.print_loss_every)
+    compare(names=[["hde", "hde2", "hde3"], ["hde_gate", "hde_gate2", "hde_gate3"], ["hde_gate_glob"]], num_training_examples=num_examples, print_loss_every=conf.print_loss_every)

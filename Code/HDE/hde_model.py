@@ -4,7 +4,7 @@ from typing import List
 import torch
 from torch import nn
 from torch.nn import CrossEntropyLoss, ReLU
-from torch_geometric.nn import GATConv
+from torch_geometric.nn import GATConv, SAGEConv
 
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack

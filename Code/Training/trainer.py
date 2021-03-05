@@ -12,6 +12,10 @@ from Code.Training.eval import evaluate
 from Code.Training.graph_gen import GraphGenerator, SKIP
 from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
+from Viz.wandb_utils import use_wandb
+
+if use_wandb:
+    import wandb
 
 
 def train_model(save_path):
@@ -80,6 +84,8 @@ def train_model(save_path):
 
                 results["losses"].append(mean_loss)
                 results["train_accs"].append(acc)
+                if use_wandb:
+                    wandb.log({"loss": mean_loss, "train_acc": acc})
 
             if len(losses) % conf.checkpoint_every == 0:  # save model and data
                 save_time = time.time()
@@ -99,6 +105,8 @@ def train_model(save_path):
 
 
         valid_acc = evaluate(model)
+        if use_wandb:
+            wandb.log({"valid_acc": valid_acc})
         results["valid_accs"].append(valid_acc)
 
         plot_training_data(results, save_path, conf.print_loss_every, train_gen.num_examples)

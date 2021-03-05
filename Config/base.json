@@ -1,5 +1,5 @@
 {
-  "model_name": "hde_gate",
+  "model_name": "hde_gate_glob2",
   "num_layers": 3,
   "num_transformer_layers": 1,
   "hidden_size": 300,
@@ -10,5 +10,6 @@
   "transformer_heads": 6,
   "dropout": 0.1,
   "optimizer_type": "sgd",
-  "pool_ratio": 1
+  "pool_ratio": 1,
+  "use_global_edge_message": true
 }

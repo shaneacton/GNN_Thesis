@@ -3,15 +3,18 @@ import copy
 from torch import nn, ModuleDict
 from torch.nn import ModuleList
 
+GLOBAL = "global"
+
 
 class SwitchModule(nn.Module):
+    """makes a clone of the given layer or each type"""
 
-    def __init__(self, module, num_types=None, types=None):
+    def __init__(self, module, types=None, include_global=False):
         super().__init__()
         modules = []
-        if types is None:
-            types = range(num_types)
         self.map = {}
+        if include_global:
+            types.append(GLOBAL)
         for i, t in enumerate(types):
             self.map[t] = i
             if i == 0:

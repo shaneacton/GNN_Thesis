@@ -1,5 +1,7 @@
 Todo:
 
+*ensure non linearities separate each transformation
+
 * Transformers:
     * add a classification embedding to the summariser
 
@@ -63,5 +65,7 @@ python -m spacy download en_core_web_sm
 pip install neuralcoref --no-binary neuralcoref --user
 # for vizualisation capabilities
 conda install -c anaconda python-graphviz
+# for wandb logging
+pip install wandb
 
 

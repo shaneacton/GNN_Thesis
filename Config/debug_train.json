@@ -8,5 +8,5 @@
   "max_pad_volume": 50000,
   "print_times": false,
   "use_lr_scheduler": false,
-  "num_layers": 1
+  "num_layers": 2
 }

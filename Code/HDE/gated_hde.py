@@ -1,6 +1,7 @@
 import time
 
 import torch
+from torch_geometric.nn import GATConv, SAGEConv
 
 from Code.GNNs.gnn_stack import GNNStack
 from Code.GNNs.hde_gnn import HDEGNN
@@ -13,9 +14,12 @@ from Config.config import conf
 
 class GatedHDE(HDEGlove):
 
-    def __init__(self, **kwargs):
+    def __init__(self, BASE_GNN_CLASS=SAGEConv, **kwargs):
         super().__init__(GNNClass=None, **kwargs)
-        self.gnn = GNNStack(HDEGNN)
+        if BASE_GNN_CLASS == GATConv:
+            self.gnn = GNNStack(HDEGNN, heads=conf.heads, BASE_GNN_CLASS=BASE_GNN_CLASS)
+        else:
+            self.gnn = GNNStack(HDEGNN, BASE_GNN_CLASS=BASE_GNN_CLASS)
 
     def forward(self, example: Wikipoint=None, graph=None):
         """
