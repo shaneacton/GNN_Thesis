@@ -15,9 +15,9 @@ from Config.config import conf
 
 class HDEPool(HDEGlove):
 
-    def __init__(self, GNNClass=GATConv, PoolerClass=SAGPool, **kwargs):
+    def __init__(self, GNN_CLASS=GATConv, PoolerClass=SAGPool, **kwargs):
         super().__init__(GNNClass=None, **kwargs)
-        self.gnn = GNNPoolStack(GNNClass, PoolerClass)
+        self.gnn = GNNPoolStack(GNN_CLASS, PoolerClass)
 
     def forward(self, example: Wikipoint=None, graph=None):
         """

@@ -24,7 +24,7 @@ class BertEmbedder(StringEmbedder):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
         self.dims = self.model.config.hidden_size
-        from Code.Training.Utils.training_utils import num_params
+        from Code.Training.Utils.model_utils import num_params
         print("Loaded bert model with", self.dims, "dims and ", num_params(self), ("trainable" if self.fine_tune else "static"), "params")
         if self.dims != conf.embedded_dims:
             raise Exception("conf embedded dims wrong. bert embedder=" + str(self.dims) + " conf=" + str(conf.embedded_dims))

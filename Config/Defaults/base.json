@@ -1,0 +1,20 @@
+{
+  "model_name": "hde",
+  "model_class": "HDEGlove",
+  "gnn_class": "GATConv",
+  "num_layers": 3,
+  "num_summariser_layers": 1,
+  "num_coattention_layers": 1,
+  "hidden_size": 300,
+  "embedded_dims": 300,
+  "fine_tune_embedder": true,
+  "bert_size": "small",
+  "heads": 1,
+  "transformer_heads": 6,
+  "dropout": 0.1,
+  "pool_ratio": 1,
+  "use_global_edge_message": false,
+  "use_global_summariser": false,
+  "use_switch_summariser": false,
+  "wandb_id": -1
+}

@@ -3,6 +3,7 @@ import json
 import pickle
 from os.path import join, exists
 from typing import Dict
+import glob
 
 from Config import CONFIG_FOLDER
 
@@ -10,7 +11,11 @@ from Config import CONFIG_FOLDER
 def load_config(name) -> Dict:
     if ".json" not in name:
         name += ".json"
-    path = join(CONFIG_FOLDER, name)
+    paths = glob.glob(CONFIG_FOLDER + "/*/" + name)
+    if len(paths) > 1:
+        raise Exception("multiple configs with same name:", paths)
+
+    path = paths[0]
     if not exists(path):
         raise Exception("no such config file as:", name, "in HDE/Config/")
     kwargs = json.load(open(path, "r"))
@@ -23,7 +28,12 @@ def load_configs(model_cfg_name, train_cfg_name="standard_train"):
         std_train: Dict = load_config("standard_train")
         std_train.update(train_kwargs)  # the conf args are overwritten
         train_kwargs = std_train
+
     model_kwargs = load_config(model_cfg_name)
+    if model_cfg_name != "base":
+        base_conf: Dict = load_config("base")
+        base_conf.update(model_kwargs)
+        model_kwargs = base_conf
 
     all_kwargs = copy.deepcopy(model_kwargs)
     all_kwargs.update(train_kwargs)

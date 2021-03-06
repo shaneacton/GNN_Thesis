@@ -3,7 +3,7 @@ from typing import List
 from torch import Tensor
 from transformers import TokenSpan
 
-from Code.HDE.Transformers.transformer import Transformer
+from Code.Transformers.transformer import Transformer
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT
 from Config.config import conf
 
@@ -17,7 +17,9 @@ class Summariser(Transformer):
     """
 
     def __init__(self, intermediate_fac=2, use_type_embeddings=True):
-        super().__init__(conf.embedded_dims, num_types=3, use_type_embeddings=use_type_embeddings, intermediate_fac=intermediate_fac)
+        num_types = 3
+        super().__init__(conf.embedded_dims, num_types, conf.num_summariser_layers,
+                         use_type_embeddings=use_type_embeddings, intermediate_fac=intermediate_fac)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)

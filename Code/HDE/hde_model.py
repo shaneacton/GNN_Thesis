@@ -4,15 +4,16 @@ from typing import List
 import torch
 from torch import nn
 from torch.nn import CrossEntropyLoss, ReLU
-from torch_geometric.nn import GATConv, SAGEConv
+from torch_geometric.nn import GATConv
 
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import similar, get_entity_summaries
-from Code.HDE.Transformers.coattention import Coattention
-from Code.HDE.Transformers.summariser import Summariser
-from Code.HDE.Transformers.switch_summariser import SwitchSummariser
+from Code.Training.Utils.model_utils import GNN_MAP
+from Code.Transformers.coattention import Coattention
+from Code.Transformers.summariser import Summariser
+from Code.Transformers.switch_summariser import SwitchSummariser
 from Code.HDE.scorer import HDEScorer
 from Code.HDE.wikipoint import Wikipoint
 from Code.Training import device
@@ -22,22 +23,27 @@ from Config.config import conf
 
 class HDEModel(nn.Module):
 
-    def __init__(self, GNNClass=GATConv, **kwargs):
+    def __init__(self, GNN_CLASS=None, **kwargs):
+        if GNN_CLASS is None:
+            GNN_CLASS = GNN_MAP[conf.gnn_class]
         super().__init__()
         self.name = conf.model_name
         self.hidden_size = conf.hidden_size
 
         self.coattention = Coattention(**kwargs)
-        self.summariser = Summariser(**kwargs)
+        if conf.use_switch_summariser:
+            self.summariser = SwitchSummariser(**kwargs)
+        else:
+            self.summariser = Summariser(**kwargs)
 
         self.relu = ReLU()
 
         # self.gnn = GNNStack(RGat, num_types=7)
-        if GNNClass is not None:
-            if GNNClass == GATConv:
-                self.gnn = GNNStack(GNNClass, heads=conf.heads)
+        if GNN_CLASS is not None:
+            if GNN_CLASS == GATConv:
+                self.gnn = GNNStack(GNN_CLASS, heads=conf.heads)
             else:
-                self.gnn = GNNStack(GNNClass)
+                self.gnn = GNNStack(GNN_CLASS)
 
 
         self.candidate_scorer = HDEScorer(conf.hidden_size)

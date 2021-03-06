@@ -3,8 +3,8 @@ from typing import List
 from torch import Tensor
 from transformers import TokenSpan
 
-from Code.HDE.Transformers.summariser import Summariser
-from Code.HDE.Transformers.switch_transformer import SwitchTransformer
+from Code.Transformers.summariser import Summariser
+from Code.Transformers.switch_transformer import SwitchTransformer
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT, GLOBAL
 from Config.config import conf
 
@@ -17,8 +17,10 @@ class SwitchSummariser(SwitchTransformer):
         into fixed size node embedding
     """
 
-    def __init__(self, intermediate_fac=2, include_global=False):
-        super().__init__(conf.embedded_dims, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac, include_global=include_global)
+    def __init__(self, intermediate_fac=2):
+        self.include_global = conf.use_global_summariser
+        super().__init__(conf.embedded_dims, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac,
+                         include_global=self.include_global)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)

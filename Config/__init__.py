@@ -1,6 +1,5 @@
 import pathlib
 
-
-CONFIG_FOLDER = pathlib.Path(__file__).parent.absolute()
+CONFIG_FOLDER = str(pathlib.Path(__file__).parent.absolute())
 
 

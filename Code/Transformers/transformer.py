@@ -9,7 +9,7 @@ from Config.config import conf
 
 class Transformer(nn.Module):
 
-    def __init__(self, hidden_size, num_types, intermediate_fac=2, use_type_embeddings=True):
+    def __init__(self, hidden_size, num_types, num_layers, intermediate_fac=2, use_type_embeddings=True):
         super().__init__()
         self.num_heads = conf.heads
         self.use_type_embeddings = use_type_embeddings
@@ -20,7 +20,7 @@ class Transformer(nn.Module):
         encoder_layer = TransformerEncoderLayer(self.hidden_size, conf.transformer_heads,
                                                 self.hidden_size * intermediate_fac, conf.dropout, 'relu')
         encoder_norm = LayerNorm(self.hidden_size)
-        self.encoder = TransformerEncoder(encoder_layer, conf.num_transformer_layers, encoder_norm)
+        self.encoder = TransformerEncoder(encoder_layer, num_layers, encoder_norm)
 
     @staticmethod
     def get_type_ids(type, length, type_map):

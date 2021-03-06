@@ -1,7 +1,7 @@
 from torch import nn
 from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 
-from Code.HDE.Transformers.transformer import Transformer
+from Code.Transformers.transformer import Transformer
 from Code.HDE.switch_module import SwitchModule
 from Config.config import conf
 

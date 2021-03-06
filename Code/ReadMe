@@ -13,18 +13,25 @@ Todo:
 
 
 * General:
-    * wandb
-    * data/model parallelism with pytorch to use multiple GPU's for faster training
+    * move checkpoints out of Code package
+        * gather model checkpoint files into checkpoint folders
+    * scheduler
+        * add a training status file which stores epoch + complete/running status
+            * use file lock
+            * if the status is running, but the file has not been written to in hours, then the program may have failed
+                to close properly
+    * allow for folders in config loading.
+    * move wandb folder out of HDE
+    * allow for the scheduler to run multiple copies of
 
+    *
 
 * Tests:
-    * HDE cannon gnn
-        * pooling ratios
-    * softmax pool scores
+    * sageconv base gnn
+    * isolation tests for gating and relational gnn
     * 2L transformers
     * 2,4L GNN
     * bert with only last layer tunable + dropout
-    * edge info
     * adam
     * without complement edges
     * add more layer norms
@@ -34,7 +41,6 @@ Todo:
     * ssh keygen for viz
     * make some sort of experiment scheduler
     * count discarded examples
-    * move all viz into viz folder
     * rename .data to .training_data
         * fix bug where a valid acc can be double included
 
