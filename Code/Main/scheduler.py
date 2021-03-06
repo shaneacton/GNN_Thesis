@@ -11,7 +11,7 @@ sys.path.append(os.path.join(dir_path_1, 'Code'))
 sys.path.append(os.path.join(dir_path_1, 'Config'))
 
 from Code.Training.trainer import train_model
-from Config import load_checkpoint_model_config
+from Config.config_utils import load_checkpoint_model_config
 from Config.config import conf
 
 file_path = pathlib.Path(__file__).parent.absolute()

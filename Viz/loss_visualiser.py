@@ -8,6 +8,8 @@ import os
 import sys
 from os.path import join
 
+from Config.config_utils import load_config
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 dir_path_1 = join(dir_path_1, "GNN_Thesis")
@@ -15,7 +17,6 @@ sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
 sys.path.append(os.path.join(dir_path_1, 'conf'))
 
-from Config import load_config
 from Config.config import conf
 
 

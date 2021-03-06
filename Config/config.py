@@ -1,6 +1,6 @@
 import argparse
 
-from Config import load_configs
+from Config.config_utils import load_configs
 
 
 class Config:

@@ -2,6 +2,7 @@ import time
 from statistics import mean
 
 import torch
+from nlp import tqdm
 
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Embedding.bert_embedder import TooManyTokens
@@ -14,8 +15,9 @@ from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
 from Viz.wandb_utils import use_wandb
 
-if use_wandb:
-    import wandb
+
+# if use_wandb:
+#     from Viz.wandb_utils import wandb_run
 
 
 def train_model(save_path):
@@ -37,7 +39,7 @@ def train_model(save_path):
         model.train()
 
         start_time = time.time()
-        for i, graph in enumerate(train_gen.graphs(start_at=model.last_example)):
+        for i, graph in tqdm(enumerate(train_gen.graphs(start_at=model.last_example))):
             def e_frac():
                 return epoch + i/train_gen.num_examples
 
@@ -85,7 +87,8 @@ def train_model(save_path):
                 results["losses"].append(mean_loss)
                 results["train_accs"].append(acc)
                 if use_wandb:
-                    wandb.log({"loss": mean_loss, "train_acc": acc})
+                    from Viz.wandb_utils import wandb_run
+                    wandb_run.log({"loss": mean_loss, "train_acc": acc, "epoch": e_frac()})
 
             if len(losses) % conf.checkpoint_every == 0:  # save model and data
                 save_time = time.time()
@@ -103,10 +106,9 @@ def train_model(save_path):
         print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
               "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - start_time))
 
-
         valid_acc = evaluate(model)
         if use_wandb:
-            wandb.log({"valid_acc": valid_acc})
+            wandb_run.log({"valid_acc": valid_acc, "epoch": epoch + 1})
         results["valid_accs"].append(valid_acc)
 
         plot_training_data(results, save_path, conf.print_loss_every, train_gen.num_examples)

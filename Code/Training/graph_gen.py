@@ -14,7 +14,7 @@ SKIP = "skip"
 
 def produce_graphs(q, start_at, dataset=None, glove_embedder=None, tokeniser=None, support_encodings=None):
     """produce 1 epoch worth of graphs"""
-    for i, example in tqdm(enumerate(dataset)):
+    for i, example in enumerate(dataset):
         # if q is full, spin until one is consumed
         while q.full():
             time.sleep(0.01)
