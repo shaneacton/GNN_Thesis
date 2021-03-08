@@ -6,7 +6,8 @@ import nlp
 from tqdm import tqdm
 
 from Code.HDE.wikipoint import Wikipoint
-from Code.Training.Utils.training_utils import save_data
+from Code.Training.Utils.training_utils import save_training_results
+from Checkpoint.checkpoint_utils import save_binary_data
 from Config.config import conf
 
 DATA_FOLDER = str(pathlib.Path(__file__).parent.absolute())
@@ -55,5 +56,5 @@ def get_processed_wikihop(model, split=nlp.Split.TRAIN):
         processed_examples = [Wikipoint(ex, tokeniser=model.embedder.tokenizer) for ex in tqdm(data)]
     else:
         processed_examples = [Wikipoint(ex, glove_embedder=model.embedder) for ex in tqdm(data)]
-    save_data(processed_examples, DATA_FOLDER + "/", suffix=file_name)
+    save_binary_data(processed_examples, join(DATA_FOLDER, file_name))
     return processed_examples

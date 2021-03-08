@@ -1,5 +1,5 @@
 import time
-from typing import List
+from typing import List, Tuple
 
 import torch
 from torch import nn
@@ -10,7 +10,6 @@ from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import similar, get_entity_summaries
-from Code.Training.Utils.model_utils import GNN_MAP
 from Code.Transformers.coattention import Coattention
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_summariser import SwitchSummariser
@@ -25,10 +24,12 @@ class HDEModel(nn.Module):
 
     def __init__(self, GNN_CLASS=None, **kwargs):
         if GNN_CLASS is None:
+            from Code.Training.Utils.model_utils import GNN_MAP
             GNN_CLASS = GNN_MAP[conf.gnn_class]
         super().__init__()
         self.name = conf.model_name
         self.hidden_size = conf.hidden_size
+        self.use_gating = conf.use_gating
 
         self.coattention = Coattention(**kwargs)
         if conf.use_switch_summariser:
@@ -38,13 +39,8 @@ class HDEModel(nn.Module):
 
         self.relu = ReLU()
 
-        # self.gnn = GNNStack(RGat, num_types=7)
-        if GNN_CLASS is not None:
-            if GNN_CLASS == GATConv:
-                self.gnn = GNNStack(GNN_CLASS, heads=conf.heads)
-            else:
-                self.gnn = GNNStack(GNN_CLASS)
-
+        self.gnn = None
+        self.init_gnn(GNN_CLASS)
 
         self.candidate_scorer = HDEScorer(conf.hidden_size)
         self.entity_scorer = HDEScorer(conf.hidden_size)
@@ -54,6 +50,12 @@ class HDEModel(nn.Module):
         self.last_epoch = -1
 
         self.embedder:StringEmbedder = None  #  must set in subclasses
+
+    def init_gnn(self, GNN_CLASS):
+        if GNN_CLASS == GATConv:
+            self.gnn = GNNStack(GNN_CLASS, heads=conf.heads, use_gating=conf.use_gating)
+        else:
+            self.gnn = GNNStack(GNN_CLASS, use_gating=conf.use_gating)
 
     def forward(self, example: Wikipoint=None, graph:HDEGraph=None):
         """
@@ -67,28 +69,33 @@ class HDEModel(nn.Module):
             graph = self.create_graph(example)
         else:
             example = graph.example
-        # print("types:", sorted(list(graph.unique_edge_types)))
         x = self.get_graph_features(example)
 
-        edge_index = graph.edge_index()
         num_edges = len(graph.unique_edges)
         if num_edges > conf.max_edges != -1:
             raise TooManyEdges()
 
+        x = self.pass_gnn(x, example, graph)
+        if isinstance(x, Tuple):
+            args = x[1:]
+            x = x[0]
+        else:
+            args = []
+        # x has now been transformed by the GNN layers. Must map to  a prob dist over candidates
+        return self.finish(x, example, graph, *args)
+
+    def pass_gnn(self, x, example, graph):
+        edge_index = graph.edge_index()
         t = time.time()
         x = self.gnn(x, edge_index)
-
         if conf.print_times:
             print("passed gnn in", (time.time() - t))
-        t = time.time()
+        return x
 
-        # x has now been transformed by the GNN layers. Must map to  a prob dist over candidates
-        final_probs = self.pass_output_model(x, example, graph)
+    def finish(self, x, example, graph, *args):
+        final_probs = self.pass_output_model(x, example, graph, *args)
         pred_id = torch.argmax(final_probs)
         pred_ans = example.candidates[pred_id]
-
-        # if conf.print_times:
-        #     print("passed output model in", (time.time() - t))
 
         if example.answer is not None:
             ans_id = example.candidates.index(example.answer)

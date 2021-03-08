@@ -1,5 +1,3 @@
-import argparse
-
 from Config.config_utils import load_configs
 
 
@@ -17,13 +15,13 @@ class Config:
             print("truncating contexts to", self.max_context_chars, "chars")
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--model_conf', '-m', help='Hyper params for model', default="base")
-parser.add_argument('--train_conf', '-t', help='Training details and memory budgeting', default="standard_train")
+conf = None
 
-args = parser.parse_args()
 
-conf = Config(args.model_conf, train_cfg_name=args.train_conf)
+def set_conf_files(model_cfg_name="base", train_cfg_name="standard_train"):
+    global conf
+    conf = Config(model_cfg_name, train_cfg_name)
+
 
 if __name__ == "__main__":
 

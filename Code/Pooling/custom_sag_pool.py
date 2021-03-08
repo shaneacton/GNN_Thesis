@@ -2,7 +2,6 @@ from math import ceil
 from typing import List
 
 import torch
-from torch_geometric.nn import GraphConv
 from torch_geometric.nn.pool.topk_pool import topk, filter_adj
 
 from Code.Training import device
@@ -53,13 +52,17 @@ class SAGPool(torch.nn.Module):
         **kwargs (optional): Additional parameters for initializing the graph
             neural network layer.
     """
-    def __init__(self, in_channels, GNN=GraphConv, min_score=None,
+    def __init__(self, in_channels, GNN_CLASS=None, min_score=None,
                  multiplier=1, nonlinearity=torch.tanh, **kwargs):
+        if GNN_CLASS is None:
+            from Code.Training.Utils.model_utils import GNN_MAP
+            GNN_CLASS = GNN_MAP[conf.pool_class]
+
         super(SAGPool, self).__init__()
 
         self.in_channels = in_channels
         self.ratio = conf.pool_ratio
-        self.gnn = GNN(in_channels, 1, **kwargs)
+        self.gnn = GNN_CLASS(in_channels, 1, **kwargs)
         self.min_score = min_score
         self.multiplier = multiplier
         self.nonlinearity = nonlinearity

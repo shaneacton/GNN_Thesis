@@ -199,7 +199,7 @@ def get_transformer_entity_token_spans(support_encodings, supports) -> List[List
 
 
 def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings=None):
-    start_t = time.time()
+    # start_t = time.time()
     graph = HDEGraph(example)
     add_doc_nodes(graph, example.supports)
     add_entity_nodes(graph, example.supports, example.ent_token_spans, glove_embedder=glove_embedder,

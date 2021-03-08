@@ -1,5 +1,5 @@
 {
-  "num_epochs": 1000,
+  "num_epochs": 50,
   "optimizer_type": "sgd",
   "initial_lr": 0.001,
   "use_lr_scheduler": true,

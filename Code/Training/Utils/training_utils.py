@@ -3,12 +3,14 @@ from os.path import exists
 
 from torch.optim.lr_scheduler import LambdaLR
 
+from Checkpoint.checkpoint_utils import training_results_path, save_binary_data, model_config_path, loss_plot_path
 from Viz.loss_visualiser import visualise_training_data, get_continuous_epochs
 
 
-def get_training_results(save_path):
-    if exists(save_path):
-        filehandler = open(save_path + ".data", 'rb')
+def get_training_results(name):
+    path = training_results_path(name)
+    if exists(path):
+        filehandler = open(path, 'rb')
         data = pickle.load(filehandler)
         filehandler.close()
         return data
@@ -16,24 +18,20 @@ def get_training_results(save_path):
     return {"losses": [], "train_accs": [], "valid_accs": []}
 
 
-def plot_training_data(data, save_path, print_loss_every, num_training_examples):
-    path = save_path + "_losses.png"
+def plot_training_data(data, name, print_loss_every, num_training_examples):
+    path = loss_plot_path(name)
     losses, train_accs, valid_accs = data["losses"], data["train_accs"], data["valid_accs"]
     epochs = get_continuous_epochs(losses, num_training_examples, print_loss_every)
     # print("got epochs:", epochs)
     visualise_training_data(losses, train_accs, epochs, show=False, save_path=path, valid_accs=valid_accs)
 
 
-def save_data(data, save_path, suffix=".data"):
-    filehandler = open(save_path + suffix, 'wb')
-    pickle.dump(data, filehandler)
-    filehandler.close()
+def save_training_results(data, name):
+    save_binary_data(data, training_results_path(name))
 
 
 def save_conf(cfg, save_path):
-    filehandler = open(save_path + ".cfg", 'wb')
-    pickle.dump(cfg, filehandler)
-    filehandler.close()
+    save_binary_data(cfg, model_config_path(save_path))
 
 
 def get_exponential_schedule_with_warmup(optimizer, num_grace_epochs=1, decay_fac=0.9):

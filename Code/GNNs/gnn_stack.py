@@ -2,17 +2,20 @@ import torch
 from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
 
+from Code.GNNs.gated_gnn import GatedGNN
 from Config.config import conf
 
 
 class GNNStack(nn.Module):
 
-    def __init__(self, GNNClass, **layer_kwargs):
+    def __init__(self, GNNClass, use_gating=False, **layer_kwargs):
         super().__init__()
         layers = []
         for layer_i in range(conf.num_layers):
             in_size = conf.embedded_dims if layer_i == 0 else conf.hidden_size
             layer = GNNLayer(GNNClass, in_size, **layer_kwargs)
+            if use_gating:
+                layer = GatedGNN(layer)
             layers.append(layer)
 
         self.layers = ModuleList(layers)

@@ -20,27 +20,18 @@ sys.path.append(os.path.join(dir_path_1, 'conf'))
 from Config.config import conf
 
 
-def compare(save_paths: List[str]=None, names=None, num_training_examples=43700, show=True, print_loss_every=None):
-    from Code.Main.scheduler import CHECKPOINT_FOLDER
+def compare(names, num_training_examples=43700, show=True, print_loss_every=None):
     from Code.Training.Utils.training_utils import get_training_results
-
-    if save_paths is None:
-        save_paths=[]
-        for n in names:
-            if isinstance(n, List):
-                save_paths.append([join(CHECKPOINT_FOLDER, ni) for ni in n])
-            else:
-                save_paths.append(join(CHECKPOINT_FOLDER, n))
 
     loss_ax, acc_ax = None, None
     colours = ["g", "b", "r", "y"]
-    for i, save_path_or_group in enumerate(save_paths):
-        if not isinstance(save_path_or_group, List):
-            save_paths = [save_path_or_group]
+    for i, name_or_group in enumerate(names):
+        if not isinstance(name_or_group, List):
+            _names = [name_or_group]
         else:
-            save_paths = save_path_or_group
-        for path in save_paths:
-            data = get_training_results(path)
+            _names = name_or_group
+        for name in _names:
+            data = get_training_results(name)
             losses = smooth(data["losses"])
             # print("got losses:", losses)
             # print("from:", save_path)

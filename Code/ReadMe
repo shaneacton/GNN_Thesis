@@ -13,18 +13,13 @@ Todo:
 
 
 * General:
-    * move checkpoints out of Code package
-        * gather model checkpoint files into checkpoint folders
+    * optional max runtime to safely exit program
     * scheduler
-        * add a training status file which stores epoch + complete/running status
-            * use file lock
-            * if the status is running, but the file has not been written to in hours, then the program may have failed
-                to close properly
-    * allow for folders in config loading.
+        * if the status is running, but the file has not been written to in hours, then the program may have failed
+            to close properly
+        * store model info such as num params in different components
     * move wandb folder out of HDE
-    * allow for the scheduler to run multiple copies of
-
-    *
+    * play with non lins, regs
 
 * Tests:
     * sageconv base gnn

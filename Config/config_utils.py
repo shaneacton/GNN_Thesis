@@ -5,35 +5,46 @@ from os.path import join, exists
 from typing import Dict
 import glob
 
+from Checkpoint.checkpoint_utils import model_config_path
 from Config import CONFIG_FOLDER
 
 
-def load_config(name) -> Dict:
+def get_full_config_path(name):
     if ".json" not in name:
         name += ".json"
-    paths = glob.glob(CONFIG_FOLDER + "/*/" + name)
+    paths = glob.glob(CONFIG_FOLDER + "/*/" + name) + glob.glob(join(CONFIG_FOLDER, name))
     if len(paths) > 1:
         raise Exception("multiple configs with same name:", paths)
+    if len(paths) == 0:
+        raise Exception("no config found with name:", name)
 
     path = paths[0]
+    return path
+
+
+def load_config(name, add_model_name=True) -> Dict:
+    path = get_full_config_path(name)
     if not exists(path):
         raise Exception("no such config file as:", name, "in HDE/Config/")
-    kwargs = json.load(open(path, "r"))
+    with open(path, "r") as f:
+        kwargs = json.load(f)
+    # sets the model name to the config files name if not provided
+    if add_model_name and name != "base" and "train" not in name:
+        if "model_name" not in kwargs:
+            kwargs.update({"model_name": name})
     return kwargs
 
 
-def load_configs(model_cfg_name, train_cfg_name="standard_train"):
-    train_kwargs = load_config(train_cfg_name)
-    if train_cfg_name != "standard_train":
-        std_train: Dict = load_config("standard_train")
-        std_train.update(train_kwargs)  # the conf args are overwritten
-        train_kwargs = std_train
+def load_effective_config(name, default):
+    original = load_config(name)
+    default = load_config(default)
+    default.update(original)
+    return default
 
-    model_kwargs = load_config(model_cfg_name)
-    if model_cfg_name != "base":
-        base_conf: Dict = load_config("base")
-        base_conf.update(model_kwargs)
-        model_kwargs = base_conf
+
+def load_configs(model_cfg_name, train_cfg_name="standard_train"):
+    train_kwargs = load_effective_config(train_cfg_name, "standard_train")
+    model_kwargs = load_effective_config(model_cfg_name, "base")
 
     all_kwargs = copy.deepcopy(model_kwargs)
     all_kwargs.update(train_kwargs)
@@ -43,14 +54,9 @@ def load_configs(model_cfg_name, train_cfg_name="standard_train"):
     return all_kwargs
 
 
-def save_checkpoint_model_config(config, path):
-    filehandler = open(path + ".cfg", 'wb')
-    pickle.dump(config, filehandler)
-    filehandler.close()
-
-
-def load_checkpoint_model_config(path):
-    filehandler = open(path + ".cfg", 'rb')
+def load_checkpoint_model_config(name):
+    path = model_config_path(name)
+    filehandler = open(path, 'rb')
     cfg = pickle.load(filehandler)
     filehandler.close()
     return cfg

@@ -4,6 +4,7 @@ import torch
 from torch import nn
 from torch.nn import ModuleList
 
+from Code.GNNs.gated_gnn import GatedGNN
 from Code.GNNs.gnn_stack import GNNLayer
 from Code.Training import device
 from Config.config import conf
@@ -11,13 +12,15 @@ from Config.config import conf
 
 class GNNPoolStack(nn.Module):
 
-    def __init__(self, GNNClass, PoolClass, **layer_kwargs):
+    def __init__(self, GNNClass, PoolClass, use_gating=False, **layer_kwargs):
         super().__init__()
         layers = []
         poolers = []
         for layer_i in range(conf.num_layers):
             in_size = conf.embedded_dims if layer_i == 0 else conf.hidden_size
             layer = GNNLayer(GNNClass, in_size, **layer_kwargs)
+            if use_gating:
+                layer = GatedGNN(layer)
             layers.append(layer)
 
             pooler = PoolClass(in_size)
@@ -27,12 +30,9 @@ class GNNPoolStack(nn.Module):
         self.layers = ModuleList(layers)
 
     def forward(self, x, edge_index, cand_idxs, node_id_map=None):
-        # print("gnn pool stack forward")
-        # print("x:", x.size())
         for i, layer in enumerate(self.layers):
             x = layer(x, edge_index)
             x, edge_index, node_id_map = self.pool(self.poolers[i], x, edge_index, node_id_map, cand_idxs)
-            # print("x:", x.size())
         return x, edge_index, node_id_map
 
     @staticmethod

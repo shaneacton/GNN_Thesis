@@ -1,4 +1,7 @@
 {
   "model_name": "debug",
-  "hidden_size": 100
+  "model_class": "HDEGlove",
+  "embedded_dims": 100,
+  "hidden_size": 100,
+  "transformer_heads": 5
 }

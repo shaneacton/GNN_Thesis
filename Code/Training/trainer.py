@@ -1,14 +1,14 @@
 import time
 from statistics import mean
 
-import torch
 from nlp import tqdm
 
+from Checkpoint.checkpoint_utils import save_model
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Embedding.bert_embedder import TooManyTokens
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training.Utils.eval_utils import get_acc_and_f1
-from Code.Training.Utils.training_utils import plot_training_data, save_data, get_training_results
+from Code.Training.Utils.training_utils import plot_training_data, save_training_results, get_training_results
 from Code.Training.Utils.model_utils import get_model
 from Code.Training.eval import evaluate
 from Code.Training.graph_gen import GraphGenerator, SKIP
@@ -17,13 +17,18 @@ from Data.dataset_utils import get_processed_wikihop
 from Viz.wandb_utils import use_wandb
 
 
-def train_model(save_path):
-    model, optimizer, scheduler = get_model(save_path)
-    results = get_training_results(save_path)
+def train_model(name, gpu_num=0):
+    model, optimizer, scheduler = get_model(name)
+    results = get_training_results(name)
 
     train_gen = GraphGenerator(get_processed_wikihop(model), model=model)
 
     accumulated_edges = 0
+
+    # print("spinning", name)
+    # while True:
+    #     time.sleep(0.1)
+
     for epoch in range(conf.num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
             continue
@@ -92,10 +97,10 @@ def train_model(save_path):
                 print("saving model at e", epoch, "i:", i)
                 model.last_example = i
                 model.last_epoch = epoch
-                model_save_data = {"model": model, "optimizer_state_dict": optimizer.state_dict(), "scheduler_state_dict": scheduler.state_dict()}
-                torch.save(model_save_data, save_path)
-                plot_training_data(results, save_path, conf.print_loss_every, train_gen.num_examples)
-                save_data(results, save_path)
+
+                save_model(model, optimizer, scheduler)
+                plot_training_data(results, name, conf.print_loss_every, train_gen.num_examples)
+                save_training_results(results, name)
                 save_time = time.time() - save_time
                 start_time += save_time
         model.last_example = -1
@@ -105,7 +110,8 @@ def train_model(save_path):
 
         valid_acc = evaluate(model)
         if use_wandb:
+            from Viz.wandb_utils import wandb_run
             wandb_run.log({"valid_acc": valid_acc, "epoch": epoch + 1})
         results["valid_accs"].append(valid_acc)
 
-        plot_training_data(results, save_path, conf.print_loss_every, train_gen.num_examples)
+        plot_training_data(results, name, conf.print_loss_every, train_gen.num_examples)
