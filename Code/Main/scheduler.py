@@ -3,13 +3,11 @@ import atexit
 import os
 import sys
 import time
-from multiprocessing import Process
+from torch.multiprocessing import Process
 from os.path import join, exists
 
 import torch
 from filelock import FileLock
-
-from Checkpoint import CHECKPOINT_FOLDER
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -22,6 +20,8 @@ from Config.config import set_conf_files
 from Checkpoint.checkpoint_utils import get_model_checkpoint_folder, load_status, create_model_checkpoint_folder, \
     save_status, training_status_path
 from Config.config_utils import load_config, load_effective_config
+from Checkpoint import CHECKPOINT_FOLDER
+
 GLOBAL_FILE_LOCK_PATH = join(CHECKPOINT_FOLDER, "scheduler_lock.lock")
 
 def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0):
