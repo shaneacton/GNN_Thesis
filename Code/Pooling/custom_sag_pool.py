@@ -80,9 +80,9 @@ class SAGPool(torch.nn.Module):
         """
         batch = edge_index.new_zeros(x.size(0))
         if excluded_nodes is None:
-            excluded_nodes = torch.tensor([]).to(device).long()
+            excluded_nodes = torch.tensor([]).to(device()).long()
         elif isinstance(excluded_nodes, List):
-            excluded_nodes = torch.tensor(excluded_nodes).to(device).long()
+            excluded_nodes = torch.tensor(excluded_nodes).to(device()).long()
 
         attn = x
         attn = attn.unsqueeze(-1) if attn.dim() == 1 else attn
@@ -104,7 +104,7 @@ class SAGPool(torch.nn.Module):
 
         excluded_nodes = {n.item() for n in excluded_nodes} - {n.item() for n in perm}  # remove already accounted
         excluded_nodes = sorted(list(excluded_nodes))
-        excluded_nodes = torch.tensor(excluded_nodes).long().to(device)
+        excluded_nodes = torch.tensor(excluded_nodes).long().to(device())
 
         perm = torch.cat([perm, excluded_nodes])  # excluded nodes are added back to the saved list
         x = x[perm] * score[perm].view(-1, 1)

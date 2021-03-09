@@ -100,7 +100,7 @@ class HDEModel(nn.Module):
         if example.answer is not None:
             ans_id = example.candidates.index(example.answer)
             probs = final_probs.view(1, -1)  # batch dim
-            ans = torch.tensor([ans_id]).to(device)
+            ans = torch.tensor([ans_id]).to(device())
             loss = self.loss_fn(probs, ans)
 
             return loss, pred_ans
@@ -135,7 +135,7 @@ class HDEModel(nn.Module):
         if node_id_map is not None:
             cand_idxs = [node_id_map[c] for c in cand_idxs]
 
-        cand_embs = x[torch.tensor(cand_idxs).to(device).long(), :]
+        cand_embs = x[torch.tensor(cand_idxs).to(device()).long(), :]
         cand_probs = self.candidate_scorer(cand_embs).view(len(cand_idxs))
 
         ent_probs = []
@@ -151,10 +151,10 @@ class HDEModel(nn.Module):
                     linked_ent_nodes.update(ent_node_ids)
 
             if len(linked_ent_nodes) == 0:
-                max_prob = torch.tensor(0.).to(device)
+                max_prob = torch.tensor(0.).to(device())
             else:
                 linked_ent_nodes = sorted(list(linked_ent_nodes))  # node ids of all entities linked to this candidate
-                linked_ent_nodes = torch.tensor(linked_ent_nodes).to(device).long()
+                linked_ent_nodes = torch.tensor(linked_ent_nodes).to(device()).long()
                 ent_embs = torch.index_select(x, dim=0, index=linked_ent_nodes)
 
                 cand_ent_probs = self.entity_scorer(ent_embs)

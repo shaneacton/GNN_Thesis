@@ -13,17 +13,19 @@ Todo:
 
 
 * General:
-    * optional max runtime to safely exit program
+    * switch pytorch gpu based on gpu num
     * scheduler
         * if the status is running, but the file has not been written to in hours, then the program may have failed
             to close properly
         * store model info such as num params in different components
     * move wandb folder out of HDE
     * play with non lins, regs
+    * make relational hde
 
 * Tests:
     * sageconv base gnn
     * isolation tests for gating and relational gnn
+    * no type 7 edges
     * 2L transformers
     * 2,4L GNN
     * bert with only last layer tunable + dropout

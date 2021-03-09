@@ -7,6 +7,7 @@ from Checkpoint.checkpoint_utils import save_model
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Embedding.bert_embedder import TooManyTokens
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
+from Code.Training import set_gpu
 from Code.Training.Utils.eval_utils import get_acc_and_f1
 from Code.Training.Utils.training_utils import plot_training_data, save_training_results, get_training_results
 from Code.Training.Utils.model_utils import get_model
@@ -18,6 +19,7 @@ from Viz.wandb_utils import use_wandb
 
 
 def train_model(name, gpu_num=0):
+    set_gpu(gpu_num)
     model, optimizer, scheduler = get_model(name)
     results = get_training_results(name)
 
@@ -25,9 +27,7 @@ def train_model(name, gpu_num=0):
 
     accumulated_edges = 0
 
-    # print("spinning", name)
-    # while True:
-    #     time.sleep(0.1)
+    start_time = time.time()
 
     for epoch in range(conf.num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
@@ -40,7 +40,7 @@ def train_model(name, gpu_num=0):
         losses = []
         model.train()
 
-        start_time = time.time()
+        epoch_start_time = time.time()
         for i, graph in tqdm(enumerate(train_gen.graphs(start_at=model.last_example))):
             def e_frac():
                 return epoch + i/train_gen.num_examples
@@ -50,6 +50,10 @@ def train_model(name, gpu_num=0):
 
             if graph == SKIP:
                 continue
+
+            if time.time() - start_time > conf.max_runtime_seconds != -1:
+                print("reached max run time. shutting down so the program can exit safely")
+                exit()
 
             try:
                 num_edges = len(graph.unique_edges)
@@ -102,11 +106,11 @@ def train_model(name, gpu_num=0):
                 plot_training_data(results, name, conf.print_loss_every, train_gen.num_examples)
                 save_training_results(results, name)
                 save_time = time.time() - save_time
-                start_time += save_time
+                epoch_start_time += save_time
         model.last_example = -1
 
         print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
-              "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - start_time))
+              "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - epoch_start_time))
 
         valid_acc = evaluate(model)
         if use_wandb:

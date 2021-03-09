@@ -9,8 +9,8 @@ from Code.HDE.hde_cannon import HDECannon
 from Code.HDE.hde_bert import HDEBert
 from Code.HDE.hde_glove import HDEGlove
 from Code.Pooling.hde_pool import HDEPool
-
 from Code.Training import device
+
 from Code.Training.Utils.training_utils import get_exponential_schedule_with_warmup
 from Config.config import conf
 from Config.config_utils import load_checkpoint_model_config
@@ -39,7 +39,7 @@ def continue_model(name):
     try:
         path = model_path(name)
         checkpoint = torch.load(path)
-        hde = checkpoint["model"].to(device)
+        hde = checkpoint["model"].to(device())
         optimizer = get_optimizer(hde, type=conf.optimizer_type)
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         scheduler = get_exponential_schedule_with_warmup(optimizer)
@@ -59,7 +59,7 @@ def continue_model(name):
 
 def new_model(name, MODEL_CLASS=None, **model_kwargs):
     from Config.config import conf
-    hde = MODEL_CLASS(**model_kwargs).to(device)
+    hde = MODEL_CLASS(**model_kwargs).to(device())
 
     optimizer = get_optimizer(hde, type=conf.optimizer_type)
     scheduler = get_exponential_schedule_with_warmup(optimizer)

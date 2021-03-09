@@ -1,12 +1,10 @@
-from typing import Dict, List
+from typing import List
 
-import torch
 from torch import nn
 from torch.nn import ModuleList
 
 from Code.GNNs.gated_gnn import GatedGNN
 from Code.GNNs.gnn_stack import GNNLayer
-from Code.Training import device
 from Config.config import conf
 
 

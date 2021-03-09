@@ -70,7 +70,7 @@ class GloveEmbedder(StringEmbedder):
 
         seq_len = len(embs)
         embs = torch.cat(embs, dim=0).view(1, seq_len, -1)
-        embs = embs.to(device)
+        embs = embs.to(device())
         if self.use_positional_embeddings:
             pos_embs = self.positional_embedder.get_pos_embs(seq_len)
             embs += pos_embs

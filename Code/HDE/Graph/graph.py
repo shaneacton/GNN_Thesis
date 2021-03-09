@@ -37,7 +37,7 @@ class HDEGraph:
                     continue
             froms += [e.from_id, e.to_id]
             tos += [e.to_id, e.from_id]
-        return torch.tensor([froms, tos]).to(device).long()
+        return torch.tensor([froms, tos]).to(device()).long()
 
     def edge_types(self):
         types = sorted(list(set([edge.type() for edge in self.ordered_edges])))
@@ -46,7 +46,7 @@ class HDEGraph:
         for edge in self.ordered_edges:
             type_id = edge_type_map[edge.type()]
             type_ids.append(type_id)
-        return torch.tensor(type_ids).to(device).long()
+        return torch.tensor(type_ids).to(device()).long()
 
     def add_node(self, node: HDENode) -> int:
         next_id = len(self.ordered_nodes)

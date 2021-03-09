@@ -25,7 +25,7 @@ class Transformer(nn.Module):
     @staticmethod
     def get_type_ids(type, length, type_map):
         type_id = type_map[type]
-        type_ids = torch.tensor([type_id for _ in range(length)]).long().to(device)
+        type_ids = torch.tensor([type_id for _ in range(length)]).long().to(device())
         return type_ids
 
     def get_type_tensor(self, type, length, type_map):
@@ -41,7 +41,7 @@ class Transformer(nn.Module):
         lengths = [ex.size(-2) for ex in extracts]
         max_len = max(lengths)
         masks = [[False] * size + [True] * (max_len - size) for size in lengths]
-        masks = torch.tensor(masks).to(device)
+        masks = torch.tensor(masks).to(device())
         batch = pad_sequence(extracts, batch_first=False)
 
         # print("mask:", masks.size(), masks)
