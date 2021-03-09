@@ -24,6 +24,7 @@ from Checkpoint import CHECKPOINT_FOLDER
 
 GLOBAL_FILE_LOCK_PATH = join(CHECKPOINT_FOLDER, "scheduler_lock.lock")
 
+
 def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0):
     """
         train/continue a model using a model config in HDE/Config
@@ -39,7 +40,7 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0):
     set_conf_files(model_conf, train_conf)
     from Config.config import conf
     from Code.Training.trainer import train_model
-    conf.model_name = effective_name(conf.model_name, repeat_num)
+    conf.set("model_name", effective_name(conf.model_name, repeat_num))
     atexit.register(release_status)
     train_model(conf.model_name, gpu_num=gpu_num)
 

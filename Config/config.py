@@ -23,6 +23,9 @@ class Config:
         if self.max_context_chars != -1:
             print("truncating contexts to", self.max_context_chars, "chars")
 
+    def set(self, att_name, value):
+        setattr(att_name, value)
+        self.cfg[att_name] = value
 
 conf = None
 
