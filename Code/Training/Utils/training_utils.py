@@ -30,10 +30,6 @@ def save_training_results(data, name):
     save_binary_data(data, training_results_path(name))
 
 
-def save_conf(cfg, save_path):
-    save_binary_data(cfg, model_config_path(save_path))
-
-
 def get_exponential_schedule_with_warmup(optimizer, num_grace_epochs=1, decay_fac=0.9):
     """roughly halves the lr every 7 epochs. at e 50, lr is 200 times lower"""
 

@@ -23,6 +23,8 @@ from Config.config import conf
 class HDEModel(nn.Module):
 
     def __init__(self, GNN_CLASS=None, **kwargs):
+        from Code.Training.Utils.model_utils import num_params
+
         if GNN_CLASS is None:
             from Code.Training.Utils.model_utils import GNN_MAP
             GNN_CLASS = GNN_MAP[conf.gnn_class]
@@ -32,24 +34,31 @@ class HDEModel(nn.Module):
         self.use_gating = conf.use_gating
 
         self.coattention = Coattention(**kwargs)
+        conf.cfg["num_coattention_params"] = num_params(self.coattention)
         if conf.use_switch_summariser:
             self.summariser = SwitchSummariser(**kwargs)
         else:
             self.summariser = Summariser(**kwargs)
+        conf.cfg["num_summariser_params"] = num_params(self.summariser)
+        conf.cfg["num_transformer_params"] = num_params(self.summariser) + num_params(self.coattention)
 
         self.relu = ReLU()
 
         self.gnn = None
         self.init_gnn(GNN_CLASS)
+        conf.cfg["num_gnn_params"] = num_params(self.gnn)
 
         self.candidate_scorer = HDEScorer(conf.hidden_size)
         self.entity_scorer = HDEScorer(conf.hidden_size)
+
+        conf.cfg["num_output_params"] = num_params(self.candidate_scorer) + num_params(self.entity_scorer)
 
         self.loss_fn = CrossEntropyLoss()
         self.last_example = -1
         self.last_epoch = -1
 
         self.embedder:StringEmbedder = None  #  must set in subclasses
+        conf.cfg["num_total_params"] = num_params(self)
 
     def init_gnn(self, GNN_CLASS):
         if GNN_CLASS == GATConv:

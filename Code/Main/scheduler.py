@@ -2,6 +2,7 @@ import argparse
 import atexit
 import os
 import sys
+import time
 from multiprocessing import Process
 from os.path import join, exists
 
@@ -17,7 +18,7 @@ sys.path.append(join(dir_path_1, 'Checkpoint'))
 
 from Config.config import set_conf_files
 from Checkpoint.checkpoint_utils import get_model_checkpoint_folder, load_status, create_model_checkpoint_folder, \
-    save_status
+    save_status, training_status_path
 from Config.config_utils import load_config, load_effective_config
 
 GLOBAL_FILE_LOCK_PATH = "../../Checkpoint/scheduler_lock.lock"
@@ -55,6 +56,16 @@ def effective_name(name, repeat_num):
     return name + "_" + repr(repeat_num)
 
 
+def get_safe_status(effective_name, max_hours=13):
+    status = load_status(effective_name)
+    if status["running"]:
+        last_modified = os.path.getmtime(training_status_path(effective_name))
+        if time.time() - last_modified > max_hours * 3600:
+            """program left file status to running due to bad close"""
+            status["running"] = False
+    return status
+
+
 def get_next_model_config(schedule, repeat_num=1):
     """
         process safe. Only one scheduler can be deciding a config at a time.
@@ -84,7 +95,7 @@ def get_next_model_config(schedule, repeat_num=1):
             best_candidate = None
             for s in started:
                 """find the in-progress run with the fewest epochs completed"""
-                status = load_status(model_names[s])
+                status = get_safe_status(model_names[s])
                 if not status["running"] and not status["finished"]:
                     """not currently running, but not yet finished"""
                     completed_epochs = status["completed_epochs"]

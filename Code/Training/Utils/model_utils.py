@@ -3,17 +3,15 @@ from os.path import exists
 import torch
 from torch_geometric.nn import GATConv, SAGEConv
 
-from Checkpoint.checkpoint_utils import get_model_checkpoint_folder, save_json_data, model_config_path, model_path, \
+from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
     load_json_data
-from Code.HDE.hde_cannon import HDECannon
 from Code.HDE.hde_bert import HDEBert
+from Code.HDE.hde_cannon import HDECannon
 from Code.HDE.hde_glove import HDEGlove
 from Code.Pooling.hde_pool import HDEPool
 from Code.Training import device
-
 from Code.Training.Utils.training_utils import get_exponential_schedule_with_warmup
 from Config.config import conf
-from Config.config_utils import load_checkpoint_model_config
 from Viz import wandb_utils
 from Viz.wandb_utils import use_wandb
 

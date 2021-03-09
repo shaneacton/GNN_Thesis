@@ -7,6 +7,15 @@ class Config:
         self.model_cfg_name = model_cfg_name
         self.train_cfg_name = train_cfg_name
         self.cfg = load_configs(model_cfg_name, train_cfg_name=train_cfg_name)
+        self.cfg["num_transformer_params"] = -1
+        self.cfg["num_coattention_params"] = -1
+        self.cfg["num_summariser_params"] = -1
+
+        self.cfg["num_embedding_params"] = -1
+        self.cfg["num_gnn_params"] = -1
+        self.cfg["num_output_params"] = -1
+
+        self.cfg["num_total_params"] = -1
 
         for k, v in self.cfg.items():
             self.__setattr__(k, v)

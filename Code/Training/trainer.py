@@ -15,12 +15,14 @@ from Code.Training.eval import evaluate
 from Code.Training.graph_gen import GraphGenerator, SKIP
 from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
-from Viz.wandb_utils import use_wandb
+from Viz.wandb_utils import use_wandb, wandb_run
 
 
 def train_model(name, gpu_num=0):
     set_gpu(gpu_num)
     model, optimizer, scheduler = get_model(name)
+    if use_wandb:
+        wandb_run().watch(model)
     results = get_training_results(name)
 
     train_gen = GraphGenerator(get_processed_wikihop(model), model=model)
@@ -93,8 +95,7 @@ def train_model(name, gpu_num=0):
                 results["losses"].append(mean_loss)
                 results["train_accs"].append(acc)
                 if use_wandb:
-                    from Viz.wandb_utils import wandb_run
-                    wandb_run.log({"loss": mean_loss, "train_acc": acc, "epoch": e_frac()})
+                    wandb_run().log({"loss": mean_loss, "train_acc": acc, "epoch": e_frac()})
 
             if len(losses) % conf.checkpoint_every == 0:  # save model and data
                 save_time = time.time()
@@ -114,8 +115,7 @@ def train_model(name, gpu_num=0):
 
         valid_acc = evaluate(model)
         if use_wandb:
-            from Viz.wandb_utils import wandb_run
-            wandb_run.log({"valid_acc": valid_acc, "epoch": epoch + 1})
+            wandb_run().log({"valid_acc": valid_acc, "epoch": epoch + 1})
         results["valid_accs"].append(valid_acc)
 
         plot_training_data(results, name, conf.print_loss_every, train_gen.num_examples)

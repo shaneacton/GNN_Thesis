@@ -13,11 +13,6 @@ Todo:
 
 
 * General:
-    * switch pytorch gpu based on gpu num
-    * scheduler
-        * if the status is running, but the file has not been written to in hours, then the program may have failed
-            to close properly
-        * store model info such as num params in different components
     * move wandb folder out of HDE
     * play with non lins, regs
     * make relational hde
