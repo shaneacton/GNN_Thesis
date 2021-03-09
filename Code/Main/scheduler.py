@@ -3,7 +3,7 @@ import atexit
 import os
 import sys
 import time
-from torch.multiprocessing import Process
+from torch.multiprocessing import Process, set_start_method
 from os.path import join, exists
 
 import torch
@@ -152,6 +152,7 @@ def continue_schedule(debug=False):
 
 
 if __name__ == "__main__":
+    set_start_method('spawn')
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', '-d', help='Whether or not to run the debug configs - y/n', default="n")
 
