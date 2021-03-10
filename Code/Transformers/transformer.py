@@ -33,16 +33,16 @@ class Transformer(nn.Module):
         return self.type_embedder(ids).view(1, -1, self.hidden_size)
 
     @staticmethod
-    def pad(extracts):
+    def pad(vecs):
         """
             pytorches transformer layer wants 1=pad, 0=seq
             it also wants (seq, batch, emb)
         """
-        lengths = [ex.size(-2) for ex in extracts]
+        lengths = [ex.size(-2) for ex in vecs]
         max_len = max(lengths)
         masks = [[False] * size + [True] * (max_len - size) for size in lengths]
         masks = torch.tensor(masks).to(device())
-        batch = pad_sequence(extracts, batch_first=False)
+        batch = pad_sequence(vecs, batch_first=False)
 
         # print("mask:", masks.size(), masks)
         # print("batch:", batch.size())

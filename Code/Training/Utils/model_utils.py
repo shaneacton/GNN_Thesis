@@ -43,7 +43,9 @@ def continue_model(name):
         scheduler = get_exponential_schedule_with_warmup(optimizer)
         scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
         print("loading checkpoint model", hde.name, "at:", path, "e:", hde.last_epoch, "i:", hde.last_example,
-              "with", num_params(hde), "trainable params")
+              "with", num_params(hde), "trainable params, on device:", device())
+        print(hde)
+
         cfg = load_json_data(model_config_path(name))
         if use_wandb:
             wandb_utils.continue_run(cfg["wandb_id"], cfg["model_name"])
@@ -64,7 +66,8 @@ def new_model(name, MODEL_CLASS=None, **model_kwargs):
         wandb_utils.new_run(get_config().model_name)
 
     save_json_data(get_config().cfg, model_config_path(name))
-    print("inited model", hde.name, repr(hde), "with:", num_params(hde), "trainable params")
+    print("inited model", hde.name, "with:", num_params(hde), "trainable params, on device:", device())
+    print(hde)
     return hde, optimizer, scheduler
 
 
