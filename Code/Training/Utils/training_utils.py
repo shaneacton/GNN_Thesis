@@ -19,11 +19,10 @@ def get_training_results(name):
 
 
 def plot_training_data(data, name, print_loss_every, num_training_examples):
-    path = loss_plot_path(name)
     losses, train_accs, valid_accs = data["losses"], data["train_accs"], data["valid_accs"]
     epochs = get_continuous_epochs(losses, num_training_examples, print_loss_every)
     # print("got epochs:", epochs)
-    visualise_training_data(losses, train_accs, epochs, show=False, save_path=path, valid_accs=valid_accs)
+    visualise_training_data(losses, train_accs, epochs, name, show=False, valid_accs=valid_accs)
 
 
 def save_training_results(data, name):

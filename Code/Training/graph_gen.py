@@ -48,7 +48,7 @@ class GraphGenerator:
     def start(self, start_at):
         kwargs = copy.deepcopy(self.kwargs)
         kwargs.update({"start_at": start_at})
-        ctx = mp.get_context('spawn')
+        ctx = mp.get_context('fork')
 
         self.p = ctx.Process(target=produce_graphs, args=(graph_queue,), kwargs=kwargs)
         self.p.start()  # begins generation
