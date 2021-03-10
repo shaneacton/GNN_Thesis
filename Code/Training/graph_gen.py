@@ -2,7 +2,8 @@ import copy
 import os
 import random
 import time
-from multiprocessing import Process, Queue, set_start_method
+import torch.multiprocessing as mp
+from torch.multiprocessing import Process, Queue
 
 from Code.HDE.Graph.graph_utils import create_graph
 
@@ -47,8 +48,9 @@ class GraphGenerator:
     def start(self, start_at):
         kwargs = copy.deepcopy(self.kwargs)
         kwargs.update({"start_at": start_at})
-        # set_start_method("fork")
-        self.p = Process(target=produce_graphs, args=(graph_queue,), kwargs=kwargs)
+        ctx = mp.get_context('spawn')
+
+        self.p = ctx.Process(target=produce_graphs, args=(graph_queue,), kwargs=kwargs)
         self.p.start()  # begins generation
 
     def graphs(self, start_at=0):
