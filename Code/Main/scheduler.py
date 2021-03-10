@@ -158,6 +158,8 @@ def continue_schedule(debug=False):
 
 
 if __name__ == "__main__":
+    print("master process", os.getpid())
+
     parser = argparse.ArgumentParser()  # error: <Process(Process-2, initial)>
     parser.add_argument('--debug', '-d', help='Whether or not to run the debug configs - y/n', default="n")
 

@@ -1,4 +1,5 @@
 import copy
+import os
 import random
 import time
 from multiprocessing import Process, Queue, set_start_method
@@ -12,6 +13,7 @@ SKIP = "skip"
 
 def produce_graphs(q, start_at, dataset=None, glove_embedder=None, tokeniser=None, support_encodings=None):
     """produce 1 epoch worth of graphs"""
+    print("producing graphs in process", os.getpid())
     for i, example in enumerate(dataset):
         # if q is full, spin until one is consumed
         while q.full():
@@ -51,6 +53,7 @@ class GraphGenerator:
 
     def graphs(self, start_at=0):
         """the consume method"""
+        print("getting graphs in process", os.getpid())
         self.start(start_at)  # begins generation
 
         for i in range(self.num_examples):  # consume full epoch

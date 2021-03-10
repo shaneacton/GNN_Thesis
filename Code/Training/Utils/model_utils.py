@@ -1,3 +1,4 @@
+import os
 from os.path import exists
 
 import torch
@@ -43,7 +44,7 @@ def continue_model(name):
         scheduler = get_exponential_schedule_with_warmup(optimizer)
         scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
         print("loading checkpoint model", hde.name, "at:", path, "e:", hde.last_epoch, "i:", hde.last_example,
-              "with", num_params(hde), "trainable params, on device:", device())
+              "with", num_params(hde), "trainable params, on device:", device(), "process:", os.getpid())
         print(hde)
 
         cfg = load_json_data(model_config_path(name))
@@ -66,7 +67,7 @@ def new_model(name, MODEL_CLASS=None, **model_kwargs):
         wandb_utils.new_run(get_config().model_name)
 
     save_json_data(get_config().cfg, model_config_path(name))
-    print("inited model", hde.name, "with:", num_params(hde), "trainable params, on device:", device())
+    print("inited model", hde.name, "with:", num_params(hde), "trainable params, on device:", device(), "process:", os.getpid())
     print(hde)
     return hde, optimizer, scheduler
 
