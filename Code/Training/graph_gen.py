@@ -3,13 +3,16 @@ import os
 import random
 import time
 import torch.multiprocessing as mp
-from torch.multiprocessing import Process, Queue
 
 from Code.HDE.Graph.graph_utils import create_graph
 
 BUF_SIZE = 1500
-graph_queue = Queue(BUF_SIZE)
+graph_queue = None
 SKIP = "skip"
+
+def new_queue(ctx):
+    global graph_queue
+    graph_queue = ctx.Queue(BUF_SIZE)
 
 
 def produce_graphs(q, start_at, dataset=None, glove_embedder=None, tokeniser=None, support_encodings=None):
@@ -49,7 +52,7 @@ class GraphGenerator:
         kwargs = copy.deepcopy(self.kwargs)
         kwargs.update({"start_at": start_at})
         ctx = mp.get_context('fork')
-
+        new_queue(ctx)
         self.p = ctx.Process(target=produce_graphs, args=(graph_queue,), kwargs=kwargs)
         print("starting gen process in process", os.getpid())
 
