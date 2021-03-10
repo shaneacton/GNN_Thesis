@@ -51,12 +51,15 @@ class GraphGenerator:
         ctx = mp.get_context('fork')
 
         self.p = ctx.Process(target=produce_graphs, args=(graph_queue,), kwargs=kwargs)
+        print("starting gen process in process", os.getpid())
+
         self.p.start()  # begins generation
 
     def graphs(self, start_at=0):
         """the consume method"""
         print("getting graphs in process", os.getpid())
         self.start(start_at)  # begins generation
+        print("waiting for graphs in process", os.getpid())
 
         for i in range(self.num_examples):  # consume full epoch
             # if graph_queue.empty():
