@@ -23,7 +23,10 @@ def train_model(name, gpu_num=0):
     set_gpu(gpu_num)
     model, optimizer, scheduler = get_model(name)
     if use_wandb:
-        wandb_run().watch(model)
+        try:
+            wandb_run().watch(model)
+        except:
+            pass
     results = get_training_results(name)
 
     train_gen = GraphGenerator(get_processed_wikihop(model), model=model)
