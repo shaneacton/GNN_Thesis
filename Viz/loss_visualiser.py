@@ -8,6 +8,7 @@ import os
 import sys
 from os.path import join
 
+from Checkpoint.checkpoint_utils import loss_plot_path
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -97,7 +98,7 @@ def plot_loss_and_acc(losses, accs, epochs, name, valid_accs=None, fig=None, los
     return loss_ax, acc_ax
 
 
-def visualise_training_data(losses, accuracies, epochs, show=False, save_path=None, valid_accs=None, title=None):
+def visualise_training_data(losses, accuracies, epochs, name, show=False, valid_accs=None, title=None):
     # if epochs is None:
     #     epochs = list(range(len(losses)))
     losses = smooth(losses)
@@ -105,17 +106,17 @@ def visualise_training_data(losses, accuracies, epochs, show=False, save_path=No
     plt.xlabel("Epoch")
     fig = plt.figure()
     if title is None:
-        fig.suptitle(save_path.split("/")[-1])
+        fig.suptitle(name)
     else:
         fig.suptitle(title)
 
-    plot_loss_and_acc(losses, accuracies, epochs, valid_accs=valid_accs, save_path=save_path, fig=fig)
+    plot_loss_and_acc(losses, accuracies, epochs, name, valid_accs=valid_accs, fig=fig)
     plt.legend()
 
     if show:
         plt.show()
-    if save_path is not None:
-        plt.savefig(save_path)
+    path = loss_plot_path(name)
+    plt.savefig(path)
 
 
 def get_rolling_averages(losses: List[int], alph=0.95):
