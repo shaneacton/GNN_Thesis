@@ -45,8 +45,6 @@ def train_model(name, gpu_num=0):
 
         epoch_start_time = time.time()
         for i, graph in tqdm(enumerate(train_gen.graphs(start_at=model.last_example))):
-            print("got graph in process", os.getpid())
-
             def e_frac():
                 return epoch + i/train_gen.num_examples
 

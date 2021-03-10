@@ -10,6 +10,7 @@ BUF_SIZE = 1500
 graph_queue = None
 SKIP = "skip"
 
+
 def new_queue(ctx):
     global graph_queue
     graph_queue = ctx.Queue(BUF_SIZE)
