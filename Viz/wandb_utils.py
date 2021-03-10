@@ -1,4 +1,4 @@
-from Config.config import conf
+from Config.config import conf, get_config
 
 try:
     import wandb
@@ -15,14 +15,15 @@ def wandb_run():
     return _wandb_run
 
 
-def new_run(model_name=conf.model_name, config=conf):
+def new_run(model_name, config=None):
     global _wandb_run
     global use_wandb
+    if config is None:
+        config = get_config()
     id = wandb.util.generate_id()
-    config.cfg["wandb_id"] = id
-    config.wandb_id = id
+    config.set("wandb_id", id)
     try:
-        _wandb_run = wandb.init(project="gnn_thesis", entity="shaneacton", config=conf.cfg, resume=True, name=model_name, id=id)
+        _wandb_run = wandb.init(project="gnn_thesis", entity="shaneacton", config=config.cfg, resume=True, name=model_name, id=id)
     except Exception as e:
         print("cannot init wandb session. turning off wandb logging")
         print(e)

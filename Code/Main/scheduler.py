@@ -3,6 +3,7 @@ import atexit
 import os
 import sys
 import time
+import torch.multiprocessing as mp
 from torch.multiprocessing import Process, set_start_method
 from os.path import join, exists
 
@@ -40,7 +41,8 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0):
     set_conf_files(model_conf, train_conf)
     from Config.config import conf
     from Code.Training.trainer import train_model
-    conf.set("model_name", effective_name(conf.model_name, repeat_num))
+    model_name = effective_name(conf.model_name, repeat_num)
+    conf.set("model_name", model_name)
     atexit.register(release_status)
     train_model(conf.model_name, gpu_num=gpu_num)
 
@@ -67,7 +69,7 @@ def get_safe_status(effective_name, max_hours=13):
     return status
 
 
-def get_next_model_config(schedule, repeat_num=1):
+def get_next_model_config(schedule, repeat_num=0):
     """
         process safe. Only one scheduler can be deciding a config at a time.
 
@@ -134,6 +136,9 @@ def continue_schedule(debug=False):
         schedule = load_config("debug_schedule", add_model_name=False)
 
     train_conf = schedule["train_config"]
+    print("num gpus:", num_gpus)
+    ctx = mp.get_context('spawn')
+
     for gpu_id in range(num_gpus):
         """for each available gpu, spawn off a new process to run the next scheduled config"""
         next_model_conf, repeat_num = get_next_model_config(schedule)
@@ -141,20 +146,19 @@ def continue_schedule(debug=False):
             print("no more configs to run. shutting down scheduler")
             exit()
         print("chosen conf:", next_model_conf)
-        if gpu_id == num_gpus -1:
+        if gpu_id == num_gpus - 1:
             """is last config to run. can run in master thread"""
             train_config(next_model_conf, train_conf, gpu_id, repeat_num)
         else:
             # spawn process
-            kwargs = {"model_conf": next_model_conf, "train_conf": train_conf, "gpu_num": gpu_id}
-            process = Process(target=train_config, kwargs=kwargs)
+            kwargs = {"model_conf": next_model_conf, "train_conf": train_conf, "gpu_num": gpu_id, "repeat_num":repeat_num}
+            process = ctx.Process(target=train_config, kwargs=kwargs)
             process.start()
             print("starting new process for", next_model_conf, "on gpu:", gpu_id)
 
 
 if __name__ == "__main__":
-    set_start_method('spawn')
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()  # error: <Process(Process-2, initial)>
     parser.add_argument('--debug', '-d', help='Whether or not to run the debug configs - y/n', default="n")
 
     args = parser.parse_args()

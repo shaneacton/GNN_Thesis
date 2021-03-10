@@ -29,6 +29,9 @@ class Config:
 
 conf = None
 
+def get_config():
+    return conf
+
 
 def set_conf_files(model_cfg_name="base", train_cfg_name="standard_train"):
     global conf

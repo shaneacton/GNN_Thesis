@@ -11,7 +11,7 @@ from Code.HDE.hde_glove import HDEGlove
 from Code.Pooling.hde_pool import HDEPool
 from Code.Training import device
 from Code.Training.Utils.training_utils import get_exponential_schedule_with_warmup
-from Config.config import conf
+from Config.config import conf, get_config
 from Viz import wandb_utils
 from Viz.wandb_utils import use_wandb
 
@@ -56,16 +56,14 @@ def continue_model(name):
 
 
 def new_model(name, MODEL_CLASS=None, **model_kwargs):
-    from Config.config import conf
     hde = MODEL_CLASS(**model_kwargs).to(device())
 
-    optimizer = get_optimizer(hde, type=conf.optimizer_type)
+    optimizer = get_optimizer(hde, type=get_config().optimizer_type)
     scheduler = get_exponential_schedule_with_warmup(optimizer)
     if use_wandb:
-        wandb_utils.new_run()
-        from Config.config import conf  # reload conf to reflect new wandb_id
+        wandb_utils.new_run(get_config().model_name)
 
-    save_json_data(conf.cfg, model_config_path(name))
+    save_json_data(get_config().cfg, model_config_path(name))
     print("inited model", hde.name, repr(hde), "with:", num_params(hde), "trainable params")
     return hde, optimizer, scheduler
 

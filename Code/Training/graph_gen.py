@@ -1,9 +1,7 @@
 import copy
 import random
 import time
-from multiprocessing import Process, Queue
-
-from nlp import tqdm
+from multiprocessing import Process, Queue, set_start_method
 
 from Code.HDE.Graph.graph_utils import create_graph
 
@@ -47,6 +45,7 @@ class GraphGenerator:
     def start(self, start_at):
         kwargs = copy.deepcopy(self.kwargs)
         kwargs.update({"start_at": start_at})
+        # set_start_method("fork")
         self.p = Process(target=produce_graphs, args=(graph_queue,), kwargs=kwargs)
         self.p.start()  # begins generation
 
