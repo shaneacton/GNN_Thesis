@@ -19,7 +19,7 @@ class SwitchSummariser(SwitchTransformer):
 
     def __init__(self, intermediate_fac=2):
         self.include_global = conf.use_global_summariser
-        super().__init__(conf.embedded_dims, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac,
+        super().__init__(conf.embedded_dims, conf.num_summariser_layers, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac,
                          include_global=self.include_global)
 
     def get_type_tensor(self, type, length):
