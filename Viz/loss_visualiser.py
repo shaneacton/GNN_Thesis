@@ -8,16 +8,17 @@ import os
 import sys
 from os.path import join
 
-from Config.config_utils import load_config
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 dir_path_1 = join(dir_path_1, "GNN_Thesis")
 sys.path.append(dir_path_1)
 sys.path.append(os.path.join(dir_path_1, 'Code'))
+sys.path.append(os.path.join(dir_path_1, 'Checkpoint'))
 sys.path.append(os.path.join(dir_path_1, 'conf'))
 
 from Config.config import conf
+from Config.config_utils import load_config
 
 
 def compare(names, num_training_examples=43700, show=True, print_loss_every=None):
@@ -25,6 +26,7 @@ def compare(names, num_training_examples=43700, show=True, print_loss_every=None
 
     loss_ax, acc_ax = None, None
     colours = ["g", "b", "r", "y"]
+    all_names = []
     for i, name_or_group in enumerate(names):
         if not isinstance(name_or_group, List):
             _names = [name_or_group]
@@ -38,8 +40,8 @@ def compare(names, num_training_examples=43700, show=True, print_loss_every=None
             train_accs = smooth(data["train_accs"])
             valid_accs = data["valid_accs"]
             epochs = get_continuous_epochs(losses, num_training_examples, print_loss_every=print_loss_every)
-            loss_ax, acc_ax = plot_loss_and_acc(losses, train_accs, save_path=path, valid_accs=valid_accs,
-                                                epochs=epochs, loss_ax=loss_ax, acc_ax=acc_ax, colour=colours[i])
+            loss_ax, acc_ax = plot_loss_and_acc(losses, train_accs, epochs, name, valid_accs=valid_accs,
+                                                loss_ax=loss_ax, acc_ax=acc_ax, colour=colours[i])
 
     plt.legend()
 
@@ -77,12 +79,9 @@ def get_continuous_epochs(losses, num_training_examples, print_loss_every=None):
     return epochs
 
 
-def plot_loss_and_acc(losses, accs, epochs, name=None, save_path=None, valid_accs=None, fig=None, loss_ax=None, acc_ax=None, colour="g"):
+def plot_loss_and_acc(losses, accs, epochs, name, valid_accs=None, fig=None, loss_ax=None, acc_ax=None, colour="g"):
     if fig is None and loss_ax is None:
         fig = plt.figure()
-
-    if name is None:
-        name = save_path_to_name(save_path)
 
     if loss_ax is None:
         loss_ax = fig.add_subplot(111)

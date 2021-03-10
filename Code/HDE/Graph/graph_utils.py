@@ -11,7 +11,7 @@ from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode
 from Code.constants import DOCUMENT, ENTITY, CODOCUMENT, CANDIDATE, COMENTION
-from Config.config import conf
+from Config.config import get_config
 from Viz.graph_visualiser import render_graph
 
 only_letters = re.compile('[^a-zA-Z]')
@@ -214,9 +214,9 @@ def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings
     # if conf.print_times:
     #     print("made full graph in", (time.time() - start_t))
 
-    if conf.visualise_graphs:
+    if get_config().visualise_graphs:
         render_graph(graph)
-        if conf.exit_after_first_viz:
+        if get_config().exit_after_first_viz:
             exit()
 
     return graph

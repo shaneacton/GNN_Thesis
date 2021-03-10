@@ -13,6 +13,7 @@ Todo:
 
 
 * General:
+    * fix local loss viz
     * move wandb folder out of HDE
     * play with non lins, regs
     * make relational hde
