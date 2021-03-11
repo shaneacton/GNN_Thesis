@@ -1,6 +1,6 @@
 {
   "num_repeats": 2,
-  "model_configs": ["debug_model"],
+  "model_configs": ["hde_rel"],
   "train_config": "debug_train",
   "config_overrides": {"optimizer_type":  "adam"}
 }

@@ -15,7 +15,7 @@ class HDEGNN(nn.Module):
         super().__init__()
 
         base = BASE_GNN_CLASS(in_size, hidden_size, **layer_kwargs)
-        r_gnn = SwitchGNN(base)
+        r_gnn = SwitchGNN(gnn=base)
         self.ggnn = GatedGNN(r_gnn)
 
     def forward(self, x, graph, **kwargs):

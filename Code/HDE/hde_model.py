@@ -96,7 +96,7 @@ class HDEModel(nn.Module):
     def pass_gnn(self, x, example, graph):
         edge_index = graph.edge_index()
         t = time.time()
-        x = self.gnn(x, edge_index)
+        x = self.gnn(x, edge_index=edge_index)
         if conf.print_times:
             print("passed gnn in", (time.time() - t))
         return x

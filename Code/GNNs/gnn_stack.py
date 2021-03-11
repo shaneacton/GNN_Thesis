@@ -20,9 +20,9 @@ class GNNStack(nn.Module):
 
         self.layers = ModuleList(layers)
 
-    def forward(self, x, edge_index):
+    def forward(self, x, **kwargs):
         for layer in self.layers:
-            x = layer(x, edge_index)
+            x = layer(x, **kwargs)
         return x
 
 
@@ -46,9 +46,9 @@ class GNNLayer(nn.Module):
         self.dropout1 = Dropout(conf.dropout)
         self.dropout2 = Dropout(conf.dropout)
 
-    def forward(self, x, edge_index):
+    def forward(self, x, **kwargs):
         "x ~ (N, in_channels)"
-        x2 = self.dropout1(self.gnn(x, edge_index))  # # (N, out_channels)
+        x2 = self.dropout1(self.gnn(x, **kwargs))  # # (N, out_channels)
         if x.size(-1) == x2.size(-1):
             x = x + x2  # residual
             x = self.norm1(x)

@@ -2,6 +2,7 @@ Todo:
 
 *ensure non linearities separate each transformation
 
+
 * Transformers:
     * add a classification embedding to the summariser
 
@@ -14,25 +15,25 @@ Todo:
 
 * General:
     * fix local loss viz
+    * fix num params reporting on wandb
+    * fix single run function
     * move wandb folder out of HDE
     * play with non lins, regs
     * make relational hde
+    * add type embs to global switch module
+
 
 * Tests:
-    * sageconv base gnn
     * isolation tests for gating and relational gnn
     * no type 7 edges
     * 2L transformers
     * 2,4L GNN
     * bert with only last layer tunable + dropout
     * adam
-    * without complement edges
     * add more layer norms
-    * try type switching instead of type embeddings for summ
 
 * house keeping:
     * ssh keygen for viz
-    * make some sort of experiment scheduler
     * count discarded examples
     * rename .data to .training_data
         * fix bug where a valid acc can be double included

@@ -1,12 +1,12 @@
 from torch_geometric.nn import GATConv
 
 from Code.GNNs.gnn_stack import GNNStack
-from Code.GNNs.hde_gnn import HDEGNN
+from Code.GNNs.switch_gnn import SwitchGNN
 from Code.HDE.hde_glove import HDEGlove
 from Config.config import conf
 
 
-class HDECannon(HDEGlove):
+class HDERel(HDEGlove):
 
     def __init__(self, BASE_GNN_CLASS=None, **kwargs):
         if BASE_GNN_CLASS is None:
@@ -16,9 +16,9 @@ class HDECannon(HDEGlove):
 
     def init_gnn(self, BASE_GNN_CLASS):
         if BASE_GNN_CLASS == GATConv:
-            self.gnn = GNNStack(HDEGNN, heads=conf.heads, BASE_GNN_CLASS=BASE_GNN_CLASS)
+            self.gnn = GNNStack(SwitchGNN, heads=conf.heads, BASE_GNN_CLASS=BASE_GNN_CLASS)
         else:
-            self.gnn = GNNStack(HDEGNN, BASE_GNN_CLASS=BASE_GNN_CLASS)
+            self.gnn = GNNStack(SwitchGNN, BASE_GNN_CLASS=BASE_GNN_CLASS)
 
     def pass_gnn(self, x, example, graph):
         return self.gnn(x, graph=graph)

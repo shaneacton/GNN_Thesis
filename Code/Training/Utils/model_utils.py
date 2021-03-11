@@ -9,6 +9,7 @@ from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model
 from Code.HDE.hde_bert import HDEBert
 from Code.HDE.hde_cannon import HDECannon
 from Code.HDE.hde_glove import HDEGlove
+from Code.HDE.hde_rel import HDERel
 from Code.Pooling.hde_pool import HDEPool
 from Code.Training import device
 from Code.Training.Utils.training_utils import get_exponential_schedule_with_warmup
@@ -16,7 +17,7 @@ from Config.config import conf, get_config
 from Viz import wandb_utils
 from Viz.wandb_utils import use_wandb
 
-MODEL_MAP = {"HDECannon": HDECannon, "HDEBert": HDEBert, "HDEGlove": HDEGlove, "HDEPool": HDEPool}
+MODEL_MAP = {"HDECannon": HDECannon, "HDEBert": HDEBert, "HDEGlove": HDEGlove, "HDEPool": HDEPool, "HDERel": HDERel}
 GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv}
 
 

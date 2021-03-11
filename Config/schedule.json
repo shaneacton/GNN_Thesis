@@ -1,6 +1,6 @@
 {
   "num_repeats": 2,
-  "model_configs": ["hde_cannon", "hde_sage"],
+  "model_configs": ["hde_cannon", "hde_sage", "hde_gat", "hde_rel_summ", "hde_gate"],
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"}
 }
