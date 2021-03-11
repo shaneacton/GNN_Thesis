@@ -1,5 +1,3 @@
-PROP_AND_POOL = "prop_and_pool"
-LAYER_TYPE = "layer_type"
 NUM_LAYERS = "num_layers"
 NUM_FEATURES = "num_features"
 SAME_WEIGHT_REPEATS = "same_weight_repeats"
@@ -15,7 +13,6 @@ HEADS = "heads"
 ACTIVATION_TYPE = "activation_type"
 ACTIVATION_ARGS = "activation_args"
 NEGATIVE_SLOPE = "negative_slope"  # for Leaky_Relu
-DROPOUT_RATIO = "dropout_ratio"
 NUM_LINEAR_LAYERS = "num_linear_layers"
 PROPAGATION_TYPE = "prop_type"
 POOL_TYPE = "pool_type"

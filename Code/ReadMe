@@ -14,9 +14,11 @@ Todo:
 
 
 * General:
+    * add dropout to output model
     * fix local loss viz
     * fix num params reporting on wandb
     * fix single run function
+    * set finished to true when done with a run
     * move wandb folder out of HDE
     * play with non lins, regs
     * make relational hde
@@ -24,7 +26,6 @@ Todo:
 
 
 * Tests:
-    * isolation tests for gating and relational gnn
     * no type 7 edges
     * 2L transformers
     * 2,4L GNN

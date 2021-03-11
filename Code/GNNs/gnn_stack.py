@@ -11,6 +11,8 @@ class GNNStack(nn.Module):
     def __init__(self, GNNClass, use_gating=False, **layer_kwargs):
         super().__init__()
         layers = []
+        if "dropout" not in layer_kwargs:
+            layer_kwargs.update({"dropout": conf.dropout})
         for layer_i in range(conf.num_layers):
             in_size = conf.embedded_dims if layer_i == 0 else conf.hidden_size
             layer = GNNLayer(GNNClass, in_size, **layer_kwargs)
