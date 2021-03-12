@@ -1,6 +1,20 @@
 {
-  "num_repeats": 2,
-  "model_configs": ["hde_cannon", "hde_sage", "hde_gat", "hde_rel_summ", "hde_gate", "hde_rel", "dropout2", "dropout4"],
+  "num_repeats": 1,
   "train_config": "standard_train",
-  "config_overrides": {"optimizer_type":  "adam"}
+  "config_overrides": {"optimizer_type":  "adam"},
+  "model_configs": [
+    "hde_cannon",
+    "hde_sage",
+    "hde_gat",
+    "hde_rel_summ",
+    "hde_gate",
+    "hde_rel",
+    "dropout2",
+    "dropout4",
+    "gnn_heads2",
+    "gnn_heads4",
+    "gnn_layers2",
+    "gnn_layers4",
+    "transformer_heads3"
+  ]
 }
