@@ -4,7 +4,7 @@ from statistics import mean
 
 from nlp import tqdm
 
-from Checkpoint.checkpoint_utils import save_model
+from Checkpoint.checkpoint_utils import save_model, set_status_value
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Embedding.bert_embedder import TooManyTokens
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
@@ -112,14 +112,20 @@ def train_model(name, gpu_num=0):
                 save_training_results(results, name)
                 save_time = time.time() - save_time
                 epoch_start_time += save_time
+
+                set_status_value(name, "completed_epochs", e_frac())
         model.last_example = -1
 
         print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
               "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - epoch_start_time))
 
         valid_acc = evaluate(model)
+        set_status_value(name, "completed_epochs", epoch)
+
         if use_wandb:
             wandb_run().log({"valid_acc": valid_acc, "epoch": epoch + 1})
         results["valid_accs"].append(valid_acc)
 
         plot_training_data(results, name, conf.print_loss_every, train_gen.num_examples)
+
+    set_status_value(name, "finished", True)

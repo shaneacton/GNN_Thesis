@@ -54,6 +54,12 @@ def loss_plot_path(name):
     return join(path, "losses.png")
 
 
+def set_status_value(model_name, key, value):
+    status = load_status(model_name)
+    status[key] = value
+    save_status(model_name, status)
+
+
 def load_status(name):
     path = training_status_path(name)
     with FileLock(path + ".lock"):
