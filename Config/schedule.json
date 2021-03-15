@@ -10,11 +10,11 @@
     "hde_gate",
     "hde_rel",
     "dropout2",
-    "dropout4",
     "gnn_heads2",
     "gnn_heads4",
-    "gnn_layers2",
+    "gnn_heads6",
     "gnn_layers4",
+    "gnn_layers5",
     "transformer_heads3"
   ]
 }

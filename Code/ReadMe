@@ -14,6 +14,8 @@ Todo:
 
 
 * General:
+    * end even earlier before saving model
+    * have backup save folders which can be loaded when the primary has failed
     * add dropout to output model
     * fix local loss viz
     * fix num params reporting on wandb
@@ -27,8 +29,10 @@ Todo:
 
 
 * Tests:
+    * use sum instead of first element for summarisation
     * no type 7 edges
     * 2L transformers
+    * test sum based summariser instead of first element only
     * 2,4L GNN
     * bert with only last layer tunable + dropout
     * adam

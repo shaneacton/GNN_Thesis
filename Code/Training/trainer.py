@@ -1,4 +1,3 @@
-import os
 import time
 from statistics import mean
 
@@ -10,8 +9,8 @@ from Code.Embedding.bert_embedder import TooManyTokens
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training import set_gpu
 from Code.Training.Utils.eval_utils import get_acc_and_f1
-from Code.Training.Utils.training_utils import plot_training_data, save_training_results, get_training_results
 from Code.Training.Utils.model_utils import get_model
+from Code.Training.Utils.training_utils import plot_training_data, save_training_results, get_training_results
 from Code.Training.eval import evaluate
 from Code.Training.graph_gen import GraphGenerator, SKIP
 from Config.config import conf
