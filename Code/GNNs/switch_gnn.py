@@ -12,6 +12,7 @@ class SwitchGNN(nn.Module):
     def __init__(self, in_size=None, hidden_size=None, BASE_GNN_CLASS=None, gnn=None, **layer_kwargs):
         super().__init__()
         self.include_global = conf.use_global_edge_message
+        self.hidden_size = hidden_size
         types = ['candidate2candidate', 'candidate2document', 'candidate2entity', 'codocument', 'comention', 'document2entity', 'entity']
         if gnn is None:
             gnn = BASE_GNN_CLASS(in_size, hidden_size, **layer_kwargs)

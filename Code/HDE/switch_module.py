@@ -1,6 +1,6 @@
 import copy
 
-from torch import nn, ModuleDict
+from torch import nn
 from torch.nn import ModuleList
 
 GLOBAL = "global"

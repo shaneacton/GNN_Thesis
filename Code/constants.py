@@ -33,7 +33,6 @@ CONNECTION_TYPE = "connection_type"
 WINDOW = "window"  # fully connects nodes which are within a max distance of each other
 SEQUENTIAL = "sequential"  # connects nodes to the next node at its structure level, within optional max distance
 WINDOW_SIZE = "window_size"  # an optional arg for both window and seq
-GLOBAL = "global"  # connects to all other nodes
 CONTEXT = "context"
 QUERY = "query"
 CANDIDATE = "candidate"

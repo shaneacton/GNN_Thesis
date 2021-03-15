@@ -1,7 +1,7 @@
 import torch
 from torch import nn, Tensor
 
-from Code.Training import device
+from Code.Training import dev
 from Config.config import conf
 
 
@@ -21,4 +21,4 @@ class PositionalEmbedder(nn.Module):
         return pos_embs
 
     def get_safe_pos_ids(self, length, ) -> Tensor:
-        return torch.tensor([i % self.max_positions for i in range(length)]).to(device())
+        return torch.tensor([i % self.max_positions for i in range(length)]).to(dev())

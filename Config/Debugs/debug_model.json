@@ -1,7 +1,10 @@
 {
   "model_name": "debug",
   "model_class": "HDEGlove",
+  "gnn_class": "GATConv",
   "embedded_dims": 100,
   "hidden_size": 100,
-  "transformer_heads": 5
+  "transformer_heads": 5,
+  "use_switch_summariser": true,
+  "use_global_summariser": true
 }

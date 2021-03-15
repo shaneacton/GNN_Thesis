@@ -20,17 +20,20 @@ Todo:
     * fix num params reporting on wandb
     * move wandb folder out of HDE
     * play with non lins, regs
-    * add type embs to global switch module
-        * get rid of the summariser/switch summariser distinction
+    * get rid of the summariser/switch summariser distinction
         * move type embs to switch module as an extra to the global module
         turn rel off by only using the global edge
 
 
 * Tests:
     * use sum instead of first element for summarisation
+    * layer norm after glove embs are added to pos embs.
+        * longformer does sum -> norm -> dropout
+        * layer norm and dropout in coattention during type embs
     * no type 7 edges
     * 2L transformers
     * test sum based summariser instead of first element only
+    * try using a summariser layer to combine the messages from different edge types instead of sum
     * 2,4L GNN
     * bert with only last layer tunable + dropout
     * adam

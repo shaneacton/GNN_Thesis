@@ -1,14 +1,15 @@
 from torch import nn
 from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 
-from Code.Transformers.transformer import Transformer
 from Code.HDE.switch_module import SwitchModule
+from Code.Transformers.transformer import Transformer
 from Config.config import conf
 
 
 class SwitchTransformer(nn.Module):
 
-    def __init__(self, hidden_size, num_layers, types=None, intermediate_fac=2, include_global=False):
+    def __init__(self, hidden_size, num_layers, types=None, intermediate_fac=2, include_global=False,
+                 use_type_embeddings=True):
         super().__init__()
         self.num_heads = conf.heads
         self.num_types = len(types)
@@ -21,6 +22,12 @@ class SwitchTransformer(nn.Module):
         encoder = TransformerEncoder(encoder_layer, num_layers, encoder_norm)
 
         self.switch_encoder = SwitchModule(encoder, types=types, include_global=include_global)
+
+        use_type_embeddings = use_type_embeddings and include_global
+        self.use_type_embeddings = use_type_embeddings
+        if use_type_embeddings:
+            self.type_embedder = nn.Embedding(len(types) - 1, hidden_size)
+            self.type_emb_norm = LayerNorm(hidden_size)
 
     def get_type_tensor(self, type, length, type_map):
         ids = Transformer.get_type_ids(type, length, type_map)

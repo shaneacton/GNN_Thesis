@@ -4,7 +4,7 @@ _device = torch.device("cuda:0")
 # _device = torch.device("cpu")
 
 
-def device():
+def dev():
     return _device
 
 

@@ -11,7 +11,7 @@ from Code.HDE.hde_cannon import HDECannon
 from Code.HDE.hde_glove import HDEGlove
 from Code.HDE.hde_rel import HDERel
 from Code.Pooling.hde_pool import HDEPool
-from Code.Training import device
+from Code.Training import dev
 from Code.Training.Utils.training_utils import get_exponential_schedule_with_warmup
 from Config.config import conf, get_config
 from Viz import wandb_utils
@@ -39,13 +39,13 @@ def continue_model(name, backup=False):
     try:
         path = model_path(name)
         checkpoint = torch.load(path)
-        hde = checkpoint["model"].to(device())
+        hde = checkpoint["model"].to(dev())
         optimizer = get_optimizer(hde, type=conf.optimizer_type)
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         scheduler = get_exponential_schedule_with_warmup(optimizer)
         scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
         print("loading checkpoint model", hde.name, "at:", path, "e:", hde.last_epoch, "i:", hde.last_example,
-              "with", num_params(hde), "trainable params, on device:", device(), "process:", os.getpid())
+              "with", num_params(hde), "trainable params, on device:", dev(), "process:", os.getpid())
         print(hde)
 
         cfg = load_json_data(model_config_path(name))
@@ -65,7 +65,7 @@ def continue_model(name, backup=False):
 
 
 def new_model(name, MODEL_CLASS=None, **model_kwargs):
-    hde = MODEL_CLASS(**model_kwargs).to(device())
+    hde = MODEL_CLASS(**model_kwargs).to(dev())
 
     optimizer = get_optimizer(hde, type=get_config().optimizer_type)
     scheduler = get_exponential_schedule_with_warmup(optimizer)
@@ -73,7 +73,7 @@ def new_model(name, MODEL_CLASS=None, **model_kwargs):
         wandb_utils.new_run(get_config().model_name)
 
     save_json_data(get_config().cfg, model_config_path(name))
-    print("inited model", hde.name, "with:", num_params(hde), "trainable params, on device:", device(), "process:", os.getpid())
+    print("inited model", hde.name, "with:", num_params(hde), "trainable params, on device:", dev(), "process:", os.getpid())
     print(hde)
     return hde, optimizer, scheduler
 

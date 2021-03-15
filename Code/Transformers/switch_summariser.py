@@ -1,11 +1,15 @@
 from typing import List
 
+import torch
 from torch import Tensor
 from transformers import TokenSpan
+import numpy as np
 
+from Code.HDE.switch_module import GLOBAL
+from Code.Training import dev
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_transformer import SwitchTransformer
-from Code.constants import CANDIDATE, ENTITY, DOCUMENT, GLOBAL
+from Code.constants import CANDIDATE, ENTITY, DOCUMENT
 from Config.config import conf
 
 NODE_TYPE_MAP = {ENTITY: 0, DOCUMENT: 1, CANDIDATE: 2}
@@ -31,9 +35,16 @@ class SwitchSummariser(SwitchTransformer):
         extracts = [Summariser.get_vec_extract(v, spans[i]).view(-1, self.hidden_size) for i, v in enumerate(vecs)]
         # print("switch extracts:", [e.size() for e in extracts])
         batch, masks = Summariser.pad(extracts)
+
         enc = self.switch_encoder(batch, src_key_padding_mask=masks, type=_type).transpose(0, 1)
         if self.include_global:
-            glob_enc = self.switch_encoder(batch, src_key_padding_mask=masks, type=GLOBAL).transpose(0, 1)
+            ids = np.ones((batch.size(0), batch.size(1)))
+            ids = torch.tensor(ids).to(dev()).long()
+            type_embs = self.type_embedder(ids)
+            assert type_embs.size() == batch.size()
+            glob_batch = self.type_emb_norm(batch + type_embs)
+
+            glob_enc = self.switch_encoder(glob_batch, src_key_padding_mask=masks, type=GLOBAL).transpose(0, 1)
             enc += glob_enc
         # print("summ batch:", batch.size(), "num vecs:", len(vecs))
         summaries = enc[:, 0, :]  # (ents, hidd)

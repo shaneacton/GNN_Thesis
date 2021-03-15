@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 from torch.nn.utils.rnn import pad_sequence
 
-from Code.Training import device
+from Code.Training import dev
 from Config.config import conf
 
 
@@ -15,7 +15,8 @@ class Transformer(nn.Module):
         self.use_type_embeddings = use_type_embeddings
         self.num_types = num_types
         self.hidden_size = hidden_size
-        self.type_embedder = nn.Embedding(num_types, self.hidden_size)
+        if use_type_embeddings:
+            self.type_embedder = nn.Embedding(num_types, self.hidden_size)
 
         encoder_layer = TransformerEncoderLayer(self.hidden_size, conf.transformer_heads,
                                                 self.hidden_size * intermediate_fac, conf.dropout, 'relu')
@@ -25,7 +26,7 @@ class Transformer(nn.Module):
     @staticmethod
     def get_type_ids(type, length, type_map):
         type_id = type_map[type]
-        type_ids = torch.tensor([type_id for _ in range(length)]).long().to(device())
+        type_ids = torch.tensor([type_id for _ in range(length)]).long().to(dev())
         return type_ids
 
     def get_type_tensor(self, type, length, type_map):
@@ -41,7 +42,7 @@ class Transformer(nn.Module):
         lengths = [ex.size(-2) for ex in vecs]
         max_len = max(lengths)
         masks = [[False] * size + [True] * (max_len - size) for size in lengths]
-        masks = torch.tensor(masks).to(device())
+        masks = torch.tensor(masks).to(dev())
         batch = pad_sequence(vecs, batch_first=False)
 
         # print("mask:", masks.size(), masks)

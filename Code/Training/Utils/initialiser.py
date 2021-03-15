@@ -2,7 +2,7 @@ import torch
 from transformers import LongformerConfig, LongformerTokenizerFast, LongformerModel, \
     TrainingArguments, Trainer, T5Config
 
-from Code.Training import device
+from Code.Training import dev
 
 FEATURES = 402
 INTERMEDIATE_FEATURES = 600
@@ -26,7 +26,7 @@ def get_trainer(model, outdir, train_dataset, valid_dataset):
     train_args.evaluation_strategy = "no"
     # train_args.eval_steps = 2000
     train_args.do_train = True                                                                                                                                                                                                                                                                                                                                                                              
-    train_args.no_cuda = device == torch.device("cpu")
+    train_args.no_cuda = dev == torch.device("cpu")
 
     train_args.save_steps = 250
     train_args.overwrite_output_dir = True

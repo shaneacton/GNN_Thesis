@@ -8,7 +8,7 @@ import pathlib
 
 from Code.Embedding.positional_embedder import PositionalEmbedder
 from Code.Embedding.string_embedder import StringEmbedder
-from Code.Training import device
+from Code.Training import dev
 from Config.config import conf
 
 
@@ -70,7 +70,7 @@ class GloveEmbedder(StringEmbedder):
 
         seq_len = len(embs)
         embs = torch.cat(embs, dim=0).view(1, seq_len, -1)
-        embs = embs.to(device())
+        embs = embs.to(dev())
         if self.use_positional_embeddings:
             pos_embs = self.positional_embedder.get_pos_embs(seq_len)
             embs += pos_embs

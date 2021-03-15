@@ -4,7 +4,7 @@ from typing import List, TYPE_CHECKING, Dict, Generator, Tuple, Set
 
 import torch
 
-from Code.Training import device
+from Code.Training import dev
 from Code.constants import ENTITY, DOCUMENT, CANDIDATE
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ class HDEGraph:
                     continue
             froms += [e.from_id, e.to_id]
             tos += [e.to_id, e.from_id]
-        return torch.tensor([froms, tos]).to(device()).long()
+        return torch.tensor([froms, tos]).to(dev()).long()
 
     def edge_types(self):
         types = sorted(list(set([edge.type() for edge in self.ordered_edges])))
@@ -46,7 +46,7 @@ class HDEGraph:
         for edge in self.ordered_edges:
             type_id = edge_type_map[edge.type()]
             type_ids.append(type_id)
-        return torch.tensor(type_ids).to(device()).long()
+        return torch.tensor(type_ids).to(dev()).long()
 
     def add_node(self, node: HDENode) -> int:
         next_id = len(self.ordered_nodes)
