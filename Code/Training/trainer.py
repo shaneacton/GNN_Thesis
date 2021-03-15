@@ -1,9 +1,10 @@
 import time
+from math import floor
 from statistics import mean
 
 from nlp import tqdm
 
-from Checkpoint.checkpoint_utils import save_model, set_status_value
+from Checkpoint.checkpoint_utils import save_model, set_status_value, duplicate_checkpoint_folder
 from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Embedding.bert_embedder import TooManyTokens
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
@@ -101,18 +102,8 @@ def train_model(name, gpu_num=0):
                     wandb_run().log({"loss": mean_loss, "train_acc": acc, "epoch": e_frac()})
 
             if len(losses) % conf.checkpoint_every == 0:  # save model and data
-                save_time = time.time()
-                print("saving model at e", epoch, "i:", i)
-                model.last_example = i
-                model.last_epoch = epoch
-
-                save_model(model, optimizer, scheduler)
-                plot_training_data(results, name, conf.print_loss_every, train_gen.num_examples)
-                save_training_results(results, name)
-                save_time = time.time() - save_time
-                epoch_start_time += save_time
-
-                set_status_value(name, "completed_epochs", e_frac())
+                epoch_start_time = save_training_states(e_frac(), epoch_start_time, i, model, name, optimizer, results,
+                                                        scheduler, start_time, train_gen.num_examples)
         model.last_example = -1
 
         print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
@@ -128,3 +119,24 @@ def train_model(name, gpu_num=0):
         plot_training_data(results, name, conf.print_loss_every, train_gen.num_examples)
 
     set_status_value(name, "finished", True)
+
+
+def save_training_states(epoch, epoch_start_time, i, model, name, optimizer, results, scheduler, start_time, num_examples):
+    if time.time() - start_time + 5 * 60 > conf.max_runtime_seconds != -1:
+        # end 5m early before saving, as this can take long enough to send us over the max runtime
+        print("reached max run time. shutting down so the program can exit safely")
+        exit()
+    save_time = time.time()
+    print("saving model at e", epoch, "i:", i)
+    model.last_example = i
+    model.last_epoch = floor(epoch)
+    save_model(model, optimizer, scheduler)
+    plot_training_data(results, name, conf.print_loss_every, num_examples)
+    save_training_results(results, name)
+    save_time = time.time() - save_time
+    epoch_start_time += save_time
+    set_status_value(name, "completed_epochs", epoch)
+    """upon successful saving. make a backup so that if the next save fails, we can continue from here next time"""
+    duplicate_checkpoint_folder(name)
+
+    return epoch_start_time

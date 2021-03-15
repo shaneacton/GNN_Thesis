@@ -5,7 +5,7 @@ import torch
 from torch_geometric.nn import GATConv, SAGEConv
 
 from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
-    load_json_data
+    load_json_data, restore_from_backup_folder
 from Code.HDE.hde_bert import HDEBert
 from Code.HDE.hde_cannon import HDECannon
 from Code.HDE.hde_glove import HDEGlove
@@ -34,7 +34,7 @@ def get_model(name, MODEL_CLASS=None, **model_kwargs):
     return hde, optimizer, scheduler
 
 
-def continue_model(name):
+def continue_model(name, backup=False):
     hde, optimizer, scheduler = None, None, None
     try:
         path = model_path(name)
@@ -51,10 +51,15 @@ def continue_model(name):
         cfg = load_json_data(model_config_path(name))
         if use_wandb:
             wandb_utils.continue_run(cfg["wandb_id"], cfg["model_name"])
-
     except Exception as e:
-        print(e)
         print("cannot load model at", path)
+        print("mode error:", e)
+        """we will delete this checkpoint folder as it has corrupted"""
+
+        if not backup:
+            print("trying backup")
+            restore_from_backup_folder(name)
+            return continue_model(name, backup=True)
 
     return hde, optimizer, scheduler
 

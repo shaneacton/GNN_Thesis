@@ -2,7 +2,7 @@ from Config.config import conf, get_config
 
 try:
     import wandb
-    use_wandb = True
+    use_wandb = conf.use_wandb
 except Exception as e:
     print("wandb error:", e)
     use_wandb = False
