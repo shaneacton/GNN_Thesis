@@ -6,5 +6,6 @@
   "hidden_size": 100,
   "transformer_heads": 5,
   "use_switch_summariser": true,
-  "use_global_summariser": true
+  "use_global_summariser": true,
+  "use_simple_gnn": true
 }

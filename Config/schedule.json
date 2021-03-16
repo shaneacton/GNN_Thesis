@@ -4,10 +4,11 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "hde_rel_av_summ",
+    "hde_simple_gnn",
+    "hde_rel_summ_glob",
     "hde_sage",
     "hde_gat",
     "hde_rel_summ",
-    "hde_gate",
     "gnn_heads4",
     "gnn_heads6",
     "gnn_layers4",
