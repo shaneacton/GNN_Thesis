@@ -7,12 +7,9 @@
     "hde_gat",
     "hde_rel_summ",
     "hde_gate",
-    "dropout2",
     "gnn_heads4",
     "gnn_heads6",
     "gnn_layers4",
-    "gnn_layers5",
-    "gnn_layers6",
-    "transformer_heads3"
+    "gnn_layers5"
   ]
 }
