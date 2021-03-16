@@ -3,18 +3,16 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "hde_cannon",
     "hde_sage",
     "hde_gat",
     "hde_rel_summ",
     "hde_gate",
-    "hde_rel",
     "dropout2",
-    "gnn_heads2",
     "gnn_heads4",
     "gnn_heads6",
     "gnn_layers4",
     "gnn_layers5",
+    "gnn_layers6",
     "transformer_heads3"
   ]
 }
