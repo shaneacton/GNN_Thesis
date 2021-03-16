@@ -47,6 +47,10 @@ class SwitchSummariser(SwitchTransformer):
             glob_enc = self.switch_encoder(glob_batch, src_key_padding_mask=masks, type=GLOBAL).transpose(0, 1)
             enc += glob_enc
         # print("summ batch:", batch.size(), "num vecs:", len(vecs))
-        summaries = enc[:, 0, :]  # (ents, hidd)
+        if conf.use_average_summariser:
+            num_tokens = enc.size(1)
+            summaries = torch.sum(enc, dim=1) / num_tokens  # (ents, hidd)
+        else:
+            summaries = enc[:, 0, :]  # (ents, hidd)
         summaries = summaries.split(dim=0, split_size=1)
         return list(summaries)

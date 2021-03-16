@@ -1,5 +1,6 @@
 from typing import List
 
+import torch
 from torch import Tensor
 from transformers import TokenSpan
 
@@ -43,6 +44,10 @@ class Summariser(Transformer):
         batch, masks = self.pad(extracts)
         batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)
 
-        summaries = batch[:, 0, :]  # (ents, hidd)
+        if conf.use_average_summariser:
+            num_tokens = batch.size(1)
+            summaries = torch.sum(batch, dim=1) / num_tokens  # (ents, hidd)
+        else:
+            summaries = batch[:, 0, :]  # (ents, hidd)
         summaries = summaries.split(dim=0, split_size=1)
         return list(summaries)

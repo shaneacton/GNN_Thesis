@@ -3,6 +3,7 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
+    "hde_rel_av_summ",
     "hde_sage",
     "hde_gat",
     "hde_rel_summ",

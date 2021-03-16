@@ -18,5 +18,6 @@
   "use_global_edge_message": false,
   "use_global_summariser": false,
   "use_switch_summariser": false,
+  "use_average_summariser": false,
   "wandb_id": -1
 }
