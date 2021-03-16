@@ -68,3 +68,37 @@ class GNNLayer(nn.Module):
         x = self.norm2(x)
 
         return x
+    
+    
+class SimpleGNNLayer(nn.Module):
+    def __init__(self, GNNClass, in_channels, intermediate_fac=2, **layer_kwargs):
+        super().__init__()
+        self.in_channels = in_channels
+        self.hidden_size = conf.hidden_size
+        if "heads" in layer_kwargs:
+            self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **layer_kwargs)
+        else:
+            self.gnn = GNNClass(in_channels, conf.hidden_size, **layer_kwargs)
+
+        self.linear1 = Linear(conf.hidden_size, conf.hidden_size * intermediate_fac)
+        self.dropout = Dropout(conf.dropout)
+        self.linear2 = Linear(conf.hidden_size * intermediate_fac, conf.hidden_size)
+
+        self.norm1 = LayerNorm(conf.hidden_size)
+        self.norm2 = LayerNorm(conf.hidden_size)
+        self.dropout1 = Dropout(conf.dropout)
+        self.dropout2 = Dropout(conf.dropout)
+
+    def forward(self, x, **kwargs):
+        "x ~ (N, in_channels)"
+        x2 = self.dropout1(self.gnn(x, **kwargs))  # # (N, out_channels)
+        if x.size(-1) == x2.size(-1):
+            x = x + x2  # residual
+            x = self.norm1(x)
+        else:  # no residual if this layer is changing the model dim
+            x = self.norm1(x2)
+        x2 = self.linear2(self.dropout(torch.relu(self.linear1(x))))
+        x = x + self.dropout2(x2)  # residual
+        x = self.norm2(x)
+
+        return x

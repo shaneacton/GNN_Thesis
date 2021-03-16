@@ -105,8 +105,12 @@ def get_new_training_status():
 
 
 def load_json_data(path):
-    with open(path, "r") as f:
-        data = json.load(f)
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+    except Exception as e:
+        print("error loading json data at:", path)
+        raise e
     return data
 
 
