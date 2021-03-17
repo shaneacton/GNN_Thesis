@@ -3,11 +3,10 @@ import atexit
 import os
 import sys
 import time
-import torch.multiprocessing as mp
-from torch.multiprocessing import Process, set_start_method
 from os.path import join, exists
 
 import torch
+import torch.multiprocessing as mp
 from filelock import FileLock
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -95,7 +94,6 @@ def get_next_model_config(schedule, repeat_num=0):
             print("starting conf:", selected)
         else:
             min_epochs = 999999999
-            best_candidate = None
             for s in started:
                 """find the in-progress run with the fewest epochs completed"""
                 status = get_safe_status(model_names[s])
@@ -104,8 +102,7 @@ def get_next_model_config(schedule, repeat_num=0):
                     completed_epochs = status["completed_epochs"]
                     if completed_epochs < min_epochs:
                         min_epochs = completed_epochs
-                        best_candidate = s
-                selected = best_candidate
+                        selected = s
 
             if selected is not None:
                 """set the status to running"""

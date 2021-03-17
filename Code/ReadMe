@@ -1,6 +1,6 @@
 Todo:
 
-*ensure non linearities separate each transformation
+* ensure non linearities separate each transformation
 
 
 * Transformers:
@@ -9,21 +9,17 @@ Todo:
 
 * GNNs
     * switch additive attention for dot-product
-    * edge info
-
 
 
 * General:
-    * make option to use simple gnn layer
+    * add clean model name to config.
+    * fix scheduler order. doesn't seem to be picking fewest epochs
     * fix single run function
     * fix local loss viz
     * fix num params reporting on wandb
-    * move wandb folder out of HDE
     * play with non lins, regs
     * get rid of the summariser/switch summariser distinction
-        * move type embs to switch module as an extra to the global module
         turn rel off by only using the global edge
-
     * add dropout to output model
 
 
@@ -45,8 +41,8 @@ Todo:
 * house keeping:
     * ssh keygen for viz
     * count discarded examples
-    * rename .data to .training_data
-        * fix bug where a valid acc can be double included
+    * fix bug where a valid acc can be double included
+    * move wandb folder out of HDE
 
 
 
