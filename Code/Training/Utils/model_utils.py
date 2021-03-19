@@ -38,7 +38,7 @@ def continue_model(name, backup=False):
     hde, optimizer, scheduler = None, None, None
     try:
         path = model_path(name)
-        checkpoint = torch.load(path)
+        checkpoint = torch.load(path, map_location=dev())
         hde = checkpoint["model"].to(dev())
         optimizer = get_optimizer(hde, type=conf.optimizer_type)
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
