@@ -1,3 +1,5 @@
+import copy
+
 import torch
 from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
@@ -10,27 +12,34 @@ class GNNStack(nn.Module):
 
     def __init__(self, GNNClass, use_gating=False, **layer_kwargs):
         super().__init__()
+        layers = self.get_layers(GNNClass, layer_kwargs, use_gating)
+        self.layers = ModuleList(layers)
+
+    def get_layers(self, GNNClass, layer_kwargs, use_gating):
         layers = []
         if "dropout" not in layer_kwargs:
             init_args = GNNClass.__init__.__code__.co_varnames
             print("init args:", init_args)
             if "BASE_GNN_CLASS" in init_args:
                 base_args = layer_kwargs["BASE_GNN_CLASS"].__init__.__code__.co_varnames
-                if "dropout" in init_args:
+                if "dropout" in base_args:
                     layer_kwargs.update({"dropout": conf.dropout})
             elif "dropout" in init_args:
                 layer_kwargs.update({"dropout": conf.dropout})
         for layer_i in range(conf.num_layers):
+            if conf.layerwise_weight_sharing and layer_i > 0:
+                """copy by reference so the layers share the same params"""
+                layers.append(layers[0])
+                break
+
             in_size = conf.embedded_dims if layer_i == 0 else conf.hidden_size
-            if conf.use_simple_gnn:
-                layer = SimpleGNNLayer(GNNClass, in_size, **layer_kwargs)
-            else:
-                layer = GNNLayer(GNNClass, in_size, **layer_kwargs)
+            LayerWrapper = SimpleGNNLayer if conf.use_simple_gnn else GNNLayer
+            layer = LayerWrapper(GNNClass, in_size, **layer_kwargs)
+
             if use_gating:
                 layer = GatedGNN(layer)
             layers.append(layer)
-
-        self.layers = ModuleList(layers)
+        return layers
 
     def forward(self, x, **kwargs):
         for layer in self.layers:

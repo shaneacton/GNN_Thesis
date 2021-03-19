@@ -4,6 +4,7 @@
   "gnn_class": "GATConv",
   "use_gating": false,
   "use_simple_gnn": false,
+  "layerwise_weight_sharing": false,
   "num_layers": 3,
   "num_summariser_layers": 1,
   "num_coattention_layers": 1,

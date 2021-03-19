@@ -37,6 +37,7 @@ Todo:
     * add more layer norms
 
 * house keeping:
+    * add running status info to wandb config
     * ssh keygen for viz
     * count discarded examples
     * fix bug where a valid acc can be double included
