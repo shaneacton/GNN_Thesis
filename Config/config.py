@@ -16,6 +16,7 @@ class Config:
         self.cfg["num_output_params"] = -1
 
         self.cfg["num_total_params"] = -1
+        self.cfg["clean_model_name"] = ""
 
         for k, v in self.cfg.items():
             self.__setattr__(k, v)

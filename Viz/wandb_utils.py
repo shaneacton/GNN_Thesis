@@ -40,5 +40,5 @@ def continue_run(id, model_name=conf.model_name):
         raise Exception("cannot continue wandb run. no valid  run id")
     global _wandb_run
     print("continuing wandb run, id=", id)
-    _wandb_run = wandb.init(project="gnn_thesis", entity="shaneacton", config=conf, resume=True, name=model_name, id=id)
+    _wandb_run = wandb.init(project="gnn_thesis", entity="shaneacton", config=get_config().cfg, resume=True, name=model_name, id=id)
     return _wandb_run

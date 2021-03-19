@@ -49,6 +49,7 @@ def continue_model(name, backup=False):
         print(hde)
 
         cfg = load_json_data(model_config_path(name))
+        get_config().cfg = cfg
         if use_wandb:
             wandb_utils.continue_run(cfg["wandb_id"], cfg["model_name"])
     except Exception as e:

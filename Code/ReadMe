@@ -12,11 +12,9 @@ Todo:
 
 
 * General:
-    * add clean model name to config.
     * fix scheduler order. doesn't seem to be picking fewest epochs
     * fix single run function
     * fix local loss viz
-    * fix num params reporting on wandb
     * play with non lins, regs
     * get rid of the summariser/switch summariser distinction
         turn rel off by only using the global edge

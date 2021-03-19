@@ -41,6 +41,7 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0):
     from Config.config import conf
     from Code.Training.trainer import train_model
     model_name = effective_name(conf.model_name, repeat_num)
+    conf.set("clean_model_name", conf.model_name)
     conf.set("model_name", model_name)
     atexit.register(release_status)
     train_model(conf.model_name, gpu_num=gpu_num)
