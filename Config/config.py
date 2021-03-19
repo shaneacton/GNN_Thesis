@@ -28,9 +28,14 @@ class Config:
         setattr(self, att_name, value)
         self.cfg[att_name] = value
 
+
 conf = None
 
+
 def get_config():
+    global conf
+    if conf is None:
+        set_conf_files()
     return conf
 
 
@@ -40,7 +45,6 @@ def set_conf_files(model_cfg_name="base", train_cfg_name="standard_train"):
 
 
 if __name__ == "__main__":
-
     conf = Config("base", "debug_train")
     print(conf.max_visualised_candidates)
     print(conf.checkpoint_every)

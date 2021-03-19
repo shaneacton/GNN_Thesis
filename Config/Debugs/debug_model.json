@@ -1,5 +1,5 @@
 {
-  "model_name": "normal",
+  "model_name": "debug",
   "model_class": "HDEGlove",
   "gnn_class": "GATConv",
   "embedded_dims": 100,

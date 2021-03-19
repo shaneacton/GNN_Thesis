@@ -9,5 +9,5 @@
   "print_times": false,
   "use_lr_scheduler": false,
   "num_layers": 2,
-  "use_wandb": true
+  "use_wandb": false
 }

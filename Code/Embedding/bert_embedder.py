@@ -3,7 +3,7 @@ from transformers import AutoTokenizer, AutoModel
 
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.Training import dev
-from Config.config import conf
+from Config.config import get_config
 
 
 class BertEmbedder(StringEmbedder):
@@ -18,19 +18,39 @@ class BertEmbedder(StringEmbedder):
 
     def __init__(self):
         super().__init__()
-        self.size = conf.bert_size
-        self.fine_tune = conf.fine_tune_embedder
+        self.size = get_config().bert_size
+        self.fine_tune = get_config().fine_tune_embedder
         model_name = "prajjwal1/bert-" + self.size
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
         self.dims = self.model.config.hidden_size
+        if self.dims != get_config().embedded_dims:
+            raise Exception("conf embedded dims wrong. bert embedder=" + str(self.dims) + " conf=" + str(get_config().embedded_dims))
+
+        self.set_trainable_params()
         from Code.Training.Utils.model_utils import num_params
         print("Loaded bert model with", self.dims, "dims and ", num_params(self), ("trainable" if self.fine_tune else "static"), "params")
-        if self.dims != conf.embedded_dims:
-            raise Exception("conf embedded dims wrong. bert embedder=" + str(self.dims) + " conf=" + str(conf.embedded_dims))
+
+    def set_trainable_params(self):
+        def is_in_fine_tune_list(name):
+            if name is "":  # full model is off by default
+                return False
+
+            for l in bert_fine_tune_layers:
+                if l in name:
+                    return True
+            return False
 
         for param in self.model.parameters():
-            param.requires_grad = self.fine_tune
+            """all params are turned off. then we selectively reactivate grads"""
+            param.requires_grad = False
+        if self.fine_tune:
+            bert_fine_tune_layers = get_config().bert_fine_tune_layers
+            for n, m in self.model.named_modules():
+                if not is_in_fine_tune_list(n):
+                    continue
+                for param in m.parameters():
+                    param.requires_grad = True
 
     def embed(self, string):
         encoding = self.tokenizer(string, return_tensors="pt")
@@ -53,12 +73,10 @@ class BertEmbedder(StringEmbedder):
         # print("last:", last_hidden_state.size())
         return last_hidden_state
 
-    def get_windowed_attention(self, input_ids):
-        length = input_ids.size(-1)
-
 
 class TooManyTokens(Exception):
     pass
+
 
 if __name__ == "__main__":
     embedder = BertEmbedder()

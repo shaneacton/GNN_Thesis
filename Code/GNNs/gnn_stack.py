@@ -1,5 +1,3 @@
-import copy
-
 import torch
 from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
@@ -10,10 +8,13 @@ from Config.config import conf
 
 class GNNStack(nn.Module):
 
-    def __init__(self, GNNClass, use_gating=False, **layer_kwargs):
+    def __init__(self, GNNClass, use_gating=False, activation_class=None, **layer_kwargs):
         super().__init__()
         layers = self.get_layers(GNNClass, layer_kwargs, use_gating)
         self.layers = ModuleList(layers)
+        self.act = None
+        if activation_class is not None:
+            self.act = activation_class()
 
     def get_layers(self, GNNClass, layer_kwargs, use_gating):
         layers = []
@@ -44,6 +45,8 @@ class GNNStack(nn.Module):
     def forward(self, x, **kwargs):
         for layer in self.layers:
             x = layer(x, **kwargs)
+            # if self.act is not None:
+            #     x = self.act(x)
         return x
 
 
@@ -68,7 +71,7 @@ class GNNLayer(nn.Module):
         self.dropout2 = Dropout(conf.dropout)
 
     def forward(self, x, **kwargs):
-        "x ~ (N, in_channels)"
+        """x ~ (N, in_channels)"""
         x2 = self.dropout1(self.gnn(x, **kwargs))  # # (N, out_channels)
         if x.size(-1) == x2.size(-1):
             x = x + x2  # residual
@@ -83,7 +86,7 @@ class GNNLayer(nn.Module):
     
     
 class SimpleGNNLayer(nn.Module):
-    def __init__(self, GNNClass, in_channels, intermediate_fac=2, **layer_kwargs):
+    def __init__(self, GNNClass, in_channels, **layer_kwargs):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_size = conf.hidden_size

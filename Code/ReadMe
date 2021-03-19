@@ -1,48 +1,42 @@
 Todo:
 
-* ensure non linearities separate each transformation
-
-
-* Transformers:
-    * add a classification embedding to the summariser
-
 
 * GNNs
     * switch additive attention for dot-product
 
 
 * General:
-    * fix scheduler order. doesn't seem to be picking fewest epochs
-    * fix single run function
-    * fix local loss viz
-    * play with non lins, regs
-    * get rid of the summariser/switch summariser distinction
-        turn rel off by only using the global edge
+    * ensure non linearities separate each transformation
     * add dropout to output model
 
 
+* Edges:
+    * allow edge types to be ignored by full system
+    * try using a summariser layer to combine the messages from different edge types instead of sum
+
 
 * Tests:
-    * use sum instead of first element for summarisation
-    * layer norm after glove embs are added to pos embs.
+    * add an activation between gnn layers
+    * add more layer norms
+        * layer norm after glove embs are added to pos embs.
         * longformer does sum -> norm -> dropout
         * layer norm and dropout in coattention during type embs
-    * no type 7 edges
-    * 2L transformers
-    * test sum based summariser instead of first element only
-    * try using a summariser layer to combine the messages from different edge types instead of sum
-    * 2,4L GNN
     * bert with only last layer tunable + dropout
     * adam
-    * add more layer norms
+
+
+* Fixes
+    * fix single run function
+    * fix local loss viz
+
 
 * house keeping:
     * add running status info to wandb config
     * ssh keygen for viz
     * count discarded examples
-    * fix bug where a valid acc can be double included
     * move wandb folder out of HDE
-
+    * get rid of the summariser/switch summariser distinction
+        turn rel off by only using the global edge
 
 
 
