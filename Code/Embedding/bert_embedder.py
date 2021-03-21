@@ -60,7 +60,7 @@ class BertEmbedder(StringEmbedder):
         if input_ids.size(-1) > 512:
             # return self.get_windowed_attention(input_ids)
             raise TooManyTokens("too many tokens:", input_ids.size(-1))
-        attention_mask = encoding["attention_mask"].to(dev())
+        # attention_mask = encoding["attention_mask"].to(dev())
         # print("input ids:", input_ids.size())
         if self.fine_tune:
             out = self.model(input_ids=input_ids)#, attention_mask=attention_mask)

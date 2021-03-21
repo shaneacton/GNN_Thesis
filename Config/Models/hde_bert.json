@@ -1,0 +1,12 @@
+{
+  "model_class": "HDEBert",
+  "fine_tune_embedder": true,
+  "bert_size": "small",
+  "bert_fine_tune_layers": ["embeddings", "pooler", "LayerNorm"],
+  "hidden_size": 512,
+  "embedded_dims": 512,
+  "transformer_heads": 8,
+  "max_edges": 320000,
+  "max_pad_volume": 40000,
+  "max_accumulated_edges": 250000
+}
