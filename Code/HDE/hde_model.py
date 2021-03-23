@@ -83,6 +83,8 @@ class HDEModel(nn.Module):
         num_edges = len(graph.unique_edges)
         if num_edges > conf.max_edges != -1:
             raise TooManyEdges()
+        if conf.show_memory_usage_data:
+            print("num edges:", num_edges)
 
         x = self.pass_gnn(x, example, graph)
         if isinstance(x, Tuple):
@@ -180,6 +182,8 @@ class HDEModel(nn.Module):
         pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
         if pad_volume > conf.max_pad_volume:
             raise PadVolumeOverflow()
+        if conf.show_memory_usage_data:
+            print("documents padded volume:", pad_volume)
         # print("pad vol:", pad_volume)
         query_emb = self.embedder(query)
         support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)

@@ -11,6 +11,7 @@
   "max_pad_volume": 45000,
   "max_context_chars": -1,
   "print_times": false,
+  "show_memory_usage_data": false,
   "visualise_graphs": false,
   "exit_after_first_viz": true,
   "max_visualised_context_graph_chars": 200,

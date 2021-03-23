@@ -85,6 +85,9 @@ def train_model(name, gpu_num=0):
             except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
                 continue
 
+            if conf.show_memory_usage_data:
+                print("accumulated edges:", accumulated_edges)
+
             answers.append([graph.example.answer])
             predictions.append(predicted)
             chances.append(1. / len(graph.example.candidates))
