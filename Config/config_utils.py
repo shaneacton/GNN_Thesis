@@ -46,8 +46,8 @@ def load_configs(model_cfg_name, train_cfg_name="standard_train"):
     train_kwargs = load_effective_config(train_cfg_name, "standard_train")
     model_kwargs = load_effective_config(model_cfg_name, "base")
 
-    all_kwargs = copy.deepcopy(model_kwargs)
-    all_kwargs.update(train_kwargs)
+    all_kwargs = copy.deepcopy(train_kwargs)
+    all_kwargs.update(model_kwargs)
 
     print("loaded config for model:", model_cfg_name)
 
