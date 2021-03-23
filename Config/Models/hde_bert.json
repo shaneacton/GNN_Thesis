@@ -8,5 +8,5 @@
   "transformer_heads": 8,
   "max_edges": 290000,
   "max_pad_volume": 40000,
-  "max_accumulated_edges": 250000
+  "max_accumulated_edges": 200000
 }

@@ -72,7 +72,10 @@ def train_model(name, gpu_num=0):
                     if conf.use_lr_scheduler:
                         scheduler.step(epoch=e_frac())
                     optimizer.zero_grad()
+                    if conf.show_memory_usage_data:
+                        print("accumulated edges (", accumulated_edges, ") is over max. stepping optim:")
                     accumulated_edges = 0
+
 
                 loss, predicted = model(graph=graph)
                 t = time.time()
@@ -81,12 +84,11 @@ def train_model(name, gpu_num=0):
                     print("back time:", (time.time() - t))
 
                 accumulated_edges += num_edges
+                if conf.show_memory_usage_data:
+                    print("accumulated edges:", accumulated_edges)
 
             except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
                 continue
-
-            if conf.show_memory_usage_data:
-                print("accumulated edges:", accumulated_edges)
 
             answers.append([graph.example.answer])
             predictions.append(predicted)
