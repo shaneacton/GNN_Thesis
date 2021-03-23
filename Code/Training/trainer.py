@@ -47,6 +47,7 @@ def train_model(name, gpu_num=0):
         model.train()
 
         epoch_start_time = time.time()
+        num_discarded = 0
         for i, graph in tqdm(enumerate(train_gen.graphs(start_at=model.last_example))):
             def e_frac():
                 return epoch + i/train_gen.num_examples
@@ -76,7 +77,6 @@ def train_model(name, gpu_num=0):
                         print("accumulated edges (", accumulated_edges, ") is over max. stepping optim:")
                     accumulated_edges = 0
 
-
                 loss, predicted = model(graph=graph)
                 t = time.time()
                 loss.backward()
@@ -88,7 +88,7 @@ def train_model(name, gpu_num=0):
                     print("accumulated edges:", accumulated_edges)
 
             except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
-                continue
+                num_discarded += 1
 
             answers.append([graph.example.answer])
             predictions.append(predicted)
@@ -112,7 +112,8 @@ def train_model(name, gpu_num=0):
         model.last_example = -1
 
         print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
-              "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - epoch_start_time))
+              "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - epoch_start_time),
+              "num discarded:", num_discarded)
 
         valid_acc = evaluate(model)
         set_status_value(name, "completed_epochs", epoch)
