@@ -3,5 +3,5 @@
     "gnn_class": "SAGEConv",
     "use_simple_gnn": true,
     "layerwise_weight_sharing": true,
-    "use_gating": true,
+    "use_gating": true
 }
