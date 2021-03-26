@@ -1,0 +1,5 @@
+{
+  "model_class": "HDERel",
+  "gnn_class": "GATConv",
+  "use_simple_gnn": true
+}

@@ -1,4 +1,7 @@
 {
-    "model_class": "HDECannon",
-    "gnn_class": "SAGEConv"
+    "model_class": "HDERel",
+    "gnn_class": "SAGEConv",
+    "use_simple_gnn": true,
+    "layerwise_weight_sharing": true,
+    "use_gating": true,
 }
