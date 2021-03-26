@@ -5,6 +5,7 @@
   "use_gating": true,
   "use_simple_gnn": false,
   "layerwise_weight_sharing": false,
+  "gnn_aggr": "add",
   "num_layers": 5,
   "num_summariser_layers": 1,
   "num_coattention_layers": 1,

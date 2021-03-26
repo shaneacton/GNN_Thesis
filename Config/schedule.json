@@ -8,6 +8,7 @@
     "hde_sage",
     "hde_share",
     "hde_rel_simple",
-    "hde_cannon"
+    "hde_cannon",
+    "hde_gat_mean_agg"
   ]
 }

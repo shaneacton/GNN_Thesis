@@ -8,5 +8,6 @@
   "use_switch_summariser": true,
   "use_global_summariser": true,
   "use_simple_gnn": true,
-  "layerwise_weight_sharing": false
+  "layerwise_weight_sharing": false,
+  "gnn_aggr": "mean"
 }

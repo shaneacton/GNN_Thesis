@@ -1,4 +1,5 @@
 {
   "model_class": "HDEGlove",
-  "gnn_class": "SAGEConv"
+  "gnn_class": "SAGEConv",
+  "gnn_aggr": "mean"
 }

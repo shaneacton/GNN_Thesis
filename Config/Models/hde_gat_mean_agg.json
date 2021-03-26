@@ -1,0 +1,4 @@
+{
+    "gnn_class": "GATConv",
+    "gnn_aggr": "mean"
+}

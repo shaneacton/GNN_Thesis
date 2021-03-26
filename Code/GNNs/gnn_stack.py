@@ -27,6 +27,7 @@ class GNNStack(nn.Module):
                     layer_kwargs.update({"dropout": conf.dropout})
             elif "dropout" in init_args:
                 layer_kwargs.update({"dropout": conf.dropout})
+        layer_kwargs.setdefault("aggr", conf.gnn_aggr)
         for layer_i in range(conf.num_layers):
             if conf.layerwise_weight_sharing and layer_i > 0:
                 """copy by reference so the layers share the same params"""
