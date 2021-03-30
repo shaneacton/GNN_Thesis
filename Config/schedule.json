@@ -5,10 +5,9 @@
   "model_configs": [
     "hde_gat",
     "hde_bert",
+    "hde_rel",
     "hde_sage",
     "hde_share",
-    "hde_rel_simple",
-    "hde_cannon",
-    "hde_gat_mean_agg"
+    "hde_cannon"
   ]
 }

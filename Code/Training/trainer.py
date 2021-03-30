@@ -89,6 +89,7 @@ def train_model(name, gpu_num=0):
 
             except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
                 num_discarded += 1
+                continue
 
             answers.append([graph.example.answer])
             predictions.append(predicted)
