@@ -115,7 +115,7 @@ def get_next_model_config(schedule, repeat_num=0):
     """release lock"""
     if selected is None:
         """no candidate was found, either all are running, or complete"""
-        if repeat_num < schedule["num_repeats"]:
+        if repeat_num < schedule["num_repeats"] - 1:
             return get_next_model_config(schedule, repeat_num=repeat_num+1)
         else:
             """nothing more to be run"""

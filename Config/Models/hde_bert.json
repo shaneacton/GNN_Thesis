@@ -6,7 +6,7 @@
   "hidden_size": 512,
   "embedded_dims": 512,
   "transformer_heads": 8,
-  "max_edges": 200000,
+  "max_edges": 190000,
   "max_pad_volume": 32000,
   "max_accumulated_edges": 200000
 }
