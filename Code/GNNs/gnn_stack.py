@@ -8,13 +8,16 @@ from Config.config import conf
 
 class GNNStack(nn.Module):
 
-    def __init__(self, GNNClass, use_gating=False, activation_class=None, **layer_kwargs):
+    def __init__(self, GNNClass, use_gating=False, **layer_kwargs):
         super().__init__()
         layers = self.get_layers(GNNClass, layer_kwargs, use_gating)
         self.layers = ModuleList(layers)
         self.act = None
-        if activation_class is not None:
-            self.act = activation_class()
+        if conf.gnn_stack_act != "none":
+            if conf.gnn_stack_act == "relu":
+                self.act = nn.ReLU()
+            else:
+                raise Exception("unreckognised activation: " + repr(conf.gnn_stack_act) )
 
     def get_layers(self, GNNClass, layer_kwargs, use_gating):
         layers = []
@@ -46,8 +49,8 @@ class GNNStack(nn.Module):
     def forward(self, x, **kwargs):
         for layer in self.layers:
             x = layer(x, **kwargs)
-            # if self.act is not None:
-            #     x = self.act(x)
+            if self.act is not None:
+                x = self.act(x)
         return x
 
 

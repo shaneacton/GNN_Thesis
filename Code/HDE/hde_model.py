@@ -119,6 +119,11 @@ class HDEModel(nn.Module):
         return pred_ans
 
     def get_graph_features(self, example):
+        """
+            performs coattention between the query and context sequence
+            then summarises subsequences of tokens according to node spans
+            yielding the same-sized node features
+        """
         t = time.time()
         support_embeddings = self.get_query_aware_context_embeddings(example.supports, example.query)
         if conf.print_times:

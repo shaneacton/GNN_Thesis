@@ -9,5 +9,6 @@
   "use_global_summariser": true,
   "use_simple_gnn": true,
   "layerwise_weight_sharing": false,
-  "gnn_aggr": "mean"
+  "gnn_aggr": "mean",
+  "gnn_stack_act": "relu"
 }

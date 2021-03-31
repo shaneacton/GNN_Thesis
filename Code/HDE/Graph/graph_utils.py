@@ -37,7 +37,7 @@ def similar(text1, text2):
     return text1 in text2 or text2 in text1
 
 
-def connect_entity_mentions(graph: HDEGraph):
+def connect_entity_mentions(graph: HDEGraph, all_cases=True):
     """
         type 5. mentions of the same entity.
         currently connects all such cases, not only for query and cand ents as in HDE

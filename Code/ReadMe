@@ -1,33 +1,34 @@
 Todo:
 
-
-* GNNs
-    * switch additive attention for dot-product
-
-
 * General:
     * ensure non linearities separate each transformation
     * add dropout to output model
 
 
 * Edges:
+    * edge type 5 only links entities which are mentions of candidates, currently linking all_cases. make config option
     * allow edge types to be ignored by full system
     * try using a summariser layer to combine the messages from different edge types instead of sum
 
 
+* Transformers
+    * Try add positional embeddings to summarisers
+
+
 * Tests:
-    * add an activation between gnn layers
     * add more layer norms
         * layer norm after glove embs are added to pos embs.
         * longformer does sum -> norm -> dropout
         * layer norm and dropout in coattention during type embs
-    * bert with only last layer tunable + dropout
-    * adam
-
 
 * Fixes
     * fix single run function
     * fix local loss viz
+
+
+* GNNs
+    * switch additive attention for dot-product
+
 
 
 * house keeping:
