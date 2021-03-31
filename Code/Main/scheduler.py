@@ -88,7 +88,7 @@ def get_next_model_config(schedule, repeat_num=0):
         started = [conf for conf in all_confs if exists(get_model_checkpoint_folder(model_names[conf]))]
         not_started = [conf for conf in all_confs if conf not in started]
         print("started:", started, "not:", not_started)
-
+        selected = None
         if len(not_started) > 0:
             selected = not_started[0]
             create_model_checkpoint_folder(model_names[selected])
