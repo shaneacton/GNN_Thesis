@@ -9,6 +9,8 @@
     "hde_sage",
     "hde_cannon",
     "hde_rel_glob",
-    "stack_act"
+    "stack_act",
+    "lr_big",
+    "no_lr_decay"
   ]
 }
