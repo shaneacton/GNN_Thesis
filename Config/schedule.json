@@ -8,6 +8,7 @@
     "hde_rel",
     "hde_sage",
     "hde_share",
-    "hde_cannon"
+    "hde_cannon",
+    "hde_rel_glob"
   ]
 }
