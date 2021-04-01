@@ -21,10 +21,13 @@ class SwitchSummariser(SwitchTransformer):
         into fixed size node embedding
     """
 
-    def __init__(self, intermediate_fac=2):
+    def __init__(self, intermediate_fac=2, use_summariser_pos_embs=None):
         self.include_global = conf.use_global_summariser
+        if use_summariser_pos_embs is None:
+            use_summariser_pos_embs = conf.use_summariser_pos_embs
         super().__init__(conf.embedded_dims, conf.num_summariser_layers, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac,
-                         include_global=self.include_global)
+                         include_global=self.include_global,
+                         use_pos_embeddings=use_summariser_pos_embs)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
@@ -48,6 +51,9 @@ class SwitchSummariser(SwitchTransformer):
         if spans is None:
             spans = [None] * len(vecs)
         extracts = [Summariser.get_vec_extract(v, spans[i]).view(-1, self.hidden_size) for i, v in enumerate(vecs)]
+        if self.use_pos_embeddings:
+            extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
+
         batch, masks = Summariser.pad(extracts)
 
         enc = self.switch_encoder(batch, src_key_padding_mask=masks, type=_type).transpose(0, 1)

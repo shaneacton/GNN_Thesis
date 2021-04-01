@@ -24,11 +24,11 @@ class SwitchGNN(nn.Module):
         self.messages_summariser = None
         self.use_edge_summariser = conf.use_attention_edge_combination
         if self.use_edge_summariser:
-            self.messages_summariser = Summariser(use_type_embeddings=False)
+            self.messages_summariser = Summariser(use_type_embeddings=False, use_summariser_pos_embs=True)
 
     def forward(self, *inputs, graph: HDEGraph = None, **kwargs):
         type_messages = []
-        for edge_type in graph.unique_edge_types:
+        for edge_type in sorted(graph.unique_edge_types):  # sorted to ensure consistent order
             edge_index = graph.edge_index(type=edge_type)
             x = self.gnns(*inputs, type=edge_type, edge_index=edge_index, **kwargs)
 

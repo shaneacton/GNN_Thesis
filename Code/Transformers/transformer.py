@@ -3,20 +3,24 @@ from torch import nn
 from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 from torch.nn.utils.rnn import pad_sequence
 
+from Code.Embedding.positional_embedder import PositionalEmbedder
 from Code.Training import dev
 from Config.config import conf
 
 
 class Transformer(nn.Module):
 
-    def __init__(self, hidden_size, num_types, num_layers, intermediate_fac=2, use_type_embeddings=True):
+    def __init__(self, hidden_size, num_types, num_layers, intermediate_fac=2, use_type_embeddings=True, use_pos_embeddings=False):
         super().__init__()
         self.num_heads = conf.heads
         self.use_type_embeddings = use_type_embeddings
+        self.use_pos_embeddings = use_pos_embeddings
         self.num_types = num_types
         self.hidden_size = hidden_size
         if use_type_embeddings:
             self.type_embedder = nn.Embedding(num_types, self.hidden_size)
+        if use_pos_embeddings:
+            self.pos_embedder = PositionalEmbedder(hidden_size)
 
         encoder_layer = TransformerEncoderLayer(self.hidden_size, conf.transformer_heads,
                                                 self.hidden_size * intermediate_fac, conf.dropout, 'relu')

@@ -11,5 +11,6 @@
   "layerwise_weight_sharing": false,
   "gnn_aggr": "mean",
   "gnn_stack_act": "relu",
-  "use_attention_edge_combination": true
+  "use_attention_edge_combination": true,
+  "use_summariser_pos_embs": true
 }

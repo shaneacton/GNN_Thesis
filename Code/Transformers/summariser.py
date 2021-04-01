@@ -17,10 +17,13 @@ class Summariser(Transformer):
         into fixed size node embedding
     """
 
-    def __init__(self, intermediate_fac=2, use_type_embeddings=True):
+    def __init__(self, intermediate_fac=2, use_type_embeddings=True, use_summariser_pos_embs=None):
         num_types = 3
+        if use_summariser_pos_embs is None:
+            use_summariser_pos_embs = conf.use_summariser_pos_embs
         super().__init__(conf.embedded_dims, num_types, conf.num_summariser_layers,
-                         use_type_embeddings=use_type_embeddings, intermediate_fac=intermediate_fac)
+                         use_type_embeddings=use_type_embeddings, intermediate_fac=intermediate_fac,
+                         use_pos_embeddings=use_summariser_pos_embs)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
@@ -45,7 +48,7 @@ class Summariser(Transformer):
         """
         vecs = vec_or_vecs
         if isinstance(vec_or_vecs, Tensor):
-            """break it up into a list of vecs"""
+            """break it up into a list of vecs (1, seq, f)"""
             vecs = vec_or_vecs.split(1, dim=0)
 
         if spans is None:
@@ -55,6 +58,8 @@ class Summariser(Transformer):
 
         if self.use_type_embeddings:
             extracts = [ex + self.get_type_tensor(_type, ex.size(-2)).view(-1, self.hidden_size) for ex in extracts]
+        if self.use_pos_embeddings:
+            extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
 
         batch, masks = self.pad(extracts)
         batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)

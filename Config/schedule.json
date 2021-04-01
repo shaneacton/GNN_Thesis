@@ -10,6 +10,7 @@
     "hde_rel_glob",
     "stack_act",
     "lr_big",
-    "no_lr_decay"
+    "no_lr_decay",
+    "hde_rel_att"
   ]
 }
