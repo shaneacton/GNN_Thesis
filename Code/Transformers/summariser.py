@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import torch
 from torch import Tensor
@@ -32,7 +32,22 @@ class Summariser(Transformer):
         vec = full_vec[:, span[0]: span[1], :].clone()
         return vec
 
-    def forward(self, vecs: List[Tensor], _type, spans: List[TokenSpan]=None):
+    def forward(self, vec_or_vecs: Union[List[Tensor], Tensor], _type, spans: List[TokenSpan]=None, return_list=True):
+        """
+            either one vec shaped (b, seq, f)
+            or a vecs list containing (1, seq, f)
+            summaries are returned as a (1, f) list or (b, f)
+
+            if spans is not None, it is a list of token index tuples (s,e), one for each vec
+            only these subsequences will be summarised
+
+            if spans is none, the full sequences are summarised
+        """
+        vecs = vec_or_vecs
+        if isinstance(vec_or_vecs, Tensor):
+            """break it up into a list of vecs"""
+            vecs = vec_or_vecs.split(1, dim=0)
+
         if spans is None:
             spans = [None] * len(vecs)
 
@@ -49,5 +64,8 @@ class Summariser(Transformer):
             summaries = torch.sum(batch, dim=1) / num_tokens  # (ents, hidd)
         else:
             summaries = batch[:, 0, :]  # (ents, hidd)
-        summaries = summaries.split(dim=0, split_size=1)
-        return list(summaries)
+
+        if return_list:
+            return list(summaries.split(dim=0, split_size=1))
+
+        return summaries

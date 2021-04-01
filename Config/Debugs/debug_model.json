@@ -1,6 +1,6 @@
 {
   "model_name": "debug",
-  "model_class": "HDEGlove",
+  "model_class": "HDERel",
   "gnn_class": "GATConv",
   "embedded_dims": 100,
   "hidden_size": 100,
@@ -10,5 +10,6 @@
   "use_simple_gnn": true,
   "layerwise_weight_sharing": false,
   "gnn_aggr": "mean",
-  "gnn_stack_act": "relu"
+  "gnn_stack_act": "relu",
+  "use_attention_edge_combination": true
 }

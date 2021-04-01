@@ -21,8 +21,12 @@
   "pool_ratio": 1,
   "pool_class": "SAGEConv",
   "use_global_edge_message": false,
+  "use_attention_edge_combination": false,
   "use_global_summariser": true,
   "use_switch_summariser": true,
   "use_average_summariser": false,
+  "use_layer_norms_a": false,
+  "use_layer_norms_b": false,
+  "use_summariser_pos_embs": false,
   "wandb_id": -1
 }

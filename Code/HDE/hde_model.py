@@ -66,7 +66,7 @@ class HDEModel(nn.Module):
         else:
             self.gnn = GNNStack(GNN_CLASS, use_gating=conf.use_gating)
 
-    def forward(self, example: Wikipoint=None, graph:HDEGraph=None):
+    def forward(self, example: Wikipoint=None, graph: HDEGraph=None):
         """
             nodes are created for each support, as well as each candidate and each context entity
             nodes are concattenated as follows: supports, entities, candidates

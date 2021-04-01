@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import torch
 from torch import Tensor
@@ -29,15 +29,30 @@ class SwitchSummariser(SwitchTransformer):
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
 
-    def forward(self, vecs: List[Tensor], _type, spans: List[TokenSpan]=None):
+    def forward(self, vec_or_vecs: Union[List[Tensor], Tensor], _type, spans: List[TokenSpan]=None, return_list=True):
+        """
+            either one vec shaped (b, seq, f)
+            or a vecs list containing (1, seq, f)
+            summaries are returned as a (1, f) list or (b, f)
+
+            if spans is not None, it is a list of token index tuples (s,e), one for each vec
+            only these subsequences will be summarised
+
+            if spans is none, the full sequences are summarised
+        """
+        vecs = vec_or_vecs
+        if isinstance(vec_or_vecs, Tensor):
+            """break it up into a list of vecs"""
+            vecs = vec_or_vecs.split(1, dim=0)
+
         if spans is None:
             spans = [None] * len(vecs)
         extracts = [Summariser.get_vec_extract(v, spans[i]).view(-1, self.hidden_size) for i, v in enumerate(vecs)]
-        # print("switch extracts:", [e.size() for e in extracts])
         batch, masks = Summariser.pad(extracts)
 
         enc = self.switch_encoder(batch, src_key_padding_mask=masks, type=_type).transpose(0, 1)
         if self.include_global:
+            """we combine the type specific summary with the type agnostic summary"""
             ids = np.ones((batch.size(0), batch.size(1)))
             ids = torch.tensor(ids).to(dev()).long()
             type_embs = self.type_embedder(ids)
@@ -46,11 +61,14 @@ class SwitchSummariser(SwitchTransformer):
 
             glob_enc = self.switch_encoder(glob_batch, src_key_padding_mask=masks, type=GLOBAL).transpose(0, 1)
             enc += glob_enc
-        # print("summ batch:", batch.size(), "num vecs:", len(vecs))
+
         if conf.use_average_summariser:
             num_tokens = enc.size(1)
             summaries = torch.sum(enc, dim=1) / num_tokens  # (ents, hidd)
         else:
-            summaries = enc[:, 0, :]  # (ents, hidd)
-        summaries = summaries.split(dim=0, split_size=1)
-        return list(summaries)
+            """simply takes the first element"""
+            summaries = enc[:, 0, :]  # (b, hidd)
+        if return_list:
+            return list(summaries.split(dim=0, split_size=1))
+
+        return summaries

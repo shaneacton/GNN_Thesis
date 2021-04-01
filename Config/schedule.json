@@ -6,7 +6,6 @@
     "hde_gat",
     "hde_bert",
     "hde_rel",
-    "hde_sage",
     "hde_cannon",
     "hde_rel_glob",
     "stack_act",
