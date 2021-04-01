@@ -17,8 +17,8 @@ Todo:
 
 
 * Transformers
-    * Try add positional embeddings to summarisers
     * more batching can be done in the summariser
+    *code reuse between switch and regular variants
 
 * GNNs
     * switch additive attention for dot-product
