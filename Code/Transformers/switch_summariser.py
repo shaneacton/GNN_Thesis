@@ -2,6 +2,7 @@ from typing import List, Union
 
 import torch
 from torch import Tensor
+from torch.nn import LayerNorm
 from transformers import TokenSpan
 import numpy as np
 
@@ -28,6 +29,9 @@ class SwitchSummariser(SwitchTransformer):
         super().__init__(conf.embedded_dims, conf.num_summariser_layers, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac,
                          include_global=self.include_global,
                          use_pos_embeddings=use_summariser_pos_embs)
+
+        if conf.use_layer_norms_b:
+            self.norm = LayerNorm(conf.embedded_dims)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
@@ -67,6 +71,8 @@ class SwitchSummariser(SwitchTransformer):
 
             glob_enc = self.switch_encoder(glob_batch, src_key_padding_mask=masks, type=GLOBAL).transpose(0, 1)
             enc += glob_enc
+            if conf.use_layer_norms_b:
+                enc = self.norm(enc)
 
         if conf.use_average_summariser:
             num_tokens = enc.size(1)

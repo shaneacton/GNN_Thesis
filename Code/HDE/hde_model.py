@@ -75,10 +75,10 @@ class HDEModel(nn.Module):
             the graph is converted to a pytorch geometric datapoint
         """
         if graph is None:
-            graph = self.create_graph(example)
+            graph = self.create_graph(example)  # heuristic
         else:
             example = graph.example
-        x = self.get_graph_features(example)
+        x = self.get_graph_features(example)  # learned
 
         num_edges = len(graph.unique_edges)
         if num_edges > conf.max_edges != -1:
@@ -182,6 +182,7 @@ class HDEModel(nn.Module):
         return final_probs
 
     def get_query_aware_context_embeddings(self, supports: List[str], query: str):
+        """uses the coattention module to bring info from the query into the context"""
         support_embeddings = [self.embedder(sup) for sup in supports]
         # print("supps:", [s.size() for s in support_embeddings])
         pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)

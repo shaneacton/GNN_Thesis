@@ -1,6 +1,8 @@
 Todo:
 
 * General:
+    * layernorm present in:
+        gnn_stack, transformer, switchtransformer,
     * add more layer norms
             * layer norm after glove embs are added to pos embs.
             * longformer does sum -> norm -> dropout
@@ -13,12 +15,11 @@ Todo:
 * Edges:
     * edge type 5 only links entities which are mentions of candidates, currently linking all_cases. make config option
     * allow edge types to be ignored by full system
-    * try using a summariser layer to combine the messages from different edge types instead of sum
 
 
 * Transformers
     * more batching can be done in the summariser
-    *code reuse between switch and regular variants
+    * code reuse between switch and regular variants
 
 * GNNs
     * switch additive attention for dot-product

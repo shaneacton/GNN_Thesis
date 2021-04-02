@@ -25,7 +25,7 @@
   "use_global_summariser": true,
   "use_switch_summariser": true,
   "use_average_summariser": false,
-  "use_layer_norms_a": false,
+  "use_layer_norms_a": true,
   "use_layer_norms_b": false,
   "use_summariser_pos_embs": false,
   "wandb_id": -1

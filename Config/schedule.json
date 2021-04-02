@@ -7,12 +7,12 @@
     "hde_bert",
     "hde_rel",
     "hde_cannon",
-    "hde_rel_glob",
     "stack_act",
     "lr_big",
     "lr_bigger",
     "no_lr_decay",
     "hde_rel_att",
-    "hde_rel_summ_pos"
+    "hde_rel_summ_pos",
+    "norms"
   ]
 }

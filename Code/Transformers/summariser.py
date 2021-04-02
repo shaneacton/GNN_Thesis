@@ -2,6 +2,7 @@ from typing import List, Union
 
 import torch
 from torch import Tensor
+from torch.nn import LayerNorm
 from transformers import TokenSpan
 
 from Code.Transformers.transformer import Transformer
@@ -24,6 +25,8 @@ class Summariser(Transformer):
         super().__init__(conf.embedded_dims, num_types, conf.num_summariser_layers,
                          use_type_embeddings=use_type_embeddings, intermediate_fac=intermediate_fac,
                          use_pos_embeddings=use_summariser_pos_embs)
+        if conf.use_layer_norms_b:
+            self.norm = LayerNorm(conf.embedded_dims)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
@@ -60,6 +63,8 @@ class Summariser(Transformer):
             extracts = [ex + self.get_type_tensor(_type, ex.size(-2)).view(-1, self.hidden_size) for ex in extracts]
         if self.use_pos_embeddings:
             extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
+        if conf.use_layer_norms_b:
+            extracts = [self.norm(ex) for ex in extracts]
 
         batch, masks = self.pad(extracts)
         batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)

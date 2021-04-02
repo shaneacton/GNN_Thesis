@@ -6,6 +6,8 @@ from torch import Tensor
 import re
 import pathlib
 
+from torch.nn import LayerNorm
+
 from Code.Embedding.positional_embedder import PositionalEmbedder
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.Training import dev
@@ -36,6 +38,9 @@ class GloveEmbedder(StringEmbedder):
 
         if use_positional_embeddings:
             self.positional_embedder = PositionalEmbedder()
+
+        if conf.use_layer_norms_b:
+            self.norm = LayerNorm(self.dims)
 
     def get_emb(self, word):
         if word in self.embs.keys():
@@ -74,6 +79,8 @@ class GloveEmbedder(StringEmbedder):
         if self.use_positional_embeddings:
             pos_embs = self.positional_embedder.get_pos_embs(seq_len)
             embs += pos_embs
+            if conf.use_layer_norms_b:
+                embs = self.norm(embs)
 
         return embs
 
