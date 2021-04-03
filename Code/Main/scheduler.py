@@ -140,9 +140,11 @@ def continue_schedule(debug=False):
     for gpu_id in range(num_gpus):
         """for each available gpu, spawn off a new process to run the next scheduled config"""
         next_model_conf, repeat_num = get_next_model_config(schedule)
-        if next_model_conf is None:
-            print("no more configs to run. shutting down scheduler")
-            exit()
+        while next_model_conf is None:
+            print("no more configs to run. hanging...")
+            time.sleep(60)
+            next_model_conf, repeat_num = get_next_model_config(schedule)
+
         print("chosen conf:", next_model_conf)
         if gpu_id == num_gpus - 1:
             """is last config to run. can run in master thread"""

@@ -12,6 +12,7 @@
     "no_lr_decay",
     "hde_rel_att",
     "hde_rel_summ_pos",
-    "norms"
+    "norms",
+    "strict_matching"
   ]
 }

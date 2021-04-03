@@ -11,12 +11,28 @@ from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode
 from Code.constants import DOCUMENT, ENTITY, CODOCUMENT, CANDIDATE, COMENTION
-from Config.config import get_config
-from Viz.graph_visualiser import render_graph
+from Config.config import get_config, conf
+from Viz.graph_visualiser import render_graph, get_file_path
 
 only_letters = re.compile('[^a-zA-Z]')
 def clean(text):
-    return only_letters.sub('', text.lower())
+    cleaner = only_letters.sub('', text.lower())
+    if not get_config().use_strict_graph_matching:
+        """non strict matching uses similarity to match nodes, so trailing words can be tollerated"""
+        return cleaner
+
+    """
+        if we are using strict matching, then words preceding words like 'the' can cause a misamtch.
+        this is because entity detection is imperfect
+    """
+    words = cleaner.split(" ")
+    removal_words = {"the", "a", "of"}
+    safe_words = []
+    for w in words:
+        if w not in removal_words:
+            safe_words.append(w)
+    cleaner = " ".join(safe_words)
+    return cleaner
 
 
 def connect_unconnected_entities(graph: HDEGraph):
@@ -34,7 +50,10 @@ def connect_unconnected_entities(graph: HDEGraph):
 
 
 def similar(text1, text2):
-    return text1 in text2 or text2 in text1
+    if not get_config().use_strict_graph_matching:
+        return text1 in text2 or text2 in text1
+    else:
+        return text1 == text2
 
 
 def connect_entity_mentions(graph: HDEGraph, all_cases=True):
@@ -42,6 +61,8 @@ def connect_entity_mentions(graph: HDEGraph, all_cases=True):
         type 5. mentions of the same entity.
         currently connects all such cases, not only for query and cand ents as in HDE
     """
+    # if not all_cases:
+
     for e1, ent_node1 in enumerate(graph.get_entity_nodes()):
         ent_text1 = clean(ent_node1.text)
 
@@ -83,11 +104,10 @@ def add_candidate_nodes(graph: HDEGraph, candidates: List[str], supports: List[s
         cand_ids.append(c_id)
 
         cand_node = graph.get_candidate_nodes()[c]
-        clean_cand = only_letters.sub('', candidate.lower())
+        clean_cand = clean(candidate)
         for s, supp in enumerate(supports):
             supp = clean(supp)
-            if supp in clean_cand or clean_cand in supp:
-
+            if clean_cand in supp:
                 edge = HDEEdge(s, cand_node.id_in_graph, graph=graph)  # type 1
                 graph.add_edge(edge)
 
@@ -199,7 +219,7 @@ def get_transformer_entity_token_spans(support_encodings, supports) -> List[List
 
 
 def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings=None):
-    # start_t = time.time()
+    start_t = time.time()
     graph = HDEGraph(example)
     add_doc_nodes(graph, example.supports)
     add_entity_nodes(graph, example.supports, example.ent_token_spans, glove_embedder=glove_embedder,
@@ -211,13 +231,23 @@ def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings
     connect_entity_mentions(graph)
     connect_unconnected_entities(graph)
 
-    # if conf.print_times:
-    #     print("made full graph in", (time.time() - start_t))
+    if conf.print_times:
+        print("made full graph in", (time.time() - start_t))
 
     if get_config().visualise_graphs:
-        render_graph(graph)
         if get_config().exit_after_first_viz:
+            render_graph(graph, graph_folder="temp")
             exit()
+        else:
+            hash_code = hash("_".join(sorted(example.candidates)))
+            name = "graph_"+ str(hash_code)
+            render_graph(graph, view=False, graph_name=name)
+
+            text_name = name + ".txt"
+            text_path = get_file_path(get_config().model_name, text_name)
+            file = open(text_path, "w")
+            file.write(repr(example))
+            file.close()
 
     return graph
 

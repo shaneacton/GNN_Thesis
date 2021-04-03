@@ -1,15 +1,7 @@
 Todo:
 
 * General:
-    * layernorm present in:
-        gnn_stack, transformer, switchtransformer,
-    * add more layer norms
-            * layer norm after glove embs are added to pos embs.
-            * longformer does sum -> norm -> dropout
-            * layer norm and dropout in coattention during type embs
-
-    * ensure non linearities separate each transformation
-    * add dropout to output model
+    * add dropout to output model and other
 
 
 * Edges:

@@ -1,5 +1,5 @@
 {
-  "model_name": "debug",
+  "model_name": "strict_matching",
   "model_class": "HDERel",
   "gnn_class": "GATConv",
   "embedded_dims": 100,
@@ -13,5 +13,6 @@
   "gnn_stack_act": "relu",
   "use_attention_edge_combination": true,
   "use_summariser_pos_embs": true,
-  "use_layer_norms_b": false
+  "use_layer_norms_b": false,
+  "use_strict_graph_matching": true
 }

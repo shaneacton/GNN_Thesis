@@ -1,6 +1,8 @@
 import os
 import textwrap
 
+from Config.config import get_config
+
 try:
     import graphviz
 except:
@@ -16,7 +18,7 @@ def get_node_colour(node: HDENode):
     return colours[node.type]
 
 
-def render_graph(graph: HDEGraph, graph_name="temp", graph_folder="."):
+def render_graph(graph: HDEGraph, graph_name="temp", graph_folder=None, view=True):
 
     dot = graphviz.Digraph(comment='The Round Table')
     dot.graph_attr.update({'rankdir': 'LR'})
@@ -49,5 +51,11 @@ def render_graph(graph: HDEGraph, graph_name="temp", graph_folder="."):
             continue
         dot.edge(name(edge.from_id), name(edge.to_id), label=edge.type())
 
-    path = os.path.join('/home/shane/Documents/Thesis/Viz/', graph_folder, graph_name)
-    dot.render(path, view=True, format="png")
+    if graph_folder is None:
+        graph_folder = get_config().model_name
+    dot.render(get_file_path(graph_folder, graph_name), view=view, format="png", cleanup=True)
+
+
+def get_file_path(folder, file_name):
+    path = os.path.join('/home/shane/Documents/GNN_Thesis/Viz/', folder, file_name)
+    return path

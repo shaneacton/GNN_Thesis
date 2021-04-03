@@ -22,5 +22,11 @@ class Wikipoint:
         self.candidates = example["candidates"]
         self.query = example["query"]
 
-        # graph = HDEGloveStack.create_graph(self.candidates, self.ent_token_spans, supports, glove_embedder)
-        # self.edge_list = graph.edge_list
+    def __repr__(self):
+        ex = "Wiki example:\n"
+        ex += "Query:" + self.query + "\n"
+        ex += "Candidates:" + ", ".join(self.candidates) + "\n\n"
+        ex += "Answer:" + self.answer + "\n"
+        ex += "Supports:\n" + "\n\t".join(self.supports)
+        return ex
+

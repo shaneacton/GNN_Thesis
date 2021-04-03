@@ -28,5 +28,6 @@
   "use_layer_norms_a": true,
   "use_layer_norms_b": false,
   "use_summariser_pos_embs": false,
-  "wandb_id": -1
+  "wandb_id": -1,
+  "use_strict_graph_matching": false
 }
