@@ -14,9 +14,22 @@ from Code.constants import DOCUMENT, ENTITY, CODOCUMENT, CANDIDATE, COMENTION
 from Config.config import get_config, conf
 from Viz.graph_visualiser import render_graph, get_file_path
 
-only_letters = re.compile('[^a-zA-Z]')
+
+_regex = None
+
+
+def get_regex():
+    global _regex
+    if _regex is None:
+        if get_config().include_clean_numbers:
+            _regex = re.compile('[^a-zA-Z0-9]')
+        else:
+            _regex = re.compile('[^a-zA-Z]')
+    return _regex
+
+
 def clean(text):
-    cleaner = only_letters.sub('', text.lower())
+    cleaner = get_regex().sub('', text.lower())
     if not get_config().use_strict_graph_matching:
         """non strict matching uses similarity to match nodes, so trailing words can be tollerated"""
         return cleaner
@@ -36,8 +49,9 @@ def clean(text):
 
 
 def connect_unconnected_entities(graph: HDEGraph):
-    """type 7. should be called last, after all other nodes are connected"""
-    t = time.time()
+    """
+        type 7. should be called last, after all other nodes are connected
+    """
 
     for e1, ent_node1 in enumerate(graph.get_entity_nodes()):
         for e2, ent_node2 in enumerate(graph.get_entity_nodes()):
@@ -157,7 +171,8 @@ def add_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List[Tuple
             doc_edge = HDEEdge(sup_node.id_in_graph, ent_node_id, graph=graph)
             graph.add_edge(doc_edge)
 
-        fully_connect(ent_node_ids, graph, CODOCUMENT)
+        if CODOCUMENT not in conf.ignored_edges:
+            fully_connect(ent_node_ids, graph, CODOCUMENT)
 
 
 def charspan_to_tokenspan(encoding: BatchEncoding, char_span: Tuple[int]) -> TokenSpan:
@@ -227,9 +242,9 @@ def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings
 
     add_candidate_nodes(graph, example.candidates, example.supports)
     connect_candidates_and_entities(graph)
-
     connect_entity_mentions(graph)
-    connect_unconnected_entities(graph)
+    if ENTITY not in conf.ignored_edges:
+        connect_unconnected_entities(graph)
 
     if conf.print_times:
         print("made full graph in", (time.time() - start_t))

@@ -28,7 +28,7 @@ def render_graph(graph: HDEGraph, graph_name="temp", graph_folder=None, view=Tru
     for i, node in enumerate(graph.ordered_nodes):
         node: HDENode = node
         if node.type == ENTITY:
-            if node.doc_id > 0 or node.ent_token_spen[0] > 20:
+            if node.doc_id > 1 or node.ent_token_spen[0] > 20:
                 ignored_nodes.add(name(i))
                 continue
 

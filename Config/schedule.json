@@ -6,13 +6,13 @@
     "hde_gat",
     "hde_bert",
     "hde_rel",
-    "stack_act",
     "lr_big",
     "lr_bigger",
     "no_lr_decay",
     "hde_rel_att",
     "hde_rel_summ_pos",
     "norms",
-    "strict_matching"
+    "strict_matching",
+    "clean"
   ]
 }
