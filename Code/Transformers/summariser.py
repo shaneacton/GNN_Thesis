@@ -15,7 +15,9 @@ NODE_TYPE_MAP = {ENTITY: 0, DOCUMENT: 1, CANDIDATE: 2}
 class Summariser(Transformer):
     """
         a summarising transformer which is used to map variable length token embeddings for a node,
-        into fixed size node embedding
+        into fixed size node embedding.
+
+        here the 3 types are
     """
 
     def __init__(self, intermediate_fac=2, use_type_embeddings=True, use_summariser_pos_embs=None):

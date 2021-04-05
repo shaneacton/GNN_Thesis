@@ -13,8 +13,11 @@ SOURCE_TYPE_MAP = {DOCUMENT: 0, QUERY: 1}
 
 class Coattention(Transformer):
 
+    """here, the two types are context or query"""
+
     def __init__(self, intermediate_fac=2, use_type_embedder=True):
-        super().__init__(conf.embedded_dims, 2, conf.num_coattention_layers, use_type_embeddings=use_type_embedder,
+        num_types = 2
+        super().__init__(conf.embedded_dims, num_types, conf.num_coattention_layers, use_type_embeddings=use_type_embedder,
                          intermediate_fac=intermediate_fac)
         if conf.use_layer_norms_b:
             self.norm_s = LayerNorm(conf.embedded_dims)

@@ -43,6 +43,10 @@ def load_effective_config(name, default):
 
 
 def load_configs(model_cfg_name, train_cfg_name="standard_train"):
+    """
+        model configs override train configs.
+        in the case of two differing values for a config param, the one from the model conf wins over the train
+    """
     train_kwargs = load_effective_config(train_cfg_name, "standard_train")
     model_kwargs = load_effective_config(model_cfg_name, "base")
 
