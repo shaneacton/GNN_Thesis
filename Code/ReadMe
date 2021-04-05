@@ -24,7 +24,6 @@ Todo:
 
 
 * house keeping:
-    * add running status info to wandb config
     * ssh keygen for viz
     * count discarded examples
     * move wandb folder out of HDE

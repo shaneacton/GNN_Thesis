@@ -13,6 +13,7 @@
     "hde_rel_att",
     "hde_rel_summ_pos",
     "norms",
-    "clean"
+    "clean",
+    "no_compliment"
   ]
 }
