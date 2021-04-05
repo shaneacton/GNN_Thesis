@@ -21,16 +21,24 @@ _regex = None
 def get_regex():
     global _regex
     if _regex is None:
-        if get_config().include_clean_numbers:
-            _regex = re.compile('[^a-zA-Z0-9]')
-        else:
+        try:  # todo remove, legacy model
+            inc = get_config().include_clean_numbers
+            if inc:
+                _regex = re.compile('[^a-zA-Z0-9]')
+            else:
+                _regex = re.compile('[^a-zA-Z]')
+            return _regex
+        except:
             _regex = re.compile('[^a-zA-Z]')
+
     return _regex
 
 
 def clean(text):
     cleaner = get_regex().sub('', text.lower())
-    if not get_config().use_strict_graph_matching:
+    config = get_config()  # todo remove, legacy model
+    strict = config.use_strict_graph_matching if hasattr(config, "use_strict_graph_matching") else False
+    if not strict:
         """non strict matching uses similarity to match nodes, so trailing words can be tollerated"""
         return cleaner
 
