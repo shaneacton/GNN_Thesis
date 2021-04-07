@@ -3,7 +3,7 @@ import copy
 from torch import nn
 from torch.nn import ModuleList
 
-GLOBAL = "global"
+from Code.constants import GLOBAL
 
 
 class SwitchModule(nn.Module):

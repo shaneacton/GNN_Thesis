@@ -62,9 +62,9 @@ class HDEModel(nn.Module):
 
     def init_gnn(self, GNN_CLASS):
         if GNN_CLASS == GATConv:
-            self.gnn = GNNStack(GNN_CLASS, heads=conf.heads, use_gating=conf.use_gating)
+            self.gnn = GNNStack(GNN_CLASS, heads=conf.heads)
         else:
-            self.gnn = GNNStack(GNN_CLASS, use_gating=conf.use_gating)
+            self.gnn = GNNStack(GNN_CLASS)
 
     def forward(self, example: Wikipoint=None, graph: HDEGraph=None):
         """

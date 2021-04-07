@@ -3,14 +3,16 @@ from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
 
 from Code.GNNs.gated_gnn import GatedGNN
+from Code.GNNs.wrap_gnn import EdgeEmbeddings
 from Config.config import conf
 
 
 class GNNStack(nn.Module):
 
-    def __init__(self, GNNClass, use_gating=False, **layer_kwargs):
+    def __init__(self, GNNClass, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()
-        layers = self.get_layers(GNNClass, layer_kwargs, use_gating)
+        self.use_edge_type_embs = use_edge_type_embs
+        layers = self.get_layers(GNNClass, layer_kwargs)
         self.layers = ModuleList(layers)
         self.act = None
         if conf.gnn_stack_act != "none":
@@ -19,7 +21,7 @@ class GNNStack(nn.Module):
             else:
                 raise Exception("unreckognised activation: " + repr(conf.gnn_stack_act) )
 
-    def get_layers(self, GNNClass, layer_kwargs, use_gating):
+    def get_layers(self, GNNClass, layer_kwargs):
         layers = []
         if "dropout" not in layer_kwargs:
             init_args = GNNClass.__init__.__code__.co_varnames
@@ -39,10 +41,10 @@ class GNNStack(nn.Module):
 
             in_size = conf.embedded_dims if layer_i == 0 else conf.hidden_size
             LayerWrapper = SimpleGNNLayer if conf.use_simple_gnn else GNNLayer
-            layer = LayerWrapper(GNNClass, in_size, **layer_kwargs)
-
-            if use_gating:
+            layer = LayerWrapper(GNNClass, in_size, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
+            if conf.use_gating:
                 layer = GatedGNN(layer)
+
             layers.append(layer)
         return layers
 
@@ -56,7 +58,7 @@ class GNNStack(nn.Module):
 
 class GNNLayer(nn.Module):
 
-    def __init__(self, GNNClass, in_channels, intermediate_fac=2, **layer_kwargs):
+    def __init__(self, GNNClass, in_channels, intermediate_fac=2, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_size = conf.hidden_size
@@ -64,6 +66,10 @@ class GNNLayer(nn.Module):
             self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **layer_kwargs)
         else:
             self.gnn = GNNClass(in_channels, conf.hidden_size, **layer_kwargs)
+
+        if use_edge_type_embs:
+            num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges
+            self.gnn = EdgeEmbeddings(self.gnn, in_channels, num_types)
 
         self.linear1 = Linear(conf.hidden_size, conf.hidden_size * intermediate_fac)
         self.dropout = Dropout(conf.dropout)
@@ -90,7 +96,7 @@ class GNNLayer(nn.Module):
     
     
 class SimpleGNNLayer(nn.Module):
-    def __init__(self, GNNClass, in_channels, **layer_kwargs):
+    def __init__(self, GNNClass, in_channels, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_size = conf.hidden_size
@@ -98,6 +104,11 @@ class SimpleGNNLayer(nn.Module):
             self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **layer_kwargs)
         else:
             self.gnn = GNNClass(in_channels, conf.hidden_size, **layer_kwargs)
+
+        if use_edge_type_embs:
+            num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges
+            self.gnn = EdgeEmbeddings(self.gnn, in_channels, num_types)
+
         self.dropout1 = Dropout(conf.dropout)
 
     def forward(self, x, **kwargs):

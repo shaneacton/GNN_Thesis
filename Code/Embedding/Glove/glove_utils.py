@@ -53,59 +53,6 @@ def get_glove_entity_token_spans(supports, glove_embedder: GloveEmbedder, use_no
     return all_token_spans
 
 
-# def get_glove_entities(summariser, support_embeddings, supports, glove_embedder: GloveEmbedder, use_nouns=False) \
-#         -> Tuple[List[List[Tuple[int]]], List[Tensor]]:
-#     """
-#         token_spans is indexed list[support_no][ent_no]
-#         summaries is a flat list
-#     """
-#     token_spans: List[List[Tuple[int]]] = []
-#     summaries: List[Tensor] = []
-#
-#     for s, support in enumerate(supports):
-#         """get entity node embeddings"""
-#         if use_nouns:
-#             ent_c_spans = get_noun_char_spans(support)
-#         else:
-#             ent_c_spans = get_entity_char_spans(support)
-#
-#         ent_summaries: List[Tensor] = []
-#         ent_token_spans: List[Tuple[int]] = []
-#         support_tokens = glove_embedder.get_words(support)
-#         ent_counts = {}
-#         for e, c_span in enumerate(ent_c_spans):
-#             """clips out the entities token embeddings, and summarises them"""
-#             try:
-#                 entity_tokens = glove_embedder.get_words(support[c_span[0]: c_span[1]])
-#                 if len(entity_tokens) == 0:
-#                     raise NoEntityTokens("no entity tokens: " + repr(entity_tokens) + " char span: " + repr(c_span) + " ent: " + repr(support[c_span[0]: c_span[1]]))
-#                 matches = find_tokens_in_token_list(support_tokens, entity_tokens)
-#                 ent_hash = tuple(entity_tokens)
-#                 if not ent_hash in ent_counts:
-#                     ent_counts[ent_hash] = 0
-#                 if ent_counts[ent_hash] >= len(matches):
-#                     raise Exception("found " + repr(ent_counts[ent_hash] + 1) + " ent mentions but only " +
-#                                     repr(len(matches)) + " matches    ent tokens: " + repr(entity_tokens) + "   all tokens: " + repr(support_tokens))
-#                 match = matches[ent_counts[ent_hash]]
-#                 ent_counts[ent_hash] += 1
-#                 ent_token_span = TokenSpan(match, match + len(entity_tokens))
-#             except NoEntityTokens as ex:
-#                 # print(ex)
-#                 continue
-#             except Exception as exx:
-#                 # print("cannot get ent ", e, "token span. in supp", s, ":", support)
-#                 # raise exx
-#                 continue
-#
-#             ent_token_spans.append(ent_token_span)
-#             ent_summaries.append(summariser(support_embeddings[s], ENTITY, ent_token_span))
-#
-#         token_spans.append(ent_token_spans)
-#         summaries.extend(ent_summaries)
-#
-#     return token_spans, summaries
-
-
 def find_tokens_in_token_list(all_tokens: List[str], entity_tokens: List[str]):
     # print("ent tokens:", entity_tokens, "all:", all_tokens)
     candidates = set(range(len(all_tokens)))  # all tokens

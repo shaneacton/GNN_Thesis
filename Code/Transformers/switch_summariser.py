@@ -6,11 +6,10 @@ from torch.nn import LayerNorm
 from transformers import TokenSpan
 import numpy as np
 
-from Code.HDE.switch_module import GLOBAL
 from Code.Training import dev
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_transformer import SwitchTransformer
-from Code.constants import CANDIDATE, ENTITY, DOCUMENT
+from Code.constants import CANDIDATE, ENTITY, DOCUMENT, GLOBAL
 from Config.config import conf
 
 NODE_TYPE_MAP = {ENTITY: 0, DOCUMENT: 1, CANDIDATE: 2}

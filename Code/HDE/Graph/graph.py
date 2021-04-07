@@ -5,7 +5,7 @@ from typing import List, TYPE_CHECKING, Dict, Generator, Tuple, Set
 import torch
 
 from Code.Training import dev
-from Code.constants import ENTITY, DOCUMENT, CANDIDATE
+from Code.constants import ENTITY, DOCUMENT, CANDIDATE, GLOBAL, SELF_LOOP
 
 if TYPE_CHECKING:
     from Code.HDE.Graph.edge import HDEEdge
@@ -26,8 +26,16 @@ class HDEGraph:
         self.unique_edges: Set[Tuple[int]] = set()  # set of (t, f) ids, which are always sorted, ie: t<f
         self.unique_edge_types: Set[str] = set()
 
-    def edge_index(self, type=None) -> torch.LongTensor:
-        """if type arg is given, only the edges of that type are returned"""
+    def edge_index(self, type=None, direction=None) -> torch.LongTensor:
+        """
+            if type arg is given, only the edges of that type are returned
+            returning edges are automatically added. all evens are outgoing, odds are incoming
+
+            if direction = forwards or backwards, then this will be a unidirectional edge_index,
+            with half the edges of the full edge index.
+
+            self loops are added by pytorch geometric
+        """
         froms = []
         tos = []
 
@@ -35,17 +43,48 @@ class HDEGraph:
             if type is not None:
                 if e.type() != type:
                     continue
-            froms += [e.from_id, e.to_id]
-            tos += [e.to_id, e.from_id]
+
+            if direction is None:  # both directions
+                froms += [e.from_id, e.to_id]
+                tos += [e.to_id, e.from_id]
+            elif direction == "forward":
+                froms += [e.from_id]
+                tos += [e.to_id]
+            elif direction == "reverse":
+                froms += [e.to_id]
+                tos += [e.from_id]
+            else:
+                raise Exception("unreckognised direction type: " + repr(direction) + " must be {forward, reverse}")
+
         return torch.tensor([froms, tos]).to(dev()).long()
 
-    def edge_types(self):
-        types = sorted(list(set([edge.type() for edge in self.ordered_edges])))
+    def ordered_unique_edge_types(self, include_global=False):
+        types = sorted(list(self.unique_edge_types))
+        types += [SELF_LOOP]
+        if include_global:
+            types.append(GLOBAL)
+        return types
+
+    def edge_types(self, direction=None, include_self_loops=True):
+        types = self.ordered_unique_edge_types()
         edge_type_map = {t: i for i, t in enumerate(types)}
         type_ids = []
         for edge in self.ordered_edges:
             type_id = edge_type_map[edge.type()]
             type_ids.append(type_id)
+            if direction is None:
+                """
+                    if both directions are being included, then each edge will be added to the edge index twice.
+                    Different directionality is not considered a different type, the unidirectional edge_types vec 
+                    looks the same for forward and reverse.
+                """
+                type_ids.append(type_id)
+        if include_self_loops:
+            """
+                self loops will be automatically appended to the back of the edge index. 
+                We must account for those in the type vec. There is 1 self loop per node
+            """
+            type_ids += [edge_type_map[SELF_LOOP]] * len(self.ordered_nodes)
         return torch.tensor(type_ids).to(dev()).long()
 
     def add_node(self, node: HDENode) -> int:

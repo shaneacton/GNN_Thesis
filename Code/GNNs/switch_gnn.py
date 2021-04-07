@@ -2,7 +2,8 @@ import torch
 from torch import nn
 
 from Code.HDE.Graph.graph import HDEGraph
-from Code.HDE.switch_module import SwitchModule, GLOBAL
+from Code.HDE.switch_module import SwitchModule
+from Code.constants import GLOBAL
 from Code.Transformers.summariser import Summariser
 from Config.config import conf
 

@@ -5,15 +5,13 @@
   "model_configs": [
     "hde_gat",
     "hde_bert",
-    "hde_rel",
     "lr_big",
     "lr_bigger",
     "lr_medium",
     "no_lr_decay",
-    "hde_rel_att",
     "hde_rel_summ_pos",
     "norms",
     "clean",
-    "no_compliment"
+    "hde_rel2"
   ]
 }
