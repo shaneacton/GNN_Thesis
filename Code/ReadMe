@@ -1,6 +1,10 @@
 Todo:
 
 * General:
+    * add option to include GRU encoder at the start of the HDE model
+    * add option to use query-coattention on the entity and candidate embeddings
+    * ensure query words are all being parsed properly
+        * the underscores in the relation words may mean some relations are being grouped
     * add dropout to output model and other
     * make new config system for graph structuring options
 

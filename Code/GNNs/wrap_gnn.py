@@ -14,6 +14,8 @@ class WrapGNN(nn.Module):
         # store originals
         self.base_forward = gnn_layer.forward
         self.base_message = gnn_layer.message
+        self.forward_needed_args = inspect.getfullargspec(self.base_forward)[0]
+        self.message_needed_args = inspect.getfullargspec(self.base_message)[0]
 
         # replace originals with wrappers
         gnn_layer.forward = self.forward
@@ -32,9 +34,8 @@ class WrapGNN(nn.Module):
         return x_j
 
     def forward(self, x, edge_index, *args, **kwargs):
-        needed = inspect.getfullargspec(self.base_forward)[0]
-        base_gnn_kwargs = {k: v for k, v in kwargs.items() if k in needed}
-        custom_kwargs = {k: v for k, v in kwargs.items() if k not in needed}
+        base_gnn_kwargs = {k: v for k, v in kwargs.items() if k in self.forward_needed_args}
+        custom_kwargs = {k: v for k, v in kwargs.items() if k not in self.forward_needed_args}
         self.last_custom_kwargs = custom_kwargs
         self.wrap_forward(x, edge_index, *args, **kwargs)
         output = self.base_forward(x, edge_index, *args, **base_gnn_kwargs)

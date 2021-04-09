@@ -1,4 +1,6 @@
 {
   "model_class": "HDERel2",
-  "gnn_class": "GATConv"
+  "gnn_class": "GATConv",
+  "max_edges": 320000,
+  "max_accumulated_edges": 230000
 }

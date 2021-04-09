@@ -1,5 +1,5 @@
 {
-  "model_name": "edges",
+  "model_name": "characters",
   "model_class": "HDERel2",
   "gnn_class": "GATConv",
   "embedded_dims": 100,
@@ -16,5 +16,6 @@
   "use_layer_norms_b": false,
   "use_strict_graph_matching": true,
   "ignored_edges": ["entity", "codocument"],
-  "include_clean_numbers": true
+  "include_clean_numbers": true,
+  "use_character_embs_for_unknown_words": true
 }

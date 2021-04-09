@@ -8,6 +8,7 @@ import pathlib
 
 from torch.nn import LayerNorm
 
+from Code.Embedding.charcter_embedder import CharacterEmbedder
 from Code.Embedding.positional_embedder import PositionalEmbedder
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.Training import dev
@@ -31,7 +32,6 @@ class GloveEmbedder(StringEmbedder):
                 vector = np.asarray(values[1:], "float32")
                 embeddings_dict[word] = vector
 
-        self.unknown_token_emb = np.asarray([0] * self.dims, "float32")
         self.regex = re.compile('[^a-zA-Z 0123456789,.&]')
 
         self.embs = embeddings_dict
@@ -42,12 +42,21 @@ class GloveEmbedder(StringEmbedder):
         if conf.use_layer_norms_b:
             self.norm = LayerNorm(self.dims)
 
-    def get_emb(self, word):
+        if conf.use_character_embs_for_unknown_words:
+            self.character_embedder = CharacterEmbedder(self.dims)
+        else:
+            self.unknown_token_emb = np.asarray([0] * self.dims, "float32")
+
+    def get_emb(self, word, allow_unknowns=True):
         if word in self.embs.keys():
             emb = self.embs[word]
         else:
+            if conf.use_character_embs_for_unknown_words:
+                return self.character_embedder(word)
+            if not allow_unknowns:
+                print("unknown token:", word)
             emb = self.unknown_token_emb
-        return torch.tensor(emb)
+        return torch.tensor(emb).to(dev())
 
     def get_words(self, string):
         string = string.replace(",", " , ")
@@ -60,14 +69,14 @@ class GloveEmbedder(StringEmbedder):
         words = string.lower().split()
         return words
 
-    def embed(self, string: str) -> Tensor:
+    def embed(self, string: str, **kwargs) -> Tensor:
         words = self.get_words(string)
         if len(words) == 0:
             print("num words:", len(words), "string:", string, "words:", words)
             raise NoWordsException("no words from string " + string)
         embs = []
         for w in words:
-            tens = self.get_emb(w)
+            tens = self.get_emb(w, **kwargs)
             if tens.size(0) != self.dims:
                 out = repr(self.embs[w]) if w in self.embs else "uknown"
                 raise Exception("word: " + w + " emb: " + repr(tens.size()) + " map: " + out)
@@ -75,7 +84,6 @@ class GloveEmbedder(StringEmbedder):
 
         seq_len = len(embs)
         embs = torch.cat(embs, dim=0).view(1, seq_len, -1)
-        embs = embs.to(dev())
         if self.use_positional_embeddings:
             pos_embs = self.positional_embedder.get_pos_embs(seq_len)
             embs += pos_embs

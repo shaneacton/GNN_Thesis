@@ -191,7 +191,10 @@ class HDEModel(nn.Module):
         if conf.show_memory_usage_data:
             print("documents padded volume:", pad_volume)
         # print("pad vol:", pad_volume)
-        query_emb = self.embedder(query)
+        query_emb = self.embedder(query, allow_unknowns=False)
+        relation = query.split(" ")[0]
+        query_subject = " ".join(query.split(" ")[1:])  # the rest
+
         support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)
         return support_embeddings
 

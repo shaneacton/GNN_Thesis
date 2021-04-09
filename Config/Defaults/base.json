@@ -13,6 +13,7 @@
   "hidden_size": 300,
   "embedded_dims": 300,
   "fine_tune_embedder": true,
+  "use_character_embs_for_unknown_words": false,
   "bert_size": "small",
   "bert_fine_tune_layers": ["embeddings", "pooler", "LayerNorm"],
   "heads": 4,
