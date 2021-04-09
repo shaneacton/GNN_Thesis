@@ -17,5 +17,6 @@
   "use_strict_graph_matching": true,
   "ignored_edges": ["entity", "codocument"],
   "include_clean_numbers": true,
-  "use_character_embs_for_unknown_words": true
+  "use_character_embs_for_unknown_words": true,
+  "use_gru_contextualiser": true
 }

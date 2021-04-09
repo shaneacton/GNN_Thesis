@@ -2,10 +2,11 @@ import time
 from typing import List, Tuple
 
 import torch
-from torch import nn
+from torch import nn, Tensor
 from torch.nn import CrossEntropyLoss, ReLU
 from torch_geometric.nn import GATConv
 
+from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.Graph.graph import HDEGraph
@@ -35,6 +36,13 @@ class HDEModel(nn.Module):
 
         self.coattention = Coattention(**kwargs)
         conf.cfg["num_coattention_params"] = num_params(self.coattention)
+
+        if conf.use_gru_contextualiser:
+            self.supp_contextualiser = GRUContextualiser()
+            self.cand_contextualiser = GRUContextualiser()
+            self.query_contextualiser = GRUContextualiser()
+
+
         if conf.use_switch_summariser:
             self.summariser = SwitchSummariser(**kwargs)
         else:
@@ -125,22 +133,48 @@ class HDEModel(nn.Module):
             yielding the same-sized node features
         """
         t = time.time()
-        support_embeddings = self.get_query_aware_context_embeddings(example.supports, example.query)
+        support_embeddings = [self.embedder(sup) for sup in example.supports]
+        if conf.use_gru_contextualiser:
+            support_embeddings = [self.supp_contextualiser(sup) for sup in support_embeddings]
+
+        query_aware_support_embeddings = self.get_query_aware_context_embeddings(support_embeddings, example.query)
         if conf.print_times:
             print("got supp embs in", (time.time() - t))
         cand_embs = [self.embedder(cand) for cand in example.candidates]
+        if conf.use_gru_contextualiser:
+            cand_embs = [self.cand_contextualiser(cand) for cand in cand_embs]
+
         candidate_summaries = self.summariser(cand_embs, CANDIDATE)
-        support_summaries = self.summariser(support_embeddings, DOCUMENT)
+        support_summaries = self.summariser(query_aware_support_embeddings, DOCUMENT)
 
         t = time.time()
 
-        ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser)
+        ent_summaries = get_entity_summaries(example.ent_token_spans, query_aware_support_embeddings, self.summariser)
         if conf.print_times:
             print("got ent summaries in", (time.time() - t))
 
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
 
         return x
+
+    def get_query_aware_context_embeddings(self, support_embeddings: List[Tensor], query: str):
+        """uses the coattention module to bring info from the query into the context"""
+        print("supps:", [s.size() for s in support_embeddings])
+        pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
+        if pad_volume > conf.max_pad_volume:
+            raise PadVolumeOverflow()
+        if conf.show_memory_usage_data:
+            print("documents padded volume:", pad_volume)
+        # print("pad vol:", pad_volume)
+        query_emb = self.embedder(query, allow_unknowns=False)
+        if conf.use_gru_contextualiser:
+            query_emb = self.query_contextualiser(query_emb)
+
+        relation = query.split(" ")[0]
+        query_subject = " ".join(query.split(" ")[1:])  # the rest
+
+        support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)
+        return support_embeddings
 
     def pass_output_model(self, x, example, graph, node_id_map=None):
         """
@@ -181,22 +215,6 @@ class HDEModel(nn.Module):
         final_probs = cand_probs + ent_probs
         return final_probs
 
-    def get_query_aware_context_embeddings(self, supports: List[str], query: str):
-        """uses the coattention module to bring info from the query into the context"""
-        support_embeddings = [self.embedder(sup) for sup in supports]
-        # print("supps:", [s.size() for s in support_embeddings])
-        pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
-        if pad_volume > conf.max_pad_volume:
-            raise PadVolumeOverflow()
-        if conf.show_memory_usage_data:
-            print("documents padded volume:", pad_volume)
-        # print("pad vol:", pad_volume)
-        query_emb = self.embedder(query, allow_unknowns=False)
-        relation = query.split(" ")[0]
-        query_subject = " ".join(query.split(" ")[1:])  # the rest
-
-        support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)
-        return support_embeddings
 
 
 class TooManyEdges(Exception):

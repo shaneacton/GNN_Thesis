@@ -14,6 +14,7 @@
   "embedded_dims": 300,
   "fine_tune_embedder": true,
   "use_character_embs_for_unknown_words": false,
+  "use_gru_contextualiser": true,
   "bert_size": "small",
   "bert_fine_tune_layers": ["embeddings", "pooler", "LayerNorm"],
   "heads": 4,
