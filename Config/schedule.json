@@ -7,12 +7,11 @@
     "lr_bigger",
     "lr_medium",
     "no_lr_decay",
-    "hde_rel_summ_pos",
-    "norms",
-    "clean",
     "hde_rel2",
+    "norms",
     "unknown",
     "contextualiser",
-    "character_embs"
+    "character_embs",
+    "full_embs"
   ]
 }
