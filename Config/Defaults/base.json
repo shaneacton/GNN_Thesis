@@ -36,5 +36,6 @@
   "use_strict_graph_matching": false,
   "include_clean_numbers": false,
   "ignored_edges": [],
-  "new_thing": { "a":  2, "b":  3}
+  "use_detected_entities": true,
+  "use_special_entities": false
 }

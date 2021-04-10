@@ -25,12 +25,27 @@ def render_graph(graph: HDEGraph, graph_name="temp", graph_folder=None, view=Tru
 
     name = lambda i: "Node(" + repr(i) + ")"
     ignored_nodes = set()
+    num_doc0_ents = 0
+    num_doc1_ents = 0
     for i, node in enumerate(graph.ordered_nodes):
         node: HDENode = node
         if node.type == ENTITY:
-            if node.doc_id > 1 or node.ent_token_spen[0] > 20:
+            if node.doc_id > 1:
                 ignored_nodes.add(name(i))
                 continue
+            if node.doc_id == 0:
+                if num_doc0_ents >= 4:
+                    ignored_nodes.add(name(i))
+                    continue
+                else:
+                    num_doc0_ents += 1
+
+            elif node.doc_id == 1:
+                if num_doc1_ents >= 1:
+                    ignored_nodes.add(name(i))
+                    continue
+                else:
+                    num_doc1_ents += 1
 
         if node.type == DOCUMENT:
             if node.doc_id > 1:

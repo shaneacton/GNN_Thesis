@@ -9,48 +9,86 @@ from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.graph_utils import fully_connect
 from Code.HDE.Graph.node import HDENode
 from Code.constants import CODOCUMENT, ENTITY
+from Config.config import conf
 
 
-def get_glove_entity_token_spans(supports, glove_embedder: GloveEmbedder, use_nouns=False) -> List[List[Tuple[int]]]:
+def get_glove_entity_token_spans(example, glove_embedder: GloveEmbedder, use_nouns=False) -> List[List[Tuple[int]]]:
     """returns a 2d list indexed [supp_id][ent_in_supp]"""
     all_token_spans: List[List[Tuple[int]]] = []
-    for s, support in enumerate(supports):
+    for s, support in enumerate(example.supports):
         """get entity node embeddings"""
-        if use_nouns:
-            ent_c_spans = get_noun_char_spans(support)
+        print("conf use special:", conf.use_special_entities)
+        if conf.use_special_entities:
+            """
+                here we will be using 
+            """
+            doc_token_spans = get_special_entity_token_spans(example, support, glove_embedder)
         else:
-            ent_c_spans = get_entity_char_spans(support)
+            """
+                here we are going to be using an entity detection module. this will predict charspans for entites
+                which we will turn into token spans wrt the embedder.
+            """
+            if use_nouns:
+                ent_c_spans = get_noun_char_spans(support)
+            else:
+                ent_c_spans = get_entity_char_spans(support)
 
-        doc_token_spans: List[Tuple[int]] = []
-        support_tokens = glove_embedder.get_words(support)
-        ent_counts = {}
-        for e, c_span in enumerate(ent_c_spans):
-            """clips out the entities token embeddings, and summarises them"""
-            try:
-                entity_tokens = glove_embedder.get_words(support[c_span[0]: c_span[1]])
-                if len(entity_tokens) == 0:
-                    raise NoEntityTokens("no entity tokens: " + repr(entity_tokens) + " char span: " + repr(c_span) + " ent: " + repr(support[c_span[0]: c_span[1]]))
-                matches = find_tokens_in_token_list(support_tokens, entity_tokens)
-                ent_hash = tuple(entity_tokens)
-                if not ent_hash in ent_counts:
-                    ent_counts[ent_hash] = 0
-                if ent_counts[ent_hash] >= len(matches):
-                    raise Exception("found " + repr(ent_counts[ent_hash] + 1) + " ent mentions but only " +
-                                    repr(len(matches)) + " matches    ent tokens: " + repr(entity_tokens) + "   all tokens: " + repr(support_tokens))
-                match = matches[ent_counts[ent_hash]]
-                ent_counts[ent_hash] += 1
-                ent_token_span = TokenSpan(match, match + len(entity_tokens))
-            except NoEntityTokens as ex:
-                # print(ex)
-                continue
-            except Exception as exx:
-                # print("cannot get ent ", e, "token span. in supp", s, ":", support)
-                # raise exx
-                continue
-
-            doc_token_spans.append(ent_token_span)
+            doc_token_spans = get_glove_entity_token_spans_from_chars(ent_c_spans, glove_embedder, support)
         all_token_spans.append(doc_token_spans)
     return all_token_spans
+
+
+def get_special_entity_token_spans(example, support, glove_embedder) -> List[Tuple[int]]:
+    passage_words: List[str] = glove_embedder.get_words(support)
+    subject_words: List[str] = glove_embedder.get_words(example.query_subject)
+    candidate_words: List[List[str]] = [glove_embedder.get_words(cand) for cand in example.candidates]
+    special_words: List[List[str]] = candidate_words + [subject_words]
+
+    token_spans = []
+    for specials in special_words:
+        start = specials[0]
+        indices = [i for i, x in enumerate(passage_words) if x == start]
+        for i in indices:
+            corr_passage_words = passage_words[i:i+len(specials)]
+            if corr_passage_words == specials:
+                print("found overlap! special:", specials, "subject:", subject_words, "cands:", candidate_words)
+                token_spans.append(TokenSpan(i, i+len(specials)))
+    return token_spans
+
+
+def get_glove_entity_token_spans_from_chars(ent_c_spans, glove_embedder, support):
+    doc_token_spans: List[Tuple[int]] = []
+    support_tokens = glove_embedder.get_words(support)
+    ent_counts = {}
+    for e, c_span in enumerate(ent_c_spans):
+        """clips out the entities token embeddings, and summarises them"""
+        try:
+            entity_tokens = glove_embedder.get_words(support[c_span[0]: c_span[1]])
+            if len(entity_tokens) == 0:
+                raise NoEntityTokens(
+                    "no entity tokens: " + repr(entity_tokens) + " char span: " + repr(c_span) + " ent: " + repr(
+                        support[c_span[0]: c_span[1]]))
+            matches = find_tokens_in_token_list(support_tokens, entity_tokens)
+            ent_hash = tuple(entity_tokens)
+            if not ent_hash in ent_counts:
+                ent_counts[ent_hash] = 0
+            if ent_counts[ent_hash] >= len(matches):
+                raise Exception("found " + repr(ent_counts[ent_hash] + 1) + " ent mentions but only " +
+                                repr(len(matches)) + " matches    ent tokens: " + repr(
+                    entity_tokens) + "   all tokens: " + repr(support_tokens))
+            match = matches[ent_counts[ent_hash]]
+            ent_counts[ent_hash] += 1
+            ent_token_span = TokenSpan(match, match + len(entity_tokens))
+        except NoEntityTokens as ex:
+            # print(ex)
+            continue
+        except Exception as exx:
+            # print("cannot get ent ", e, "token span. in supp", s, ":", support)
+            # raise exx
+            continue
+
+        doc_token_spans.append(ent_token_span)
+    return doc_token_spans
 
 
 def find_tokens_in_token_list(all_tokens: List[str], entity_tokens: List[str]):

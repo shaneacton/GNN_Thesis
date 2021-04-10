@@ -1,5 +1,5 @@
 {
-  "model_name": "characters",
+  "model_name": "special",
   "model_class": "HDERel2",
   "gnn_class": "GATConv",
   "embedded_dims": 120,
@@ -19,5 +19,6 @@
   "include_clean_numbers": true,
   "use_character_embs_for_unknown_words": true,
   "use_gru_contextualiser": true,
-  "character_embedded_dims": 20
+  "character_embedded_dims": 20,
+  "use_special_entities": true
 }

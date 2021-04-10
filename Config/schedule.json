@@ -12,6 +12,7 @@
     "unknown",
     "contextualiser",
     "character_embs",
-    "full_embs"
+    "full_embs",
+    "special"
   ]
 }
