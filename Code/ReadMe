@@ -28,6 +28,7 @@ Todo:
 
 
 * Fixes
+    * fix max runtime counting
     * fix single run function
     * fix local loss viz
 

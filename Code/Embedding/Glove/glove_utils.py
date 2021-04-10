@@ -17,7 +17,6 @@ def get_glove_entity_token_spans(example, glove_embedder: GloveEmbedder, use_nou
     all_token_spans: List[List[Tuple[int]]] = []
     for s, support in enumerate(example.supports):
         """get entity node embeddings"""
-        print("conf use special:", conf.use_special_entities)
         if conf.use_special_entities:
             """
                 here we will be using 
@@ -53,7 +52,7 @@ def get_special_entity_token_spans(example, support, glove_embedder) -> List[Tup
         for i in indices:
             corr_passage_words = passage_words[i:i+len(specials)]
             if corr_passage_words == specials:
-                print("found overlap! special:", specials, "subject:", subject_words, "cands:", candidate_words)
+                # print("found overlap! special:", specials, "subject:", subject_words, "cands:", candidate_words)
                 token_spans.append(TokenSpan(i, i+len(specials)))
     return token_spans
 

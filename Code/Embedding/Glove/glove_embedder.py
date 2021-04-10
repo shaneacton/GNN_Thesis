@@ -71,9 +71,12 @@ class GloveEmbedder(StringEmbedder):
         if not isinstance(emb, torch.Tensor):
             emb = torch.tensor(emb).to(dev())
 
-        if self.use_character_embeddings:
-            c_emb = self.full_character_embedder(word)
-            emb = torch.cat([emb, c_emb], dim=-1)
+        try:  # todo remove legacy
+            if self.use_character_embeddings:
+                c_emb = self.full_character_embedder(word)
+                emb = torch.cat([emb, c_emb], dim=-1)
+        except:
+            pass
         return emb
 
     def get_words(self, string):
