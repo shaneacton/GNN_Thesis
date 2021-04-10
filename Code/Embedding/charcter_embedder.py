@@ -19,7 +19,7 @@ class CharacterEmbedder(nn.Module):
         self.gru = nn.GRU(self.hidden_dim, self.hidden_dim, layers, batch_first=False, dropout=conf.dropout, bidirectional=True)
         self.relu = nn.ReLU()
 
-        characters = "abcdefghijklmnopqrstuvwxyz0123456789"
+        characters = "abcdefghijklmnopqrstuvwxyz0123456789,.&"
         self.map = {c: i for i, c in enumerate(characters)}
         self.embs = nn.Embedding(len(characters), self.hidden_dim)
 

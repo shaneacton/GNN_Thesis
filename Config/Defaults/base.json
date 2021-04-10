@@ -12,6 +12,7 @@
   "num_coattention_layers": 1,
   "hidden_size": 300,
   "embedded_dims": 300,
+  "character_embedded_dims": 0,
   "fine_tune_embedder": true,
   "use_character_embs_for_unknown_words": false,
   "use_gru_contextualiser": false,

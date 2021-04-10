@@ -2,8 +2,8 @@
   "model_name": "characters",
   "model_class": "HDERel2",
   "gnn_class": "GATConv",
-  "embedded_dims": 100,
-  "hidden_size": 100,
+  "embedded_dims": 120,
+  "hidden_size": 120,
   "transformer_heads": 5,
   "use_switch_summariser": true,
   "use_global_summariser": true,
@@ -18,5 +18,6 @@
   "ignored_edges": ["entity", "codocument"],
   "include_clean_numbers": true,
   "use_character_embs_for_unknown_words": true,
-  "use_gru_contextualiser": true
+  "use_gru_contextualiser": true,
+  "character_embedded_dims": 20
 }

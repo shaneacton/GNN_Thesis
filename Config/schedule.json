@@ -12,6 +12,7 @@
     "clean",
     "hde_rel2",
     "unknown",
-    "contextualiser"
+    "contextualiser",
+    "character_embs"
   ]
 }

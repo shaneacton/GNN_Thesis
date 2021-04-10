@@ -1,0 +1,5 @@
+{
+  "character_embedded_dims": 100,
+  "hidden_size": 400,
+  "embedded_dims": 400
+}

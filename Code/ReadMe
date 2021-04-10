@@ -2,7 +2,6 @@ Todo:
 
 * General:
     * add option to use query-coattention on the entity and candidate embeddings
-    * add option to add 100 dims to the embedding layer via character level encodings
     * add dropout to output model and other
 
 * Edges:
@@ -36,6 +35,10 @@ Todo:
 * before next experiment round:
     * remove legacy exception handling, todos
     * move utils out of the training folder
+    * rename character embedders in glove embedder
+    * touch up num params logging
+    * clean name, without number for grouping
+    * rename charcter embedder file
 
 
 * house keeping:

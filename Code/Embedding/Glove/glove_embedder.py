@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, exists
 
 import numpy as np
 import torch
@@ -23,8 +23,20 @@ class GloveEmbedder(StringEmbedder):
         file_path = pathlib.Path(__file__).parent.absolute()
         print("glove path:", file_path)
         embeddings_dict = {}
-        self.dims = conf.embedded_dims
-        path = join(file_path, "glove.6B", "glove.6B." + repr(self.dims) + "d.txt")
+        self.dims = glove_dims = conf.embedded_dims
+        self.use_character_embeddings = conf.character_embedded_dims > 0
+        if self.use_character_embeddings:
+            """
+                must use a character level word embedding. 
+                the final embedding will be the feature-wise concat of the glove and character embeddings
+            """
+            glove_dims -= conf.character_embedded_dims
+            self.full_character_embedder = CharacterEmbedder(conf.character_embedded_dims)
+
+        path = join(file_path, "glove.6B", "glove.6B." + repr(glove_dims) + "d.txt")
+        if not exists(path):
+            raise Exception("no glove embeddings of dimension " + repr(glove_dims) + " emb dim: " + repr(self.dims) +
+                            " character dim: " + repr(conf.character_embedded_dims) + ". glove dim = emb-character")
         with open(path, 'r', encoding="utf-8") as f:
             for line in f:
                 values = line.split()
@@ -43,20 +55,26 @@ class GloveEmbedder(StringEmbedder):
             self.norm = LayerNorm(self.dims)
 
         if conf.use_character_embs_for_unknown_words:
-            self.character_embedder = CharacterEmbedder(self.dims)
+            self.character_embedder = CharacterEmbedder(glove_dims)
         else:
-            self.unknown_token_emb = np.asarray([0] * self.dims, "float32")
+            self.unknown_token_emb = np.asarray([0] * glove_dims, "float32")
 
     def get_emb(self, word, allow_unknowns=True):
         if word in self.embs.keys():
             emb = self.embs[word]
         else:
             if conf.use_character_embs_for_unknown_words:
-                return self.character_embedder(word)
-            # if not allow_unknowns:
-            #     print("unknown token:", word)
-            emb = self.unknown_token_emb
-        return torch.tensor(emb).to(dev())
+                emb = self.character_embedder(word)
+            else:
+                emb = self.unknown_token_emb
+
+        if not isinstance(emb, torch.Tensor):
+            emb = torch.tensor(emb).to(dev())
+
+        if self.use_character_embeddings:
+            c_emb = self.full_character_embedder(word)
+            emb = torch.cat([emb, c_emb], dim=-1)
+        return emb
 
     def get_words(self, string):
         string = string.replace(",", " , ")
@@ -78,7 +96,7 @@ class GloveEmbedder(StringEmbedder):
         for w in words:
             tens = self.get_emb(w, **kwargs)
             if tens.size(0) != self.dims:
-                out = repr(self.embs[w]) if w in self.embs else "uknown"
+                out = repr(self.embs[w]) if w in self.embs else "unknown"
                 raise Exception("word: " + w + " emb: " + repr(tens.size()) + " map: " + out)
             embs.append(tens.view(1, self.dims))
 
