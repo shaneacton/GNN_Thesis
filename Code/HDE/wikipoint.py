@@ -22,6 +22,14 @@ class Wikipoint:
         self.candidates = example["candidates"]
         self.query = example["query"]
 
+    @property
+    def relation(self):
+        return self.query.split(" ")[0]
+
+    @property
+    def query_subject(self):
+        return " ".join(self.query.split(" ")[1:])  # the rest
+
     def __repr__(self):
         ex = "Wiki example:\n"
         ex += "Query:" + self.query + "\n"

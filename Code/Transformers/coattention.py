@@ -43,9 +43,8 @@ class Coattention(Transformer):
         batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)
         seqs = list(batch.split(dim=0, split_size=1))
         assert len(seqs) == len(supps)
-        for s, seq in enumerate(seqs):
+        for s, seq in enumerate(seqs):  # remove padding and query tokens
             seqs[s] = seq[:, :supps[s].size(0), :]
-        # print("seqs:", [s.size() for s in seqs])
         return seqs
 
     def forward(self, supps: List[Tensor], query: Tensor):

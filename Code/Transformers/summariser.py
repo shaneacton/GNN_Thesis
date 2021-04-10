@@ -17,7 +17,7 @@ class Summariser(Transformer):
         a summarising transformer which is used to map variable length token embeddings for a node,
         into fixed size node embedding.
 
-        here the 3 types are
+        here the 3 types are the node types {entity, document, candidate}
     """
 
     def __init__(self, intermediate_fac=2, use_type_embeddings=True, use_summariser_pos_embs=None):
@@ -40,7 +40,8 @@ class Summariser(Transformer):
         vec = full_vec[:, span[0]: span[1], :].clone()
         return vec
 
-    def forward(self, vec_or_vecs: Union[List[Tensor], Tensor], _type, spans: List[TokenSpan]=None, return_list=True):
+    def forward(self, vec_or_vecs: Union[List[Tensor], Tensor], _type, spans: List[TokenSpan]=None,
+                return_list=True):
         """
             either one vec shaped (b, seq, f)
             or a vecs list containing (1, seq, f)

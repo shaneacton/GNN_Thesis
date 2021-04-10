@@ -159,7 +159,7 @@ class HDEModel(nn.Module):
 
     def get_query_aware_context_embeddings(self, support_embeddings: List[Tensor], query: str):
         """uses the coattention module to bring info from the query into the context"""
-        print("supps:", [s.size() for s in support_embeddings])
+        # print("supps:", [s.size() for s in support_embeddings])
         pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
         if pad_volume > conf.max_pad_volume:
             raise PadVolumeOverflow()
@@ -169,9 +169,6 @@ class HDEModel(nn.Module):
         query_emb = self.embedder(query, allow_unknowns=False)
         if conf.use_gru_contextualiser:
             query_emb = self.query_contextualiser(query_emb)
-
-        relation = query.split(" ")[0]
-        query_subject = " ".join(query.split(" ")[1:])  # the rest
 
         support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)
         return support_embeddings

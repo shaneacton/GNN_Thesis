@@ -4,11 +4,9 @@ Todo:
     * add option to use query-coattention on the entity and candidate embeddings
     * add option to add 100 dims to the embedding layer via character level encodings
     * add dropout to output model and other
-    * make new config system for graph structuring options
 
 * Edges:
-    * edge type 5 only links entities which are mentions of candidates, currently linking all_cases. make config option
-    * allow edge types to be ignored by full system
+    * edge type 5 only links entities which are mentions of candidates/ query, currently linking all_cases. make config option
 
 
 * Transformers
@@ -23,9 +21,11 @@ Todo:
 
 
 * Graph structuring
+    * add option to only include query and candidate entities
     * sentence nodes
-        * different connection possibilities. heirarchical, sequential, codocument, complement
+        * different connection possibilities. hierarchical, sequential, codocument, complement
     * query node connected to all other nodes
+    * make new config system for graph structuring options
 
 
 * Fixes

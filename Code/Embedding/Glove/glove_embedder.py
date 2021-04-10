@@ -53,8 +53,8 @@ class GloveEmbedder(StringEmbedder):
         else:
             if conf.use_character_embs_for_unknown_words:
                 return self.character_embedder(word)
-            if not allow_unknowns:
-                print("unknown token:", word)
+            # if not allow_unknowns:
+            #     print("unknown token:", word)
             emb = self.unknown_token_emb
         return torch.tensor(emb).to(dev())
 
