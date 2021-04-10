@@ -46,6 +46,8 @@ def get_special_entity_token_spans(example, support, glove_embedder) -> List[Tup
 
     token_spans = []
     for specials in special_words:
+        if len(specials) <= 0:
+            continue
         start = specials[0]
         indices = [i for i, x in enumerate(passage_words) if x == start]
         for i in indices:

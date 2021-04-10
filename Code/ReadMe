@@ -3,10 +3,8 @@ Todo:
 * General:
     * add option to use query-coattention on the entity and candidate embeddings
     * add dropout to output model and other
-
-* Edges:
-    * edge type 5 only links entities which are mentions of candidates/ query, currently linking all_cases. make config option
-
+    * graph construction statistics on wandb
+        * num nodes, num edges
 
 * Transformers
     * check that a transformer is an adequate substitute for coattention
@@ -20,7 +18,7 @@ Todo:
 
 
 * Graph structuring
-    * add option to only include query and candidate entities
+    * make adding new node types easy
     * sentence nodes
         * different connection possibilities. hierarchical, sequential, codocument, complement
     * query node connected to all other nodes
