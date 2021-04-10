@@ -4,7 +4,9 @@ Todo:
     * add option to use query-coattention on the entity and candidate embeddings
     * add dropout to output model and other
     * graph construction statistics on wandb
-        * num nodes, num edges
+        * num nodes, num edges, num discarded examples
+
+
 
 * Transformers
     * check that a transformer is an adequate substitute for coattention
@@ -41,7 +43,6 @@ Todo:
 
 * house keeping:
     * ssh keygen for viz
-    * count discarded examples
     * move wandb folder out of HDE
     * get rid of the summariser/switch summariser distinction
         turn rel off by only using the global edge
