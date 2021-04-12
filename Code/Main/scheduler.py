@@ -69,14 +69,14 @@ def get_safe_status(effective_name, max_hours=13):
     return status
 
 
-def get_next_model_config(schedule, repeat_num=0):
+def get_next_model_config(debug, repeat_num=0):
     """
         process safe. Only one scheduler can be deciding a config at a time.
 
         finds first available model config to run. only once all are running/finished, will the scheduler repeat the list
         picks the config which has completed the fewest epochs
     """
-
+    schedule = get_schedule(debug)
     with FileLock(GLOBAL_FILE_LOCK_PATH):
         """
             no two schedulers can pick configs at the same time
@@ -125,13 +125,18 @@ def get_next_model_config(schedule, repeat_num=0):
     return selected, repeat_num
 
 
-def continue_schedule(debug=False):
-    """reads the schedule, as well as which """
-    num_gpus = torch.cuda.device_count()
+def get_schedule(debug):
     if not debug:
         schedule = load_config("schedule", add_model_name=False)
     else:
         schedule = load_config("debug_schedule", add_model_name=False)
+    return schedule
+
+
+def continue_schedule(debug=False):
+    """reads the schedule, as well as which """
+    num_gpus = torch.cuda.device_count()
+    schedule = get_schedule(debug)
 
     train_conf = schedule["train_config"]
     print("num gpus:", num_gpus)
@@ -139,11 +144,11 @@ def continue_schedule(debug=False):
 
     for gpu_id in range(num_gpus):
         """for each available gpu, spawn off a new process to run the next scheduled config"""
-        next_model_conf, repeat_num = get_next_model_config(schedule)
+        next_model_conf, repeat_num = get_next_model_config(debug)
         while next_model_conf is None:
             print("no more configs to run. hanging...")
             time.sleep(60)
-            next_model_conf, repeat_num = get_next_model_config(schedule)
+            next_model_conf, repeat_num = get_next_model_config(debug)
 
         print("chosen conf:", next_model_conf)
         if gpu_id == num_gpus - 1:
