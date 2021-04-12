@@ -17,8 +17,7 @@ class WrapGNN(nn.Module):
         self.forward_needed_args = inspect.getfullargspec(self.base_forward)[0]
         self.message_needed_args = inspect.getfullargspec(self.base_message)[0]
 
-        # replace originals with wrappers
-        gnn_layer.forward = self.forward
+        # replace original with wrapper, so base layer will call out message func
         gnn_layer.message = self.message
 
         self.last_custom_kwargs = None
@@ -26,14 +25,19 @@ class WrapGNN(nn.Module):
         # these kwargs can then be accessed in the custom forward method
 
     def message(self, x_j, index, *args, **kwargs):
-        """called by the message passing forward method"""
+        """
+            called by the message passing forward method.
+            calls our wrap message, then calls the original base message
+        """
         x_j = self.wrap_message(x_j, index, *args, **kwargs)
         return self.base_message(x_j=x_j, index=index, *args, **kwargs)
 
     def wrap_message(self,  x_j, index, *args, **kwargs):
+        """called before the base layers forward. used for pretransforms"""
         return x_j
 
     def forward(self, x, edge_index, *args, **kwargs):
+        """caller triggers Wrap's forward, which then triggers the wrap_forward, and finally the base layers forward"""
         base_gnn_kwargs = {k: v for k, v in kwargs.items() if k in self.forward_needed_args}
         custom_kwargs = {k: v for k, v in kwargs.items() if k not in self.forward_needed_args}
         self.last_custom_kwargs = custom_kwargs
@@ -43,7 +47,7 @@ class WrapGNN(nn.Module):
         return output
 
     def wrap_forward(self, x, edge_index, *args, **kwargs):
-        # print("base wrap forward")
+        """called before the base layers forward. used for pretransforms"""
         pass
 
 

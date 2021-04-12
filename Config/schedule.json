@@ -5,13 +5,9 @@
   "model_configs": [
     "lr_big",
     "lr_bigger",
-    "lr_medium",
-    "no_lr_decay",
-    "hde_rel2",
     "norms",
     "unknown",
     "contextualiser",
-    "character_embs",
     "special"
   ]
 }

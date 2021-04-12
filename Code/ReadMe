@@ -3,9 +3,6 @@ Todo:
 * General:
     * add option to use query-coattention on the entity and candidate embeddings
     * add dropout to output model and other
-    * graph construction statistics on wandb
-        * num nodes, num edges, num discarded examples
-
 
 
 * Transformers
@@ -24,6 +21,7 @@ Todo:
     * sentence nodes
         * different connection possibilities. hierarchical, sequential, codocument, complement
     * query node connected to all other nodes
+        * one for each context-aware query sequence. one untransformed
     * make new config system for graph structuring options
 
 
@@ -40,6 +38,9 @@ Todo:
     * touch up num params logging
     * clean name, without number for grouping
     * rename charcter embedder file
+    * graph construction statistics on wandb
+        * num nodes, num edges, num discarded examples
+        * add network timing data to wandb
 
 
 * house keeping:

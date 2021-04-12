@@ -12,7 +12,10 @@
   "num_coattention_layers": 1,
   "hidden_size": 300,
   "embedded_dims": 300,
+  "character_embedded_dims": 0,
   "fine_tune_embedder": true,
+  "use_character_embs_for_unknown_words": true,
+  "use_gru_contextualiser": false,
   "bert_size": "small",
   "bert_fine_tune_layers": ["embeddings", "pooler", "LayerNorm"],
   "heads": 4,
@@ -25,6 +28,7 @@
   "use_global_summariser": true,
   "use_switch_summariser": true,
   "use_average_summariser": false,
+  "summarise_with_query": false,
   "use_layer_norms_a": true,
   "use_layer_norms_b": false,
   "use_summariser_pos_embs": false,
@@ -32,5 +36,6 @@
   "use_strict_graph_matching": false,
   "include_clean_numbers": true,
   "ignored_edges": [],
-  "initial_lr": 0.005
+  "use_detected_entities": false,
+  "use_special_entities": true
 }
