@@ -8,6 +8,8 @@
     "norms",
     "unknown",
     "contextualiser",
-    "special"
+    "special",
+    "hde_rel2",
+    "new_base"
   ]
 }
