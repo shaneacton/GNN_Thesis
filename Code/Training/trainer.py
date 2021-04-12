@@ -18,6 +18,8 @@ from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
 from Viz.wandb_utils import use_wandb, wandb_run
 
+start_time = time.time()
+
 
 def train_model(name, gpu_num=0):
     set_gpu(gpu_num)

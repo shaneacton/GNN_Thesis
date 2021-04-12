@@ -4,12 +4,10 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "lr_big",
-    "lr_bigger",
-    "norms",
-    "unknown",
     "contextualiser",
     "special",
     "hde_rel2",
-    "new_base"
+    "new_base",
+    "hde_bigger_lr"
   ]
 }

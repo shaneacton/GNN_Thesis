@@ -42,7 +42,6 @@ class HDEModel(nn.Module):
             self.cand_contextualiser = GRUContextualiser()
             self.query_contextualiser = GRUContextualiser()
 
-
         if conf.use_switch_summariser:
             self.summariser = SwitchSummariser(**kwargs)
         else:

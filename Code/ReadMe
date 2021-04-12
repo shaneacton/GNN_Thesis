@@ -26,7 +26,6 @@ Todo:
 
 
 * Fixes
-    * fix max runtime counting
     * fix single run function
     * fix local loss viz
 
@@ -35,8 +34,6 @@ Todo:
     * remove legacy exception handling, todos
     * move utils out of the training folder
     * rename character embedders in glove embedder
-    * touch up num params logging
-    * clean name, without number for grouping
     * rename charcter embedder file
     * graph construction statistics on wandb
         * num nodes, num edges, num discarded examples
