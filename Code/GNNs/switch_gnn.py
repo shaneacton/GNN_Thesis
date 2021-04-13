@@ -40,15 +40,12 @@ class SwitchGNN(nn.Module):
 
             type_messages.append(x)
 
-        try:
-            if self.use_edge_summariser:
-                """summariser wants (n, s, f), we have a (n, f) list"""
-                type_messages = torch.stack(type_messages, dim=1)
-                x_agg = self.messages_summariser(type_messages, None, return_list=False)  # a single (n, f)
-            else:
-                x_agg = sum(type_messages) / len(type_messages)
-        except:
-            # todo remove, this is for backwards compat with a still in progress model
+        if self.use_edge_summariser:
+            """summariser wants (n, s, f), we have a (n, f) list"""
+            type_messages = torch.stack(type_messages, dim=1)
+            x_agg = self.messages_summariser(type_messages, None, return_list=False)  # a single (n, f)
+        else:
             x_agg = sum(type_messages) / len(type_messages)
+
         return x_agg
 

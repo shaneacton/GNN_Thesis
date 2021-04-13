@@ -31,10 +31,6 @@ Todo:
 
 
 * before next experiment round:
-    * remove legacy exception handling, todos
-    * move utils out of the training folder
-    * rename character embedders in glove embedder
-    * rename charcter embedder file
     * graph construction statistics on wandb
         * num nodes, num edges, num discarded examples
         * add network timing data to wandb

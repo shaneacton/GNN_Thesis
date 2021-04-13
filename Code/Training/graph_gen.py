@@ -4,7 +4,7 @@ import random
 import time
 import torch.multiprocessing as mp
 
-from Code.HDE.Graph.graph_utils import create_graph
+from Code.Utils.graph_utils import create_graph
 
 BUF_SIZE = 1500
 graph_queue = None

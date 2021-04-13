@@ -28,7 +28,7 @@ class BertEmbedder(StringEmbedder):
             raise Exception("conf embedded dims wrong. bert embedder=" + str(self.dims) + " conf=" + str(get_config().embedded_dims))
 
         self.set_trainable_params()
-        from Code.Training.Utils.model_utils import num_params
+        from Code.Utils.model_utils import num_params
         print("Loaded bert model with", self.dims, "dims and ", num_params(self), ("trainable" if self.fine_tune else "static"), "params")
 
     def set_trainable_params(self):

@@ -9,7 +9,7 @@ class HDEGNN(nn.Module):
 
     def __init__(self, in_size, hidden_size, BASE_GNN_CLASS=None, **layer_kwargs):
         if BASE_GNN_CLASS is None:
-            from Code.Training.Utils.model_utils import GNN_MAP
+            from Code.Utils.model_utils import GNN_MAP
             BASE_GNN_CLASS = GNN_MAP[conf.gnn_class]
 
         super().__init__()

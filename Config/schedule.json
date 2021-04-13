@@ -3,12 +3,8 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "lr_big",
-    "contextualiser",
-    "special",
-    "hde_rel2",
-    "new_base",
-    "hde_bigger_lr",
-    "hde7L_bigger_lr"
+    "base",
+    "gnn_layers7",
+    "adamw"
   ]
 }

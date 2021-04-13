@@ -5,15 +5,15 @@ from statistics import mean
 from nlp import tqdm
 
 from Checkpoint.checkpoint_utils import save_model, set_status_value, duplicate_checkpoint_folder
-from Code.Embedding.Glove.glove_embedder import NoWordsException
 from Code.Embedding.bert_embedder import TooManyTokens
+from Code.Embedding.glove_embedder import NoWordsException
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training import set_gpu
-from Code.Training.Utils.eval_utils import get_acc_and_f1
-from Code.Training.Utils.model_utils import get_model
-from Code.Training.Utils.training_utils import plot_training_data, save_training_results, get_training_results
 from Code.Training.eval import evaluate
 from Code.Training.graph_gen import GraphGenerator, SKIP
+from Code.Utils.eval_utils import get_acc_and_f1
+from Code.Utils.model_utils import get_model
+from Code.Utils.training_utils import get_training_results, plot_training_data, save_training_results
 from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
 from Viz.wandb_utils import use_wandb, wandb_run

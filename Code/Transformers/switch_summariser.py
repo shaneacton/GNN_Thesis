@@ -54,11 +54,8 @@ class SwitchSummariser(SwitchTransformer):
         if spans is None:
             spans = [None] * len(vecs)
         extracts = [Summariser.get_vec_extract(v, spans[i]).view(-1, self.hidden_size) for i, v in enumerate(vecs)]
-        try:
-            if self.use_pos_embeddings:
-                extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
-        except:  # todo remove. for legacy model runnning currently
-            pass
+        if self.use_pos_embeddings:
+            extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
 
         batch, masks = Summariser.pad(extracts)
 

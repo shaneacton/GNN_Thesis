@@ -10,7 +10,7 @@ class HDERel(HDEGlove):
 
     def __init__(self, BASE_GNN_CLASS=None, **kwargs):
         if BASE_GNN_CLASS is None:
-            from Code.Training.Utils.model_utils import GNN_MAP
+            from Code.Utils.model_utils import GNN_MAP
             BASE_GNN_CLASS = GNN_MAP[conf.gnn_class]
         super().__init__(GNN_CLASS=BASE_GNN_CLASS, **kwargs)
 

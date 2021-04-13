@@ -2,10 +2,10 @@ import nlp
 import torch
 from numpy import mean
 
-from Code.Embedding.Glove.glove_embedder import NoWordsException
+from Code.Embedding.glove_embedder import NoWordsException
 from Code.Embedding.bert_embedder import TooManyTokens
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
-from Code.Training.Utils.eval_utils import get_acc_and_f1
+from Code.Utils.eval_utils import get_acc_and_f1
 from Code.Training.graph_gen import GraphGenerator
 from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop

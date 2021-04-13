@@ -5,13 +5,13 @@ from typing import Tuple, List
 from torch import Tensor
 from transformers import LongformerTokenizerFast, BatchEncoding, TokenSpan
 
-from Code.Embedding.Glove.glove_embedder import GloveEmbedder
-from Code.Embedding.spacy_utils import get_entity_char_spans
+from Code.Embedding.glove_embedder import GloveEmbedder
+from Code.Utils.spacy_utils import get_entity_char_spans
 from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode
 from Code.constants import DOCUMENT, ENTITY, CODOCUMENT, CANDIDATE, COMENTION
-from Config.config import get_config, conf
+from Config.config import conf
 from Viz.graph_visualiser import render_graph, get_file_path
 
 
@@ -21,24 +21,19 @@ _regex = None
 def get_regex():
     global _regex
     if _regex is None:
-        try:  # todo remove, legacy model
-            inc = get_config().include_clean_numbers
-            if inc:
-                _regex = re.compile('[^a-zA-Z0-9]')
-            else:
-                _regex = re.compile('[^a-zA-Z]')
-            return _regex
-        except:
+        inc = conf.include_clean_numbers
+        if inc:
+            _regex = re.compile('[^a-zA-Z0-9]')
+        else:
             _regex = re.compile('[^a-zA-Z]')
+        return _regex
 
     return _regex
 
 
 def clean(text):
     cleaner = get_regex().sub('', text.lower())
-    config = get_config()  # todo remove, legacy model
-    strict = config.use_strict_graph_matching if hasattr(config, "use_strict_graph_matching") else False
-    if not strict:
+    if not conf.use_strict_graph_matching:
         """non strict matching uses similarity to match nodes, so trailing words can be tollerated"""
         return cleaner
 
@@ -72,7 +67,7 @@ def connect_unconnected_entities(graph: HDEGraph):
 
 
 def similar(text1, text2):
-    if not get_config().use_strict_graph_matching:
+    if not conf.use_strict_graph_matching:
         return text1 in text2 or text2 in text1
     else:
         return text1 == text2
@@ -257,8 +252,8 @@ def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings
     if conf.print_times:
         print("made full graph in", (time.time() - start_t))
 
-    if get_config().visualise_graphs:
-        if get_config().exit_after_first_viz:
+    if conf.visualise_graphs:
+        if conf.exit_after_first_viz:
             render_graph(graph, graph_folder="temp")
             exit()
         else:
@@ -267,7 +262,7 @@ def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings
             render_graph(graph, view=False, graph_name=name)
 
             text_name = name + ".txt"
-            text_path = get_file_path(get_config().model_name, text_name)
+            text_path = get_file_path(conf.model_name, text_name)
             file = open(text_path, "w")
             file.write(repr(example))
             file.close()

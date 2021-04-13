@@ -13,7 +13,7 @@ from Code.HDE.hde_rel import HDERel
 from Code.HDE.hde_rel2 import HDERel2
 from Code.Pooling.hde_pool import HDEPool
 from Code.Training import dev
-from Code.Training.Utils.training_utils import get_exponential_schedule_with_warmup
+from Code.Utils.training_utils import get_exponential_schedule_with_warmup
 from Config.config import conf, get_config
 from Viz import wandb_utils
 from Viz.wandb_utils import use_wandb

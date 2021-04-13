@@ -1,7 +1,7 @@
 from typing import Tuple, List
 
-from Code.Embedding.Glove.glove_utils import get_glove_entity_token_spans
-from Code.HDE.Graph.graph_utils import get_transformer_entity_token_spans
+from Code.Utils.glove_utils import get_glove_entity_token_spans
+from Code.Utils.graph_utils import get_transformer_entity_token_spans
 from Config.config import conf, get_config
 
 

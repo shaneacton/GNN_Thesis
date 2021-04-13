@@ -10,13 +10,13 @@ from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.Graph.graph import HDEGraph
-from Code.HDE.Graph.graph_utils import similar, get_entity_summaries
 from Code.Transformers.coattention import Coattention
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_summariser import SwitchSummariser
 from Code.HDE.scorer import HDEScorer
 from Code.HDE.wikipoint import Wikipoint
 from Code.Training import dev
+from Code.Utils.graph_utils import get_entity_summaries, similar
 from Code.constants import DOCUMENT, CANDIDATE
 from Config.config import conf
 
@@ -24,10 +24,10 @@ from Config.config import conf
 class HDEModel(nn.Module):
 
     def __init__(self, GNN_CLASS=None, **kwargs):
-        from Code.Training.Utils.model_utils import num_params
+        from Code.Utils.model_utils import num_params
 
         if GNN_CLASS is None:
-            from Code.Training.Utils.model_utils import GNN_MAP
+            from Code.Utils.model_utils import GNN_MAP
             GNN_CLASS = GNN_MAP[conf.gnn_class]
         super().__init__()
         self.name = conf.model_name

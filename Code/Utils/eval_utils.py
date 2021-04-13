@@ -71,9 +71,6 @@ def get_acc_and_f1(gold_answers: List[List[str]], predictions: List[str]):
     """
     f1 = exact_match = total = 0
 
-    # print("g:", len(gold_answers), "p:", len(predictions))
-    # print(gold_answers)
-    # print(predictions)
     if len(predictions) == 0:
         return {'exact_match': 0, 'f1': 0}
     for ground_truths, prediction in zip(gold_answers, predictions):

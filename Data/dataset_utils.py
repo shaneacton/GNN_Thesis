@@ -6,7 +6,6 @@ import nlp
 from tqdm import tqdm
 
 from Code.HDE.wikipoint import Wikipoint
-from Code.Training.Utils.training_utils import save_training_results
 from Checkpoint.checkpoint_utils import save_binary_data
 from Config.config import conf
 
