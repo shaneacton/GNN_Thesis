@@ -8,6 +8,7 @@
     "adamw",
     "summ_layers2",
     "dropout2",
-    "norms"
+    "norms",
+    "dropout05"
   ]
 }
