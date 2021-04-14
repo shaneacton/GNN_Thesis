@@ -3,13 +3,16 @@ import inspect
 import torch
 from torch import nn
 from torch_geometric.nn import GATConv
-
+import copy
 
 class WrapGNN(nn.Module):
 
     def __init__(self, gnn_layer):
         super().__init__()
         self.gnn_layer = gnn_layer
+        self.backup_gnn_layer = copy.deepcopy(gnn_layer)
+        for param in self.backup_gnn_layer.parameters():
+            param.requires_grad = False
 
         # store originals
         self.base_forward = gnn_layer.forward
@@ -24,12 +27,35 @@ class WrapGNN(nn.Module):
         # temporarily stores forward kwargs which cannot be passed through the gnn layers forward
         # these kwargs can then be accessed in the custom forward method
 
+        print("wrap init called. base message:", self.base_message, "gnn message:", gnn_layer.message)
+
     def message(self, x_j, index, *args, **kwargs):
         """
             called by the message passing forward method.
             calls our wrap message, then calls the original base message
         """
         x_j = self.wrap_message(x_j, index, *args, **kwargs)
+        if self.base_message == self.message:
+            """
+                python saves bound messages as an object reference + method name. 
+                Thus when saving and loading a wrap gnn, the original gnn's message method will be lost.
+                We recover from this by keeping a clone of the layer, copying our trained weights into the clone, 
+                and switching to the clone, which still retains its original message function
+            """
+            print("lost reference to base gnn message func. now has: " + repr(self.base_message) +
+                            " gnn has: " + repr(self.gnn_layer.message), " backup has: " + repr(self.backup_gnn_layer.message))
+            self.backup_gnn_layer.load_state_dict(self.gnn_layer.state_dict())  # load trained weights into backup
+            self.gnn_layer = self.backup_gnn_layer  # retorre from backup
+            self.backup_gnn_layer = copy.deepcopy(self.gnn_layer)  # create new backup
+            # set trainable params
+            for param in self.backup_gnn_layer.parameters():
+                param.requires_grad = False
+            for param in self.gnn_layer.parameters():
+                param.requires_grad = True
+            self.base_message= self.gnn_layer.message  # perform the wrap message switch again
+            self.gnn_layer.message = self.message
+            # recovery complete!
+
         return self.base_message(x_j=x_j, index=index, *args, **kwargs)
 
     def wrap_message(self,  x_j, index, *args, **kwargs):

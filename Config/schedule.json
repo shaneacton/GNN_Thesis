@@ -5,11 +5,9 @@
   "model_configs": [
     "base",
     "gnn_layers7",
-    "adamw",
-    "adam",
     "summ_layers2",
     "dropout2",
-    "norms",
-    "dropout05"
+    "dropout05",
+    "rel2"
   ]
 }

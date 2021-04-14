@@ -1,24 +1,8 @@
 {
-  "model_name": "special",
+  "model_name": "rel",
   "model_class": "HDERel2",
   "gnn_class": "GATConv",
-  "embedded_dims": 120,
-  "hidden_size": 120,
-  "transformer_heads": 5,
-  "use_switch_summariser": true,
-  "use_global_summariser": true,
-  "use_simple_gnn": false,
-  "layerwise_weight_sharing": false,
-  "gnn_aggr": "mean",
-  "gnn_stack_act": "relu",
-  "use_attention_edge_combination": true,
-  "use_summariser_pos_embs": true,
-  "use_layer_norms_b": false,
-  "use_strict_graph_matching": true,
-  "ignored_edges": ["entity", "codocument"],
-  "include_clean_numbers": true,
-  "use_character_embs_for_unknown_words": true,
-  "use_gru_contextualiser": true,
-  "character_embedded_dims": 20,
-  "use_special_entities": true
+  "embedded_dims": 100,
+  "hidden_size": 100,
+  "transformer_heads": 5
 }
