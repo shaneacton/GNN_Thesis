@@ -9,6 +9,7 @@
     "dropout2",
     "dropout05",
     "hde_rel2",
-    "lamb"
+    "lamb",
+    "strict_matching"
   ]
 }
