@@ -5,6 +5,7 @@ from torch import nn
 from torch_geometric.nn import GATConv
 import copy
 
+
 class WrapGNN(nn.Module):
 
     def __init__(self, gnn_layer):
@@ -26,8 +27,6 @@ class WrapGNN(nn.Module):
         self.last_custom_kwargs = None
         # temporarily stores forward kwargs which cannot be passed through the gnn layers forward
         # these kwargs can then be accessed in the custom forward method
-
-        print("wrap init called. base message:", self.base_message, "gnn message:", gnn_layer.message)
 
     def message(self, x_j, index, *args, **kwargs):
         """

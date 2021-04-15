@@ -9,6 +9,6 @@
     "dropout2",
     "dropout05",
     "hde_rel2",
-    "lamb"
+    "hde_strict_rel2"
   ]
 }
