@@ -84,7 +84,12 @@ def get_next_model_config(debug, repeat_num=0):
         """
         print("getting next config from schedule:", schedule, "repeat num:", repeat_num)
         all_confs = schedule["model_configs"]
-        model_names = {c: effective_name(load_effective_config(c, "base")["model_name"], repeat_num) for c in all_confs}
+        model_names = {}
+        for c in all_confs:
+            try:
+                model_names[c] = effective_name(load_effective_config(c, "base")["model_name"], repeat_num)
+            except Exception as e:
+                print(e)
         started = [conf for conf in all_confs if exists(get_model_checkpoint_folder(model_names[conf]))]
         not_started = [conf for conf in all_confs if conf not in started]
         print("started:", started, "not:", not_started)

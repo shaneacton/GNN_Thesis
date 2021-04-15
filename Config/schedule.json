@@ -8,6 +8,6 @@
     "summ_layers2",
     "dropout2",
     "dropout05",
-    "rel2"
+    "hde_rel2"
   ]
 }
