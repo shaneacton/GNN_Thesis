@@ -13,6 +13,7 @@ from Code.HDE.hde_rel import HDERel
 from Code.HDE.hde_rel2 import HDERel2
 from Code.Pooling.hde_pool import HDEPool
 from Code.Training import dev
+from Code.Training.lamb import Lamb
 from Code.Utils.training_utils import get_exponential_schedule_with_warmup
 from Config.config import conf, get_config
 from Viz import wandb_utils
@@ -92,9 +93,11 @@ def get_optimizer(model, type="sgd"):
     if type == "sgd":
         return torch.optim.SGD(params, lr=lr)
     if type == "adamw":
-            return torch.optim.AdamW(params, lr=lr)
+        return torch.optim.AdamW(params, lr=lr)
     if type == "adam":
         return torch.optim.Adam(params, lr=lr)
+    if type == "lamb":
+        return Lamb(params, lr=lr)
 
     raise Exception("unreckognised optimizer arg: " + type)
 
