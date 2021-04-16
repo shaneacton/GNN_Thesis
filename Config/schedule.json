@@ -10,6 +10,7 @@
     "dropout05",
     "hde_rel2",
     "hde_strict_rel2",
-    "gnn_layers7_dropout2"
+    "gnn_layers7_dropout2",
+    "gnn_layers9"
   ]
 }
