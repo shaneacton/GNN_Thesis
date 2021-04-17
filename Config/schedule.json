@@ -4,14 +4,15 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base",
-    "gnn_layers7",
     "summ_layers2",
     "dropout2",
     "dropout05",
     "hde_rel2",
     "hde_strict_rel2",
+    "gnn_layers7",
     "gnn_layers7_dropout2",
     "gnn_layers9",
-    "gnn_layers9_dropout2"
+    "gnn_layers9_dropout2",
+    "gnn_layers11"
   ]
 }
