@@ -1,6 +1,9 @@
+import inspect
+
 import torch
 from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
+from torch_geometric.nn import GATConv
 
 from Code.GNNs.gated_gnn import GatedGNN
 from Code.GNNs.wrap_gnn import EdgeEmbeddings
@@ -62,10 +65,13 @@ class GNNLayer(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_size = conf.hidden_size
-        if "heads" in layer_kwargs:
-            self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **layer_kwargs)
+        init_args = inspect.getfullargspec(GNNClass.__init__)[0]
+        needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
+
+        if GNNClass == GATConv:
+            self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **needed_kwargs)
         else:
-            self.gnn = GNNClass(in_channels, conf.hidden_size, **layer_kwargs)
+            self.gnn = GNNClass(in_channels, conf.hidden_size, **needed_kwargs)
 
         if use_edge_type_embs:
             num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges
@@ -82,7 +88,12 @@ class GNNLayer(nn.Module):
 
     def forward(self, x, **kwargs):
         """x ~ (N, in_channels)"""
-        x2 = self.dropout1(self.gnn(x, **kwargs))  # # (N, out_channels)
+        forward_args = inspect.getfullargspec(self.gnn.forward)[0]
+        if "data" in forward_args:
+            inp = (x, kwargs.pop("edge_index"))
+        else:
+            inp = x
+        x2 = self.dropout1(self.gnn(inp, **kwargs))  # # (N, out_channels)
         if x.size(-1) == x2.size(-1):
             x = x + x2  # residual
             x = self.norm1(x)
@@ -100,7 +111,7 @@ class SimpleGNNLayer(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_size = conf.hidden_size
-        if "heads" in layer_kwargs:
+        if GNNClass == GATConv:
             self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **layer_kwargs)
         else:
             self.gnn = GNNClass(in_channels, conf.hidden_size, **layer_kwargs)

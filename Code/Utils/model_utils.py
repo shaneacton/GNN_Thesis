@@ -6,6 +6,7 @@ from torch_geometric.nn import GATConv, SAGEConv
 
 from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
     load_json_data, restore_from_backup_folder
+from Code.GNNs.gordicaleksa_gat import GordiGAT
 from Code.HDE.hde_bert import HDEBert
 from Code.HDE.hde_glove import HDEGlove
 from Code.HDE.hde_rel import HDERel
@@ -22,7 +23,7 @@ MODEL_MAP = {
     "HDEBert": HDEBert, "HDEGlove": HDEGlove, "HDEPool": HDEPool, "HDERel": HDERel,
     "HDERel2": HDERel2
              }
-GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv}
+GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv, "GordiGAT": GordiGAT}
 
 
 def get_model(name, MODEL_CLASS=None, **model_kwargs):

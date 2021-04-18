@@ -1,7 +1,7 @@
 {
-  "model_name": "big_gate",
-  "model_class": "HDERel2",
-  "gnn_class": "GATConv",
+  "model_name": "gordiGAT",
+  "model_class": "HDEGlove",
+  "gnn_class": "GordiGAT",
   "embedded_dims": 100,
   "hidden_size": 100,
   "transformer_heads": 5,

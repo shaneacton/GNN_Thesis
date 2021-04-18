@@ -1,4 +1,4 @@
-from torch_geometric.nn import GATConv
+import inspect
 
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.hde_glove import HDEGlove
@@ -14,10 +14,11 @@ class HDERel2(HDEGlove):
         super().__init__(GNN_CLASS=BASE_GNN_CLASS, **kwargs)
 
     def init_gnn(self, BASE_GNN_CLASS):
-        if BASE_GNN_CLASS == GATConv:
-            self.gnn = GNNStack(BASE_GNN_CLASS, heads=conf.heads, use_edge_type_embs=True)
-        else:
-            self.gnn = GNNStack(BASE_GNN_CLASS, use_edge_type_embs=True)
+        init_args = inspect.getfullargspec(BASE_GNN_CLASS.__init__)[0]
+        args = {"use_edge_type_embs": True}
+        if "heads" in init_args:
+            args.update({"heads": conf.heads})
+        self.gnn = GNNStack(BASE_GNN_CLASS, **args)
 
     def pass_gnn(self, x, example, graph):
         edge_types = graph.edge_types()

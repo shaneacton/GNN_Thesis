@@ -1,10 +1,10 @@
+import inspect
 import time
 from typing import List, Tuple
 
 import torch
 from torch import nn, Tensor
 from torch.nn import CrossEntropyLoss, ReLU
-from torch_geometric.nn import GATConv
 
 from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Embedding.string_embedder import StringEmbedder
@@ -72,10 +72,13 @@ class HDEModel(nn.Module):
         conf.cfg["num_total_params"] = num_params(self)
 
     def init_gnn(self, GNN_CLASS):
-        if GNN_CLASS == GATConv:
-            self.gnn = GNNStack(GNN_CLASS, heads=conf.heads)
+        init_args = inspect.getfullargspec(GNN_CLASS.__init__)[0]
+        if "heads" in init_args:
+            args = {"heads": conf.heads}
         else:
-            self.gnn = GNNStack(GNN_CLASS)
+            args = {}
+        self.gnn = GNNStack(GNN_CLASS, **args)
+
 
     def forward(self, example: Wikipoint=None, graph: HDEGraph=None):
         """

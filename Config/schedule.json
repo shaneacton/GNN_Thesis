@@ -4,7 +4,6 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base",
-    "summ_layers2",
     "dropout2",
     "dropout05",
     "hde_rel2",
@@ -14,6 +13,6 @@
     "gnn_layers9",
     "gnn_layers9_dropout2",
     "gnn_layers11",
-    "rel2_big_gate"
+    "gordigat"
   ]
 }

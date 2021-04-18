@@ -114,12 +114,13 @@ def train_model(name, gpu_num=0):
                                                         scheduler, start_time, train_gen.num_examples)
         model.last_example = -1
 
-        print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
-              "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - epoch_start_time),
-              "num discarded:", num_discarded)
-
         valid_acc = evaluate(model)
         set_status_value(name, "completed_epochs", epoch)
+
+        print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
+              "valid_acc:", valid_acc,
+              "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - epoch_start_time),
+              "num discarded:", num_discarded)
 
         if use_wandb:
             wandb_run().log({"valid_acc": valid_acc, "epoch": epoch + 1})
