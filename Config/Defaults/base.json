@@ -3,6 +3,7 @@
   "model_class": "HDEGlove",
   "gnn_class": "GATConv",
   "use_gating": true,
+  "use_big_gating": false,
   "use_simple_gnn": false,
   "layerwise_weight_sharing": false,
   "gnn_aggr": "add",

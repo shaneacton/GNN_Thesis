@@ -1,8 +1,9 @@
 {
-  "model_name": "rel",
+  "model_name": "big_gate",
   "model_class": "HDERel2",
   "gnn_class": "GATConv",
   "embedded_dims": 100,
   "hidden_size": 100,
-  "transformer_heads": 5
+  "transformer_heads": 5,
+  "use_big_gating": true
 }

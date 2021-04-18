@@ -7,7 +7,6 @@ from torch_geometric.nn import GATConv, SAGEConv
 from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
     load_json_data, restore_from_backup_folder
 from Code.HDE.hde_bert import HDEBert
-from Code.HDE.hde_cannon import HDECannon
 from Code.HDE.hde_glove import HDEGlove
 from Code.HDE.hde_rel import HDERel
 from Code.HDE.hde_rel2 import HDERel2
@@ -20,7 +19,7 @@ from Viz import wandb_utils
 from Viz.wandb_utils import use_wandb
 
 MODEL_MAP = {
-    "HDECannon": HDECannon, "HDEBert": HDEBert, "HDEGlove": HDEGlove, "HDEPool": HDEPool, "HDERel": HDERel,
+    "HDEBert": HDEBert, "HDEGlove": HDEGlove, "HDEPool": HDEPool, "HDERel": HDERel,
     "HDERel2": HDERel2
              }
 GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv}

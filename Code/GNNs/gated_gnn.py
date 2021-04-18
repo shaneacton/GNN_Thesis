@@ -6,7 +6,13 @@ from Config.config import conf
 
 class GatedGNN(nn.Module):
 
-    """a wrapper around a gnn instance which makes its node update process gated"""
+    """
+        a wrapper around a gnn instance which makes its node update process gated.
+        Copied from: Multi-hop Reading Comprehension across Multiple Documents by
+        Reasoning over Heterogeneous Graphs.
+
+        Here the gnn can be any function which takes in node states + other as inputs, and returns new node states
+    """
 
     def __init__(self, gnn):
         super().__init__()

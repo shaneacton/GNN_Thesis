@@ -13,6 +13,7 @@
     "gnn_layers7_dropout2",
     "gnn_layers9",
     "gnn_layers9_dropout2",
-    "gnn_layers11"
+    "gnn_layers11",
+    "rel2_big_gate"
   ]
 }

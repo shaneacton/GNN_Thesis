@@ -8,6 +8,7 @@ from torch_geometric.nn import GATConv
 
 from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Embedding.string_embedder import StringEmbedder
+from Code.GNNs.gated_gnn import GatedGNN
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.Graph.graph import HDEGraph
 from Code.Transformers.coattention import Coattention
@@ -53,6 +54,9 @@ class HDEModel(nn.Module):
 
         self.gnn = None
         self.init_gnn(GNN_CLASS)
+        if conf.use_big_gating:
+            """wraps the whole gnn in a gate, as in Hierarchical Graph Network"""
+            self.gnn = GatedGNN(self.gnn)
         conf.cfg["num_gnn_params"] = num_params(self.gnn)
 
         self.candidate_scorer = HDEScorer(conf.hidden_size)
