@@ -10,6 +10,7 @@
     "gnn_layers9",
     "gnn_layers9_dropout2",
     "gnn_layers11",
-    "gordigat"
+    "gordigat",
+    "new_base"
   ]
 }
