@@ -25,7 +25,7 @@ from Checkpoint import CHECKPOINT_FOLDER
 GLOBAL_FILE_LOCK_PATH = join(CHECKPOINT_FOLDER, "scheduler_lock.lock")
 
 
-def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0):
+def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, program_start_time=-1):
     """
         train/continue a model using a model config in HDE/Config
         this method can be run in parallel by different processes
@@ -44,7 +44,7 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0):
     conf.set("clean_model_name", conf.model_name)
     conf.set("model_name", model_name)
     atexit.register(release_status)
-    train_model(conf.model_name, gpu_num=gpu_num)
+    train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
 
 
 def release_status():
@@ -144,6 +144,7 @@ def get_schedule(debug):
 def continue_schedule(debug=False):
     """reads the schedule, as well as which """
     num_gpus = torch.cuda.device_count()
+    program_start_time = time.time()
     schedule = get_schedule(debug)
 
     train_conf = schedule["train_config"]
@@ -161,10 +162,11 @@ def continue_schedule(debug=False):
         print("chosen conf:", next_model_conf)
         if gpu_id == num_gpus - 1:
             """is last config to run. can run in master thread"""
-            train_config(next_model_conf, train_conf, gpu_id, repeat_num)
+            train_config(next_model_conf, train_conf, gpu_id, repeat_num, program_start_time)
         else:
             # spawn process
-            kwargs = {"model_conf": next_model_conf, "train_conf": train_conf, "gpu_num": gpu_id, "repeat_num":repeat_num}
+            kwargs = {"model_conf": next_model_conf, "train_conf": train_conf, "gpu_num": gpu_id,
+                      "repeat_num":repeat_num, "program_start_time":program_start_time}
             process = ctx.Process(target=train_config, kwargs=kwargs)
             process.start()
             print("starting new process for", next_model_conf, "on gpu:", gpu_id)

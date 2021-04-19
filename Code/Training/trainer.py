@@ -18,10 +18,10 @@ from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
 from Viz.wandb_utils import use_wandb, wandb_run
 
-start_time = time.time()
 
-
-def train_model(name, gpu_num=0):
+def train_model(name, gpu_num=0, program_start_time=-1):
+    if program_start_time == -1:
+        program_start_time = time.time() - 120
     set_gpu(gpu_num)
     model, optimizer, scheduler = get_model(name)
     if use_wandb:
@@ -60,7 +60,7 @@ def train_model(name, gpu_num=0):
             if graph == SKIP:
                 continue
 
-            if time.time() - start_time > conf.max_runtime_seconds != -1:
+            if time.time() - program_start_time > conf.max_runtime_seconds != -1:
                 print("reached max run time. shutting down so the program can exit safely")
                 exit()
 
