@@ -1,3 +1,6 @@
 {
-  "gnn_class": "GordiGAT"
+  "gnn_class": "GordiGAT",
+  "max_edges": 320000,
+  "max_accumulated_edges": 230000,
+  "show_memory_usage_data": true
 }

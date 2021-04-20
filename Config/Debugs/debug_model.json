@@ -1,9 +1,10 @@
 {
-  "model_name": "gordiGAT",
+  "model_name": "CustomGAT",
   "model_class": "HDEGlove",
-  "gnn_class": "GordiGAT",
+  "gnn_class": "CustomGAT",
   "embedded_dims": 100,
   "hidden_size": 100,
   "transformer_heads": 5,
-  "use_big_gating": true
+  "use_big_gating": true,
+  "heads": 4
 }
