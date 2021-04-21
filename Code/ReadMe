@@ -5,6 +5,7 @@ Todo:
     * add dropout to output model and other
     * try attentional gating as used in Hierarchical Graph Network
 
+
 * Transformers
     * check that a transformer is an adequate substitute for coattention
     * try add query tokens to summariser sequences
@@ -12,7 +13,7 @@ Todo:
     * code reuse between switch and regular variants
 
 * GNNs
-    * switch additive attention for dot-product
+    * try add output projection to custom GAT
     * directionality
     * try a hybrid layerwise and weight sharing system which wraps a GNN layer.
         * every layers, node states are updated as a function of a layerwise and an alayoral gnn

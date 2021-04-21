@@ -9,10 +9,8 @@
     "gnn_layers9",
     "gnn_layers9_dropout2",
     "gnn_layers11",
-    "gordigat",
     "new_base",
-    "custom_gat_simple",
-    "custom_gat_simple_layers5",
-    "custom_gat_low_lr"
+    "custom_gat_low_lr",
+    "custom_gat_layers9"
   ]
 }

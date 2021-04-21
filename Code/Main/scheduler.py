@@ -25,7 +25,7 @@ from Checkpoint import CHECKPOINT_FOLDER
 GLOBAL_FILE_LOCK_PATH = join(CHECKPOINT_FOLDER, "scheduler_lock.lock")
 
 
-def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, program_start_time=-1):
+def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, program_start_time=-1, debug=False):
     """
         train/continue a model using a model config in HDE/Config
         this method can be run in parallel by different processes
@@ -44,7 +44,15 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, prog
     conf.set("clean_model_name", conf.model_name)
     conf.set("model_name", model_name)
     atexit.register(release_status)
-    train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
+
+    try:
+        train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
+    except KeyboardInterrupt:
+        if ask_exit():
+            exit()
+    print("restarting scheduler after run cancel/completion. Selecting new config")
+    next_model_conf, repeat_num = chose_model_conf(debug=debug)
+    train_config(next_model_conf, train_conf, gpu_num, repeat_num, program_start_time, debug)
 
 
 def release_status():
@@ -141,6 +149,15 @@ def get_schedule(debug):
     return schedule
 
 
+def chose_model_conf(debug=False):
+    next_model_conf, repeat_num = get_next_model_config(debug)
+    while next_model_conf is None:
+        print("no more configs to run. hanging...")
+        time.sleep(60)
+        next_model_conf, repeat_num = get_next_model_config(debug)
+    return next_model_conf, repeat_num
+
+
 def continue_schedule(debug=False):
     """reads the schedule, as well as which """
     num_gpus = torch.cuda.device_count()
@@ -151,25 +168,33 @@ def continue_schedule(debug=False):
     print("num gpus:", num_gpus)
     ctx = mp.get_context('spawn')
 
-    for gpu_id in range(num_gpus):
+    next_gpu_id = 0
+    while next_gpu_id < num_gpus:
         """for each available gpu, spawn off a new process to run the next scheduled config"""
-        next_model_conf, repeat_num = get_next_model_config(debug)
-        while next_model_conf is None:
-            print("no more configs to run. hanging...")
-            time.sleep(60)
-            next_model_conf, repeat_num = get_next_model_config(debug)
+        next_model_conf, repeat_num = chose_model_conf(debug=debug)
 
         print("chosen conf:", next_model_conf)
-        if gpu_id == num_gpus - 1:
+        if next_gpu_id == num_gpus - 1:
             """is last config to run. can run in master thread"""
-            train_config(next_model_conf, train_conf, gpu_id, repeat_num, program_start_time)
+            train_config(next_model_conf, train_conf, next_gpu_id, repeat_num, program_start_time, debug=debug)
         else:
             # spawn process
-            kwargs = {"model_conf": next_model_conf, "train_conf": train_conf, "gpu_num": gpu_id,
-                      "repeat_num":repeat_num, "program_start_time":program_start_time}
+            kwargs = {"model_conf": next_model_conf, "train_conf": train_conf, "gpu_num": next_gpu_id,
+                      "repeat_num":repeat_num, "program_start_time":program_start_time, "debug": debug}
             process = ctx.Process(target=train_config, kwargs=kwargs)
             process.start()
-            print("starting new process for", next_model_conf, "on gpu:", gpu_id)
+            print("starting new process for", next_model_conf, "on gpu:", next_gpu_id)
+        next_gpu_id += 1
+
+
+def ask_exit() -> bool:
+    print('Hit Ctrl-C again to exit. Else wait 15 seconds to move onto next config)')
+    try:
+        for i in range(0, 30):
+            time.sleep(0.5)
+        return False
+    except KeyboardInterrupt:
+        return True
 
 
 if __name__ == "__main__":

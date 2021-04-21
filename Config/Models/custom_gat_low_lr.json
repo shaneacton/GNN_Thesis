@@ -1,5 +1,0 @@
-{
-  "model_name": "custom_gat",
-  "gnn_class": "CustomGAT",
-  "initial_lr": 0.001
-}
