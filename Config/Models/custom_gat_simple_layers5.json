@@ -1,0 +1,6 @@
+{
+  "gnn_class": "CustomGAT",
+  "initial_lr": 0.001,
+  "use_gating": false,
+  "num_layers": 5
+}
