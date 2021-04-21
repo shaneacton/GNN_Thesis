@@ -12,6 +12,7 @@
     "gordigat",
     "new_base",
     "custom_gat_simple",
-    "custom_gat_simple_layers5"
+    "custom_gat_simple_layers5",
+    "custom_gat_low_lr"
   ]
 }
