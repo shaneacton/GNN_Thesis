@@ -3,8 +3,8 @@ from os.path import exists
 
 from torch.optim.lr_scheduler import LambdaLR
 
-from Checkpoint.checkpoint_utils import training_results_path, save_binary_data, model_config_path, loss_plot_path
-from Viz.loss_visualiser import visualise_training_data, get_continuous_epochs
+from Checkpoint.checkpoint_utils import training_results_path, save_binary_data
+from Code.Training.training_results import TrainingResults
 
 
 def get_training_results(name):
@@ -15,14 +15,11 @@ def get_training_results(name):
         filehandler.close()
         return data
 
-    return {"losses": [], "train_accs": [], "valid_accs": []}
+    return TrainingResults()
 
 
-def plot_training_data(data, name, print_loss_every, num_training_examples):
-    losses, train_accs, valid_accs = data["losses"], data["train_accs"], data["valid_accs"]
-    epochs = get_continuous_epochs(losses, num_training_examples, print_loss_every)
-    # print("got epochs:", epochs)
-    visualise_training_data(losses, train_accs, epochs, name, show=False, valid_accs=valid_accs)
+# def plot_training_data(training_results, name, print_loss_every, num_training_examples):
+#     visualise_training_data(losses, train_accs, epochs, name, show=False, valid_accs=valid_accs)
 
 
 def save_training_results(data, name):

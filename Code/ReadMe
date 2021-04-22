@@ -37,6 +37,8 @@ Todo:
     * graph construction statistics on wandb
         * num nodes, num edges, num discarded examples
         * add network timing data to wandb
+    * move wikipoint into training or data
+    * move last of the utils files into utils
 
 
 * house keeping:
@@ -46,6 +48,11 @@ Todo:
         turn rel off by only using the global edge
 
 
+* Visualisations
+    * draw attention graphs, showing inner workings of attention heads
+        * could graph the aggregate flow of info through the different node/ege types
+            * aggregate across all instances, all layers, all nodes
+    * graph memory usage/ flops/ runtime   against   sequence length and sparsity
 
 
 Installs:

@@ -10,7 +10,7 @@
   "show_memory_usage_data": false,
   "use_lr_scheduler": false,
   "num_layers": 2,
-  "use_wandb": false,
+  "use_wandb": true,
   "visualise_graphs": true,
   "exit_after_first_viz": false
 }

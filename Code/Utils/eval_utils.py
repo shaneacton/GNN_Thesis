@@ -70,6 +70,8 @@ def get_acc_and_f1(gold_answers: List[List[str]], predictions: List[str]):
         from patil-suraj : longformer_qa_training
     """
     f1 = exact_match = total = 0
+    if isinstance(gold_answers[0], str):
+        gold_answers = [[g] for g in gold_answers]
 
     if len(predictions) == 0:
         return {'exact_match': 0, 'f1': 0}

@@ -11,9 +11,10 @@ from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training import set_gpu
 from Code.Training.eval import evaluate
 from Code.Training.graph_gen import GraphGenerator, SKIP
+from Code.Training.training_results import TrainingResults
 from Code.Utils.eval_utils import get_acc_and_f1
 from Code.Utils.model_utils import get_model
-from Code.Utils.training_utils import get_training_results, plot_training_data, save_training_results
+from Code.Utils.training_utils import get_training_results, save_training_results
 from Config.config import conf
 from Data.dataset_utils import get_processed_wikihop
 from Viz.wandb_utils import use_wandb, wandb_run
@@ -29,7 +30,6 @@ def train_model(name, gpu_num=0, program_start_time=-1):
             wandb_run().watch(model)
         except:
             pass
-    results = get_training_results(name)
 
     train_gen = GraphGenerator(get_processed_wikihop(model), model=model)
 
@@ -37,19 +37,17 @@ def train_model(name, gpu_num=0, program_start_time=-1):
 
     start_time = time.time()
 
+    training_results = get_training_results(name)
+
     for epoch in range(conf.num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
             continue
         train_gen.shuffle(epoch)
-
-        answers = []
-        predictions = []
-        chances = []
-        losses = []
         model.train()
 
         epoch_start_time = time.time()
         num_discarded = 0
+        num_fastforward_examples = max(model.last_example, 0)
         for i, graph in tqdm(enumerate(train_gen.graphs(start_at=model.last_example))):
             def e_frac():
                 return epoch + i/train_gen.num_examples
@@ -93,59 +91,41 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 num_discarded += 1
                 continue
 
-            answers.append([graph.example.answer])
-            predictions.append(predicted)
-            chances.append(1. / len(graph.example.candidates))
+            training_results.report_step(loss.item(), predicted, graph.example.answer, len(graph.example.candidates))
 
-            losses.append(loss.item())
+            if len(training_results.all_losses) % conf.print_loss_every == 0:  # print loss
+                training_results.log_last_steps(e_frac())
 
-            if len(losses) % conf.print_loss_every == 0:  # print loss
-                acc = get_acc_and_f1(answers[-conf.print_loss_every:-1], predictions[-conf.print_loss_every:-1])['exact_match']
-                mean_loss = mean(losses[-conf.print_loss_every:-1])
-                print("e", epoch, "i", i, "loss:", mean_loss, "acc:", acc, "chance:", mean(chances[-conf.print_loss_every:-1]))
-
-                results["losses"].append(mean_loss)
-                results["train_accs"].append(acc)
-                if use_wandb:
-                    wandb_run().log({"loss": mean_loss, "train_acc": acc, "epoch": e_frac()})
-
-            if len(losses) % conf.checkpoint_every == 0:  # save model and data
-                epoch_start_time = save_training_states(e_frac(), epoch_start_time, i, model, name, optimizer, results,
+            if len(training_results.all_losses) % conf.checkpoint_every == 0:  # save model and data
+                epoch_start_time = save_training_states(training_results, epoch_start_time, i, model, name, optimizer,
                                                         scheduler, start_time, train_gen.num_examples)
         model.last_example = -1
 
         valid_acc = evaluate(model)
         set_status_value(name, "completed_epochs", epoch)
 
-        print("e", epoch, "completed. Training acc:", get_acc_and_f1(answers, predictions)['exact_match'],
-              "valid_acc:", valid_acc,
-              "chance:", mean(chances) if len(chances) > 0 else 0, "time:", (time.time() - epoch_start_time),
-              "num discarded:", num_discarded)
-
-        if use_wandb:
-            wandb_run().log({"valid_acc": valid_acc, "epoch": epoch + 1})
-        results["valid_accs"].append(valid_acc)
-
-        plot_training_data(results, name, conf.print_loss_every, train_gen.num_examples)
+        training_results.log_epoch(epoch, valid_acc, num_discarded, epoch_start_time, num_fastforward_examples)
 
     set_status_value(name, "finished", True)
 
 
-def save_training_states(epoch, epoch_start_time, i, model, name, optimizer, results, scheduler, start_time, num_examples):
+def save_training_states(training_results: TrainingResults, epoch_start_time, i, model, name, optimizer, scheduler,
+                         start_time, num_examples):
+
     if time.time() - start_time + 5 * 60 > conf.max_runtime_seconds != -1:
         # end 5m early before saving, as this can take long enough to send us over the max runtime
         print("reached max run time. shutting down so the program can exit safely")
         exit()
     save_time = time.time()
-    print("saving model at e", epoch, "i:", i)
+    print("saving model at e", training_results.epoch, "i:", i)
     model.last_example = i
-    model.last_epoch = floor(epoch)
+    model.last_epoch = floor(training_results.epoch)
     save_model(model, optimizer, scheduler)
-    plot_training_data(results, name, conf.print_loss_every, num_examples)
-    save_training_results(results, name)
+    # plot_training_data(results, name, conf.print_loss_every, num_examples)
+    save_training_results(training_results, name)
     save_time = time.time() - save_time
     epoch_start_time += save_time
-    set_status_value(name, "completed_epochs", epoch)
+    set_status_value(name, "completed_epochs", training_results.epoch)
     """upon successful saving. make a backup so that if the next save fails, we can continue from here next time"""
     duplicate_checkpoint_folder(name)
 

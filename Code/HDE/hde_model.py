@@ -79,7 +79,6 @@ class HDEModel(nn.Module):
             args = {}
         self.gnn = GNNStack(GNN_CLASS, **args)
 
-
     def forward(self, example: Wikipoint=None, graph: HDEGraph=None):
         """
             nodes are created for each support, as well as each candidate and each context entity

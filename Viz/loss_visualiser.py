@@ -22,9 +22,7 @@ from Config.config import conf
 from Config.config_utils import load_config
 
 
-def compare(names, num_training_examples=43700, show=True, print_loss_every=None):
-    from Code.Training.Utils.training_utils import get_training_results
-
+def compare(names, show=True):
     loss_ax, acc_ax = None, None
     colours = ["g", "b", "r", "y"]
     all_names = []
@@ -40,7 +38,6 @@ def compare(names, num_training_examples=43700, show=True, print_loss_every=None
             # print("from:", save_path)
             train_accs = smooth(data["train_accs"])
             valid_accs = data["valid_accs"]
-            epochs = get_continuous_epochs(losses, num_training_examples, print_loss_every=print_loss_every)
             loss_ax, acc_ax = plot_loss_and_acc(losses, train_accs, epochs, name, valid_accs=valid_accs,
                                                 loss_ax=loss_ax, acc_ax=acc_ax, colour=colours[i])
 
@@ -67,17 +64,6 @@ def smooth(seq):
     seq = remove_outliers(seq)
     seq = get_rolling_averages(seq)
     return seq
-
-
-def get_continuous_epochs(losses, num_training_examples, print_loss_every=None):
-    if print_loss_every is None:
-        train_conf = load_config("standard_train")
-        print_loss_every = train_conf["print_loss_every"]
-    num_prints = len(losses)
-    num_trained_examples = num_prints * print_loss_every
-    num_epochs = num_trained_examples / num_training_examples
-    epochs = [num_epochs * i / len(losses) for i in range(len(losses))]
-    return epochs
 
 
 def plot_loss_and_acc(losses, accs, epochs, name, valid_accs=None, fig=None, loss_ax=None, acc_ax=None, colour="g"):
