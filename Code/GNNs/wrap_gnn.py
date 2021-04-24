@@ -93,11 +93,8 @@ class EdgeEmbeddings(WrapGNN):
     def wrap_message(self, index, *args, **kwargs):
         edge_types = self.last_custom_kwargs["edge_types"]
         edge_embs = self.embeddings(edge_types)
-        print("type embs:", edge_embs.size(), "index:", index.size())
         for target in self.target_vectors:
-            print("adding type emb to", target)
             vec = kwargs[target]
-            print("vec:", vec.size())
             vec = self.add_type_embs(edge_embs, vec)
             kwargs[target] = vec
         return kwargs
