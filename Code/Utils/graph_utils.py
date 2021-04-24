@@ -138,15 +138,6 @@ def add_doc_nodes(graph: HDEGraph, supports: List[str]):
         graph.add_node(node)
 
 
-def fully_connect(node_ids, graph, type):
-    for id1 in node_ids:
-        for id2 in node_ids:
-            if id1 == id2:  # no self loops
-                continue
-            edge = HDEEdge(id1, id2, type=type, graph=graph)
-            graph.safe_add_edge(edge)
-
-
 def add_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List[Tuple[int]]],
                      tokeniser: LongformerTokenizerFast=None, support_encodings: List[BatchEncoding]=None,
                      glove_embedder: GloveEmbedder=None):
@@ -268,6 +259,38 @@ def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings
             file.close()
 
     return graph
+
+
+def connect_all_to_all(source_node_ids: List[int], target_node_ids: List[int], graph, type):
+    for source_node_id in source_node_ids:
+        connect_one_to_all(source_node_id, target_node_ids, graph, type)
+
+
+def connect_one_to_all(source_node_id: int, target_node_ids: List[int], graph, type):
+    for target_id in target_node_ids:
+        if source_node_id == target_node_ids:  # no self loops
+            continue
+        edge = HDEEdge(source_node_id, target_id, type=type, graph=graph)
+        graph.safe_add_edge(edge)
+
+
+def fully_connect(node_ids, graph, type):
+    connect_all_to_all(node_ids, node_ids, graph, type)
+
+
+def window_connect(node_ids: List[int], window_size, graph, type_prefix, wrap=False):
+    for i1, id1 in enumerate(node_ids):
+        for w_offset in range(1, window_size + 1):
+            i2 = i1 + w_offset
+            if i2 >= len(node_ids):  # wrap or skip
+                if not wrap:
+                    continue
+                i2 %= len(node_ids)
+            id2 = node_ids[i2]
+            type = type_prefix + "_" + str(w_offset)
+            edge = HDEEdge(id1, id2, type=type, graph=graph)
+            graph.safe_add_edge(edge)
+
 
 
 

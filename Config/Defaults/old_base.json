@@ -3,6 +3,7 @@
   "model_class": "HDEGlove",
   "gnn_class": "GATConv",
   "use_gating": true,
+  "use_big_gating": false,
   "use_simple_gnn": false,
   "layerwise_weight_sharing": false,
   "gnn_aggr": "add",
@@ -14,7 +15,7 @@
   "embedded_dims": 300,
   "character_embedded_dims": 0,
   "fine_tune_embedder": true,
-  "use_character_embs_for_unknown_words": false,
+  "use_character_embs_for_unknown_words": true,
   "use_gru_contextualiser": false,
   "bert_size": "small",
   "bert_fine_tune_layers": ["embeddings", "pooler", "LayerNorm"],
@@ -34,8 +35,9 @@
   "use_summariser_pos_embs": false,
   "wandb_id": -1,
   "use_strict_graph_matching": false,
-  "include_clean_numbers": false,
+  "include_clean_numbers": true,
   "ignored_edges": [],
-  "use_detected_entities": true,
-  "use_special_entities": false
+  "use_detected_entities": false,
+  "use_special_entities": true,
+  "add_self_loops": true
 }

@@ -6,6 +6,7 @@ import torch
 
 from Code.Training import dev
 from Code.constants import ENTITY, DOCUMENT, CANDIDATE, GLOBAL, SELF_LOOP
+from Config.config import conf
 
 if TYPE_CHECKING:
     from Code.HDE.Graph.edge import HDEEdge
@@ -65,7 +66,7 @@ class HDEGraph:
             types.append(GLOBAL)
         return types
 
-    def edge_types(self, direction=None, include_self_loops=True):
+    def edge_types(self, direction=None):
         types = self.ordered_unique_edge_types()
         edge_type_map = {t: i for i, t in enumerate(types)}
         type_ids = []
@@ -79,7 +80,7 @@ class HDEGraph:
                     looks the same for forward and reverse.
                 """
                 type_ids.append(type_id)
-        if include_self_loops:
+        if conf.add_self_loops:
             """
                 self loops will be automatically appended to the back of the edge index. 
                 We must account for those in the type vec. There is 1 self loop per node

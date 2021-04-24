@@ -1,10 +1,11 @@
 {
-  "model_name": "CustomGAT",
-  "model_class": "HDEGlove",
+  "model_name": "rel",
+  "model_class": "HDERel2",
   "gnn_class": "CustomGAT",
   "embedded_dims": 100,
   "hidden_size": 100,
   "transformer_heads": 5,
   "use_big_gating": true,
-  "heads": 4
+  "heads": 4,
+  "add_self_loops": false
 }

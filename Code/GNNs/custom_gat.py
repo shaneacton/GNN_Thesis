@@ -8,12 +8,14 @@ from torch.nn.parameter import Parameter
 from torch.nn.init import xavier_uniform_, constant_
 from torch_geometric.nn import MessagePassing
 
-from torch_geometric.utils import softmax as gat_softmax
+from torch_geometric.utils import softmax as gat_softmax, remove_self_loops, add_self_loops
+
+from Config.config import conf
 
 
 class CustomGAT(MessagePassing):
 
-    def __init__(self, in_channels, _, heads, dropout=0.):
+    def __init__(self, in_channels, _, heads, dropout=0., add_self_loops=None):
         super().__init__()
         self.embed_dim = in_channels
         self.num_heads = heads
@@ -27,6 +29,9 @@ class CustomGAT(MessagePassing):
         self.out_proj = _LinearWithBias(in_channels, in_channels)
 
         self._reset_parameters()
+        if add_self_loops is None:
+            add_self_loops = conf.add_self_loops
+        self.add_self_loops = add_self_loops
 
     def _reset_parameters(self):
         xavier_uniform_(self.in_proj_weight)
@@ -37,10 +42,15 @@ class CustomGAT(MessagePassing):
     def forward(self, x, edge_index):
         """x ~ (N, f)"""
         q, k, v = linear(x, self.in_proj_weight, self.in_proj_bias).chunk(3, dim=-1)
+        if self.add_self_loops:
+            num_nodes = x.size(0)
+            edge_index, _ = remove_self_loops(edge_index)
+            edge_index, _ = add_self_loops(edge_index, num_nodes=num_nodes)
+
         out = self.propagate(edge_index, q=q, k=k, v=v)
         return out
 
-    def message(self, q_i: Tensor, k_j: Tensor, v_j: Tensor, size_i, edge_index_i, edge_index_j) -> Tensor:
+    def message(self, q_i: Tensor, k_j: Tensor, v_j: Tensor, size_i, index) -> Tensor:
         """
             all vectors are shaped ~ (E, f)
             q_i is the outgoing query vectors for each edge.
@@ -60,7 +70,7 @@ class CustomGAT(MessagePassing):
         attn_output_weights = torch.sum(attn_output_weights, dim=-1)  # (E, h)
 
         """now we need to softmax over the dot product scores. We are maxing wrt each incoming edge for a given node"""
-        attn_output_weights = gat_softmax(attn_output_weights, edge_index_i, None, size_i)
+        attn_output_weights = gat_softmax(attn_output_weights, index, None, size_i)
         attn_output_weights = dropout(attn_output_weights, p=self.dropout, train=self.training)
 
         v_j = v_j * attn_output_weights.view(e, self.num_heads, 1)  # (E, h, f/h) * (E, h, 1)  ->  (E, h, f/h)

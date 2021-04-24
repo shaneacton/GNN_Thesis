@@ -1,7 +1,0 @@
-{
-  "use_gru_contextualiser": true,
-  "character_embedded_dims": 100,
-  "hidden_size": 400,
-  "embedded_dims": 400,
-  "use_character_embs_for_unknown_words": true
-}

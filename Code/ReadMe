@@ -4,10 +4,10 @@ Todo:
     * add option to use query-coattention on the entity and candidate embeddings
     * add dropout to output model and other
     * try attentional gating as used in Hierarchical Graph Network
-
+    * test with/without self edges
+    * try different learning rates for transformer/gnn
 
 * Transformers
-    * check that a transformer is an adequate substitute for coattention
     * try add query tokens to summariser sequences
     * more batching can be done in the summariser
     * code reuse between switch and regular variants
@@ -39,7 +39,7 @@ Todo:
         * add network timing data to wandb
     * move wikipoint into training or data
     * move last of the utils files into utils
-
+    * make add_self_loops option apply to the GATConv + remove conf dependancy in customGat
 
 * house keeping:
     * ssh keygen for viz

@@ -23,4 +23,5 @@ class HDERel2(HDEGlove):
     def pass_gnn(self, x, example, graph):
         edge_types = graph.edge_types()
         edge_index = graph.edge_index()
+        # print("rel hde got types:", edge_types.size(), "index:", edge_index.size())
         return self.gnn(x, edge_types=edge_types, edge_index=edge_index)

@@ -1,4 +1,0 @@
-{
-  "model_class": "HDEGlove",
-  "gnn_class": "GATConv"
-}

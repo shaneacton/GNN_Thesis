@@ -3,14 +3,9 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "hde_rel2",
-    "hde_strict_rel2",
-    "gnn_layers7_dropout2",
-    "gnn_layers9",
-    "gnn_layers9_dropout2",
-    "gnn_layers11",
-    "new_base",
-    "custom_gat_low_lr",
-    "custom_gat_layers9"
+    "base",
+    "custom_gat",
+    "custom_gat_lr005",
+    "custom_gat_lr0005"
   ]
 }

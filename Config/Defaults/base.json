@@ -1,6 +1,6 @@
 {
-  "model_name": "hde",
-  "model_class": "HDEGlove",
+  "model_name": "hde_new",
+  "model_class": "HDERel2",
   "gnn_class": "GATConv",
   "use_gating": true,
   "use_big_gating": false,
@@ -8,7 +8,7 @@
   "layerwise_weight_sharing": false,
   "gnn_aggr": "add",
   "gnn_stack_act": "none",
-  "num_layers": 5,
+  "num_layers": 9,
   "num_summariser_layers": 1,
   "num_coattention_layers": 1,
   "hidden_size": 300,
@@ -34,9 +34,10 @@
   "use_layer_norms_b": false,
   "use_summariser_pos_embs": false,
   "wandb_id": -1,
-  "use_strict_graph_matching": false,
+  "use_strict_graph_matching": true,
   "include_clean_numbers": true,
   "ignored_edges": [],
   "use_detected_entities": false,
-  "use_special_entities": true
+  "use_special_entities": true,
+  "add_self_loops": true
 }

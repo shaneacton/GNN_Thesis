@@ -5,6 +5,8 @@ from torch import nn
 from torch_geometric.nn import GATConv
 import copy
 
+from Code.GNNs.custom_gat import CustomGAT
+
 
 class WrapGNN(nn.Module):
 
@@ -28,12 +30,12 @@ class WrapGNN(nn.Module):
         # temporarily stores forward kwargs which cannot be passed through the gnn layers forward
         # these kwargs can then be accessed in the custom forward method
 
-    def message(self, x_j, index, *args, **kwargs):
+    def message(self, index, *args, **kwargs):
         """
             called by the message passing forward method.
             calls our wrap message, then calls the original base message
         """
-        x_j = self.wrap_message(x_j, index, *args, **kwargs)
+        kwargs = self.wrap_message(index, *args, **kwargs)
         if self.base_message == self.message:
             """
                 python saves bound messages as an object reference + method name. 
@@ -55,11 +57,11 @@ class WrapGNN(nn.Module):
             self.gnn_layer.message = self.message
             # recovery complete!
 
-        return self.base_message(x_j=x_j, index=index, *args, **kwargs)
+        return self.base_message(index=index, *args, **kwargs)
 
-    def wrap_message(self,  x_j, index, *args, **kwargs):
+    def wrap_message(self, index, *args, **kwargs):
         """called before the base layers forward. used for pretransforms"""
-        return x_j
+        return kwargs
 
     def forward(self, x, edge_index, *args, **kwargs):
         """caller triggers Wrap's forward, which then triggers the wrap_forward, and finally the base layers forward"""
@@ -78,27 +80,43 @@ class WrapGNN(nn.Module):
 
 class EdgeEmbeddings(WrapGNN):
 
-    def __init__(self, gnn_layer, hidden_size, num_edge_types):
+    def __init__(self, gnn_layer, hidden_size, num_edge_types, target_vectors=None):
         super().__init__(gnn_layer)
+        if target_vectors is None:
+            if isinstance(gnn_layer, CustomGAT):
+                target_vectors = ["q_i", "k_j", "v_j"]
+            else:
+                target_vectors = ["x_j"]
+        self.target_vectors = target_vectors
         self.embeddings = nn.Embedding(num_embeddings=num_edge_types, embedding_dim=hidden_size)
 
-    def wrap_message(self, x_j, index, *args, **kwargs):
+    def wrap_message(self, index, *args, **kwargs):
         edge_types = self.last_custom_kwargs["edge_types"]
         edge_embs = self.embeddings(edge_types)
-        dims = len(list(x_j.size()))
+        print("type embs:", edge_embs.size(), "index:", index.size())
+        for target in self.target_vectors:
+            print("adding type emb to", target)
+            vec = kwargs[target]
+            print("vec:", vec.size())
+            vec = self.add_type_embs(edge_embs, vec)
+            kwargs[target] = vec
+        return kwargs
+
+    def add_type_embs(self, edge_embs, vec):
+        dims = len(list(vec.size()))
         if dims > 2:
             """multiheaded attention module. add embs to all head channels"""
-            if x_j.size(1) * x_j.size(2) == edge_embs.size(1):
+            if vec.size(1) * vec.size(2) == edge_embs.size(1):
                 """no inflation, add unique emb to each head channel"""
-                edge_embs = edge_embs.view(edge_embs.size(0), x_j.size(1), -1)
-                x_j += edge_embs
+                edge_embs = edge_embs.view(edge_embs.size(0), vec.size(1), -1)
+                vec += edge_embs
             else:
                 """inflation, add the same emb to each head channel"""
-                x_j += edge_embs.view(edge_embs.size(0), 1, -1)
+                vec += edge_embs.view(edge_embs.size(0), 1, -1)
 
         else:
-            x_j += edge_embs
-        return x_j
+            vec += edge_embs
+        return vec
 
 
 if __name__ == "__main__":
