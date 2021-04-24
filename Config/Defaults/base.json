@@ -39,5 +39,6 @@
   "ignored_edges": [],
   "use_detected_entities": false,
   "use_special_entities": true,
-  "add_self_loops": true
+  "add_self_loops": true,
+  "use_value_type_embs": true
 }

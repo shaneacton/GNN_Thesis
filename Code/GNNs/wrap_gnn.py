@@ -6,7 +6,7 @@ from torch_geometric.nn import GATConv
 import copy
 
 from Code.GNNs.custom_gat import CustomGAT
-
+from Config.config import conf
 
 class WrapGNN(nn.Module):
 
@@ -84,7 +84,9 @@ class EdgeEmbeddings(WrapGNN):
         super().__init__(gnn_layer)
         if target_vectors is None:
             if isinstance(gnn_layer, CustomGAT):
-                target_vectors = ["q_i", "k_j", "v_j"]
+                target_vectors = ["q_i", "k_j"]
+                if conf.use_value_type_embs:
+                    target_vectors.append("v_j")
             else:
                 target_vectors = ["x_j"]
         self.target_vectors = target_vectors

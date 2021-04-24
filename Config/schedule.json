@@ -7,6 +7,8 @@
     "custom_gat_lr01",
     "custom_gat_lr005",
     "custom_gat_lr0005",
-    "custom_gat_no_rel"
+    "custom_gat_no_rel",
+    "custom_gat_no_value_embs",
+    "custom_gat_no_self_edges"
   ]
 }
