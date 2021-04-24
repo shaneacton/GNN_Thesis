@@ -26,7 +26,8 @@ class CustomGAT(MessagePassing):
         self.in_proj_weight = Parameter(torch.empty(3 * in_channels, in_channels))
 
         self.in_proj_bias = Parameter(torch.empty(3 * in_channels))
-        self.out_proj = _LinearWithBias(in_channels, in_channels)
+        if conf.use_output_linear_in_custom_gat:
+            self.out_proj = _LinearWithBias(in_channels, in_channels)
 
         self._reset_parameters()
         if add_self_loops is None:
@@ -37,7 +38,8 @@ class CustomGAT(MessagePassing):
         xavier_uniform_(self.in_proj_weight)
 
         constant_(self.in_proj_bias, 0.)
-        constant_(self.out_proj.bias, 0.)
+        if conf.use_output_linear_in_custom_gat:
+            constant_(self.out_proj.bias, 0.)
 
     def forward(self, x, edge_index):
         """x ~ (N, f)"""
@@ -75,7 +77,11 @@ class CustomGAT(MessagePassing):
 
         v_j = v_j * attn_output_weights.view(e, self.num_heads, 1)  # (E, h, f/h) * (E, h, 1)  ->  (E, h, f/h)
         assert v_j.size(0) == e and v_j.size(1) == self.num_heads and v_j.size(2) == head_dim
-        return v_j.view(e, -1)
+        v_j = v_j.view(e, -1)
+        if conf.use_output_linear_in_custom_gat:
+            v_j = linear(v_j, self.out_proj.weight, self.out_proj.bias)
+
+        return v_j
 
 
     # def forward(self, query, key, value):
