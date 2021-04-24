@@ -6,6 +6,7 @@ Todo:
     * try attentional gating as used in Hierarchical Graph Network
     * test with/without self edges
     * try different learning rates for transformer/gnn
+    * stop training run if it is removed from the run schedule
 
 * Transformers
     * try add query tokens to summariser sequences
