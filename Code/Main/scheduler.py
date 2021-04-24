@@ -111,6 +111,9 @@ def get_next_model_config(debug, repeat_num=0):
             print("starting conf:", selected)
         else:
             min_epochs = 999999999
+            statuses = [get_safe_status(model_names[s]) for s in started]
+            not_running = [s for i, s in enumerate(started) if not statuses[i]["running"]]
+            print("not running:", not_running)
             for s in started:
                 """find the in-progress run with the fewest epochs completed"""
                 status = get_safe_status(model_names[s])
