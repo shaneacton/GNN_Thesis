@@ -268,7 +268,7 @@ def connect_all_to_all(source_node_ids: List[int], target_node_ids: List[int], g
 
 def connect_one_to_all(source_node_id: int, target_node_ids: List[int], graph, type):
     for target_id in target_node_ids:
-        if source_node_id == target_node_ids:  # no self loops
+        if source_node_id == target_id:  # no self loops
             continue
         edge = HDEEdge(source_node_id, target_id, type=type, graph=graph)
         graph.safe_add_edge(edge)

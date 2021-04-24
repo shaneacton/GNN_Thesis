@@ -9,6 +9,9 @@ class HDEEdge:
         self.from_id = from_id
         self.to_id = to_id
 
+        if from_id == to_id:
+            raise Exception("self loops are optionally added in by the gnn. not modeled by hdegraph")
+
         if type is None and graph is None:
             raise Exception("must provide type or graph to generate type from")
 

@@ -115,6 +115,7 @@ class EdgeEmbeddings(WrapGNN):
                 vec += edge_embs.view(edge_embs.size(0), 1, -1)
 
         else:
+            assert vec.size() == edge_embs.size(), "feature vec size: " + repr(vec.size()) + " does not match edge embs: " + repr(edge_embs.size())
             vec += edge_embs
         return vec
 

@@ -3,9 +3,9 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base",
     "custom_gat",
     "custom_gat_lr005",
-    "custom_gat_lr0005"
+    "custom_gat_lr0005",
+    "custom_gat_no_rel"
   ]
 }
