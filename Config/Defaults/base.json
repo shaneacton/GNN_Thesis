@@ -40,5 +40,6 @@
   "use_detected_entities": false,
   "use_special_entities": true,
   "add_self_loops": true,
-  "use_value_type_embs": true
+  "use_value_type_embs": true,
+  "use_key_type_embs": true
 }
