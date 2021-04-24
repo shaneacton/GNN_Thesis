@@ -1,5 +1,5 @@
 {
-  "model_name": "hde_new",
+  "model_name": "hde",
   "model_class": "HDERel2",
   "gnn_class": "GATConv",
   "use_gating": true,
