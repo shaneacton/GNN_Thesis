@@ -8,7 +8,7 @@
   "checkpoint_every": 500,
   "max_edges": 320000,
   "max_accumulated_edges": 180000,
-  "max_pad_volume": 18000,
+  "max_pad_volume": 16000,
   "max_context_chars": -1,
   "print_times": false,
   "show_memory_usage_data": true,
