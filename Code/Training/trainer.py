@@ -4,7 +4,8 @@ from statistics import mean
 
 from nlp import tqdm
 
-from Checkpoint.checkpoint_utils import save_model, set_status_value, duplicate_checkpoint_folder
+from Checkpoint.checkpoint_utils import save_model, set_status_value, duplicate_checkpoint_folder, load_status, \
+    save_status
 from Code.Embedding.bert_embedder import TooManyTokens
 from Code.Embedding.glove_embedder import NoWordsException
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
@@ -12,7 +13,6 @@ from Code.Training import set_gpu
 from Code.Training.eval import evaluate
 from Code.Training.graph_gen import GraphGenerator, SKIP
 from Code.Training.training_results import TrainingResults
-from Code.Utils.eval_utils import get_acc_and_f1
 from Code.Utils.model_utils import get_model
 from Code.Utils.training_utils import get_training_results, save_training_results
 from Config.config import conf
@@ -24,6 +24,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
     if program_start_time == -1:
         program_start_time = time.time() - 120
     set_gpu(gpu_num)
+    print("max edges:", conf.max_edges, "max pad volume:", conf.max_pad_volume)
     model, optimizer, scheduler = get_model(name)
     if use_wandb:
         try:
@@ -60,6 +61,9 @@ def train_model(name, gpu_num=0, program_start_time=-1):
 
             if time.time() - program_start_time > conf.max_runtime_seconds != -1:
                 print("reached max run time. shutting down so the program can exit safely")
+                status = load_status(conf.model_name)
+                status["running"] = False
+                save_status(conf.model_name, status)
                 exit()
 
             try:
@@ -101,7 +105,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                                                         scheduler, start_time, train_gen.num_examples)
         model.last_example = -1
 
-        valid_acc = evaluate(model)
+        valid_acc = evaluate(model, program_start_time=program_start_time)
         set_status_value(name, "completed_epochs", epoch)
 
         training_results.log_epoch(epoch, valid_acc, num_discarded, epoch_start_time, num_fastforward_examples)
