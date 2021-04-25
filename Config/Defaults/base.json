@@ -42,5 +42,6 @@
   "add_self_loops": true,
   "use_value_type_embs": true,
   "use_key_type_embs": true,
-  "use_output_linear_in_custom_gat": false
+  "use_output_linear_in_custom_gat": false,
+  "use_actual_output_linear_in_custom_gat": false
 }

@@ -27,7 +27,11 @@ class CustomGAT(MessagePassing):
 
         self.in_proj_bias = Parameter(torch.empty(3 * in_channels))
         if conf.use_output_linear_in_custom_gat:
-            self.out_proj = _LinearWithBias(in_channels, out_channels)
+            self.out_proj = _LinearWithBias(in_channels, in_channels)
+
+        # todo remove legacy hasattr
+        if hasattr(conf, "use_actual_output_linear_in_custom_gat") and conf.use_actual_output_linear_in_custom_gat:
+            self.out_proj2 = _LinearWithBias(in_channels, out_channels)
 
         self._reset_parameters()
         if add_self_loops is None:
@@ -40,6 +44,8 @@ class CustomGAT(MessagePassing):
         constant_(self.in_proj_bias, 0.)
         if conf.use_output_linear_in_custom_gat:
             constant_(self.out_proj.bias, 0.)
+        if hasattr(conf, "use_actual_output_linear_in_custom_gat") and conf.use_actual_output_linear_in_custom_gat:
+            constant_(self.out_proj2.bias, 0.)
 
     def forward(self, x, edge_index):
         """x ~ (N, f)"""
@@ -50,6 +56,8 @@ class CustomGAT(MessagePassing):
             edge_index, _ = add_self_loops(edge_index, num_nodes=num_nodes)
 
         out = self.propagate(edge_index, q=q, k=k, v=v)
+        if hasattr(conf, "use_actual_output_linear_in_custom_gat") and conf.use_actual_output_linear_in_custom_gat:
+            out = linear(out, self.out_proj2.weight, self.out_proj2.bias)
         return out
 
     def message(self, q_i: Tensor, k_j: Tensor, v_j: Tensor, size_i, index) -> Tensor:
