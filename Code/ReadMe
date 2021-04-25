@@ -7,6 +7,7 @@ Todo:
     * test with/without self edges
     * try different learning rates for transformer/gnn
     * stop training run if it is removed from the run schedule
+    * add in residual attention as in realformer (leader of wikihop)
 
 * Transformers
     * try add query tokens to summariser sequences
@@ -54,6 +55,8 @@ Todo:
         * could graph the aggregate flow of info through the different node/ege types
             * aggregate across all instances, all layers, all nodes
     * graph memory usage/ flops/ runtime   against   sequence length and sparsity
+
+
 
 
 Installs:

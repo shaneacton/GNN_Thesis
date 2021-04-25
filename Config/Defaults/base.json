@@ -43,5 +43,7 @@
   "use_value_type_embs": true,
   "use_key_type_embs": true,
   "use_output_linear_in_custom_gat": false,
-  "use_actual_output_linear_in_custom_gat": false
+  "use_actual_output_linear_in_custom_gat": false,
+  "use_residual_attention": false,
+  "use_attention_scaling": false
 }

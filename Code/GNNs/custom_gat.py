@@ -47,9 +47,12 @@ class CustomGAT(MessagePassing):
         if hasattr(conf, "use_actual_output_linear_in_custom_gat") and conf.use_actual_output_linear_in_custom_gat:
             constant_(self.out_proj2.bias, 0.)
 
-    def forward(self, x, edge_index):
+    def forward(self, x, edge_index, **kwargs):
         """x ~ (N, f)"""
         q, k, v = linear(x, self.in_proj_weight, self.in_proj_bias).chunk(3, dim=-1)
+        if hasattr(conf, "use_attention_scaling") and conf.use_attention_scaling:
+            scaling = float(self.head_dim) ** -0.5
+            q = q * scaling
         if self.add_self_loops:
             num_nodes = x.size(0)
             edge_index, _ = remove_self_loops(edge_index)
