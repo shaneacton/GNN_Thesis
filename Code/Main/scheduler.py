@@ -104,6 +104,7 @@ def get_next_model_config(debug, repeat_num=0):
         started = [conf for conf in valid_confs if exists(get_model_checkpoint_folder(model_names[conf]))]
         not_started = [conf for conf in valid_confs if conf not in started]
         print("started:", started, "not:", not_started)
+
         selected = None
         if len(not_started) > 0:
             selected = not_started[0]
@@ -112,8 +113,9 @@ def get_next_model_config(debug, repeat_num=0):
         else:
             min_epochs = 999999999
             statuses = [get_safe_status(model_names[s]) for s in started]
-            not_running = [s for i, s in enumerate(started) if not statuses[i]["running"]]
-            print("not running:", not_running)
+            finished = [s for i, s in enumerate(started) if statuses[i]["finished"]]
+            running = [s for i, s in enumerate(started) if statuses[i]["running"]]
+            print("finished:", finished, "running:", running)
             for s in started:
                 """find the in-progress run with the fewest epochs completed"""
                 status = get_safe_status(model_names[s])

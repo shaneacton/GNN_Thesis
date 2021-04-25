@@ -15,7 +15,7 @@ from Config.config import conf
 
 class CustomGAT(MessagePassing):
 
-    def __init__(self, in_channels, _, heads, dropout=0., add_self_loops=None):
+    def __init__(self, in_channels, out_channels, heads, dropout=0., add_self_loops=None):
         super().__init__()
         self.embed_dim = in_channels
         self.num_heads = heads
@@ -27,7 +27,7 @@ class CustomGAT(MessagePassing):
 
         self.in_proj_bias = Parameter(torch.empty(3 * in_channels))
         if conf.use_output_linear_in_custom_gat:
-            self.out_proj = _LinearWithBias(in_channels, in_channels)
+            self.out_proj = _LinearWithBias(in_channels, out_channels)
 
         self._reset_parameters()
         if add_self_loops is None:
