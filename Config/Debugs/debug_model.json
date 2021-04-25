@@ -7,5 +7,6 @@
   "transformer_heads": 5,
   "use_big_gating": false,
   "heads": 4,
-  "add_self_loops": true
+  "add_self_loops": true,
+  "use_residual_attention": false
 }

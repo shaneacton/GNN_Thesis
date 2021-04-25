@@ -69,6 +69,8 @@ class WrapGNN(nn.Module):
         custom_kwargs = {k: v for k, v in kwargs.items() if k not in self.forward_needed_args}
         self.last_custom_kwargs = custom_kwargs
         self.wrap_forward(x, edge_index, *args, **kwargs)
+        if "previous_attention_scores" in kwargs:
+            base_gnn_kwargs.update({"previous_attention_scores": kwargs["previous_attention_scores"]})
         output = self.base_forward(x, edge_index, *args, **base_gnn_kwargs)
         self.last_custom_kwargs = None
         return output

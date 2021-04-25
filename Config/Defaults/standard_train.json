@@ -6,7 +6,7 @@
   "max_examples": -1,
   "print_loss_every": 500,
   "checkpoint_every": 500,
-  "max_edges": 180000,
+  "max_edges": 160000,
   "max_accumulated_edges": 180000,
   "max_pad_volume": 16000,
   "max_context_chars": -1,

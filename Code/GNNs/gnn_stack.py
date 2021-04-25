@@ -52,12 +52,28 @@ class GNNStack(nn.Module):
         return layers
 
     def forward(self, x, **kwargs):
-        for layer in self.layers:
+        res = {}  # residual attention scores
+        for l, layer in enumerate(self.layers):
+            kwargs.update(res)  # pass previous attention scores forward
             x = layer(x, **kwargs)
+            gnn = get_core_gnn(layer)
+            if hasattr(gnn, "last_attention_scores") and gnn.last_attention_scores is not None:
+                res = {"previous_attention_scores": gnn.last_attention_scores}  # store for next layer
+
             if self.act is not None:
                 x = self.act(x)
         return x
 
+
+def get_core_gnn(layer):  # unpeels any nested gnns, eg Gate(Rel(Gat(x)))
+    gnn = layer.gnn
+    while hasattr(gnn, "gnn") or hasattr(gnn, "gnn_layer"):
+        gnn = gnn.gnn
+        while hasattr(gnn, "gnn_layer"):
+            gnn = gnn.gnn_layer
+        while hasattr(gnn, "gnn"):
+            gnn = gnn.gnn
+    return gnn
 
 class GNNLayer(nn.Module):
 

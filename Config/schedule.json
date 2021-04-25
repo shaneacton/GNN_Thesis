@@ -11,6 +11,7 @@
     "custom_gat_no_self_edges",
     "custom_gat_only_query_embs",
     "custom_gat_actual_linear",
-    "custom_gat_scaled"
+    "custom_gat_scaled",
+    "custom_gat_scale_res"
   ]
 }
