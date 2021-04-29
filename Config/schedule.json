@@ -5,7 +5,6 @@
   "model_configs": [
     "custom_gat",
     "custom_gat_lr005",
-    "custom_gat_lr01",
     "custom_gat_no_rel",
     "custom_gat_no_value_embs",
     "custom_gat_no_self_edges",
@@ -13,6 +12,6 @@
     "custom_gat_scaled",
     "custom_gat_scale_res",
     "custom_gat_only_query_embs_scaled",
-    "custom_gat_only_query_embs_scaled_lr005"
+    "custom_gat_only_query_embs_scaled_lr0005"
   ]
 }
