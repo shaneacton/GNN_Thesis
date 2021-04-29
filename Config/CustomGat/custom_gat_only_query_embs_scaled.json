@@ -1,0 +1,7 @@
+{
+  "gnn_class": "CustomGAT",
+  "initial_lr": 0.001,
+  "use_value_type_embs": false,
+  "use_key_type_embs": false,
+  "use_attention_scaling": true
+}
