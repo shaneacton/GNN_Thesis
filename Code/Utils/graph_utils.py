@@ -266,7 +266,7 @@ def connect_all_to_all(source_node_ids: List[int], target_node_ids: List[int], g
         connect_one_to_all(source_node_id, target_node_ids, graph, type)
 
 
-def connect_one_to_all(source_node_id: int, target_node_ids: List[int], graph, type):
+def connect_one_to_all(source_node_id: int, target_node_ids: List[int], graph, type=None):
     for target_id in target_node_ids:
         if source_node_id == target_id:  # no self loops
             continue

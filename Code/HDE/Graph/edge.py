@@ -16,7 +16,7 @@ class HDEEdge:
             raise Exception("must provide type or graph to generate type from")
 
     def type(self):
-        if self._type is None:
+        if self._type is None:  # default if no type is provided
             nodes = self.graph.ordered_nodes
             f, t = nodes[self.from_id], nodes[self.to_id]
             types = sorted([f.type, t.type])

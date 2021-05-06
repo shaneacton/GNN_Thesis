@@ -7,7 +7,12 @@ from Code.Utils.graph_utils import fully_connect, window_connect, connect_one_to
 
 class NodeHierarchy:
 
-    """each level of the hierarchy is an ordered set of nodes."""
+    """
+        A temporary data structure to help build context graphs from wikihop examples
+        each level of the hierarchy is an ordered set of nodes.
+
+        does not
+    """
 
     def __init__(self, graph: HDEGraph):
         self.graph = graph
@@ -21,6 +26,9 @@ class NodeHierarchy:
 
         # maps each node's in_layer_id to all its childrens in_layer_id's
         self.level_childrens_map: List[Dict[int, List[int]]] = [{} for _ in self.names_map]
+
+    def get_all_active_levels(self):
+        return [0, 1, 2]
 
     def add_node(self, node: HDENode, level_num: int, parent_id_in_layer: int):
         level = self.levels[level_num]
@@ -36,8 +44,12 @@ class NodeHierarchy:
         return id_in_level
 
     def connect_intralevel(self, level_num, strategy:str, connect_between_paragraphs=False):
-        """strategy could be fully_connect, window_x, sequential"""
-        level = self.levels[level_num]
+        """
+            Connects nodes at the same level, with a configurable strategy.
+
+            strategy could be fully_connect, window_x, sequential
+        """
+        level: List[HDENode] = self.levels[level_num]
         type_name = self.names_map[level_num] + "_" + strategy
         paragraph_level_num = self.id_to_name_map["paragraph"]
         node_groups = {1: level}
@@ -58,7 +70,7 @@ class NodeHierarchy:
             if strategy == "fully_connect":
                 fully_connect(ids, self.graph, type_name)
             if strategy == "window_x" or strategy == "sequential":
-                if strategy == "sequential":
+                if strategy == "sequential":  # sequential is just a window connection with WS=1
                     window_size = 1
                 else:
                     window_size = int(strategy.split("_")[1])

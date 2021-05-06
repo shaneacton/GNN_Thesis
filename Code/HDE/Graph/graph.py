@@ -107,8 +107,7 @@ class HDEGraph:
         return next_id
 
     def has_edge(self, edge):
-        key = tuple(sorted([edge.to_id, edge.from_id]))
-        return key in self.unique_edges
+        return self.has_connection(edge.to_id, edge.from_id)
 
     def has_connection(self, to_id, from_id):
         key = tuple(sorted([to_id, from_id]))

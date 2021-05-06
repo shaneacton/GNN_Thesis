@@ -1,13 +1,15 @@
 Todo:
 
+* git
+    * move back to main branch
+    * new branch for the new graphing system
+
 * General:
     * add option to use query-coattention on the entity and candidate embeddings
     * add dropout to output model and other
     * try attentional gating as used in Hierarchical Graph Network
-    * test with/without self edges
     * try different learning rates for transformer/gnn
     * stop training run if it is removed from the run schedule
-    * add in residual attention as in realformer (leader of wikihop)
 
 * Transformers
     * try add query tokens to summariser sequences
@@ -37,11 +39,13 @@ Todo:
 
 * before next experiment round:
     * graph construction statistics on wandb
-        * num nodes, num edges, num discarded examples
+        * num nodes, num edges, num discarded examples, num_fully_connected edges, entropy
+        * num types of nodes and edges
         * add network timing data to wandb
     * move wikipoint into training or data
     * move last of the utils files into utils
     * make add_self_loops option apply to the GATConv + remove conf dependancy in customGat
+    * cls token in summriser
 
 * house keeping:
     * ssh keygen for viz
