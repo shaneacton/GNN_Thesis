@@ -1,6 +1,5 @@
 import time
 from math import floor
-from statistics import mean
 
 from nlp import tqdm
 
@@ -16,8 +15,8 @@ from Code.Training.training_results import TrainingResults
 from Code.Utils.model_utils import get_model
 from Code.Utils.training_utils import get_training_results, save_training_results
 from Config.config import conf
-from Data.dataset_utils import get_processed_wikihop
-from Viz.wandb_utils import use_wandb, wandb_run
+from Code.Utils.dataset_utils import get_processed_wikihop
+from Code.Utils.wandb_utils import use_wandb, wandb_run
 
 
 def train_model(name, gpu_num=0, program_start_time=-1):

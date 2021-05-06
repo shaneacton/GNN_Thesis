@@ -15,7 +15,7 @@ from Config.config import conf
 
 class CustomGAT(MessagePassing):
 
-    def __init__(self, in_channels, out_channels, heads, dropout=0., add_self_loops=None):
+    def __init__(self, in_channels, out_channels, heads, dropout=0., add_self_loops: bool = True):
         super().__init__()
         self.embed_dim = in_channels
         self.num_heads = heads
@@ -29,15 +29,12 @@ class CustomGAT(MessagePassing):
         if conf.use_output_linear_in_custom_gat:
             self.out_proj = _LinearWithBias(in_channels, in_channels)
 
-        # todo remove legacy hasattr
-        if hasattr(conf, "use_actual_output_linear_in_custom_gat") and conf.use_actual_output_linear_in_custom_gat:
+        if conf.use_actual_output_linear_in_custom_gat:
             self.out_proj2 = _LinearWithBias(in_channels, out_channels)
 
         self._reset_parameters()
-        if add_self_loops is None:
-            add_self_loops = conf.add_self_loops
         self.add_self_loops = add_self_loops
-        if hasattr(conf, "use_residual_attention") and conf.use_residual_attention:
+        if conf.use_residual_attention:
             self.last_attention_scores = None
 
     def _reset_parameters(self):
@@ -46,22 +43,22 @@ class CustomGAT(MessagePassing):
         constant_(self.in_proj_bias, 0.)
         if conf.use_output_linear_in_custom_gat:
             constant_(self.out_proj.bias, 0.)
-        if hasattr(conf, "use_actual_output_linear_in_custom_gat") and conf.use_actual_output_linear_in_custom_gat:
+        if conf.use_actual_output_linear_in_custom_gat:
             constant_(self.out_proj2.bias, 0.)
 
     def forward(self, x, edge_index, **kwargs):
         """x ~ (N, f)"""
         q, k, v = linear(x, self.in_proj_weight, self.in_proj_bias).chunk(3, dim=-1)
-        if hasattr(conf, "use_attention_scaling") and conf.use_attention_scaling:
-            scaling = float(self.head_dim) ** -0.5
-            q = q * scaling
+        scaling = float(self.head_dim) ** -0.5
+        q = q * scaling
+
         if self.add_self_loops:
             num_nodes = x.size(0)
             edge_index, _ = remove_self_loops(edge_index)
             edge_index, _ = add_self_loops(edge_index, num_nodes=num_nodes)
 
         out = self.propagate(edge_index, q=q, k=k, v=v, **kwargs)
-        if hasattr(conf, "use_actual_output_linear_in_custom_gat") and conf.use_actual_output_linear_in_custom_gat:
+        if conf.use_actual_output_linear_in_custom_gat:
             out = linear(out, self.out_proj2.weight, self.out_proj2.bias)
         return out
 
@@ -97,7 +94,7 @@ class CustomGAT(MessagePassing):
         if conf.use_output_linear_in_custom_gat:
             v_j = linear(v_j, self.out_proj.weight, self.out_proj.bias)
 
-        if hasattr(conf, "use_residual_attention") and conf.use_residual_attention:
+        if conf.use_residual_attention:
             self.last_attention_scores = attn_output_weights  # temp store to bypass pytorch geometric
             # print("storing residual attentions")
         return v_j

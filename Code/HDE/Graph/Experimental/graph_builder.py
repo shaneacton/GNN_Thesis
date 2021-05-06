@@ -1,5 +1,5 @@
 from Code.HDE.Graph.graph import HDEGraph
-from Code.HDE.wikipoint import Wikipoint
+from Code.Training.wikipoint import Wikipoint
 
 
 class GraphBuilder:

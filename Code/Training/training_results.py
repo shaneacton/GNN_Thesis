@@ -4,7 +4,7 @@ from statistics import mean
 
 from Code.Utils.eval_utils import get_acc_and_f1
 from Config.config import conf
-from Viz.wandb_utils import wandb_run, use_wandb
+from Code.Utils.wandb_utils import wandb_run, use_wandb
 
 
 class TrainingResults:

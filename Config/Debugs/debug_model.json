@@ -1,12 +1,12 @@
 {
   "model_name": "rel",
   "model_class": "HDERel2",
-  "gnn_class": "CustomGAT",
+  "gnn_class": "GATConv",
   "embedded_dims": 100,
   "hidden_size": 100,
   "transformer_heads": 5,
   "use_big_gating": false,
   "heads": 4,
-  "add_self_loops": true,
+  "add_self_loops": false,
   "use_residual_attention": false
 }

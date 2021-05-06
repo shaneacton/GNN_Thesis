@@ -17,8 +17,8 @@ from Code.Training import dev
 from Code.Training.lamb import Lamb
 from Code.Utils.training_utils import get_exponential_schedule_with_warmup
 from Config.config import conf, get_config
-from Viz import wandb_utils
-from Viz.wandb_utils import use_wandb
+from Code.Utils import wandb_utils
+from Code.Utils.wandb_utils import use_wandb
 
 MODEL_MAP = {
     "HDEBert": HDEBert, "HDEGlove": HDEGlove, "HDEPool": HDEPool, "HDERel": HDERel,

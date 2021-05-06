@@ -1,16 +1,13 @@
-import pathlib
 import pickle
 from os.path import exists, join
 
 import nlp
 from tqdm import tqdm
 
-from Code.HDE.wikipoint import Wikipoint
+from Code.Training.wikipoint import Wikipoint
 from Checkpoint.checkpoint_utils import save_binary_data
 from Config.config import conf
-
-DATA_FOLDER = str(pathlib.Path(__file__).parent.absolute())
-print("Data folder:", DATA_FOLDER)
+from Data import DATA_FOLDER
 
 
 def load_unprocessed_dataset(dataset_name, version_name, split):

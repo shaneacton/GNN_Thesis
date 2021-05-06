@@ -1,5 +1,4 @@
 {
   "gnn_class": "CustomGAT",
-  "initial_lr": 0.001,
   "add_self_loops": false
 }

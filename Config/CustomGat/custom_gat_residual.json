@@ -1,6 +1,4 @@
 {
   "gnn_class": "CustomGAT",
-  "initial_lr": 0.001,
-  "use_attention_scaling": true,
   "use_residual_attention": true
 }

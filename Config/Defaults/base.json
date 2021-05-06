@@ -33,6 +33,7 @@
   "use_layer_norms_a": true,
   "use_layer_norms_b": false,
   "use_summariser_pos_embs": false,
+  "use_summariser_cls_token": true,
   "wandb_id": -1,
   "use_strict_graph_matching": true,
   "include_clean_numbers": true,
@@ -40,10 +41,10 @@
   "use_detected_entities": false,
   "use_special_entities": true,
   "add_self_loops": true,
-  "use_value_type_embs": true,
-  "use_key_type_embs": true,
+  "use_value_type_embs": false,
+  "use_key_type_embs": false,
   "use_output_linear_in_custom_gat": false,
   "use_actual_output_linear_in_custom_gat": false,
   "use_residual_attention": false,
-  "use_attention_scaling": false
+  "use_attention_scaling": true
 }

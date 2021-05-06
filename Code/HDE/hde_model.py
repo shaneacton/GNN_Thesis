@@ -15,7 +15,7 @@ from Code.Transformers.coattention import Coattention
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_summariser import SwitchSummariser
 from Code.HDE.scorer import HDEScorer
-from Code.HDE.wikipoint import Wikipoint
+from Code.Training.wikipoint import Wikipoint
 from Code.Training import dev
 from Code.Utils.graph_utils import get_entity_summaries, similar
 from Code.constants import DOCUMENT, CANDIDATE

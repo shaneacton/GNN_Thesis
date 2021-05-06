@@ -1,7 +1,7 @@
 from typing import List, Union
 
 import torch
-from torch import Tensor
+from torch import Tensor, nn
 from torch.nn import LayerNorm
 from transformers import TokenSpan
 import numpy as np
@@ -32,6 +32,10 @@ class SwitchSummariser(SwitchTransformer):
         if conf.use_layer_norms_b:
             self.norm = LayerNorm(conf.embedded_dims)
 
+        self.add_cls_token = conf.use_summariser_cls_token
+        if self.add_cls_token:
+            self.cls_embedding = nn.Embedding(1, conf.hidden_size)
+
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
 
@@ -58,6 +62,12 @@ class SwitchSummariser(SwitchTransformer):
             extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
 
         batch, masks = Summariser.pad(extracts)
+        if self.add_cls_token:
+            ids = torch.tensor([0 for _ in range(batch.size(0))]).to(dev()).long()
+            falses = torch.tensor([False for _ in range(batch.size(0))]).to(dev()).bool().view(1, -1)  # not padding
+            cls_emb = self.cls_embedding(ids).view(batch.size(0), 1, -1)
+            batch = torch.cat([cls_emb, batch], dim=1)
+            masks = torch.cat([falses, masks], dim=0)
 
         enc = self.switch_encoder(batch, src_key_padding_mask=masks, type=_type).transpose(0, 1)
         if self.include_global:

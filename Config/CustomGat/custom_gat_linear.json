@@ -1,5 +1,4 @@
 {
   "gnn_class": "CustomGAT",
-  "initial_lr": 0.001,
   "use_output_linear_in_custom_gat": true
 }

@@ -1,16 +1,12 @@
 {
   "num_repeats": 1,
-  "train_config": "standard_train",
+  "train_config": "custom_gat_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "custom_gat",
-    "custom_gat_no_rel",
-    "custom_gat_no_value_embs",
     "custom_gat_no_self_edges",
-    "custom_gat_only_query_embs",
-    "custom_gat_scaled",
-    "custom_gat_scale_res",
-    "custom_gat_only_query_embs_scaled",
-    "custom_gat_only_query_embs_scaled_lr0005"
+    "custom_gat_residual",
+    "custom_gat_linear",
+    "custom_gat_actual_linear"
   ]
 }

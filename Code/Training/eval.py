@@ -11,7 +11,7 @@ from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Utils.eval_utils import get_acc_and_f1
 from Code.Training.graph_gen import GraphGenerator
 from Config.config import conf
-from Data.dataset_utils import get_processed_wikihop
+from Code.Utils.dataset_utils import get_processed_wikihop
 
 _test = None
 

@@ -28,7 +28,7 @@ class GNNStack(nn.Module):
         layers = []
         if "dropout" not in layer_kwargs:
             init_args = GNNClass.__init__.__code__.co_varnames
-            print("init args:", init_args)
+            #print("init args:", init_args)
             if "BASE_GNN_CLASS" in init_args:
                 base_args = layer_kwargs["BASE_GNN_CLASS"].__init__.__code__.co_varnames
                 if "dropout" in base_args:
@@ -36,6 +36,7 @@ class GNNStack(nn.Module):
             elif "dropout" in init_args:
                 layer_kwargs.update({"dropout": conf.dropout})
         layer_kwargs.setdefault("aggr", conf.gnn_aggr)
+        layer_kwargs.setdefault("add_self_loops", conf.add_self_loops)
         for layer_i in range(conf.num_layers):
             if conf.layerwise_weight_sharing and layer_i > 0:
                 """copy by reference so the layers share the same params"""
@@ -74,6 +75,7 @@ def get_core_gnn(layer):  # unpeels any nested gnns, eg Gate(Rel(Gat(x)))
         while hasattr(gnn, "gnn"):
             gnn = gnn.gnn
     return gnn
+
 
 class GNNLayer(nn.Module):
 
