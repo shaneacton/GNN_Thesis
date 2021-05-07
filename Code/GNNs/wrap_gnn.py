@@ -8,6 +8,7 @@ import copy
 from Code.GNNs.custom_gat import CustomGAT
 from Config.config import conf
 
+
 class WrapGNN(nn.Module):
 
     def __init__(self, gnn_layer):

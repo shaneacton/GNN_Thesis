@@ -86,6 +86,7 @@ class HDEGraph:
                 We must account for those in the type vec. There is 1 self loop per node
             """
             type_ids += [edge_type_map[SELF_LOOP]] * len(self.ordered_nodes)
+
         return torch.tensor(type_ids).to(dev()).long()
 
     def add_node(self, node: HDENode) -> int:

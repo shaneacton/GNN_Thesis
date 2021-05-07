@@ -63,11 +63,11 @@ class SwitchSummariser(SwitchTransformer):
 
         batch, masks = Summariser.pad(extracts)
         if self.add_cls_token:
-            ids = torch.tensor([0 for _ in range(batch.size(0))]).to(dev()).long()
-            falses = torch.tensor([False for _ in range(batch.size(0))]).to(dev()).bool().view(1, -1)  # not padding
-            cls_emb = self.cls_embedding(ids).view(batch.size(0), 1, -1)
-            batch = torch.cat([cls_emb, batch], dim=1)
-            masks = torch.cat([falses, masks], dim=0)
+            ids = torch.tensor([0 for _ in range(batch.size(1))]).to(dev()).long()
+            falses = torch.tensor([False for _ in range(batch.size(1))]).to(dev()).bool().view(-1, 1)  # not padding
+            cls_emb = self.cls_embedding(ids).view(1, batch.size(1), -1)
+            batch = torch.cat([cls_emb, batch], dim=0)
+            masks = torch.cat([falses, masks], dim=1)
 
         enc = self.switch_encoder(batch, src_key_padding_mask=masks, type=_type).transpose(0, 1)
         if self.include_global:

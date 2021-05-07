@@ -1,0 +1,4 @@
+{
+  "gnn_class": "CustomGAT",
+  "use_summariser_cls_token": true
+}

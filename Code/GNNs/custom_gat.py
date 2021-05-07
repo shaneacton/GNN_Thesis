@@ -53,6 +53,7 @@ class CustomGAT(MessagePassing):
         q = q * scaling
 
         if self.add_self_loops:
+            num_edges = edge_index.size(1)
             num_nodes = x.size(0)
             edge_index, _ = remove_self_loops(edge_index)
             edge_index, _ = add_self_loops(edge_index, num_nodes=num_nodes)

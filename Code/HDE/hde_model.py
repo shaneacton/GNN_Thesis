@@ -93,6 +93,8 @@ class HDEModel(nn.Module):
             example = graph.example
         x = self.get_graph_features(example)  # learned
 
+        assert x.size(0) == len(graph.ordered_nodes), "error in feature extraction. num node features: " + repr(x.size(0)) + " num nodes: " + repr(len(graph.ordered_nodes))
+
         num_edges = len(graph.unique_edges)
         if num_edges > conf.max_edges != -1:
             raise TooManyEdges()

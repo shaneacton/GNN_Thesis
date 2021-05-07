@@ -4,6 +4,7 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "custom_gat",
+    "custom_gat_cls",
     "custom_gat_no_self_edges",
     "custom_gat_residual",
     "custom_gat_linear",

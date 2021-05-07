@@ -33,7 +33,7 @@
   "use_layer_norms_a": true,
   "use_layer_norms_b": false,
   "use_summariser_pos_embs": false,
-  "use_summariser_cls_token": true,
+  "use_summariser_cls_token": false,
   "wandb_id": -1,
   "use_strict_graph_matching": true,
   "include_clean_numbers": true,
