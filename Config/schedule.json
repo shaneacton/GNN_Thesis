@@ -8,6 +8,7 @@
     "custom_gat_no_self_edges",
     "custom_gat_residual",
     "custom_gat_linear",
-    "custom_gat_actual_linear"
+    "custom_gat_actual_linear",
+    "custom_gat_actual_linear_residual"
   ]
 }

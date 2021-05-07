@@ -1,0 +1,5 @@
+{
+  "gnn_class": "CustomGAT",
+  "use_actual_output_linear_in_custom_gat": true,
+  "use_residual_attention": true
+}
