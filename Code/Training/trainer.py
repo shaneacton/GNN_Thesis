@@ -59,11 +59,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 continue
 
             if time.time() - program_start_time > conf.max_runtime_seconds != -1:
-                print("reached max run time. shutting down so the program can exit safely")
-                status = load_status(conf.model_name)
-                status["running"] = False
-                save_status(conf.model_name, status)
-                exit()
+                times_up()
 
             try:
                 num_edges = len(graph.unique_edges)
@@ -100,6 +96,9 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 training_results.log_last_steps(e_frac())
 
             if len(training_results.all_losses) % conf.checkpoint_every == 0:  # save model and data
+                # saving takes a few minutes. We should check for an early stoppage to ensure program closes well
+                if conf.max_runtime_seconds != -1 and time.time() - program_start_time > conf.max_runtime_seconds - 180:
+                    times_up()
                 epoch_start_time = save_training_states(training_results, epoch_start_time, i, model, name, optimizer,
                                                         scheduler, start_time, train_gen.num_examples)
         model.last_example = -1
@@ -110,6 +109,14 @@ def train_model(name, gpu_num=0, program_start_time=-1):
         training_results.log_epoch(epoch, valid_acc, num_discarded, epoch_start_time, num_fastforward_examples)
 
     set_status_value(name, "finished", True)
+
+
+def times_up():
+    print("reached max run time. shutting down so the program can exit safely")
+    status = load_status(conf.model_name)
+    status["running"] = False
+    save_status(conf.model_name, status)
+    exit()
 
 
 def save_training_states(training_results: TrainingResults, epoch_start_time, i, model, name, optimizer, scheduler,

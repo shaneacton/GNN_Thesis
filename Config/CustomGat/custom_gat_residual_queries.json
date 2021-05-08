@@ -1,0 +1,5 @@
+{
+  "gnn_class": "CustomGAT",
+  "use_residual_attention": true,
+  "summarise_query_in_docs": true
+}

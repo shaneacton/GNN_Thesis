@@ -144,12 +144,23 @@ class HDEModel(nn.Module):
         if conf.use_gru_contextualiser:
             support_embeddings = [self.supp_contextualiser(sup) for sup in support_embeddings]
 
-        query_aware_support_embeddings = self.get_query_aware_context_embeddings(support_embeddings, example.query)
+        query_emb = self.embedder(example.query, allow_unknowns=False)
+
+        #todo remove legacy todo
+        if hasattr(conf, "summarise_query_in_docs") and conf.summarise_query_in_docs:
+            query_aware_support_embeddings = self.get_query_aware_context_embeddings(support_embeddings, query_emb, return_query_encoding=True)
+        else:
+            query_aware_support_embeddings = self.get_query_aware_context_embeddings(support_embeddings, query_emb)
+
         if conf.print_times:
             print("got supp embs in", (time.time() - t))
         cand_embs = [self.embedder(cand) for cand in example.candidates]
         if conf.use_gru_contextualiser:
             cand_embs = [self.cand_contextualiser(cand) for cand in cand_embs]
+
+        #todo remove legacy todo
+        if hasattr(conf, "use_candidate_coattention") and conf.use_candidate_coattention:
+            cand_embs = self.get_query_aware_context_embeddings(cand_embs, query_emb)
 
         candidate_summaries = self.summariser(cand_embs, CANDIDATE)
         support_summaries = self.summariser(query_aware_support_embeddings, DOCUMENT)
@@ -157,6 +168,7 @@ class HDEModel(nn.Module):
         t = time.time()
 
         ent_summaries = get_entity_summaries(example.ent_token_spans, query_aware_support_embeddings, self.summariser)
+
         if conf.print_times:
             print("got ent summaries in", (time.time() - t))
 
@@ -164,20 +176,21 @@ class HDEModel(nn.Module):
 
         return x
 
-    def get_query_aware_context_embeddings(self, support_embeddings: List[Tensor], query: str):
-        """uses the coattention module to bring info from the query into the context"""
-        # print("supps:", [s.size() for s in support_embeddings])
+    def get_query_aware_context_embeddings(self, support_embeddings: List[Tensor], query_emb: Tensor, return_query_encoding=False) -> List[Tensor]:
+        """
+            uses the coattention module to bring info from the query into the context
+            if return_query_encoding=False, the encoded sequences will be cropped to return to their pre-concat size
+        """
         pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
         if pad_volume > conf.max_pad_volume:
             raise PadVolumeOverflow()
         if conf.show_memory_usage_data:
             print("documents padded volume:", pad_volume)
-        # print("pad vol:", pad_volume)
-        query_emb = self.embedder(query, allow_unknowns=False)
+
         if conf.use_gru_contextualiser:
             query_emb = self.query_contextualiser(query_emb)
 
-        support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb)
+        support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb, return_query_encoding=return_query_encoding)
         return support_embeddings
 
     def pass_output_model(self, x, example, graph, node_id_map=None):

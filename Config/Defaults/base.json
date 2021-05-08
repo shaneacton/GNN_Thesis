@@ -46,5 +46,8 @@
   "use_output_linear_in_custom_gat": false,
   "use_actual_output_linear_in_custom_gat": false,
   "use_residual_attention": false,
-  "use_attention_scaling": true
+  "use_attention_scaling": true,
+  "use_candidate_coattention": false,
+  "use_entity_coattention": false,
+  "summarise_query_in_docs": false
 }
