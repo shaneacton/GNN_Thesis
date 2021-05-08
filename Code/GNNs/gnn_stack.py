@@ -93,6 +93,8 @@ class GNNLayer(nn.Module):
 
         if use_edge_type_embs:
             num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges
+            if hasattr(conf, "bidirectional") and conf.bidirectional:
+                num_types += 7
             self.gnn = EdgeEmbeddings(self.gnn, in_channels, num_types)
 
         self.linear1 = Linear(conf.hidden_size, conf.hidden_size * intermediate_fac)

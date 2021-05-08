@@ -1,21 +1,17 @@
 Todo:
 
 * git
-    * move back to main branch
     * new branch for the new graphing system
 
 * General:
-    * add option to use query-coattention on the entity and candidate embeddings
     * add dropout to output model and other
     * try attentional gating as used in Hierarchical Graph Network
     * try different learning rates for transformer/gnn
     * stop training run if it is removed from the run schedule
 
 * Transformers
-    * try add query tokens to summariser sequences
     * more batching can be done in the summariser
     * code reuse between switch and regular variants
-    * add cls token to regular summariser
 
 * GNNs
     * try add output projection to custom GAT
