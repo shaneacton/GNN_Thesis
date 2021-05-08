@@ -15,7 +15,6 @@ Todo:
 
 * GNNs
     * try add output projection to custom GAT
-    * directionality
     * try a hybrid layerwise and weight sharing system which wraps a GNN layer.
         * every layers, node states are updated as a function of a layerwise and an alayoral gnn
 
