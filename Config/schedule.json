@@ -10,6 +10,7 @@
     "custom_gat_linear",
     "custom_gat_actual_linear",
     "custom_gat_actual_linear_residual",
-    "custom_gat_residual_cands"
+    "custom_gat_residual_cands",
+    "custom_gat_residual_queries"
   ]
 }
