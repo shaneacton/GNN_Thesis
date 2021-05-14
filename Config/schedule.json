@@ -10,6 +10,7 @@
     "custom_gat_actual_linear_residual",
     "custom_gat_residual_cands",
     "custom_gat_residual_queries",
-    "custom_gat_residual_bi"
+    "custom_gat_residual_bi",
+    "custom_gat_avg_out"
   ]
 }

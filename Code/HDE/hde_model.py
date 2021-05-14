@@ -217,21 +217,24 @@ class HDEModel(nn.Module):
                         ent_node_ids = [node_id_map[e] for e in ent_node_ids if e in node_id_map]
                     linked_ent_nodes.update(ent_node_ids)
 
-            if len(linked_ent_nodes) == 0:
-                max_prob = torch.tensor(0.).to(dev())
+            if len(linked_ent_nodes) == 0:  # no mentions of this candidate
+                ent_prob = torch.tensor(0.).to(dev())
             else:
                 linked_ent_nodes = sorted(list(linked_ent_nodes))  # node ids of all entities linked to this candidate
                 linked_ent_nodes = torch.tensor(linked_ent_nodes).to(dev()).long()
                 ent_embs = torch.index_select(x, dim=0, index=linked_ent_nodes)
 
                 cand_ent_probs = self.entity_scorer(ent_embs)
-                max_prob = torch.max(cand_ent_probs)
-            ent_probs += [max_prob]
+                # todo remove
+                if hasattr(conf, "use_average_output_agg") and conf.use_average_output_agg:
+                    ent_prob = torch.sum(cand_ent_probs)
+                else:
+                    ent_prob = torch.max(cand_ent_probs)
+            ent_probs += [ent_prob]
         ent_probs = torch.stack(ent_probs, dim=0)
 
         final_probs = cand_probs + ent_probs
         return final_probs
-
 
 
 class TooManyEdges(Exception):

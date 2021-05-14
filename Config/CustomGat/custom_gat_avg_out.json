@@ -1,0 +1,4 @@
+{
+  "gnn_class": "CustomGAT",
+  "use_average_output_agg": true
+}

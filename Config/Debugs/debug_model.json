@@ -6,5 +6,6 @@
   "hidden_size": 100,
   "transformer_heads": 5,
   "heads": 4,
-  "bidirectional": true
+  "bidirectional": true,
+  "use_average_output_agg": true
 }
