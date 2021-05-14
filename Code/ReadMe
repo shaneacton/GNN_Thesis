@@ -39,7 +39,6 @@ Todo:
         * num nodes, num edges, num discarded examples, num_fully_connected edges, entropy
         * num types of nodes and edges
         * add network timing data to wandb
-    * cls token in summriser
 
 * house keeping:
     * ssh keygen for viz
