@@ -58,6 +58,9 @@ Todo:
     * byte array is the (E,F) edge message vector.
     * latent array could the (N,F) node vectors, or a std perceiver latent emb
 
+* Pretraining
+    * Entities are masked from the system
+
 
 Installs:
 ENV_NAME=gnn_env
