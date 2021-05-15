@@ -12,6 +12,7 @@
     "custom_gat_residual_queries",
     "custom_gat_residual_bi",
     "custom_gat_avg_out",
-    "custom_gat_residual_avg_out"
+    "custom_gat_residual_avg_out",
+    "custom_gat_residual_avg_out_adam"
   ]
 }
