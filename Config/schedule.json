@@ -3,16 +3,12 @@
   "train_config": "custom_gat_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "custom_gat",
     "custom_gat_no_self_edges",
     "custom_gat_residual",
-    "custom_gat_actual_linear",
     "custom_gat_actual_linear_residual",
-    "custom_gat_residual_cands",
-    "custom_gat_residual_queries",
     "custom_gat_residual_bi",
     "custom_gat_avg_out",
     "custom_gat_residual_avg_out",
-    "custom_gat_residual_avg_out_adam"
+    "custom_gat_residual_no_self_edges"
   ]
 }
