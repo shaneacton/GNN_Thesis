@@ -1,7 +1,10 @@
 Todo:
 
-* git
-    * new branch for the new graphing system
+* Untested differences between ours and HDE
+    * HDE uses a GRU twice. Once before coattention and once during.
+        * we tested the before coattention, after embedding
+        * We have not tested the during coattention GRU.
+    * HDE takes the input and output of the coattention module and concats them. Doubling the embedding dim to get a larger model dim
 
 * General:
     * add dropout to output model and other
@@ -13,32 +16,13 @@ Todo:
     * more batching can be done in the summariser
     * code reuse between switch and regular variants
 
-* GNNs
-    * try add output projection to custom GAT
-    * try a hybrid layerwise and weight sharing system which wraps a GNN layer.
-        * every layers, node states are updated as a function of a layerwise and an alayoral gnn
-
-
-* Graph structuring
-    * make adding new node types easy
-    * sentence nodes
-        * different connection possibilities. hierarchical, sequential, codocument, complement
-    * query node connected to all other nodes
-        * one for each context-aware query sequence. one untransformed
-    * make new config system for graph structuring options
-    * resolve passage vs document naming
-
+* GNN's.
+    *Try residual layer for GATConv
 
 * Fixes
     * fix single run function
     * fix local loss viz
 
-
-* before next experiment round:
-    * graph construction statistics on wandb
-        * num nodes, num edges, num discarded examples, num_fully_connected edges, entropy
-        * num types of nodes and edges
-        * add network timing data to wandb
 
 * house keeping:
     * ssh keygen for viz
@@ -53,6 +37,19 @@ Todo:
             * aggregate across all instances, all layers, all nodes
     * graph memory usage/ flops/ runtime   against   sequence length and sparsity
 
+* Graph structuring
+    * make adding new node types easy
+    * sentence nodes
+        * different connection possibilities. hierarchical, sequential, codocument, complement
+    * query node connected to all other nodes
+        * one for each context-aware query sequence. one untransformed
+    * make new config system for graph structuring options
+    * resolve passage vs document naming
+    * new git branch for the new graphing system
+    * graph construction statistics on wandb
+        * num nodes, num edges, num discarded examples, num_fully_connected edges, entropy
+        * num types of nodes and edges
+        * add network timing data to wandb
 
 * Perceiver GNN
     * byte array is the (E,F) edge message vector.
