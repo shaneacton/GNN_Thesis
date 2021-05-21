@@ -45,7 +45,7 @@ class GNNStack(nn.Module):
             if conf.layerwise_weight_sharing and layer_i > 0:
                 """copy by reference so the layers share the same params"""
                 layers.append(layers[0])
-                break
+                continue
 
             LayerWrapper = SimpleGNNLayer if conf.use_simple_gnn else GNNLayer
             layer = LayerWrapper(GNNClass, h_size, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
