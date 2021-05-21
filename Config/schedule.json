@@ -5,6 +5,8 @@
   "model_configs": [
     "base0",
     "base0_first_summ",
-    "base0_concat"
+    "base0_concat",
+    "base0_concat_8L",
+    "base0_concat_12L"
   ]
 }
