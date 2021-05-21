@@ -4,6 +4,7 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base0",
-    "base0_first_summ"
+    "base0_first_summ",
+    "base0_concat"
   ]
 }

@@ -70,22 +70,24 @@ class Summariser(Transformer):
         if spans is None:
             spans = [None] * len(vecs)
 
-        extracts = [self.get_vec_extract(v, spans[i]).view(-1, self.hidden_size) for i, v in enumerate(vecs)]
+        h_size = self.hidden_size
+        extracts = [self.get_vec_extract(v, spans[i]).view(-1, h_size) for i, v in enumerate(vecs)]
 
         # todo remove
         if hasattr(conf, "use_summary_coattention") and conf.use_summary_coattention:
             extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
 
         if self.use_type_embeddings:
-            extracts = [ex + self.get_type_tensor(_type, ex.size(-2)).view(-1, self.hidden_size) for ex in extracts]
+            extracts = [ex + self.get_type_tensor(_type, ex.size(-2)).view(-1, h_size) for ex in extracts]
         if self.use_pos_embeddings:
             extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
         if conf.use_layer_norms_b:
             extracts = [self.norm(ex) for ex in extracts]
 
-        batch, masks = self.pad(extracts)
-
-        batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)
+        original_batch, masks = self.pad(extracts)
+        batch = self.encoder(original_batch, src_key_padding_mask=masks).transpose(0, 1)
+        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+            batch = torch.cat([original_batch.transpose(0, 1), batch], dim=-1)
 
         if conf.use_average_summariser:
             num_tokens = batch.size(1)

@@ -49,5 +49,5 @@
   "bidirectional": false,
   "use_average_output_agg": false,
   "use_summary_coattention": true,
-  "use_concat_summaries": false
+  "use_concat_summaries": true
 }

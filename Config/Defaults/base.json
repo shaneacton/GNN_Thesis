@@ -51,5 +51,6 @@
   "summarise_query_in_docs": false,
   "bidirectional": false,
   "use_average_output_agg": false,
-  "use_summary_coattention": false
+  "use_summary_coattention": false,
+  "use_concat_summaries": false
 }

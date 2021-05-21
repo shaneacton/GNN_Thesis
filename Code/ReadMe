@@ -1,9 +1,8 @@
 Todo:
 
-* make switch coattention.
-* use it in summariser to do q->context coattention for all sequences before being summarised
 * create B0 baseline config. which is most similar to HDE system.
-* test av summariser vs first el
+* test edge embeddings with B0
+* test a gru in coattention as in HDE
 
 * Untested differences between ours and HDE
     * HDE uses a GRU twice. Once before coattention and once during.

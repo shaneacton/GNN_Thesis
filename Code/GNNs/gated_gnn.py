@@ -17,8 +17,11 @@ class GatedGNN(nn.Module):
     def __init__(self, gnn):
         super().__init__()
         self.gnn = gnn
-        self.update_linear = nn.Linear(conf.hidden_size, conf.hidden_size)
-        self.gate_linear = nn.Linear(2*conf.hidden_size, conf.hidden_size)
+        size = conf.hidden_size
+        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+            size *= 2
+        self.update_linear = nn.Linear(size, size)
+        self.gate_linear = nn.Linear(2*size, size)
         self.sig = nn.Sigmoid()
 
     def forward(self, x, *inputs, **kwargs):

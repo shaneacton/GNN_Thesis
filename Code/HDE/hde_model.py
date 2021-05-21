@@ -32,7 +32,11 @@ class HDEModel(nn.Module):
             GNN_CLASS = GNN_MAP[conf.gnn_class]
         super().__init__()
         self.name = conf.model_name
-        self.hidden_size = conf.hidden_size
+        h_size = conf.hidden_size
+
+        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+            h_size *= 2
+        self.hidden_size = h_size
         self.use_gating = conf.use_gating
 
         # todo remove
@@ -62,8 +66,8 @@ class HDEModel(nn.Module):
             self.gnn = GatedGNN(self.gnn)
         conf.cfg["num_gnn_params"] = num_params(self.gnn)
 
-        self.candidate_scorer = HDEScorer(conf.hidden_size)
-        self.entity_scorer = HDEScorer(conf.hidden_size)
+        self.candidate_scorer = HDEScorer(h_size)
+        self.entity_scorer = HDEScorer(h_size)
 
         conf.cfg["num_output_params"] = num_params(self.candidate_scorer) + num_params(self.entity_scorer)
 
@@ -71,7 +75,7 @@ class HDEModel(nn.Module):
         self.last_example = -1
         self.last_epoch = -1
 
-        self.embedder:StringEmbedder = None  #  must set in subclasses
+        self.embedder: StringEmbedder = None  #  must set in subclasses
         conf.cfg["num_total_params"] = num_params(self)
 
     def init_gnn(self, GNN_CLASS):

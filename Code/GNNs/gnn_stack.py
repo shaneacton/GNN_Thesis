@@ -37,15 +37,18 @@ class GNNStack(nn.Module):
                 layer_kwargs.update({"dropout": conf.dropout})
         layer_kwargs.setdefault("aggr", conf.gnn_aggr)
         layer_kwargs.setdefault("add_self_loops", conf.add_self_loops)
+        h_size = conf.hidden_size
+        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+            h_size *= 2
+
         for layer_i in range(conf.num_layers):
             if conf.layerwise_weight_sharing and layer_i > 0:
                 """copy by reference so the layers share the same params"""
                 layers.append(layers[0])
                 break
 
-            in_size = conf.embedded_dims if layer_i == 0 else conf.hidden_size
             LayerWrapper = SimpleGNNLayer if conf.use_simple_gnn else GNNLayer
-            layer = LayerWrapper(GNNClass, in_size, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
+            layer = LayerWrapper(GNNClass, h_size, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
             if conf.use_gating:
                 layer = GatedGNN(layer)
 
@@ -82,14 +85,18 @@ class GNNLayer(nn.Module):
     def __init__(self, GNNClass, in_channels, intermediate_fac=2, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()
         self.in_channels = in_channels
-        self.hidden_size = conf.hidden_size
+        h_size = conf.hidden_size
+        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+            h_size *= 2
+
+        self.hidden_size = h_size
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
 
         if GNNClass == GATConv:
-            self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **needed_kwargs)
+            self.gnn = GNNClass(in_channels, h_size//layer_kwargs["heads"], **needed_kwargs)
         else:
-            self.gnn = GNNClass(in_channels, conf.hidden_size, **needed_kwargs)
+            self.gnn = GNNClass(in_channels, h_size, **needed_kwargs)
 
         if use_edge_type_embs:
             num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges
@@ -97,12 +104,12 @@ class GNNLayer(nn.Module):
                 num_types += 7
             self.gnn = EdgeEmbeddings(self.gnn, in_channels, num_types)
 
-        self.linear1 = Linear(conf.hidden_size, conf.hidden_size * intermediate_fac)
+        self.linear1 = Linear(h_size, h_size * intermediate_fac)
         self.dropout = Dropout(conf.dropout)
-        self.linear2 = Linear(conf.hidden_size * intermediate_fac, conf.hidden_size)
+        self.linear2 = Linear(h_size * intermediate_fac, h_size)
 
-        self.norm1 = LayerNorm(conf.hidden_size)
-        self.norm2 = LayerNorm(conf.hidden_size)
+        self.norm1 = LayerNorm(h_size)
+        self.norm2 = LayerNorm(h_size)
         self.dropout1 = Dropout(conf.dropout)
         self.dropout2 = Dropout(conf.dropout)
 
@@ -130,14 +137,19 @@ class SimpleGNNLayer(nn.Module):
     def __init__(self, GNNClass, in_channels, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()
         self.in_channels = in_channels
-        self.hidden_size = conf.hidden_size
+
+        h_size = conf.hidden_size
+        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+            h_size *= 2
+
+        self.hidden_size = h_size
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
 
         if GNNClass == GATConv:
-            self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **needed_kwargs)
+            self.gnn = GNNClass(in_channels, h_size//layer_kwargs["heads"], **needed_kwargs)
         else:
-            self.gnn = GNNClass(in_channels, conf.hidden_size, **needed_kwargs)
+            self.gnn = GNNClass(in_channels, h_size, **needed_kwargs)
 
         if use_edge_type_embs:
             num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges

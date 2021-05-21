@@ -17,6 +17,7 @@ class Transformer(nn.Module):
         self.use_pos_embeddings = use_pos_embeddings
         self.num_types = num_types
         self.hidden_size = hidden_size
+
         if use_type_embeddings:
             self.type_embedder = nn.Embedding(num_types, self.hidden_size)
         if use_pos_embeddings:

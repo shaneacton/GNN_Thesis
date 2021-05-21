@@ -1,7 +1,7 @@
 {
-  "model_name": "summ_coat",
-  "model_class": "HDERel2",
-  "gnn_class": "CustomGAT",
+  "model_name": "concat",
+  "model_class": "HDEGlove",
+  "gnn_class": "SAGEConv",
   "embedded_dims": 100,
   "hidden_size": 100,
   "transformer_heads": 5,
@@ -9,5 +9,6 @@
   "bidirectional": true,
   "use_average_output_agg": true,
   "use_switch_summariser": false,
-  "use_summary_coattention": true
+  "use_summary_coattention": true,
+  "use_concat_summaries": true
 }
