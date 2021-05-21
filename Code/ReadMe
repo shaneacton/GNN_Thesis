@@ -1,5 +1,10 @@
 Todo:
 
+* make switch coattention.
+* use it in summariser to do q->context coattention for all sequences before being summarised
+* create B0 baseline config. which is most similar to HDE system.
+* test av summariser vs first el
+
 * Untested differences between ours and HDE
     * HDE uses a GRU twice. Once before coattention and once during.
         * we tested the before coattention, after embedding
@@ -7,6 +12,7 @@ Todo:
     * HDE takes the input and output of the coattention module and concats them. Doubling the embedding dim to get a larger model dim
     * We have not tested coattention with entity sequences.
         * this could be implemented as a coattention module in the summariser
+    * type embs in normal summariser
 
 * General:
     * add dropout to output model and other

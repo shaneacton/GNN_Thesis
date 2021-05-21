@@ -35,8 +35,11 @@ class HDEModel(nn.Module):
         self.hidden_size = conf.hidden_size
         self.use_gating = conf.use_gating
 
-        self.coattention = Coattention(**kwargs)
-        conf.cfg["num_coattention_params"] = num_params(self.coattention)
+        # todo remove
+        conf.cfg["num_coattention_params"] = 0
+        if hasattr(conf, "use_summary_coattention") and not conf.use_summary_coattention:  # else done by summariser
+            self.coattention = Coattention(**kwargs)
+            conf.cfg["num_coattention_params"] = num_params(self.coattention)
 
         if conf.use_gru_contextualiser:
             self.supp_contextualiser = GRUContextualiser()
@@ -48,7 +51,7 @@ class HDEModel(nn.Module):
         else:
             self.summariser = Summariser(**kwargs)
         conf.cfg["num_summariser_params"] = num_params(self.summariser)
-        conf.cfg["num_transformer_params"] = num_params(self.summariser) + num_params(self.coattention)
+        conf.cfg["num_transformer_params"] = num_params(self.summariser) + conf.cfg["num_coattention_params"]
 
         self.relu = ReLU()
 
@@ -145,6 +148,8 @@ class HDEModel(nn.Module):
             support_embeddings = [self.supp_contextualiser(sup) for sup in support_embeddings]
 
         query_emb = self.embedder(example.query, allow_unknowns=False)
+        if conf.use_gru_contextualiser:
+            query_emb = self.query_contextualiser(query_emb)
 
         #todo remove legacy todo
         if hasattr(conf, "summarise_query_in_docs") and conf.summarise_query_in_docs:
@@ -162,12 +167,12 @@ class HDEModel(nn.Module):
         if hasattr(conf, "use_candidate_coattention") and conf.use_candidate_coattention:
             cand_embs = self.get_query_aware_context_embeddings(cand_embs, query_emb)
 
-        candidate_summaries = self.summariser(cand_embs, CANDIDATE)
-        support_summaries = self.summariser(query_aware_support_embeddings, DOCUMENT)
+        candidate_summaries = self.summariser(cand_embs, CANDIDATE, query_vec=query_emb)
+        support_summaries = self.summariser(query_aware_support_embeddings, DOCUMENT, query_vec=query_emb)
 
         t = time.time()
 
-        ent_summaries = get_entity_summaries(example.ent_token_spans, query_aware_support_embeddings, self.summariser)
+        ent_summaries = get_entity_summaries(example.ent_token_spans, query_aware_support_embeddings, self.summariser, query_vec=query_emb)
 
         if conf.print_times:
             print("got ent summaries in", (time.time() - t))
@@ -187,10 +192,9 @@ class HDEModel(nn.Module):
         if conf.show_memory_usage_data:
             print("documents padded volume:", pad_volume)
 
-        if conf.use_gru_contextualiser:
-            query_emb = self.query_contextualiser(query_emb)
-
-        support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb, return_query_encoding=return_query_encoding)
+        # todo remove
+        if hasattr(conf, "use_summary_coattention") and not conf.use_summary_coattention:  # else done by summariser
+            support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb, return_query_encoding=return_query_encoding)
         return support_embeddings
 
     def pass_output_model(self, x, example, graph, node_id_map=None):

@@ -131,10 +131,13 @@ class SimpleGNNLayer(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_size = conf.hidden_size
+        init_args = inspect.getfullargspec(GNNClass.__init__)[0]
+        needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
+
         if GNNClass == GATConv:
-            self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **layer_kwargs)
+            self.gnn = GNNClass(in_channels, conf.hidden_size//layer_kwargs["heads"], **needed_kwargs)
         else:
-            self.gnn = GNNClass(in_channels, conf.hidden_size, **layer_kwargs)
+            self.gnn = GNNClass(in_channels, conf.hidden_size, **needed_kwargs)
 
         if use_edge_type_embs:
             num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges

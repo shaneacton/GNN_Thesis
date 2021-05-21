@@ -39,7 +39,7 @@ class SwitchSummariser(SwitchTransformer):
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
 
-    def forward(self, vec_or_vecs: Union[List[Tensor], Tensor], _type, spans: List[TokenSpan]=None, return_list=True):
+    def forward(self, vec_or_vecs: Union[List[Tensor], Tensor], _type, spans: List[TokenSpan]=None, return_list=True, query_vec: Tensor = None):
         """
             either one vec shaped (b, seq, f)
             or a vecs list containing (1, seq, f)

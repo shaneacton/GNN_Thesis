@@ -12,7 +12,6 @@ from Code.HDE.hde_bert import HDEBert
 from Code.HDE.hde_glove import HDEGlove
 from Code.HDE.hde_rel import HDERel
 from Code.HDE.hde_rel2 import HDERel2
-from Code.Pooling.hde_pool import HDEPool
 from Code.Training import dev
 from Code.Training.lamb import Lamb
 from Code.Utils.training_utils import get_exponential_schedule_with_warmup
@@ -21,7 +20,7 @@ from Code.Utils import wandb_utils
 from Code.Utils.wandb_utils import use_wandb
 
 MODEL_MAP = {
-    "HDEBert": HDEBert, "HDEGlove": HDEGlove, "HDEPool": HDEPool, "HDERel": HDERel,
+    "HDEBert": HDEBert, "HDEGlove": HDEGlove, "HDERel": HDERel,
     "HDERel2": HDERel2
              }
 GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv, "GordiGAT": GordiGAT, "CustomGAT": CustomGAT}

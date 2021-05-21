@@ -5,6 +5,8 @@ from torch import Tensor
 from torch.nn import LayerNorm
 from transformers import TokenSpan
 
+from Code.Transformers.coattention import Coattention
+from Code.Transformers.switch_coattention import SwitchCoattention
 from Code.Transformers.transformer import Transformer
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT
 from Config.config import conf
@@ -24,11 +26,19 @@ class Summariser(Transformer):
         num_types = 3
         if use_summariser_pos_embs is None:
             use_summariser_pos_embs = conf.use_summariser_pos_embs
+        # todo remove
+        if hasattr(conf, "use_summary_coattention") and conf.use_summary_coattention:
+            use_type_embeddings = False  # no type embs neccesary, we have distinct params per type instead
+
         super().__init__(conf.embedded_dims, num_types, conf.num_summariser_layers,
                          use_type_embeddings=use_type_embeddings, intermediate_fac=intermediate_fac,
                          use_pos_embeddings=use_summariser_pos_embs)
         if conf.use_layer_norms_b:
             self.norm = LayerNorm(conf.embedded_dims)
+
+        #todo remove
+        if hasattr(conf, "use_summary_coattention") and conf.use_summary_coattention:
+            self.coattention = SwitchCoattention(intermediate_fac)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
@@ -41,7 +51,7 @@ class Summariser(Transformer):
         return vec
 
     def forward(self, vec_or_vecs: Union[List[Tensor], Tensor], _type, spans: List[TokenSpan]=None,
-                return_list=True):
+                return_list=True, query_vec: Tensor = None):
         """
             either one vec shaped (b, seq, f)
             or a vecs list containing (1, seq, f)
@@ -62,6 +72,10 @@ class Summariser(Transformer):
 
         extracts = [self.get_vec_extract(v, spans[i]).view(-1, self.hidden_size) for i, v in enumerate(vecs)]
 
+        # todo remove
+        if hasattr(conf, "use_summary_coattention") and conf.use_summary_coattention:
+            extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
+
         if self.use_type_embeddings:
             extracts = [ex + self.get_type_tensor(_type, ex.size(-2)).view(-1, self.hidden_size) for ex in extracts]
         if self.use_pos_embeddings:
@@ -70,6 +84,7 @@ class Summariser(Transformer):
             extracts = [self.norm(ex) for ex in extracts]
 
         batch, masks = self.pad(extracts)
+
         batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)
 
         if conf.use_average_summariser:

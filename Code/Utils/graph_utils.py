@@ -189,14 +189,14 @@ def charspan_to_tokenspan(encoding: BatchEncoding, char_span: Tuple[int]) -> Tok
     return span
 
 
-def get_entity_summaries(tok_spans: List[List[Tuple[int]]], support_embeddings: List[Tensor], summariser):
+def get_entity_summaries(tok_spans: List[List[Tuple[int]]], support_embeddings: List[Tensor], summariser, query_vec=None):
     flat_spans = []
     flat_vecs = []
     for s, spans in enumerate(tok_spans):  # for each support document
         flat_spans.extend(spans)
         flat_vecs.extend([support_embeddings[s]] * len(spans))
     # return [summariser(vec, ENTITY, flat_spans[i]) for i, vec in enumerate(flat_vecs)]
-    return summariser(flat_vecs, ENTITY, flat_spans)
+    return summariser(flat_vecs, ENTITY, flat_spans, query_vec=query_vec)
 
 
 def get_transformer_entity_token_spans(support_encodings, supports) -> List[List[Tuple[int]]]:
