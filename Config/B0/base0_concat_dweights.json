@@ -1,5 +1,5 @@
 {
-  "model_name": "hde",
+  "model_name": "hde_concat_dweights",
   "model_class": "HDEGlove",
   "gnn_class": "SAGEConv",
   "use_gating": true,
