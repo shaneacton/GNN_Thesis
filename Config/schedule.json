@@ -7,6 +7,7 @@
     "base0_first_summ",
     "base0_concat",
     "base0_concat_8L",
-    "base0_concat_12L"
+    "base0_concat_12L",
+    "base0_concat_dweights"
   ]
 }
