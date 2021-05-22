@@ -34,7 +34,7 @@ class HDEModel(nn.Module):
         self.name = conf.model_name
         h_size = conf.hidden_size
 
-        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+        if (hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries) or (hasattr(conf, "use_concat_summaries2") and conf.use_concat_summaries2):
             h_size *= 2
         self.hidden_size = h_size
         self.use_gating = conf.use_gating

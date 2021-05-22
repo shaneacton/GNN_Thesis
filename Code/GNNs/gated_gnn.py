@@ -18,7 +18,7 @@ class GatedGNN(nn.Module):
         super().__init__()
         self.gnn = gnn
         size = conf.hidden_size
-        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+        if (hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries) or (hasattr(conf, "use_concat_summaries2") and conf.use_concat_summaries2):
             size *= 2
         self.update_linear = nn.Linear(size, size)
         self.gate_linear = nn.Linear(2*size, size)

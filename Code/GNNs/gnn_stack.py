@@ -38,7 +38,7 @@ class GNNStack(nn.Module):
         layer_kwargs.setdefault("aggr", conf.gnn_aggr)
         layer_kwargs.setdefault("add_self_loops", conf.add_self_loops)
         h_size = conf.hidden_size
-        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+        if (hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries) or (hasattr(conf, "use_concat_summaries2") and conf.use_concat_summaries2):
             h_size *= 2
 
         for layer_i in range(conf.num_layers):
@@ -86,7 +86,7 @@ class GNNLayer(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         h_size = conf.hidden_size
-        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+        if (hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries) or (hasattr(conf, "use_concat_summaries2") and conf.use_concat_summaries2):
             h_size *= 2
 
         self.hidden_size = h_size
@@ -139,7 +139,7 @@ class SimpleGNNLayer(nn.Module):
         self.in_channels = in_channels
 
         h_size = conf.hidden_size
-        if hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries:
+        if (hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries) or (hasattr(conf, "use_concat_summaries2") and conf.use_concat_summaries2):
             h_size *= 2
 
         self.hidden_size = h_size
