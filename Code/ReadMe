@@ -1,6 +1,5 @@
 Todo:
 
-* create B0 baseline config. which is most similar to HDE system.
 * test edge embeddings with B0
 * test a gru in coattention as in HDE
 

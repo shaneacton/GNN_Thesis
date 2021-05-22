@@ -5,6 +5,7 @@ from torch import Tensor
 from torch.nn import LayerNorm
 from transformers import TokenSpan
 
+from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Transformers.coattention import Coattention
 from Code.Transformers.switch_coattention import SwitchCoattention
 from Code.Transformers.transformer import Transformer
@@ -39,6 +40,10 @@ class Summariser(Transformer):
         #todo remove
         if hasattr(conf, "use_summary_coattention") and conf.use_summary_coattention:
             self.coattention = SwitchCoattention(intermediate_fac)
+
+        #todo remove
+        if hasattr(conf, "use_coattention_gru") and conf.use_coattention_gru:
+            self.coattention_gru = GRUContextualiser()
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
@@ -76,9 +81,12 @@ class Summariser(Transformer):
         # todo remove
         if hasattr(conf, "use_summary_coattention") and conf.use_summary_coattention:
             extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
+            if hasattr(conf, "use_coattention_gru") and conf.use_coattention_gru:
+                extracts = [self.coattention_gru(e) for e in extracts]
 
-        if self.use_type_embeddings:
+        elif self.use_type_embeddings:
             extracts = [ex + self.get_type_tensor(_type, ex.size(-2)).view(-1, h_size) for ex in extracts]
+
         if self.use_pos_embeddings:
             extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
         if conf.use_layer_norms_b:

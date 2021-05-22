@@ -52,5 +52,7 @@
   "bidirectional": false,
   "use_average_output_agg": false,
   "use_summary_coattention": false,
-  "use_concat_summaries": false
+  "use_concat_summaries": false,
+  "use_concat_summaries2": false,
+  "use_coattention_gru": false
 }

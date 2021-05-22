@@ -8,6 +8,7 @@
     "base0_concat",
     "base0_concat_8L",
     "base0_concat_dweights",
-    "base0_concat_dweights_8L"
+    "base0_concat_dweights_8L",
+    "base0_coat_gru"
   ]
 }

@@ -37,16 +37,12 @@ class SwitchCoattention(SwitchTransformer):
                 context_vectors = [self.norm_s(s) for s in context_vectors]
                 query = self.norm_q(query)
 
-        # print("before vecs:", [c.size() for c in context_vectors])
-
         context_vectors = [s.view(-1, self.hidden_size) for s in context_vectors]
         query = query.view(-1, self.hidden_size)
 
         cats = [torch.cat([supp, query], dim=0) for supp in context_vectors]
         batch, masks = Transformer.pad(cats)
-        # print("switch coat batch:", batch.size(), "num supps:", len(context_vectors))
         batch = self.switch_encoder(batch, src_key_padding_mask=masks, type=context_type).transpose(0, 1)
-        # print("after coat batch:", batch.size())
 
         seqs = list(batch.split(dim=0, split_size=1))
         assert len(seqs) == len(context_vectors)
@@ -54,7 +50,5 @@ class SwitchCoattention(SwitchTransformer):
             last_index = context_vectors[s].size(0) + query.size(0) if return_query_encoding else context_vectors[s].size(0)
             seqs[s] = seq[:, :last_index, :]
             seqs[s] = seqs[s].view(seqs[s].size(1), -1)
-
-        # print("after vecs:", [c.size() for c in seqs])
 
         return seqs

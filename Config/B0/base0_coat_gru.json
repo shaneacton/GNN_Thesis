@@ -1,5 +1,5 @@
 {
-  "model_name": "hde_concat_8L",
+  "model_name": "hde_coat_gru",
   "model_class": "HDEGlove",
   "gnn_class": "SAGEConv",
   "use_gating": true,
@@ -8,7 +8,7 @@
   "layerwise_weight_sharing": true,
   "gnn_aggr": "add",
   "gnn_stack_act": "none",
-  "num_layers": 8,
+  "num_layers": 4,
   "num_summariser_layers": 1,
   "num_coattention_layers": 1,
   "hidden_size": 300,
@@ -49,7 +49,7 @@
   "bidirectional": false,
   "use_average_output_agg": false,
   "use_summary_coattention": true,
-  "use_concat_summaries": true,
+  "use_concat_summaries": false,
   "use_concat_summaries2": false,
-  "use_coattention_gru": false
+  "use_coattention_gru": true
 }
