@@ -1,15 +1,8 @@
 Todo:
 
 * test edge embeddings with B0
-* test a gru in coattention as in HDE
 
 * Untested differences between ours and HDE
-    * HDE uses a GRU twice. Once before coattention and once during.
-        * we tested the before coattention, after embedding
-        * We have not tested the during coattention GRU.
-    * HDE takes the input and output of the coattention module and concats them. Doubling the embedding dim to get a larger model dim
-    * We have not tested coattention with entity sequences.
-        * this could be implemented as a coattention module in the summariser
     * type embs in normal summariser
 
 * General:
