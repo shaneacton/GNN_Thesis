@@ -63,24 +63,23 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 times_up()
 
             try:
-                with autograd.detect_anomaly():
-                    num_edges = len(graph.unique_edges)
-                    if accumulated_edges + num_edges > conf.max_accumulated_edges:  # always true if mae=-1
-                        """
-                            this new graph would send us over the accumulated edges budget,
-                            so we must first wipe previous gradients by stepping
-                        """
-                        optimizer.step()
-                        if conf.use_lr_scheduler:
-                            scheduler.step(epoch=e_frac())
-                        optimizer.zero_grad()
-                        if conf.show_memory_usage_data:
-                            print("accumulated edges (", accumulated_edges, ") is over max. stepping optim:")
-                        accumulated_edges = 0
+                num_edges = len(graph.unique_edges)
+                if accumulated_edges + num_edges > conf.max_accumulated_edges:  # always true if mae=-1
+                    """
+                        this new graph would send us over the accumulated edges budget,
+                        so we must first wipe previous gradients by stepping
+                    """
+                    optimizer.step()
+                    if conf.use_lr_scheduler:
+                        scheduler.step(epoch=e_frac())
+                    optimizer.zero_grad()
+                    if conf.show_memory_usage_data:
+                        print("accumulated edges (", accumulated_edges, ") is over max. stepping optim:")
+                    accumulated_edges = 0
 
-                    loss, predicted = model(graph=graph)
-                    t = time.time()
-                    loss.backward()
+                loss, predicted = model(graph=graph)
+                t = time.time()
+                loss.backward()
                 if conf.print_times:
                     print("back time:", (time.time() - t))
 
