@@ -59,6 +59,14 @@ class HDEGraph:
 
         return torch.tensor([froms, tos]).to(dev()).long()
 
+    def get_mask(self):
+        # all connections maked. then connections are unmasked
+        mask = [[True] * len(self.ordered_nodes) ] * len(self.ordered_nodes)
+        for e in self.ordered_edges:  # adds both directions
+            mask[e.from_id][e.to_id] = False
+            mask[e.to_id][e.from_id] = False
+        return torch.tensor(mask, dtype=torch.bool).to(dev())
+
     def ordered_unique_edge_types(self, include_global=False):
         types = sorted(list(self.unique_edge_types))
         #todo remove legacy

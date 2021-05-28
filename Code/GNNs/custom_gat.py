@@ -1,3 +1,4 @@
+import time
 from typing import Optional, Tuple
 
 import torch
@@ -15,7 +16,9 @@ from Config.config import conf
 
 class CustomGAT(MessagePassing):
 
-    def __init__(self, in_channels, out_channels, heads, dropout=0., add_self_loops: bool = True):
+    def __init__(self, in_channels, out_channels, heads, dropout=0., add_self_loops: bool = True,
+                 output_linear: bool=None, residual_attention: bool=None):
+
         super().__init__()
         self.embed_dim = in_channels
         self.num_heads = heads
@@ -26,40 +29,45 @@ class CustomGAT(MessagePassing):
         self.in_proj_weight = Parameter(torch.empty(3 * in_channels, in_channels))
 
         self.in_proj_bias = Parameter(torch.empty(3 * in_channels))
-        if conf.use_output_linear_in_custom_gat:
-            self.out_proj = _LinearWithBias(in_channels, in_channels)
 
-        if conf.use_actual_output_linear_in_custom_gat:
+        if output_linear is None:
+            output_linear = conf.use_actual_output_linear_in_custom_gat
+        if output_linear:
             self.out_proj2 = _LinearWithBias(in_channels, out_channels)
+
+        self.use_output_linear = output_linear
 
         self._reset_parameters()
         self.add_self_loops = add_self_loops
-        if conf.use_residual_attention:
+        if residual_attention is None:
+            residual_attention = conf.use_residual_attention
+        self.residual_attention = residual_attention
+        if residual_attention:
             self.last_attention_scores = None
 
     def _reset_parameters(self):
         xavier_uniform_(self.in_proj_weight)
 
         constant_(self.in_proj_bias, 0.)
-        if conf.use_output_linear_in_custom_gat:
-            constant_(self.out_proj.bias, 0.)
-        if conf.use_actual_output_linear_in_custom_gat:
+        if self.use_output_linear:
             constant_(self.out_proj2.bias, 0.)
 
     def forward(self, x, edge_index, **kwargs):
         """x ~ (N, f)"""
+        # forward_time = time.time()
         q, k, v = linear(x, self.in_proj_weight, self.in_proj_bias).chunk(3, dim=-1)
         scaling = float(self.head_dim) ** -0.5
         q = q * scaling
 
         if self.add_self_loops:
-            num_edges = edge_index.size(1)
             num_nodes = x.size(0)
             edge_index, _ = remove_self_loops(edge_index)
             edge_index, _ = add_self_loops(edge_index, num_nodes=num_nodes)
 
+        # prop_time = time.time()
         out = self.propagate(edge_index, q=q, k=k, v=v, **kwargs)
-        if conf.use_actual_output_linear_in_custom_gat:
+        # print("forward time:", (prop_time-forward_time), "prop time:", (time.time()-prop_time))
+        if self.use_output_linear:
             out = linear(out, self.out_proj2.weight, self.out_proj2.bias)
         return out
 
@@ -72,6 +80,7 @@ class CustomGAT(MessagePassing):
 
 
         """
+        # message_time = time.time()
         e, f = q_i.size()
         head_dim = f // self.num_heads
 
@@ -87,15 +96,16 @@ class CustomGAT(MessagePassing):
         if previous_attention_scores is not None:
             attn_output_weights = attn_output_weights + previous_attention_scores
 
+        # softmax_time = time.time()
         soft_attention_scores = dropout(attn_output_weights, p=self.dropout, train=self.training)
 
         v_j = v_j * soft_attention_scores.view(e, self.num_heads, 1)  # (E, h, f/h) * (E, h, 1)  ->  (E, h, f/h)
         assert v_j.size(0) == e and v_j.size(1) == self.num_heads and v_j.size(2) == head_dim
         v_j = v_j.view(e, -1)
-        if conf.use_output_linear_in_custom_gat:
-            v_j = linear(v_j, self.out_proj.weight, self.out_proj.bias)
 
-        if conf.use_residual_attention:
+        # print("message time:", (softmax_time-message_time), "softmax time:", (time.time()-softmax_time))
+
+        if self.residual_attention:
             self.last_attention_scores = attn_output_weights  # temp store to bypass pytorch geometric
             # print("storing residual attentions")
         return v_j

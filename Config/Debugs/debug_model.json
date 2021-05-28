@@ -12,5 +12,6 @@
   "use_summary_coattention": true,
   "use_concat_summaries": false,
   "use_coattention_gru": true,
-  "use_concat_summaries2": true
+  "use_concat_summaries2": true,
+  "use_transformer_gnn": true
 }

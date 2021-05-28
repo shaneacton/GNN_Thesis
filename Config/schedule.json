@@ -11,6 +11,7 @@
     "base0_concat_dweights_8L",
     "base0_coat_gru",
     "base0_concat2",
-    "base0_concat2_coat_gru"
+    "base0_concat2_coat_gru",
+    "base0_concat2_coat_gru_trans"
   ]
 }

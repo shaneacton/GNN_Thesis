@@ -10,6 +10,7 @@ from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gated_gnn import GatedGNN
 from Code.GNNs.gnn_stack import GNNStack
+from Code.GNNs.transformer_gnn import TransformerGNN
 from Code.HDE.Graph.graph import HDEGraph
 from Code.Transformers.coattention import Coattention
 from Code.Transformers.summariser import Summariser
@@ -84,7 +85,10 @@ class HDEModel(nn.Module):
             args = {"heads": conf.heads}
         else:
             args = {}
-        self.gnn = GNNStack(GNN_CLASS, **args)
+        if hasattr(conf, "use_transformer_gnn") and conf.use_transformer_gnn:
+            self.gnn = TransformerGNN(hidden_size=self.hidden_size, heads=conf.heads, num_layers=conf.num_layers, **args)
+        else:
+            self.gnn = GNNStack(GNN_CLASS, **args)
 
     def forward(self, example: Wikipoint=None, graph: HDEGraph=None):
         """
@@ -118,9 +122,13 @@ class HDEModel(nn.Module):
         return self.finish(x, example, graph, *args)
 
     def pass_gnn(self, x, example, graph):
-        edge_index = graph.edge_index()
         t = time.time()
-        x = self.gnn(x, edge_index=edge_index)
+        if hasattr(conf, "use_transformer_gnn") and conf.use_transformer_gnn:
+            # print("x before:", x.size(), x)
+            x = self.gnn(x, graph.get_mask()).view(x.size(0), -1)
+            # print("x after:", x.size(), x)
+        else:
+            x = self.gnn(x, edge_index=graph.edge_index())
         if conf.print_times:
             print("passed gnn in", (time.time() - t))
         return x
@@ -135,7 +143,6 @@ class HDEModel(nn.Module):
             probs = final_probs.view(1, -1)  # batch dim
             ans = torch.tensor([ans_id]).to(dev())
             loss = self.loss_fn(probs, ans)
-
             return loss, pred_ans
 
         return pred_ans
@@ -182,7 +189,7 @@ class HDEModel(nn.Module):
             print("got ent summaries in", (time.time() - t))
 
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
-
+        # print("x created:", x)
         return x
 
     def get_query_aware_context_embeddings(self, support_embeddings: List[Tensor], query_emb: Tensor, return_query_encoding=False) -> List[Tensor]:
