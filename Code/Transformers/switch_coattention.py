@@ -21,10 +21,6 @@ class SwitchCoattention(SwitchTransformer):
                          intermediate_fac=intermediate_fac,
                          switch_types=[ENTITY, DOCUMENT, CANDIDATE], emb_types=[DOCUMENT, QUERY])
 
-        if conf.use_layer_norms_b:
-            self.norm_s = LayerNorm(conf.embedded_dims)
-            self.norm_q = LayerNorm(conf.embedded_dims)
-
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, SOURCE_TYPE_MAP)
 
@@ -33,9 +29,6 @@ class SwitchCoattention(SwitchTransformer):
         if self.use_type_embeddings:  # these type embs differentiate the context and query part of the concattenated sequence
             context_vectors = [s + self.get_type_tensor(DOCUMENT, s.size(-2)) for s in context_vectors]
             query = (query + self.get_type_tensor(QUERY, query.size(-2)))
-            if conf.use_layer_norms_b:
-                context_vectors = [self.norm_s(s) for s in context_vectors]
-                query = self.norm_q(query)
 
         context_vectors = [s.view(-1, self.hidden_size) for s in context_vectors]
         query = query.view(-1, self.hidden_size)

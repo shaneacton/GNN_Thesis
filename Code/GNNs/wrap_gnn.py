@@ -88,10 +88,6 @@ class EdgeEmbeddings(WrapGNN):
         if target_vectors is None:
             if isinstance(gnn_layer, CustomGAT):
                 target_vectors = ["q_i"]
-                if conf.use_value_type_embs:
-                    target_vectors.append("v_j")
-                if conf.use_key_type_embs:
-                    target_vectors.append("k_j")
             else:
                 target_vectors = ["x_j"]
         self.target_vectors = target_vectors

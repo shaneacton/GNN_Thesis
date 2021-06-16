@@ -38,7 +38,7 @@ class GNNStack(nn.Module):
         layer_kwargs.setdefault("aggr", conf.gnn_aggr)
         layer_kwargs.setdefault("add_self_loops", conf.add_self_loops)
         h_size = conf.hidden_size
-        if (hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries) or (hasattr(conf, "use_concat_summaries2") and conf.use_concat_summaries2):
+        if conf.use_concat_summaries2:
             h_size *= 2
 
         for layer_i in range(conf.num_layers):
@@ -86,7 +86,7 @@ class GNNLayer(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         h_size = conf.hidden_size
-        if (hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries) or (hasattr(conf, "use_concat_summaries2") and conf.use_concat_summaries2):
+        if conf.use_concat_summaries2:
             h_size *= 2
 
         self.hidden_size = h_size
@@ -100,8 +100,6 @@ class GNNLayer(nn.Module):
 
         if use_edge_type_embs:
             num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges
-            if hasattr(conf, "bidirectional") and conf.bidirectional:
-                num_types += 7
             self.gnn = EdgeEmbeddings(self.gnn, in_channels, num_types)
 
         self.linear1 = Linear(h_size, h_size * intermediate_fac)
@@ -139,7 +137,7 @@ class SimpleGNNLayer(nn.Module):
         self.in_channels = in_channels
 
         h_size = conf.hidden_size
-        if (hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries) or (hasattr(conf, "use_concat_summaries2") and conf.use_concat_summaries2):
+        if conf.use_concat_summaries2:
             h_size *= 2
 
         self.hidden_size = h_size

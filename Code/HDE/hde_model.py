@@ -35,14 +35,13 @@ class HDEModel(nn.Module):
         self.name = conf.model_name
         h_size = conf.hidden_size
 
-        if (hasattr(conf, "use_concat_summaries") and conf.use_concat_summaries) or (hasattr(conf, "use_concat_summaries2") and conf.use_concat_summaries2):
+        if conf.use_concat_summaries2:
             h_size *= 2
         self.hidden_size = h_size
         self.use_gating = conf.use_gating
 
-        # todo remove
         conf.cfg["num_coattention_params"] = 0
-        if hasattr(conf, "use_summary_coattention") and not conf.use_summary_coattention:  # else done by summariser
+        if not conf.use_summary_coattention:  # else done by summariser
             self.coattention = Coattention(**kwargs)
             conf.cfg["num_coattention_params"] = num_params(self.coattention)
 
@@ -62,9 +61,7 @@ class HDEModel(nn.Module):
 
         self.gnn = None
         self.init_gnn(GNN_CLASS)
-        if conf.use_big_gating:
-            """wraps the whole gnn in a gate, as in Hierarchical Graph Network"""
-            self.gnn = GatedGNN(self.gnn)
+
         conf.cfg["num_gnn_params"] = num_params(self.gnn)
 
         self.candidate_scorer = HDEScorer(h_size)
@@ -162,8 +159,7 @@ class HDEModel(nn.Module):
         if conf.use_gru_contextualiser:
             query_emb = self.query_contextualiser(query_emb)
 
-        #todo remove legacy todo
-        if hasattr(conf, "summarise_query_in_docs") and conf.summarise_query_in_docs:
+        if conf.summarise_query_in_docs:
             query_aware_support_embeddings = self.get_query_aware_context_embeddings(support_embeddings, query_emb, return_query_encoding=True)
         else:
             query_aware_support_embeddings = self.get_query_aware_context_embeddings(support_embeddings, query_emb)
@@ -174,8 +170,7 @@ class HDEModel(nn.Module):
         if conf.use_gru_contextualiser:
             cand_embs = [self.cand_contextualiser(cand) for cand in cand_embs]
 
-        #todo remove legacy todo
-        if hasattr(conf, "use_candidate_coattention") and conf.use_candidate_coattention:
+        if conf.use_candidate_coattention:
             cand_embs = self.get_query_aware_context_embeddings(cand_embs, query_emb)
 
         candidate_summaries = self.summariser(cand_embs, CANDIDATE, query_vec=query_emb)
@@ -203,8 +198,7 @@ class HDEModel(nn.Module):
         if conf.show_memory_usage_data:
             print("documents padded volume:", pad_volume)
 
-        # todo remove
-        if hasattr(conf, "use_summary_coattention") and not conf.use_summary_coattention:  # else done by summariser
+        if not conf.use_summary_coattention:  # else done by summariser
             support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb, return_query_encoding=return_query_encoding)
         return support_embeddings
 
@@ -240,9 +234,9 @@ class HDEModel(nn.Module):
                 ent_embs = torch.index_select(x, dim=0, index=linked_ent_nodes)
 
                 cand_ent_probs = self.entity_scorer(ent_embs)
-                # todo remove
-                if hasattr(conf, "use_average_output_agg") and conf.use_average_output_agg:
-                    ent_prob = torch.sum(cand_ent_probs)
+
+                if conf.use_average_output_agg:
+                    ent_prob = torch.sum(cand_ent_probs)  # todo - divide by num cands
                 else:
                     ent_prob = torch.max(cand_ent_probs)
             ent_probs += [ent_prob]

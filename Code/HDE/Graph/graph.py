@@ -69,9 +69,6 @@ class HDEGraph:
 
     def ordered_unique_edge_types(self, include_global=False):
         types = sorted(list(self.unique_edge_types))
-        #todo remove legacy
-        if hasattr(conf, "bidirectional") and conf.bidirectional:
-            types += [t + REVERSE for t in types]
         types += [SELF_LOOP]
         if include_global:
             types.append(GLOBAL)
@@ -90,10 +87,7 @@ class HDEGraph:
                     Different directionality is not considered a different type, the unidirectional edge_types vec 
                     looks the same for forward and reverse.
                 """
-            if hasattr(conf, "bidirectional") and conf.bidirectional:
-                type_ids.append(edge_type_map[edge.type() + REVERSE])
-            else:
-                type_ids.append(type_id)
+            type_ids.append(type_id)
 
         if conf.add_self_loops:
             """

@@ -32,10 +32,7 @@ def load_unprocessed_dataset(dataset_name, version_name, split):
 def get_processed_wikihop(model, split=nlp.Split.TRAIN):
     global has_loaded
 
-    file_name = model.embedder_name + "_" + split._name
-    if conf.use_special_entities:
-        file_name += "_special"
-    file_name += ".data"
+    file_name = model.embedder_name + "_" + split._name + "_special.data"
     data_path = join(DATA_FOLDER, file_name)
 
     if exists(data_path):  # has been processed before

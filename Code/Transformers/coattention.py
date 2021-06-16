@@ -19,9 +19,6 @@ class Coattention(Transformer):
         num_types = 2
         super().__init__(conf.embedded_dims, num_types, conf.num_coattention_layers, use_type_embeddings=use_type_embedder,
                          intermediate_fac=intermediate_fac)
-        if conf.use_layer_norms_b:
-            self.norm_s = LayerNorm(conf.embedded_dims)
-            self.norm_q = LayerNorm(conf.embedded_dims)
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, SOURCE_TYPE_MAP)
@@ -30,9 +27,6 @@ class Coattention(Transformer):
         if self.use_type_embeddings:
             supps = [s + self.get_type_tensor(DOCUMENT, s.size(-2)) for s in supps]
             query = (query + self.get_type_tensor(QUERY, query.size(-2)))
-            if conf.use_layer_norms_b:
-                supps = [self.norm_s(s) for s in supps]
-                query = self.norm_q(query)
 
         supps = [s.view(-1, self.hidden_size) for s in supps]
         query = query.view(-1, self.hidden_size)

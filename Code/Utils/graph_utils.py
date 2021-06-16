@@ -21,11 +21,7 @@ _regex = None
 def get_regex():
     global _regex
     if _regex is None:
-        inc = conf.include_clean_numbers
-        if inc:
-            _regex = re.compile('[^a-zA-Z0-9]')
-        else:
-            _regex = re.compile('[^a-zA-Z]')
+        _regex = re.compile('[^a-zA-Z0-9]')
         return _regex
 
     return _regex
@@ -33,9 +29,6 @@ def get_regex():
 
 def clean(text):
     cleaner = get_regex().sub('', text.lower())
-    if not conf.use_strict_graph_matching:
-        """non strict matching uses similarity to match nodes, so trailing words can be tollerated"""
-        return cleaner
 
     """
         if we are using strict matching, then words preceding words like 'the' can cause a misamtch.
@@ -67,10 +60,7 @@ def connect_unconnected_entities(graph: HDEGraph):
 
 
 def similar(text1, text2):
-    if not conf.use_strict_graph_matching:
-        return text1 in text2 or text2 in text1
-    else:
-        return text1 == text2
+    return text1 == text2
 
 
 def connect_entity_mentions(graph: HDEGraph, all_cases=True):

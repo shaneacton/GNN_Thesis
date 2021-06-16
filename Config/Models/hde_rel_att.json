@@ -1,5 +1,0 @@
-{
-  "model_class": "HDERel",
-  "gnn_class": "GATConv",
-  "use_attention_edge_combination": true
-}

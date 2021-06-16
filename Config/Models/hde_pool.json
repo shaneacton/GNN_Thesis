@@ -1,7 +1,0 @@
-{
-  "model_class": "HDEPool",
-  "gnn_class": "GATConv",
-  "pool_class": "SAGEConv",
-  "pool_ratio": 0.5,
-  "use_gating": false
-}

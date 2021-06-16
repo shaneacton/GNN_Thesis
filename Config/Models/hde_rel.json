@@ -1,4 +1,0 @@
-{
-  "model_class": "HDERel",
-  "gnn_class": "GATConv"
-}

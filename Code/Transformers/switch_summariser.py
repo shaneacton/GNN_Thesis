@@ -2,7 +2,6 @@ from typing import List, Union
 
 import torch
 from torch import Tensor, nn
-from torch.nn import LayerNorm
 from transformers import TokenSpan
 import numpy as np
 
@@ -21,18 +20,10 @@ class SwitchSummariser(SwitchTransformer):
         into fixed size node embedding
     """
 
-    def __init__(self, intermediate_fac=2, use_summariser_pos_embs=None):
-        self.include_global = conf.use_global_summariser
-        if use_summariser_pos_embs is None:
-            use_summariser_pos_embs = conf.use_summariser_pos_embs
+    def __init__(self, intermediate_fac=2):
         super().__init__(conf.embedded_dims, conf.num_summariser_layers, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac,
-                         include_global=self.include_global,
-                         use_pos_embeddings=use_summariser_pos_embs)
+                         include_global=True)
 
-        if conf.use_layer_norms_b:
-            self.norm = LayerNorm(conf.embedded_dims)
-
-        self.add_cls_token = conf.use_summariser_cls_token
         if self.add_cls_token:
             self.cls_embedding = nn.Embedding(1, conf.hidden_size)
 
@@ -58,16 +49,8 @@ class SwitchSummariser(SwitchTransformer):
         if spans is None:
             spans = [None] * len(vecs)
         extracts = [Summariser.get_vec_extract(v, spans[i]).view(-1, self.hidden_size) for i, v in enumerate(vecs)]
-        if self.use_pos_embeddings:
-            extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
 
         batch, masks = Summariser.pad(extracts)
-        if self.add_cls_token:
-            ids = torch.tensor([0 for _ in range(batch.size(1))]).to(dev()).long()
-            falses = torch.tensor([False for _ in range(batch.size(1))]).to(dev()).bool().view(-1, 1)  # not padding
-            cls_emb = self.cls_embedding(ids).view(1, batch.size(1), -1)
-            batch = torch.cat([cls_emb, batch], dim=0)
-            masks = torch.cat([falses, masks], dim=1)
 
         enc = self.switch_encoder(batch, src_key_padding_mask=masks, type=_type).transpose(0, 1)
         if self.include_global:
@@ -80,15 +63,8 @@ class SwitchSummariser(SwitchTransformer):
 
             glob_enc = self.switch_encoder(glob_batch, src_key_padding_mask=masks, type=GLOBAL).transpose(0, 1)
             enc += glob_enc
-            if conf.use_layer_norms_b:
-                enc = self.norm(enc)
 
-        if conf.use_average_summariser:
-            num_tokens = enc.size(1)
-            summaries = torch.sum(enc, dim=1) / num_tokens  # (ents, hidd)
-        else:
-            """simply takes the first element"""
-            summaries = enc[:, 0, :]  # (b, hidd)
+        summaries = enc[:, 0, :]  # (b, hidd)
         if return_list:
             return list(summaries.split(dim=0, split_size=1))
 

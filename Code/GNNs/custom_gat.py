@@ -1,14 +1,10 @@
-import time
-from typing import Optional, Tuple
-
 import torch
-from torch import softmax, dropout, Tensor
+from torch import dropout, Tensor
 from torch.nn.functional import linear
+from torch.nn.init import xavier_uniform_, constant_
 from torch.nn.modules.linear import _LinearWithBias
 from torch.nn.parameter import Parameter
-from torch.nn.init import xavier_uniform_, constant_
 from torch_geometric.nn import MessagePassing
-
 from torch_geometric.utils import softmax as gat_softmax, remove_self_loops, add_self_loops
 
 from Config.config import conf

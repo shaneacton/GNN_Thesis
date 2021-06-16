@@ -17,22 +17,7 @@ def get_glove_entity_token_spans(example, glove_embedder: GloveEmbedder, use_nou
     all_token_spans: List[List[Tuple[int]]] = []
     for s, support in enumerate(example.supports):
         """get entity node embeddings"""
-        if conf.use_special_entities:
-            """
-                here we will be using 
-            """
-            doc_token_spans = get_special_entity_token_spans(example, support, glove_embedder)
-        else:
-            """
-                here we are going to be using an entity detection module. this will predict charspans for entites
-                which we will turn into token spans wrt the embedder.
-            """
-            if use_nouns:
-                ent_c_spans = get_noun_char_spans(support)
-            else:
-                ent_c_spans = get_entity_char_spans(support)
-
-            doc_token_spans = get_glove_entity_token_spans_from_chars(ent_c_spans, glove_embedder, support)
+        doc_token_spans = get_special_entity_token_spans(example, support, glove_embedder)
         all_token_spans.append(doc_token_spans)
     return all_token_spans
 
