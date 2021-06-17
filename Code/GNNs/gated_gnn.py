@@ -18,8 +18,6 @@ class GatedGNN(nn.Module):
         super().__init__()
         self.gnn = gnn
         size = conf.hidden_size
-        if conf.use_concat_summaries2:
-            size *= 2
         self.update_linear = nn.Linear(size, size)
         self.gate_linear = nn.Linear(2*size, size)
         self.sig = nn.Sigmoid()

@@ -25,17 +25,10 @@ class Summariser(Transformer):
 
     def __init__(self, intermediate_fac=2):
         num_types = 3
-
-        h_size = conf.embedded_dims
-        if conf.use_concat_summaries2:
-            h_size *= 2
-
-        super().__init__(h_size, num_types, conf.num_summariser_layers,
+        super().__init__(conf.hidden_size, num_types, conf.num_summariser_layers,
                          use_type_embeddings=False, intermediate_fac=intermediate_fac)
         self.coattention = SwitchCoattention(intermediate_fac)
-
-        if conf.use_coattention_gru:
-            self.coattention_gru = GRUContextualiser()
+        self.coattention_gru = GRUContextualiser()
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
@@ -67,19 +60,14 @@ class Summariser(Transformer):
         if spans is None:
             spans = [None] * len(vecs)
 
-        h_size = self.hidden_size
-        if conf.use_concat_summaries2:
-            h_size = h_size // 2
-        extracts = [self.get_vec_extract(v, spans[i]).view(-1, h_size) for i, v in enumerate(vecs)]
+        extracts = [self.get_vec_extract(v, spans[i]).view(-1, conf.embedded_dims) for i, v in enumerate(vecs)]
 
         original_extracts = extracts
         extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
+        extracts = [self.coattention_gru(e) for e in extracts]
 
-        if conf.use_coattention_gru:
-            extracts = [self.coattention_gru(e) for e in extracts]
-
-        if conf.use_concat_summaries2:
-            extracts = [torch.cat([e, original_extracts[i]], dim=-1) for i, e in enumerate(extracts)]
+        # doubles embedded dim to get hidden dim
+        extracts = [torch.cat([e, original_extracts[i]], dim=-1) for i, e in enumerate(extracts)]
 
         original_batch, masks = self.pad(extracts)
         batch = self.encoder(original_batch, src_key_padding_mask=masks).transpose(0, 1)

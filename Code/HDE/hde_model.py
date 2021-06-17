@@ -32,9 +32,6 @@ class HDEModel(nn.Module):
         super().__init__()
         self.name = conf.model_name
         h_size = conf.hidden_size
-
-        if conf.use_concat_summaries2:
-            h_size *= 2
         self.hidden_size = h_size
         self.use_gating = conf.use_gating
 

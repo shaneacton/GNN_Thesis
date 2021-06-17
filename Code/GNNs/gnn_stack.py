@@ -38,8 +38,6 @@ class GNNStack(nn.Module):
         layer_kwargs.setdefault("aggr", conf.gnn_aggr)
         layer_kwargs.setdefault("add_self_loops", conf.add_self_loops)
         h_size = conf.hidden_size
-        if conf.use_concat_summaries2:
-            h_size *= 2
 
         for layer_i in range(conf.num_layers):
             if conf.layerwise_weight_sharing and layer_i > 0:
@@ -86,9 +84,6 @@ class GNNLayer(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         h_size = conf.hidden_size
-        if conf.use_concat_summaries2:
-            h_size *= 2
-
         self.hidden_size = h_size
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
@@ -137,9 +132,6 @@ class SimpleGNNLayer(nn.Module):
         self.in_channels = in_channels
 
         h_size = conf.hidden_size
-        if conf.use_concat_summaries2:
-            h_size *= 2
-
         self.hidden_size = h_size
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}

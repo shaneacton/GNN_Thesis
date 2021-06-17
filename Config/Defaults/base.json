@@ -10,7 +10,7 @@
   "num_layers": 9,
   "num_summariser_layers": 1,
   "num_coattention_layers": 1,
-  "hidden_size": 300,
+  "hidden_size": 600,
   "embedded_dims": 300,
   "fine_tune_embedder": true,
   "use_character_embs_for_unknown_words": true,
@@ -25,11 +25,6 @@
   "add_self_loops": true,
   "use_actual_output_linear_in_custom_gat": false,
   "use_residual_attention": false,
-  "use_candidate_coattention": false,
-  "summarise_query_in_docs": false,
-  "bidirectional": false,
   "use_average_output_agg": false,
-  "use_concat_summaries2": false,
-  "use_coattention_gru": false,
   "use_transformer_gnn": false
 }
