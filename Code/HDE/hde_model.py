@@ -8,16 +8,14 @@ from torch.nn import CrossEntropyLoss, ReLU
 
 from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Embedding.string_embedder import StringEmbedder
-from Code.GNNs.gated_gnn import GatedGNN
 from Code.GNNs.gnn_stack import GNNStack
 from Code.GNNs.transformer_gnn import TransformerGNN
 from Code.HDE.Graph.graph import HDEGraph
-from Code.Transformers.coattention import Coattention
+from Code.HDE.scorer import HDEScorer
+from Code.Training import dev
+from Code.Training.wikipoint import Wikipoint
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_summariser import SwitchSummariser
-from Code.HDE.scorer import HDEScorer
-from Code.Training.wikipoint import Wikipoint
-from Code.Training import dev
 from Code.Utils.graph_utils import get_entity_summaries, similar
 from Code.constants import DOCUMENT, CANDIDATE
 from Config.config import conf
@@ -40,15 +38,9 @@ class HDEModel(nn.Module):
         self.hidden_size = h_size
         self.use_gating = conf.use_gating
 
-        conf.cfg["num_coattention_params"] = 0
-        if not conf.use_summary_coattention:  # else done by summariser
-            self.coattention = Coattention(**kwargs)
-            conf.cfg["num_coattention_params"] = num_params(self.coattention)
-
-        if conf.use_gru_contextualiser:
-            self.supp_contextualiser = GRUContextualiser()
-            self.cand_contextualiser = GRUContextualiser()
-            self.query_contextualiser = GRUContextualiser()
+        self.supp_contextualiser = GRUContextualiser()
+        self.cand_contextualiser = GRUContextualiser()
+        self.query_contextualiser = GRUContextualiser()
 
         if conf.use_switch_summariser:
             self.summariser = SwitchSummariser(**kwargs)
@@ -150,44 +142,21 @@ class HDEModel(nn.Module):
             then summarises subsequences of tokens according to node spans
             yielding the same-sized node features
         """
-        t = time.time()
-        support_embeddings = [self.embedder(sup) for sup in example.supports]
-        if conf.use_gru_contextualiser:
-            support_embeddings = [self.supp_contextualiser(sup) for sup in support_embeddings]
+        support_embeddings = [self.supp_contextualiser(self.embedder(sup)) for sup in example.supports]
+        self.check_pad_volume(support_embeddings)
 
-        query_emb = self.embedder(example.query, allow_unknowns=False)
-        if conf.use_gru_contextualiser:
-            query_emb = self.query_contextualiser(query_emb)
-
-        if conf.summarise_query_in_docs:
-            query_aware_support_embeddings = self.get_query_aware_context_embeddings(support_embeddings, query_emb, return_query_encoding=True)
-        else:
-            query_aware_support_embeddings = self.get_query_aware_context_embeddings(support_embeddings, query_emb)
-
-        if conf.print_times:
-            print("got supp embs in", (time.time() - t))
-        cand_embs = [self.embedder(cand) for cand in example.candidates]
-        if conf.use_gru_contextualiser:
-            cand_embs = [self.cand_contextualiser(cand) for cand in cand_embs]
-
-        if conf.use_candidate_coattention:
-            cand_embs = self.get_query_aware_context_embeddings(cand_embs, query_emb)
+        query_emb = self.query_contextualiser(self.embedder(example.query, allow_unknowns=False))
+        cand_embs = [self.cand_contextualiser(self.embedder(cand)) for cand in example.candidates]
 
         candidate_summaries = self.summariser(cand_embs, CANDIDATE, query_vec=query_emb)
-        support_summaries = self.summariser(query_aware_support_embeddings, DOCUMENT, query_vec=query_emb)
+        support_summaries = self.summariser(support_embeddings, DOCUMENT, query_vec=query_emb)
 
-        t = time.time()
-
-        ent_summaries = get_entity_summaries(example.ent_token_spans, query_aware_support_embeddings, self.summariser, query_vec=query_emb)
-
-        if conf.print_times:
-            print("got ent summaries in", (time.time() - t))
-
+        ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser, query_vec=query_emb)
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
-        # print("x created:", x)
+
         return x
 
-    def get_query_aware_context_embeddings(self, support_embeddings: List[Tensor], query_emb: Tensor, return_query_encoding=False) -> List[Tensor]:
+    def check_pad_volume(self, support_embeddings: List[Tensor]):
         """
             uses the coattention module to bring info from the query into the context
             if return_query_encoding=False, the encoded sequences will be cropped to return to their pre-concat size
@@ -198,8 +167,6 @@ class HDEModel(nn.Module):
         if conf.show_memory_usage_data:
             print("documents padded volume:", pad_volume)
 
-        if not conf.use_summary_coattention:  # else done by summariser
-            support_embeddings = self.coattention.batched_coattention(support_embeddings, query_emb, return_query_encoding=return_query_encoding)
         return support_embeddings
 
     def pass_output_model(self, x, example, graph, node_id_map=None):

@@ -40,8 +40,7 @@ class GraphEmbedder(nn.Module):
         if conf.show_memory_usage_data:
             print("documents padded volume:", pad_volume)
         # print("pad vol:", pad_volume)
-        if conf.use_gru_contextualiser:
-            query_emb = self.query_contextualiser(query_emb)
+        query_emb = self.query_contextualiser(query_emb)
 
         target_embeddings = self.coattention.batched_coattention(target_embeddings, query_emb)
         return target_embeddings

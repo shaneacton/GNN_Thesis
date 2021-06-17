@@ -23,20 +23,16 @@ class Summariser(Transformer):
         here the 3 types are the node types {entity, document, candidate}
     """
 
-    def __init__(self, intermediate_fac=2, use_type_embeddings=True):
+    def __init__(self, intermediate_fac=2):
         num_types = 3
-
-        if conf.use_summary_coattention:
-            use_type_embeddings = False  # no type embs neccesary, we have distinct params per type instead
 
         h_size = conf.embedded_dims
         if conf.use_concat_summaries2:
             h_size *= 2
 
         super().__init__(h_size, num_types, conf.num_summariser_layers,
-                         use_type_embeddings=use_type_embeddings, intermediate_fac=intermediate_fac)
-        if conf.use_summary_coattention:
-            self.coattention = SwitchCoattention(intermediate_fac)
+                         use_type_embeddings=False, intermediate_fac=intermediate_fac)
+        self.coattention = SwitchCoattention(intermediate_fac)
 
         if conf.use_coattention_gru:
             self.coattention_gru = GRUContextualiser()
@@ -76,27 +72,17 @@ class Summariser(Transformer):
             h_size = h_size // 2
         extracts = [self.get_vec_extract(v, spans[i]).view(-1, h_size) for i, v in enumerate(vecs)]
 
-        if conf.use_summary_coattention:
-            original_extracts = extracts
-            extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
+        original_extracts = extracts
+        extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
 
-            if conf.use_coattention_gru:
-                extracts = [self.coattention_gru(e) for e in extracts]
+        if conf.use_coattention_gru:
+            extracts = [self.coattention_gru(e) for e in extracts]
 
-            if conf.use_concat_summaries2:
-                extracts = [torch.cat([e, original_extracts[i]], dim=-1) for i, e in enumerate(extracts)]
-
-        elif self.use_type_embeddings:
-            extracts = [ex + self.get_type_tensor(_type, ex.size(-2)).view(-1, h_size) for ex in extracts]
-
-        if self.use_pos_embeddings:
-            extracts = [ex + self.pos_embedder.get_pos_embs(ex.size(0), no_batch=True) for ex in extracts]
+        if conf.use_concat_summaries2:
+            extracts = [torch.cat([e, original_extracts[i]], dim=-1) for i, e in enumerate(extracts)]
 
         original_batch, masks = self.pad(extracts)
         batch = self.encoder(original_batch, src_key_padding_mask=masks).transpose(0, 1)
-        if conf.use_concat_summaries:
-            batch = torch.cat([original_batch.transpose(0, 1), batch], dim=-1)
-
         summaries = batch[:, 0, :]  # (ents, hidd)
 
         if return_list:
