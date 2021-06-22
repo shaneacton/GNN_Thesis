@@ -24,9 +24,6 @@ class SwitchSummariser(SwitchTransformer):
         super().__init__(conf.embedded_dims, conf.num_summariser_layers, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac,
                          include_global=True)
 
-        if self.add_cls_token:
-            self.cls_embedding = nn.Embedding(1, conf.hidden_size)
-
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
 

@@ -23,15 +23,9 @@ class CustomGAT(MessagePassing):
         assert self.head_dim * heads == self.embed_dim, "embed_dim must be divisible by num_heads"
 
         self.in_proj_weight = Parameter(torch.empty(3 * in_channels, in_channels))
-
         self.in_proj_bias = Parameter(torch.empty(3 * in_channels))
 
-        if output_linear is None:
-            output_linear = conf.use_actual_output_linear_in_custom_gat
-        if output_linear:
-            self.out_proj2 = _LinearWithBias(in_channels, out_channels)
-
-        self.use_output_linear = output_linear
+        self.out_proj = _LinearWithBias(in_channels, out_channels)
 
         self._reset_parameters()
         self.add_self_loops = add_self_loops
@@ -45,8 +39,7 @@ class CustomGAT(MessagePassing):
         xavier_uniform_(self.in_proj_weight)
 
         constant_(self.in_proj_bias, 0.)
-        if self.use_output_linear:
-            constant_(self.out_proj2.bias, 0.)
+        constant_(self.out_proj.bias, 0.)
 
     def forward(self, x, edge_index, **kwargs):
         """x ~ (N, f)"""
@@ -60,11 +53,8 @@ class CustomGAT(MessagePassing):
             edge_index, _ = remove_self_loops(edge_index)
             edge_index, _ = add_self_loops(edge_index, num_nodes=num_nodes)
 
-        # prop_time = time.time()
         out = self.propagate(edge_index, q=q, k=k, v=v, **kwargs)
-        # print("forward time:", (prop_time-forward_time), "prop time:", (time.time()-prop_time))
-        if self.use_output_linear:
-            out = linear(out, self.out_proj2.weight, self.out_proj2.bias)
+        out = linear(out, self.out_proj.weight, self.out_proj.bias)
         return out
 
     def message(self, q_i: Tensor, k_j: Tensor, v_j: Tensor, size_i, index, previous_attention_scores=None) -> Tensor:

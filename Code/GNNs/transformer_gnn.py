@@ -6,11 +6,12 @@ from Config.config import conf
 
 class TransformerGNN(nn.Module):
 
-    def __init__(self, hidden_size, heads, num_layers, **kwargs):
+    def __init__(self, heads, num_layers, **kwargs):
         super().__init__()
-        trans = TransformerEncoderLayer(hidden_size, heads,
-                                                hidden_size * 2, conf.dropout, 'relu')
-        encoder_norm = LayerNorm(hidden_size)
+        size = conf.embedded_dims * 2
+        trans = TransformerEncoderLayer(size, heads,
+                                                size * 2, conf.dropout, 'relu')
+        encoder_norm = LayerNorm(size)
         self.encoder = TransformerEncoder(trans, num_layers, encoder_norm)
 
     def forward(self, x, mask, **kwargs):

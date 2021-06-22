@@ -23,17 +23,14 @@ class BertEmbedder(StringEmbedder):
         model_name = "prajjwal1/bert-" + self.size
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
-        self.dims = self.model.config.hidden_size
-        if self.dims != get_config().embedded_dims:
-            raise Exception("conf embedded dims wrong. bert embedder=" + str(self.dims) + " conf=" + str(get_config().embedded_dims))
-
+        self.dims = self.model.config.embedded_dims
         self.set_trainable_params()
         from Code.Utils.model_utils import num_params
         print("Loaded bert model with", self.dims, "dims and ", num_params(self), ("trainable" if self.fine_tune else "static"), "params")
 
     def set_trainable_params(self):
         def is_in_fine_tune_list(name):
-            if name is "":  # full model is off by default
+            if name == "":  # full model is off by default
                 return False
 
             for l in bert_fine_tune_layers:

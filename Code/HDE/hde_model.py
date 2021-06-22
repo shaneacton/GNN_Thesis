@@ -69,7 +69,7 @@ class HDEModel(nn.Module):
         else:
             args = {}
         if hasattr(conf, "use_transformer_gnn") and conf.use_transformer_gnn:
-            self.gnn = TransformerGNN(hidden_size=conf.embedded_dims * 2, heads=conf.heads, num_layers=conf.num_layers, **args)
+            self.gnn = TransformerGNN(heads=conf.heads, num_layers=conf.num_layers, **args)
         else:
             self.gnn = GNNStack(GNN_CLASS, **args)
 

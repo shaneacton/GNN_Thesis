@@ -92,7 +92,7 @@ class GNNLayer(nn.Module):
         self.gnn = GNNClass(size, size, **needed_kwargs)
 
         if use_edge_type_embs:
-            num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges
+            num_types = 7 + 1  # +1 for self edges
             self.gnn = EdgeEmbeddings(self.gnn, size, num_types)
 
         self.linear1 = Linear(size, size * intermediate_fac)
@@ -138,7 +138,7 @@ class SimpleGNNLayer(nn.Module):
             self.gnn = GNNClass(h_size, h_size, **needed_kwargs)
 
         if use_edge_type_embs:
-            num_types = 7 - len(conf.ignored_edges) + 1  # +1 for self edges
+            num_types = 7 + 1  # +1 for self edges
             self.gnn = EdgeEmbeddings(self.gnn, h_size, num_types)
 
         self.dropout1 = Dropout(conf.dropout)

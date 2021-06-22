@@ -1,15 +1,11 @@
 Todo:
 
 * rewrite:
-    * save whole graphs offline
-        * get rid of HDEGlove and HDEBert distinction
-    * remove ignored edge config
+    * get rid of HDEGlove and HDEBert distinction
     * edge type embs/ param switching
     * use non switch coattention
     * switch to graph embedder instead of doing it in HDEModel
     * switch timing to wandb logging over prints
-    * remove hidden dim option. use only embeded dim
-    * switch to larger glove
 
 * test edge embeddings with B0
 
@@ -18,7 +14,6 @@ Todo:
 
 * General:
     * add dropout to output model and other
-    * try attentional gating as used in Hierarchical Graph Network
     * try different learning rates for transformer/gnn
     * stop training run if it is removed from the run schedule
 

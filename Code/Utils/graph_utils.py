@@ -160,9 +160,6 @@ def add_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List[Tuple
             doc_edge = HDEEdge(sup_node.id_in_graph, ent_node_id, graph=graph)
             graph.add_edge(doc_edge)
 
-        if CODOCUMENT not in conf.ignored_edges:
-            fully_connect(ent_node_ids, graph, CODOCUMENT)
-
 
 def charspan_to_tokenspan(encoding: BatchEncoding, char_span: Tuple[int]) -> TokenSpan:
     start = encoding.char_to_token(char_index=char_span[0], batch_or_char_index=0)
@@ -232,8 +229,6 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
     add_candidate_nodes(graph, example.candidates, example.supports)
     connect_candidates_and_entities(graph)
     connect_entity_mentions(graph)
-    if ENTITY not in conf.ignored_edges:
-        connect_unconnected_entities(graph)
 
     if conf.print_times:
         print("made full graph in", (time.time() - start_t))
