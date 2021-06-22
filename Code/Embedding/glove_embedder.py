@@ -21,18 +21,23 @@ class GloveEmbedder(StringEmbedder):
         super().__init__()
         self.use_positional_embeddings = use_positional_embeddings
         file_path = pathlib.Path(__file__).parent.absolute()
-        print("glove path:", file_path)
         embeddings_dict = {}
         self.dims = glove_dims = conf.embedded_dims
 
-        path = join(file_path, "Glove/glove.6B", "glove.6B." + repr(glove_dims) + "d.txt")
+        path = join(file_path, "Glove", "glove." + conf.glove_tokens_code + "." + repr(glove_dims) + "d.txt")
+        print("loading glove. path:", file_path)
+
         if not exists(path):
             raise Exception("no glove embeddings of dimension " + repr(glove_dims) + " emb dim: " + repr(self.dims))
         with open(path, 'r', encoding="utf-8") as f:
             for line in f:
                 values = line.split()
                 word = values[0]
-                vector = np.asarray(values[1:], "float32")
+                # print("word:", word, "vec:", values[1:])
+                try:
+                    vector = np.asarray(values[1:], "float32")
+                except:  # some weird characters in larger glove files
+                    continue
                 embeddings_dict[word] = vector
 
         self.regex = re.compile('[^a-zA-Z 0123456789,.&]')
@@ -61,7 +66,7 @@ class GloveEmbedder(StringEmbedder):
 
         return emb
 
-    def get_words(self, string):
+    def get_words(self, string, cased=False):
         string = string.replace(",", " , ")
         string = string.replace("&", " & ")
         string = string.replace(".", "  ")
@@ -69,7 +74,9 @@ class GloveEmbedder(StringEmbedder):
         string = string.replace("'", "")
 
         string = self.regex.sub(' ', string)  # remove all non alpha numeric characters
-        words = string.lower().split()
+        if not cased:
+            string = string.lower()
+        words = string.split()
         return words
 
     def embed(self, string: str, **kwargs) -> Tensor:

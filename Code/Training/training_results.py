@@ -52,6 +52,7 @@ class TrainingResults:
         self.num_discarded.append(num_discarded_examples)
         self.valid_accs.append(valid_acc)
         start, end = self.get_epoch_span(epoch)
+        print("epoch:", epoch, "range:", (start, end), "epochs:", self.epochs)
         epoch_time = time.time() - epoch_start_time
         skipped_frac = num_fastforward_examples / (num_fastforward_examples + (end-start) * conf.print_loss_every)
         adjusted_epoch_time = epoch_time / (1-skipped_frac)

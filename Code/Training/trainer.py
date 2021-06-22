@@ -1,8 +1,7 @@
+import random
 import time
 from math import floor
-
 from nlp import tqdm
-from torch import autograd
 
 from Checkpoint.checkpoint_utils import save_model, set_status_value, duplicate_checkpoint_folder, load_status, \
     save_status
@@ -11,12 +10,11 @@ from Code.Embedding.glove_embedder import NoWordsException
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training import set_gpu
 from Code.Training.eval import evaluate
-from Code.Training.graph_gen import GraphGenerator, SKIP
 from Code.Training.training_results import TrainingResults
 from Code.Utils.model_utils import get_model
 from Code.Utils.training_utils import get_training_results, save_training_results
 from Config.config import conf
-from Code.Utils.dataset_utils import get_processed_wikihop
+from Code.Utils.dataset_utils import get_wikihop_graphs
 from Code.Utils.wandb_utils import use_wandb, wandb_run
 
 
@@ -32,8 +30,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
         except:
             pass
 
-    train_gen = GraphGenerator(get_processed_wikihop(model), model=model)
-
+    graphs = get_wikihop_graphs(model)
     accumulated_edges = 0
 
     start_time = time.time()
@@ -43,21 +40,19 @@ def train_model(name, gpu_num=0, program_start_time=-1):
     for epoch in range(conf.num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
             continue
-        train_gen.shuffle(epoch)
+        random.Random(4).shuffle(graphs)
         model.train()
 
         epoch_start_time = time.time()
         num_discarded = 0
         num_fastforward_examples = max(model.last_example, 0)
-        for i, graph in tqdm(enumerate(train_gen.graphs(start_at=model.last_example))):
+        epoch_graphs = graphs if model.last_example == -1 else graphs[model.last_example:]
+        for i, graph in tqdm(enumerate(epoch_graphs)):
             def e_frac():
-                return epoch + i/train_gen.num_examples
+                return epoch + i/len(graphs)
 
             if i >= conf.max_examples != -1:
                 break
-
-            if graph == SKIP:
-                continue
 
             if time.time() - program_start_time > conf.max_runtime_seconds != -1:
                 times_up()
@@ -101,7 +96,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 if conf.max_runtime_seconds != -1 and time.time() - program_start_time > conf.max_runtime_seconds - 240:
                     times_up()
                 epoch_start_time = save_training_states(training_results, epoch_start_time, i, model, name, optimizer,
-                                                        scheduler, start_time, train_gen.num_examples)
+                                                        scheduler, start_time)
         model.last_example = -1
 
         valid_acc = evaluate(model, program_start_time=program_start_time)
@@ -121,7 +116,7 @@ def times_up():
 
 
 def save_training_states(training_results: TrainingResults, epoch_start_time, i, model, name, optimizer, scheduler,
-                         start_time, num_examples):
+                         start_time):
 
     if time.time() - start_time + 5 * 60 > conf.max_runtime_seconds != -1:
         # end 5m early before saving, as this can take long enough to send us over the max runtime
@@ -132,7 +127,7 @@ def save_training_states(training_results: TrainingResults, epoch_start_time, i,
     model.last_example = i
     model.last_epoch = floor(training_results.epoch)
     save_model(model, optimizer, scheduler)
-    # plot_training_data(results, name, conf.print_loss_every, num_examples)
+
     save_training_results(training_results, name)
     save_time = time.time() - save_time
     epoch_start_time += save_time

@@ -25,7 +25,7 @@ class Summariser(Transformer):
 
     def __init__(self, intermediate_fac=2):
         num_types = 3
-        super().__init__(conf.hidden_size, num_types, conf.num_summariser_layers,
+        super().__init__(conf.embedded_dims * 2, num_types, conf.num_summariser_layers,
                          use_type_embeddings=False, intermediate_fac=intermediate_fac)
         self.coattention = SwitchCoattention(intermediate_fac)
         self.coattention_gru = GRUContextualiser()
@@ -69,8 +69,8 @@ class Summariser(Transformer):
         # doubles embedded dim to get hidden dim
         extracts = [torch.cat([e, original_extracts[i]], dim=-1) for i, e in enumerate(extracts)]
 
-        original_batch, masks = self.pad(extracts)
-        batch = self.encoder(original_batch, src_key_padding_mask=masks).transpose(0, 1)
+        batch, masks = self.pad(extracts)
+        batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)
         summaries = batch[:, 0, :]  # (ents, hidd)
 
         if return_list:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import time
 from typing import Tuple, List
@@ -13,7 +15,10 @@ from Code.HDE.Graph.node import HDENode
 from Code.constants import DOCUMENT, ENTITY, CODOCUMENT, CANDIDATE, COMENTION
 from Config.config import conf
 from Viz.graph_visualiser import render_graph, get_file_path
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from Code.Training.wikipoint import Wikipoint
 
 _regex = None
 
@@ -217,7 +222,7 @@ def get_transformer_entity_token_spans(support_encodings, supports) -> List[List
     return token_spans
 
 
-def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings=None):
+def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, support_encodings=None):
     start_t = time.time()
     graph = HDEGraph(example)
     add_doc_nodes(graph, example.supports)

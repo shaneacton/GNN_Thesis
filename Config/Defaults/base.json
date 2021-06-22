@@ -12,6 +12,7 @@
   "num_coattention_layers": 1,
   "hidden_size": 600,
   "embedded_dims": 300,
+  "glove_tokens_code": "840B",
   "fine_tune_embedder": true,
   "use_character_embs_for_unknown_words": true,
   "bert_size": "small",

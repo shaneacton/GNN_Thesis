@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from Code.Training.wikipoint import Wikipoint
 from Checkpoint.checkpoint_utils import save_binary_data
+from Code.Utils.graph_utils import create_graph
 from Config.config import conf
 from Data import DATA_FOLDER
 
@@ -29,7 +30,7 @@ def load_unprocessed_dataset(dataset_name, version_name, split):
     return dataset
 
 
-def get_processed_wikihop(model, split=nlp.Split.TRAIN):
+def get_wikihop_graphs(model, split=nlp.Split.TRAIN):
     global has_loaded
 
     file_name = model.embedder_name + "_" + split._name + "_special.data"
@@ -38,9 +39,10 @@ def get_processed_wikihop(model, split=nlp.Split.TRAIN):
     if exists(data_path):  # has been processed before
         print("loading preprocessed wikihop", split)
         filehandler = open(data_path, 'rb')
-        data = pickle.load(filehandler)
+        graphs = pickle.load(filehandler)
+        print("loaded", len(graphs), "graphs")
         filehandler.close()
-        return data
+        return graphs
 
     print("loading wikihop unprocessed")
     data = list(load_unprocessed_dataset("qangaroo", "wikihop", split))
@@ -49,8 +51,16 @@ def get_processed_wikihop(model, split=nlp.Split.TRAIN):
 
     print("processing wikihop", split)
     if model.embedder_name == "bert":
+        print("tokenising text for bert")
         processed_examples = [Wikipoint(ex, tokeniser=model.embedder.tokenizer) for ex in tqdm(data)]
+        print("creating graphs")
+        graphs = [create_graph(ex, tokeniser=model.embedder.tokenizer) for ex in tqdm(processed_examples)]
     else:
+        print("tokenising text for glove")
         processed_examples = [Wikipoint(ex, glove_embedder=model.embedder) for ex in tqdm(data)]
-    save_binary_data(processed_examples, join(DATA_FOLDER, file_name))
-    return processed_examples
+        print("creating graphs")
+        graphs = [create_graph(ex, glove_embedder=model.embedder) for ex in tqdm(processed_examples)]
+
+    print("saving", len(graphs), "graphs")
+    save_binary_data(graphs, join(DATA_FOLDER, file_name))
+    return graphs

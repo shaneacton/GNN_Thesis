@@ -1,11 +1,15 @@
 Todo:
 
 * rewrite:
-    * remove all unnecesary configs
+    * save whole graphs offline
+        * get rid of HDEGlove and HDEBert distinction
+    * remove ignored edge config
     * edge type embs/ param switching
+    * use non switch coattention
     * switch to graph embedder instead of doing it in HDEModel
     * switch timing to wandb logging over prints
     * remove hidden dim option. use only embeded dim
+    * switch to larger glove
 
 * test edge embeddings with B0
 
@@ -66,13 +70,16 @@ Todo:
 
 
 Installs:
+for pytorch geometric you need to install cudann
+also: sudo apt-get install aptitude && sudo aptitude install build-essential
+
 ENV_NAME=gnn_env
-conda create --name ${ENV_NAME} python=3.7
+conda create --name ${ENV_NAME} python=3.8
 y
 conda activate ${ENV_NAME}
 
 CUDA=cu101
-TORCH=1.6.0
+TORCH=1.7.0
 conda install pytorch==1.7.0 torchvision==0.8.0 torchaudio==0.7.0 cudatoolkit=10.1 -c pytorch
 conda install pytorch==1.6.0 torchvision==0.7.0 cudatoolkit=10.1 -c pytorch
 
@@ -89,7 +96,7 @@ python -m spacy download en_core_web_sm
 # NC not needed unless corefs are used as nodes
 pip install neuralcoref --no-binary neuralcoref --user
 # for vizualisation capabilities
-conda install -c anaconda python-graphviz
+conda install -c conda-forge python-graphviz
 # for wandb logging
 pip install wandb
 

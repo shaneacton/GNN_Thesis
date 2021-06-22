@@ -13,7 +13,6 @@ from Code.GNNs.transformer_gnn import TransformerGNN
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.scorer import HDEScorer
 from Code.Training import dev
-from Code.Training.wikipoint import Wikipoint
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_summariser import SwitchSummariser
 from Code.Utils.graph_utils import get_entity_summaries, similar
@@ -31,8 +30,6 @@ class HDEModel(nn.Module):
             GNN_CLASS = GNN_MAP[conf.gnn_class]
         super().__init__()
         self.name = conf.model_name
-        h_size = conf.hidden_size
-        self.hidden_size = h_size
         self.use_gating = conf.use_gating
 
         self.supp_contextualiser = GRUContextualiser()
@@ -53,8 +50,8 @@ class HDEModel(nn.Module):
 
         conf.cfg["num_gnn_params"] = num_params(self.gnn)
 
-        self.candidate_scorer = HDEScorer(h_size)
-        self.entity_scorer = HDEScorer(h_size)
+        self.candidate_scorer = HDEScorer(conf.embedded_dims * 2)
+        self.entity_scorer = HDEScorer(conf.embedded_dims * 2)
 
         conf.cfg["num_output_params"] = num_params(self.candidate_scorer) + num_params(self.entity_scorer)
 
@@ -72,11 +69,11 @@ class HDEModel(nn.Module):
         else:
             args = {}
         if hasattr(conf, "use_transformer_gnn") and conf.use_transformer_gnn:
-            self.gnn = TransformerGNN(hidden_size=self.hidden_size, heads=conf.heads, num_layers=conf.num_layers, **args)
+            self.gnn = TransformerGNN(hidden_size=conf.embedded_dims * 2, heads=conf.heads, num_layers=conf.num_layers, **args)
         else:
             self.gnn = GNNStack(GNN_CLASS, **args)
 
-    def forward(self, example: Wikipoint=None, graph: HDEGraph=None):
+    def forward(self, graph: HDEGraph):
         """
             nodes are created for each support, as well as each candidate and each context entity
             nodes are concattenated as follows: supports, entities, candidates
@@ -84,12 +81,8 @@ class HDEModel(nn.Module):
             nodes are connected according to the HDE paper
             the graph is converted to a pytorch geometric datapoint
         """
-        if graph is None:
-            graph = self.create_graph(example)  # heuristic
-        else:
-            example = graph.example
-        x = self.get_graph_features(example)  # learned
 
+        x = self.get_graph_features(graph.example)  # learned
         assert x.size(0) == len(graph.ordered_nodes), "error in feature extraction. num node features: " + repr(x.size(0)) + " num nodes: " + repr(len(graph.ordered_nodes))
 
         num_edges = len(graph.unique_edges)
@@ -98,16 +91,16 @@ class HDEModel(nn.Module):
         if conf.show_memory_usage_data:
             print("num edges:", num_edges)
 
-        x = self.pass_gnn(x, example, graph)
+        x = self.pass_gnn(x, graph)
         if isinstance(x, Tuple):
             args = x[1:]
             x = x[0]
         else:
             args = []
         # x has now been transformed by the GNN layers. Must map to  a prob dist over candidates
-        return self.finish(x, example, graph, *args)
+        return self.finish(x, graph, *args)
 
-    def pass_gnn(self, x, example, graph):
+    def pass_gnn(self, x, graph):
         t = time.time()
         if hasattr(conf, "use_transformer_gnn") and conf.use_transformer_gnn:
             # print("x before:", x.size(), x)
@@ -119,13 +112,13 @@ class HDEModel(nn.Module):
             print("passed gnn in", (time.time() - t))
         return x
 
-    def finish(self, x, example, graph, *args):
-        final_probs = self.pass_output_model(x, example, graph, *args)
+    def finish(self, x, graph, *args):
+        final_probs = self.pass_output_model(x, graph, *args)
         pred_id = torch.argmax(final_probs)
-        pred_ans = example.candidates[pred_id]
+        pred_ans = graph.example.candidates[pred_id]
 
-        if example.answer is not None:
-            ans_id = example.candidates.index(example.answer)
+        if graph.example.answer is not None:
+            ans_id = graph.example.candidates.index(graph.example.answer)
             probs = final_probs.view(1, -1)  # batch dim
             ans = torch.tensor([ans_id]).to(dev())
             loss = self.loss_fn(probs, ans)
@@ -166,7 +159,7 @@ class HDEModel(nn.Module):
 
         return support_embeddings
 
-    def pass_output_model(self, x, example, graph, node_id_map=None):
+    def pass_output_model(self, x, graph, node_id_map=None):
         """
             transformations like pooling can change the effective node ids.
             node_id_map maps the original node ids, to the new effective node ids
@@ -179,7 +172,7 @@ class HDEModel(nn.Module):
         cand_probs = self.candidate_scorer(cand_embs).view(len(cand_idxs))
 
         ent_probs = []
-        for c, cand in enumerate(example.candidates):
+        for c, cand in enumerate(graph.example.candidates):
             """find all entities which match this candidate, and score them each, returning the maximum score"""
             cand_node = graph.ordered_nodes[cand_idxs[c]]
             linked_ent_nodes = set()
