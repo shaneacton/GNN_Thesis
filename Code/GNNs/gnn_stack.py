@@ -84,12 +84,15 @@ class GNNLayer(nn.Module):
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
 
+        size = conf.embedded_dims * 2
         if GNNClass == GATConv:
-            size = conf.embedded_dims * 2 / layer_kwargs["heads"]
+            assert (conf.embedded_dims * 2) % layer_kwargs["heads"] == 0
+            out_size = conf.embedded_dims * 2 / layer_kwargs["heads"]
         else:
-            size = conf.embedded_dims * 2
-
-        self.gnn = GNNClass(size, size, **needed_kwargs)
+            out_size = size
+        size = int(size)
+        out_size = int(out_size)
+        self.gnn = GNNClass(size, out_size, **needed_kwargs)
 
         if use_edge_type_embs:
             num_types = 7 + 1  # +1 for self edges

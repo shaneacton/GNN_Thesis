@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import pickle
 from os.path import exists, join
+from typing import TYPE_CHECKING
 
 import nlp
 from tqdm import tqdm
@@ -9,6 +12,9 @@ from Checkpoint.checkpoint_utils import save_binary_data
 from Code.Utils.graph_utils import create_graph
 from Config.config import conf
 from Data import DATA_FOLDER
+
+if TYPE_CHECKING:
+    from Code.HDE.hde_model import HDEModel
 
 
 def load_unprocessed_dataset(dataset_name, version_name, split):
@@ -30,10 +36,11 @@ def load_unprocessed_dataset(dataset_name, version_name, split):
     return dataset
 
 
-def get_wikihop_graphs(model, split=nlp.Split.TRAIN):
+def get_wikihop_graphs(model: HDEModel, split=nlp.Split.TRAIN):
     global has_loaded
 
-    file_name = model.embedder_name + "_" + split._name + "_special.data"
+    emb_name = conf.embedder_type + "(" + repr(conf.embedded_dims) + ")"
+    file_name = emb_name + "_" + split._name + "_special.data"
     data_path = join(DATA_FOLDER, file_name)
 
     if exists(data_path):  # has been processed before
@@ -50,7 +57,7 @@ def get_wikihop_graphs(model, split=nlp.Split.TRAIN):
     print("num examples:", len(data))
 
     print("processing wikihop", split)
-    if model.embedder_name == "bert":
+    if conf.embedder_type == "bert":
         print("tokenising text for bert")
         processed_examples = [Wikipoint(ex, tokeniser=model.embedder.tokenizer) for ex in tqdm(data)]
         print("creating graphs")

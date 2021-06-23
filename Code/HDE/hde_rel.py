@@ -1,11 +1,11 @@
 import inspect
 
 from Code.GNNs.gnn_stack import GNNStack
-from Code.HDE.hde_glove import HDEGlove
+from Code.HDE.hde_model import HDEModel
 from Config.config import conf
 
 
-class HDERel2(HDEGlove):
+class HDERel(HDEModel):
 
     def __init__(self, BASE_GNN_CLASS=None, **kwargs):
         if BASE_GNN_CLASS is None:
@@ -20,8 +20,7 @@ class HDERel2(HDEGlove):
             args.update({"heads": conf.heads})
         self.gnn = GNNStack(BASE_GNN_CLASS, **args)
 
-    def pass_gnn(self, x, example, graph):
+    def pass_gnn(self, x, graph):
         edge_types = graph.edge_types()
         edge_index = graph.edge_index()
-        # print("rel hde got types:", edge_types.size(), "index:", edge_index.size())
         return self.gnn(x, edge_types=edge_types, edge_index=edge_index)

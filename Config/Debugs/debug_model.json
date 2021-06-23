@@ -1,16 +1,13 @@
 {
-  "model_name": "concat",
-  "model_class": "HDEGlove",
+  "model_name": "sageRel",
+  "model_class": "HDERel",
   "gnn_class": "SAGEConv",
   "embedded_dims": 100,
-  "hidden_size": 100,
   "glove_tokens_code": "6B",
   "transformer_heads": 5,
   "heads": 4,
-  "bidirectional": true,
   "use_average_output_agg": true,
   "use_switch_summariser": false,
   "use_summary_coattention": true,
-  "use_coattention_gru": true,
-  "use_concat_summaries2": true
+  "use_coattention_gru": true
 }

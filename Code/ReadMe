@@ -1,7 +1,6 @@
 Todo:
 
 * rewrite:
-    * get rid of HDEGlove and HDEBert distinction
     * edge type embs/ param switching
     * use non switch coattention
     * switch to graph embedder instead of doing it in HDEModel
@@ -88,7 +87,7 @@ conda install -c conda-forge nlp
 # token only models do not need spacy
 pip install -U spacy==2.1.3 --user
 python -m spacy download en_core_web_sm
-# NC not needed unless corefs are used as nodes
+# NC not needed unless corefs are used as nodes/edges
 pip install neuralcoref --no-binary neuralcoref --user
 # for vizualisation capabilities
 conda install -c conda-forge python-graphviz

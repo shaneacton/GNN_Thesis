@@ -7,9 +7,9 @@ from torch_geometric.nn import GATConv, SAGEConv
 from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
     load_json_data, restore_from_backup_folder
 from Code.GNNs.custom_gat import CustomGAT
-from Code.HDE.hde_bert import HDEBert
-from Code.HDE.hde_glove import HDEGlove
-from Code.HDE.hde_rel2 import HDERel2
+
+from Code.HDE.hde_model import HDEModel
+from Code.HDE.hde_rel import HDERel
 from Code.Training import dev
 from Code.Training.lamb import Lamb
 from Code.Utils.training_utils import get_exponential_schedule_with_warmup
@@ -18,8 +18,8 @@ from Code.Utils import wandb_utils
 from Code.Utils.wandb_utils import use_wandb
 
 MODEL_MAP = {
-    "HDEBert": HDEBert, "HDEGlove": HDEGlove,
-    "HDERel2": HDERel2
+    "HDE": HDEModel,
+    "HDERel": HDERel
              }
 GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv, "CustomGAT": CustomGAT}
 

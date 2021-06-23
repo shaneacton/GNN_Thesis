@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, TYPE_CHECKING, Dict, Generator, Tuple, Set
 
 import torch
+from torch_geometric.utils import remove_self_loops, add_self_loops
 
 from Code.Training import dev
 from Code.constants import ENTITY, DOCUMENT, CANDIDATE, GLOBAL, SELF_LOOP, REVERSE
@@ -57,7 +58,14 @@ class HDEGraph:
             else:
                 raise Exception("unreckognised direction type: " + repr(direction) + " must be {forward, reverse}")
 
-        return torch.tensor([froms, tos]).to(dev()).long()
+        edge_index = torch.tensor([froms, tos]).to(dev()).long()
+
+        if conf.add_self_loops:
+            num_nodes = len(self.ordered_nodes)
+            edge_index, _ = remove_self_loops(edge_index)
+            edge_index, _ = add_self_loops(edge_index, num_nodes=num_nodes)
+
+        return edge_index
 
     def get_mask(self):
         # all connections maked. then connections are unmasked

@@ -6,6 +6,8 @@ import torch
 from torch import nn, Tensor
 from torch.nn import CrossEntropyLoss, ReLU
 
+from Code.Embedding.bert_embedder import BertEmbedder
+from Code.Embedding.glove_embedder import GloveEmbedder
 from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
@@ -41,13 +43,11 @@ class HDEModel(nn.Module):
         else:
             self.summariser = Summariser(**kwargs)
         conf.cfg["num_summariser_params"] = num_params(self.summariser)
-        conf.cfg["num_transformer_params"] = num_params(self.summariser) + conf.cfg["num_coattention_params"]
 
         self.relu = ReLU()
 
         self.gnn = None
         self.init_gnn(GNN_CLASS)
-
         conf.cfg["num_gnn_params"] = num_params(self.gnn)
 
         self.candidate_scorer = HDEScorer(conf.embedded_dims * 2)
@@ -59,7 +59,13 @@ class HDEModel(nn.Module):
         self.last_example = -1
         self.last_epoch = -1
 
-        self.embedder: StringEmbedder = None  #  must set in subclasses
+        if conf.embedder_type == "bert":
+            self.embedder: StringEmbedder = BertEmbedder()
+        elif conf.embedder_type == "glove":
+            self.embedder: StringEmbedder = GloveEmbedder()
+        else:
+            raise Exception("unreckognised embedder type: " + repr(conf.embedder_type) + " needs: {bert, glove}")
+        conf.cfg["num_embedding_params"] = num_params(self.embedder)
         conf.cfg["num_total_params"] = num_params(self)
 
     def init_gnn(self, GNN_CLASS):

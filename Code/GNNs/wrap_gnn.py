@@ -31,12 +31,12 @@ class WrapGNN(nn.Module):
         # temporarily stores forward kwargs which cannot be passed through the gnn layers forward
         # these kwargs can then be accessed in the custom forward method
 
-    def message(self, index, *args, **kwargs):
+    def message(self, *args, **kwargs):
         """
             called by the message passing forward method.
             calls our wrap message, then calls the original base message
         """
-        kwargs = self.wrap_message(index, *args, **kwargs)
+        kwargs = self.wrap_message(*args, **kwargs)
         if self.base_message == self.message:
             """
                 python saves bound messages as an object reference + method name. 
@@ -58,11 +58,11 @@ class WrapGNN(nn.Module):
             self.gnn_layer.message = self.message
             # recovery complete!
 
-        return self.base_message(index=index, *args, **kwargs)
+        return self.base_message(*args, **kwargs)
 
-    def wrap_message(self, index, *args, **kwargs):
+    def wrap_message(self, *args, **kwargs):
         """called before the base layers forward. used for pretransforms"""
-        return kwargs
+        pass
 
     def forward(self, x, edge_index, *args, **kwargs):
         """caller triggers Wrap's forward, which then triggers the wrap_forward, and finally the base layers forward"""
@@ -72,6 +72,7 @@ class WrapGNN(nn.Module):
         self.wrap_forward(x, edge_index, *args, **kwargs)
         if "previous_attention_scores" in kwargs:
             base_gnn_kwargs.update({"previous_attention_scores": kwargs["previous_attention_scores"]})
+
         output = self.base_forward(x, edge_index, *args, **base_gnn_kwargs)
         self.last_custom_kwargs = None
         return output
@@ -93,7 +94,7 @@ class EdgeEmbeddings(WrapGNN):
         self.target_vectors = target_vectors
         self.embeddings = nn.Embedding(num_embeddings=num_edge_types, embedding_dim=hidden_size)
 
-    def wrap_message(self, index, *args, **kwargs):
+    def wrap_message(self, *args, **kwargs):
         edge_types = self.last_custom_kwargs["edge_types"]
         edge_embs = self.embeddings(edge_types)
         for target in self.target_vectors:

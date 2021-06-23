@@ -2,11 +2,9 @@ from typing import List, Union
 
 import torch
 from torch import Tensor
-from torch.nn import LayerNorm
 from transformers import TokenSpan
 
 from Code.Embedding.gru_contextualiser import GRUContextualiser
-from Code.Transformers.coattention import Coattention
 from Code.Transformers.switch_coattention import SwitchCoattention
 from Code.Transformers.transformer import Transformer
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT
