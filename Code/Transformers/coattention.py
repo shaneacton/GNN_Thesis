@@ -23,7 +23,7 @@ class Coattention(Transformer):
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, SOURCE_TYPE_MAP)
 
-    def batched_coattention(self, supps: List[Tensor], query: Tensor, return_query_encoding=False) -> List[Tensor]:
+    def batched_coattention(self, supps: List[Tensor], context_type: str, query: Tensor, return_query_encoding=False) -> List[Tensor]:
         if self.use_type_embeddings:
             supps = [s + self.get_type_tensor(DOCUMENT, s.size(-2)) for s in supps]
             query = (query + self.get_type_tensor(QUERY, query.size(-2)))
@@ -40,6 +40,7 @@ class Coattention(Transformer):
         for s, seq in enumerate(seqs):  # remove padding and query tokens
             last_index = supps[s].size(0) + query.size(0) if return_query_encoding else supps[s].size(0)
             seqs[s] = seq[:, :last_index, :]
+            seqs[s] = seqs[s].view(seqs[s].size(1), -1)
         return seqs
 
     def forward(self, supps: List[Tensor], query: Tensor):

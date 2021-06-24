@@ -3,15 +3,9 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base0",
-    "base0_first_summ",
-    "base0_concat",
-    "base0_concat_8L",
-    "base0_concat_dweights",
-    "base0_concat_dweights_8L",
-    "base0_coat_gru",
-    "base0_concat2",
-    "base0_concat2_coat_gru",
-    "base0_concat2_coat_gru_trans"
+    "base_0",
+    "base_0_transblock",
+    "base_0_gat",
+    "base_0_gate_gat"
   ]
 }

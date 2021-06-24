@@ -131,7 +131,7 @@ class SimpleGNNLayer(nn.Module):
     def __init__(self, GNNClass, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()
 
-        h_size = conf.embedded_dims
+        h_size = conf.embedded_dims * 2
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
 

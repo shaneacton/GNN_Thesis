@@ -1,11 +1,6 @@
 {
-  "model_name": "bae_test",
-  "embedded_dims": 100,
-  "glove_tokens_code": "6B",
-  "transformer_heads": 5,
-
   "model_class": "HDERel",
-  "gnn_class": "SAGEConv",
+  "gnn_class": "GATConv",
   "use_simple_gnn": true,
   "use_gating": true,
   "layerwise_weight_sharing": true,

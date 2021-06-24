@@ -5,6 +5,7 @@ from torch import Tensor
 from transformers import TokenSpan
 
 from Code.Embedding.gru_contextualiser import GRUContextualiser
+from Code.Transformers.coattention import Coattention
 from Code.Transformers.switch_coattention import SwitchCoattention
 from Code.Transformers.transformer import Transformer
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT
@@ -25,7 +26,12 @@ class Summariser(Transformer):
         num_types = 3
         super().__init__(conf.embedded_dims * 2, num_types, conf.num_summariser_layers,
                          use_type_embeddings=False, intermediate_fac=intermediate_fac)
-        self.coattention = SwitchCoattention(intermediate_fac)
+
+        if conf.use_switch_coattention:
+            self.coattention = SwitchCoattention(intermediate_fac)
+        else:
+            self.coattention = Coattention(intermediate_fac)
+
         self.coattention_gru = GRUContextualiser()
 
     def get_type_tensor(self, type, length):
@@ -61,9 +67,9 @@ class Summariser(Transformer):
         extracts = [self.get_vec_extract(v, spans[i]).view(-1, conf.embedded_dims) for i, v in enumerate(vecs)]
 
         original_extracts = extracts
+
         extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
         extracts = [self.coattention_gru(e) for e in extracts]
-
         # doubles embedded dim to get hidden dim
         extracts = [torch.cat([e, original_extracts[i]], dim=-1) for i, e in enumerate(extracts)]
 

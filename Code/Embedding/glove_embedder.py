@@ -23,7 +23,6 @@ class GloveEmbedder(StringEmbedder):
         file_path = pathlib.Path(__file__).parent.absolute()
         embeddings_dict = {}
         self.dims = glove_dims = conf.embedded_dims
-
         path = join(file_path, "Glove", "glove." + conf.glove_tokens_code + "." + repr(glove_dims) + "d.txt")
         print("loading glove. path:", file_path)
 
