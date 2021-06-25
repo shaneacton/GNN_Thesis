@@ -1,9 +1,4 @@
 {
-  "model_name": "switch_gnn",
-  "embedded_dims": 100,
-  "glove_tokens_code": "6B",
-  "transformer_heads": 5,
-
   "model_class": "HDE",
   "gnn_class": "SAGEConv",
   "use_simple_gnn": true,

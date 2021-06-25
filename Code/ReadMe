@@ -1,8 +1,7 @@
 Todo:
 
 * rewrite:
-    * edge type embs/ param switching
-    * use non switch coattention
+    * edge type embs vs param switching
     * switch to graph embedder instead of doing it in HDEModel
     * switch timing to wandb logging over prints
 

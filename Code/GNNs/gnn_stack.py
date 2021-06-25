@@ -6,6 +6,7 @@ from torch.nn import Linear, Dropout, LayerNorm, ModuleList
 from torch_geometric.nn import GATConv
 
 from Code.GNNs.gated_gnn import GatedGNN
+from Code.GNNs.switch_gnn import SwitchGNN
 from Code.GNNs.wrap_gnn import EdgeEmbeddings
 from Config.config import conf
 
@@ -94,6 +95,8 @@ class GNNLayer(nn.Module):
         out_size = int(out_size)
         self.gnn = GNNClass(size, out_size, **needed_kwargs)
 
+        if conf.use_switch_gnn:
+            self.gnn = SwitchGNN(self.gnn)
         if use_edge_type_embs:
             num_types = 7 + 1  # +1 for self edges
             self.gnn = EdgeEmbeddings(self.gnn, size, num_types)
@@ -140,6 +143,8 @@ class SimpleGNNLayer(nn.Module):
         else:
             self.gnn = GNNClass(h_size, h_size, **needed_kwargs)
 
+        if conf.use_switch_gnn:
+            self.gnn = SwitchGNN(self.gnn)
         if use_edge_type_embs:
             num_types = 7 + 1  # +1 for self edges
             self.gnn = EdgeEmbeddings(self.gnn, h_size, num_types)

@@ -38,10 +38,13 @@ class HDEGraph:
 
             self loops are added by pytorch geometric
         """
+        # if type is None:
+        #     raise Exception("weh")
         froms = []
         tos = []
 
         for e in self.ordered_edges:  # adds both directions
+            # print("checking for type:", type, "found:", e.type())
             if type is not None:
                 if e.type() != type:
                     continue

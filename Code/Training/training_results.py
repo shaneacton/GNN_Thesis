@@ -54,7 +54,7 @@ class TrainingResults:
         start, end = self.get_epoch_span(epoch)
         print("epoch:", epoch, "range:", (start, end), "epochs:", self.epochs)
         epoch_time = time.time() - epoch_start_time
-        skipped_frac = num_fastforward_examples / (num_fastforward_examples + (end-start) * conf.print_loss_every)
+        skipped_frac = num_fastforward_examples / ((end-start) * conf.print_loss_every)
         adjusted_epoch_time = epoch_time / (1-skipped_frac)
 
         epoch_train_acc = get_acc_and_f1(self.answers[start: end], self.predictions[start: end])['exact_match']
@@ -76,4 +76,7 @@ class TrainingResults:
                     start = i
                 if round_e == epoch + 1:
                     end = i
+                current_epoch = round_e
+        if end == -1:
+            end = len(self.epochs) - 1
         return start, end
