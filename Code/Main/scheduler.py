@@ -45,14 +45,7 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, prog
     conf.set("model_name", model_name)
     atexit.register(release_status)
 
-    try:
-        train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
-    except KeyboardInterrupt:
-        if ask_exit():
-            exit()
-    print("restarting scheduler after run cancel/completion. Selecting new config")
-    next_model_conf, repeat_num = chose_model_conf(debug=debug)
-    train_config(next_model_conf, train_conf, gpu_num, repeat_num, program_start_time, debug)
+    train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
 
 
 def release_status():
