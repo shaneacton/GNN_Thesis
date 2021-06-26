@@ -8,6 +8,7 @@
     "base_0_transblock",
     "base_0_switch_gnn",
     "base_0_dweight",
-    "base_0_tiny_lr"
+    "base_0_tiny_lr",
+    "base_0_transblock_small_lr"
   ]
 }
