@@ -6,6 +6,7 @@
     "base_0",
     "base_0_transblock",
     "base_0_gat",
-    "base_0_gate_gat"
+    "base_0_switch_gnn",
+    "base_0_dweight"
   ]
 }
