@@ -70,7 +70,6 @@ class GNNStack(nn.Module):
 def get_core_gnn(layer):  # unpeels any nested gnns, eg Gate(Rel(Gat(x)))
     gnn = layer.gnn
     while hasattr(gnn, "gnn") or hasattr(gnn, "gnn_layer"):
-        gnn = gnn.gnn
         while hasattr(gnn, "gnn_layer"):
             gnn = gnn.gnn_layer
         while hasattr(gnn, "gnn"):
