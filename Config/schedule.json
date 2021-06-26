@@ -3,10 +3,11 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
+    "base_0",
+    "base_0_gat",
     "base_0_transblock",
     "base_0_switch_gnn",
     "base_0_dweight",
-    "base_0_low_lr",
     "base_0_tiny_lr"
   ]
 }
