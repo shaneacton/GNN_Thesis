@@ -46,7 +46,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
         epoch_start_time = time.time()
         num_discarded = 0
         num_fastforward_examples = max(model.last_example, 0)
-        epoch_graphs = graphs if model.last_example == -1 else graphs[model.last_example:]
+        epoch_graphs = graphs if model.last_example == -1 else graphs[num_fastforward_examples:]
         for i, graph in tqdm(enumerate(epoch_graphs)):
             def e_frac():
                 return epoch + i/len(graphs)
@@ -75,6 +75,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 loss, predicted = model(graph=graph)
                 t = time.time()
                 loss.backward()
+
                 if conf.print_times:
                     print("back time:", (time.time() - t))
 

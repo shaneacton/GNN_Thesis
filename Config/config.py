@@ -28,6 +28,11 @@ class Config:
         setattr(self, att_name, value)
         self.cfg[att_name] = value
 
+    @property
+    def hidden_size(self):
+        if self.use_simple_hde:
+            return self.embedded_dims
+        return self.embedded_dims * 2
 
 conf = None
 

@@ -1,6 +1,0 @@
-{
-  "gnn_class": "CustomGAT",
-  "use_average_output_agg": true,
-  "use_residual_attention": true,
-  "optimizer_type": "adam"
-}

@@ -8,7 +8,7 @@ class TransformerGNN(nn.Module):
 
     def __init__(self, heads, num_layers, **kwargs):
         super().__init__()
-        size = conf.embedded_dims * 2
+        size = conf.hidden_size
         trans = TransformerEncoderLayer(size, heads,
                                                 size * 2, conf.dropout, 'relu')
         encoder_norm = LayerNorm(size)

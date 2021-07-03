@@ -45,7 +45,7 @@ class GNNStack(nn.Module):
                 layers.append(layers[0])
                 continue
 
-            LayerWrapper = SimpleGNNLayer if conf.use_simple_gnn else GNNLayer
+            LayerWrapper = TransGNNLayer if conf.use_transformer_block else SimpleGNNLayer
             layer = LayerWrapper(GNNClass, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
             if conf.use_gating:
                 layer = GatedGNN(layer)
@@ -77,17 +77,17 @@ def get_core_gnn(layer):  # unpeels any nested gnns, eg Gate(Rel(Gat(x)))
     return gnn
 
 
-class GNNLayer(nn.Module):
+class TransGNNLayer(nn.Module):
 
     def __init__(self, GNNClass, intermediate_fac=2, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
 
-        size = conf.embedded_dims * 2
+        size = conf.hidden_size
         if GNNClass == GATConv:
-            assert (conf.embedded_dims * 2) % layer_kwargs["heads"] == 0
-            out_size = conf.embedded_dims * 2 / layer_kwargs["heads"]
+            assert conf.hidden_size % layer_kwargs["heads"] == 0
+            out_size = conf.hidden_size / layer_kwargs["heads"]
         else:
             out_size = size
         size = int(size)
@@ -133,7 +133,7 @@ class SimpleGNNLayer(nn.Module):
     def __init__(self, GNNClass, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()
 
-        h_size = conf.embedded_dims * 2
+        h_size = conf.hidden_size
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
 

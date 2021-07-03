@@ -34,9 +34,10 @@ class HDEModel(nn.Module):
         self.name = conf.model_name
         self.use_gating = conf.use_gating
 
-        self.supp_contextualiser = GRUContextualiser()
-        self.cand_contextualiser = GRUContextualiser()
-        self.query_contextualiser = GRUContextualiser()
+        if not conf.use_simple_hde:
+            self.supp_contextualiser = GRUContextualiser()
+            self.cand_contextualiser = GRUContextualiser()
+            self.query_contextualiser = GRUContextualiser()
 
         if conf.use_switch_summariser:
             self.summariser = SwitchSummariser(**kwargs)
@@ -50,8 +51,8 @@ class HDEModel(nn.Module):
         self.init_gnn(GNN_CLASS)
         conf.cfg["num_gnn_params"] = num_params(self.gnn)
 
-        self.candidate_scorer = HDEScorer(conf.embedded_dims * 2)
-        self.entity_scorer = HDEScorer(conf.embedded_dims * 2)
+        self.candidate_scorer = HDEScorer(conf.hidden_size)
+        self.entity_scorer = HDEScorer(conf.hidden_size)
 
         conf.cfg["num_output_params"] = num_params(self.candidate_scorer) + num_params(self.entity_scorer)
 
@@ -141,11 +142,15 @@ class HDEModel(nn.Module):
             then summarises subsequences of tokens according to node spans
             yielding the same-sized node features
         """
-        support_embeddings = [self.supp_contextualiser(self.embedder(sup)) for sup in example.supports]
+        support_embeddings = [self.embedder(sup) for sup in example.supports]
+        query_emb = self.embedder(example.query, allow_unknowns=False)
+        cand_embs = [self.embedder(cand) for cand in example.candidates]
         self.check_pad_volume(support_embeddings)
 
-        query_emb = self.query_contextualiser(self.embedder(example.query, allow_unknowns=False))
-        cand_embs = [self.cand_contextualiser(self.embedder(cand)) for cand in example.candidates]
+        if not conf.use_simple_hde:
+            support_embeddings = [self.supp_contextualiser(sup) for sup in support_embeddings]
+            query_emb = self.query_contextualiser(query_emb)
+            cand_embs = [self.cand_contextualiser(cand_emb) for cand_emb in cand_embs]
 
         candidate_summaries = self.summariser(cand_embs, CANDIDATE, query_vec=query_emb)
         support_summaries = self.summariser(support_embeddings, DOCUMENT, query_vec=query_emb)

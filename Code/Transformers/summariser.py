@@ -24,7 +24,7 @@ class Summariser(Transformer):
 
     def __init__(self, intermediate_fac=2):
         num_types = 3
-        super().__init__(conf.embedded_dims * 2, num_types, conf.num_summariser_layers,
+        super().__init__(conf.hidden_size, num_types, conf.num_summariser_layers,
                          use_type_embeddings=False, intermediate_fac=intermediate_fac)
 
         if conf.use_switch_coattention:
@@ -32,7 +32,8 @@ class Summariser(Transformer):
         else:
             self.coattention = Coattention(intermediate_fac)
 
-        self.coattention_gru = GRUContextualiser()
+        if not conf.use_simple_hde:
+            self.coattention_gru = GRUContextualiser()
 
     def get_type_tensor(self, type, length):
         return super().get_type_tensor(type, length, NODE_TYPE_MAP)
@@ -65,13 +66,13 @@ class Summariser(Transformer):
             spans = [None] * len(vecs)
 
         extracts = [self.get_vec_extract(v, spans[i]).view(-1, conf.embedded_dims) for i, v in enumerate(vecs)]
-
         original_extracts = extracts
 
         extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
-        extracts = [self.coattention_gru(e) for e in extracts]
-        # doubles embedded dim to get hidden dim
-        extracts = [torch.cat([e, original_extracts[i]], dim=-1) for i, e in enumerate(extracts)]
+        if not conf.use_simple_hde:  # simple hde skips the gru's and doesn't double model dimensions
+            extracts = [self.coattention_gru(e) for e in extracts]
+            # doubles embedded dim to get hidden dim
+            extracts = [torch.cat([e, original_extracts[i]], dim=-1) for i, e in enumerate(extracts)]
 
         batch, masks = self.pad(extracts)
         batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)

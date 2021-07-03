@@ -52,10 +52,11 @@ class TrainingResults:
         self.num_discarded.append(num_discarded_examples)
         self.valid_accs.append(valid_acc)
         start, end = self.get_epoch_span(epoch)
+
         print("epoch:", epoch, "range:", (start, end), "epochs:", self.epochs)
         epoch_time = time.time() - epoch_start_time
-        skipped_frac = num_fastforward_examples / ((end-start) * conf.print_loss_every)
-        adjusted_epoch_time = epoch_time / (1-skipped_frac)
+        skipped_frac = num_fastforward_examples / self.num_examples_per_epoch()
+        adjusted_epoch_time = epoch_time * (1-skipped_frac)
 
         epoch_train_acc = get_acc_and_f1(self.answers[start: end], self.predictions[start: end])['exact_match']
 
@@ -65,6 +66,14 @@ class TrainingResults:
         if use_wandb:
             wandb_run().log({"valid_acc": valid_acc, "epoch": epoch + 1, "epoch_time": adjusted_epoch_time,
                              "num_discarded_examples": num_discarded_examples})
+
+    def num_examples_per_epoch(self):
+        for i, e in enumerate(self.epochs):
+            ep = floor(e)
+            if ep == 1:
+                break
+
+        return i
 
     def get_epoch_span(self, epoch):
         start, end, current_epoch = -1, -1, -1

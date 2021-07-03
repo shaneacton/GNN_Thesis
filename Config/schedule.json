@@ -4,11 +4,7 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base_0",
-    "base_0_gat",
-    "base_0_switch_gnn",
-    "base_0_dweight",
-    "base_0_transblock_small_lr",
-    "base_0_small_lr",
-    "base_0_gat_small_lr"
+    "base_0_faith",
+    "base_0_no_grad_acc"
   ]
 }
