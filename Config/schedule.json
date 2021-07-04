@@ -8,6 +8,9 @@
     "base_0_no_grad_acc",
     "base_0_edge_emb",
     "base_0_gate_gat",
-    "base_0_transgate"
+    "base_0_transgate",
+    "base_0_gat_fix",
+    "base_0_gate_gat_fix",
+    "base_0_glob_edge"
   ]
 }

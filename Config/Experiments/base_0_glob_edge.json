@@ -11,6 +11,5 @@
   "use_switch_gnn": true,
   "gnn_aggr": "mean",
 
-  "max_accumulated_edges": -1,
-  "optimizer_type": "adam"
+  "use_global_edge_message": true
 }
