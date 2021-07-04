@@ -3,11 +3,16 @@
   "embedded_dims": 100,
   "glove_tokens_code": "6B",
   "transformer_heads": 5,
+
   "model_class": "HDERel",
   "gnn_class": "SAGEConv",
-  "use_transformer_block": false,
   "use_gating": true,
+  "use_transformer_block": false,
+  "use_simple_hde": true,
+
   "layerwise_weight_sharing": true,
   "use_switch_summariser": false,
-  "use_switch_coattention": false
+  "use_switch_coattention": false,
+  "use_switch_gnn": false,
+  "gnn_aggr": "add"
 }
