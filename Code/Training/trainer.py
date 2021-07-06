@@ -49,7 +49,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
         epoch_graphs = graphs if model.last_example == -1 else graphs[num_fastforward_examples:]
         for i, graph in tqdm(enumerate(epoch_graphs)):
             def e_frac():
-                return epoch + i/len(graphs)
+                return epoch + (i+num_fastforward_examples)/len(graphs)
 
             if i >= conf.max_examples != -1:
                 break
