@@ -3,7 +3,7 @@
   "gnn_class": "SAGEConv",
   "use_gating": true,
   "use_transformer_block": false,
-  "use_simple_hde": true,
+  "use_simple_hde": false,
 
   "layerwise_weight_sharing": true,
   "use_switch_summariser": false,
@@ -11,5 +11,5 @@
   "use_switch_gnn": true,
   "gnn_aggr": "mean",
 
-  "use_global_edge_message": true
+  "max_accumulated_edges": -1
 }

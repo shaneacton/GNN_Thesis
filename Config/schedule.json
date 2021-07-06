@@ -3,11 +3,9 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_0",
-    "base_0_faith",
+    "base_0_faith_no_grad_acc",
     "base_0_no_grad_acc",
-    "base_0_edge_emb",
-    "base_0_gate_gat_fix",
+    "base_0_edge_emb_no_grad_acd",
     "base_0_gate_gat_fix_no_grad_acc",
     "base_0_gate_gat_fix_scaled_acc"
   ]
