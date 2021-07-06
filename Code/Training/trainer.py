@@ -45,6 +45,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
 
         epoch_start_time = time.time()
         num_discarded = 0
+        num_accumulation_steps = 0
         num_fastforward_examples = max(model.last_example, 0)
         epoch_graphs = graphs if model.last_example == -1 else graphs[num_fastforward_examples:]
         for i, graph in tqdm(enumerate(epoch_graphs)):
@@ -64,7 +65,14 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                         this new graph would send us over the accumulated edges budget,
                         so we must first wipe previous gradients by stepping
                     """
+                    num_accumulation_steps = max(1, num_accumulation_steps)
+                    if conf.scale_accumulated_gradients:
+                        for p in model.parameters():
+                            if p.grad is not None and p.requires_grad:
+                                p.grad /= num_accumulation_steps  # or whatever other operation
+
                     optimizer.step()
+                    num_accumulation_steps = 0
                     if conf.use_lr_scheduler:
                         scheduler.step(epoch=e_frac())
                     optimizer.zero_grad()
@@ -75,6 +83,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 loss, predicted = model(graph=graph)
                 t = time.time()
                 loss.backward()
+                num_accumulation_steps += 1
 
                 if conf.print_times:
                     print("back time:", (time.time() - t))

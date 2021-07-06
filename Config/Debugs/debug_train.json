@@ -4,6 +4,7 @@
   "print_loss_every": 99,
   "checkpoint_every": 490,
   "max_accumulated_edges": 50000,
+  "scale_accumulated_gradients": false,
   "max_edges": 100000,
   "max_pad_volume": 50001,
   "print_times": false,

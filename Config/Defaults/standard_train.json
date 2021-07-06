@@ -7,6 +7,7 @@
   "print_loss_every": 500,
   "checkpoint_every": 500,
   "max_accumulated_edges": 250000,
+  "scale_accumulated_gradients": false,
   "max_edges": 350000,
   "max_pad_volume": 32000,
   "max_context_chars": -1,
