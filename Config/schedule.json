@@ -7,9 +7,7 @@
     "base_0_faith",
     "base_0_no_grad_acc",
     "base_0_edge_emb",
-    "base_0_gate_gat",
     "base_0_gate_gat_fix",
-    "base_0_no_gate",
     "base_0_gate_gat_fix_no_grad_acc"
   ]
 }

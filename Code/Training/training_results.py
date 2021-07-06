@@ -56,8 +56,10 @@ class TrainingResults:
         print("epoch:", epoch, "range:", (start, end), "epochs:", self.epochs)
         epoch_time = time.time() - epoch_start_time
         skipped_frac = num_fastforward_examples / self.num_examples_per_epoch()
-        assert 0 <= skipped_frac <= 1, "skipped: " + str(skipped_frac) + " nff: " + str(num_fastforward_examples) + " ex per e: " + repr(self.num_examples_per_epoch())
-        adjusted_epoch_time = epoch_time / (1-skipped_frac)
+        if 0 <= skipped_frac <= 1:
+            adjusted_epoch_time = epoch_time / (1-skipped_frac)
+        else:  # failed to recover
+            adjusted_epoch_time = epoch_time
 
         epoch_train_acc = get_acc_and_f1(self.answers[start: end], self.predictions[start: end])['exact_match']
 
