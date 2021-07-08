@@ -1,0 +1,16 @@
+{
+  "model_class": "HDE",
+  "gnn_class": "SAGEConv",
+  "use_gating": true,
+  "use_transformer_block": false,
+  "use_simple_hde": false,
+
+  "layerwise_weight_sharing": true,
+  "use_switch_summariser": false,
+  "use_switch_coattention": false,
+  "use_switch_gnn": true,
+  "gnn_aggr": "mean",
+
+  "max_accumulated_edges": -1,
+  "dropout": 0.25
+}
