@@ -10,6 +10,7 @@
     "base_0_transgate_no_grad_acc",
     "base_0_faith_no_grad_acc_do25",
     "base_0_dweight_no_grad_acc",
-    "base_0_gate_gat_fix_dweight_no_grad_acc"
+    "base_0_gate_gat_fix_dweight_no_grad_acc",
+    "base_0_transgate_dweight_no_grad_acc"
   ]
 }
