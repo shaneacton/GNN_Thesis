@@ -88,10 +88,19 @@ def set_status_value(model_name, key, value, backup=False):
 
 
 def load_status(name, backup=False):
-    path = training_status_path(name, backup=backup)
-    with FileLock(path + ".lock"):
-        status = load_json_data(path)
-    return status
+    try:
+        path = training_status_path(name, backup=backup)
+        with FileLock(path + ".lock"):
+            status = load_json_data(path)
+        return status
+
+    except Exception as e:
+        print("status file corrupt for:", name, " trying backup status file")
+        if not backup:
+            return load_status(name, True)
+        else:
+            print("backup status file read failed too", e)
+            raise e
 
 
 def save_status(name, status, backup=False):
