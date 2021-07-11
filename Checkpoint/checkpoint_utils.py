@@ -61,8 +61,8 @@ def model_path(name, backup=False):
     return join(path, name)
 
 
-def training_results_path(name):
-    path = get_model_checkpoint_folder(name)
+def training_results_path(name, backup=False):
+    path = get_model_checkpoint_folder(name, backup=backup)
     return join(path, name + ".training_data")
 
 

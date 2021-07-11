@@ -5,14 +5,14 @@ import torch
 from torch_geometric.nn import GATConv, SAGEConv
 
 from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
-    load_json_data, restore_from_backup_folder
+    load_json_data, restore_from_backup_folder, load_status
 from Code.GNNs.custom_gat import CustomGAT
 
 from Code.HDE.hde_model import HDEModel
 from Code.HDE.hde_rel import HDERel
 from Code.Training import dev
 from Code.Training.lamb import Lamb
-from Code.Utils.training_utils import get_exponential_schedule_with_warmup
+from Code.Utils.training_utils import get_exponential_schedule_with_warmup, get_training_results
 from Config.config import conf, get_config
 from Code.Utils import wandb_utils
 from Code.Utils.wandb_utils import use_wandb
@@ -53,11 +53,13 @@ def continue_model(name, backup=False):
 
         cfg = load_json_data(model_config_path(name))
         get_config().cfg = cfg
+        _ = get_training_results(name, backup=backup)  # can sometimes fail due to file corruption
+        _ = load_status(name, backup=backup)  # can sometimes fail due to file corruption
         if use_wandb:
             wandb_utils.continue_run(cfg["wandb_id"], cfg["model_name"])
     except Exception as e:
         print("cannot load model at", path)
-        print("mode error:", e)
+        print("load error:", e)
         """we will delete this checkpoint folder as it has corrupted"""
 
         if not backup:

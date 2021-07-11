@@ -7,8 +7,8 @@ from Checkpoint.checkpoint_utils import training_results_path, save_binary_data
 from Code.Training.training_results import TrainingResults
 
 
-def get_training_results(name):
-    path = training_results_path(name)
+def get_training_results(name, backup=False):
+    path = training_results_path(name, backup=backup)
     if exists(path):
         filehandler = open(path, 'rb')
         data = pickle.load(filehandler)
@@ -16,10 +16,6 @@ def get_training_results(name):
         return data
 
     return TrainingResults()
-
-
-# def plot_training_data(training_results, name, print_loss_every, num_training_examples):
-#     visualise_training_data(losses, train_accs, epochs, name, show=False, valid_accs=valid_accs)
 
 
 def save_training_results(data, name):

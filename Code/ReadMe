@@ -3,6 +3,7 @@ Todo:
 * rewrite:
     * switch to graph embedder instead of doing it in HDEModel
     * switch timing to wandb logging over prints
+    * test trans block with distinct weights
 
 * General:
     * add dropout to output model and other
