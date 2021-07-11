@@ -15,6 +15,7 @@ from Code.GNNs.transformer_gnn import TransformerGNN
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.scorer import HDEScorer
 from Code.Training import dev
+from Code.Training.timer import log_time
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_summariser import SwitchSummariser
 from Code.Utils.graph_utils import get_entity_summaries, similar
@@ -118,11 +119,11 @@ class HDEModel(nn.Module):
             # print("x after:", x.size(), x)
         else:
             x = self.gnn(x, edge_index=graph.edge_index(), **kwargs)
-        if conf.print_times:
-            print("passed gnn in", (time.time() - t))
+        log_time("gnn", time.time() - t)
         return x
 
     def finish(self, x, graph, *args):
+        t = time.time()
         final_probs = self.pass_output_model(x, graph, *args)
         pred_id = torch.argmax(final_probs)
         pred_ans = graph.example.candidates[pred_id]
@@ -132,6 +133,7 @@ class HDEModel(nn.Module):
             probs = final_probs.view(1, -1)  # batch dim
             ans = torch.tensor([ans_id]).to(dev())
             loss = self.loss_fn(probs, ans)
+            log_time("output", time.time() - t)
             return loss, pred_ans
 
         return pred_ans
@@ -142,21 +144,29 @@ class HDEModel(nn.Module):
             then summarises subsequences of tokens according to node spans
             yielding the same-sized node features
         """
+        t = time.time()
         support_embeddings = [self.embedder(sup) for sup in example.supports]
         query_emb = self.embedder(example.query, allow_unknowns=False)
         cand_embs = [self.embedder(cand) for cand in example.candidates]
         self.check_pad_volume(support_embeddings)
 
         if not conf.use_simple_hde:
+            gru_t = time.time()
             support_embeddings = [self.supp_contextualiser(sup) for sup in support_embeddings]
             query_emb = self.query_contextualiser(query_emb)
             cand_embs = [self.cand_contextualiser(cand_emb) for cand_emb in cand_embs]
+            log_time("GRUs", time.time()-gru_t, increment_counter=False)  # signals end of example, needed multiple calls
 
+        node_t = time.time()
         candidate_summaries = self.summariser(cand_embs, CANDIDATE, query_vec=query_emb)
         support_summaries = self.summariser(support_embeddings, DOCUMENT, query_vec=query_emb)
 
         ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser, query_vec=query_emb)
         x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
+        log_time("Graph embedding", time.time() - t)
+        log_time("Node embedding", time.time() - node_t)
+        log_time("Token embedding", 0, increment_counter=True)  # signals end of example, needed multiple calls
+        log_time("GRUs", 0, increment_counter=True)  # signals end of example, needed multiple calls
 
         return x
 

@@ -230,9 +230,6 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
     connect_candidates_and_entities(graph)
     connect_entity_mentions(graph)
 
-    if conf.print_times:
-        print("made full graph in", (time.time() - start_t))
-
     if conf.visualise_graphs:
         if conf.exit_after_first_viz:
             render_graph(graph, graph_folder="temp")

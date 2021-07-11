@@ -2,6 +2,7 @@ import time
 from math import floor
 from statistics import mean
 
+from Code.Training.timer import get_component_times
 from Code.Utils.eval_utils import get_acc_and_f1
 from Config.config import conf
 from Code.Utils.wandb_utils import wandb_run, use_wandb
@@ -66,9 +67,13 @@ class TrainingResults:
         print("e", epoch, "completed. Training acc:", epoch_train_acc, "valid_acc:", valid_acc, "num discarded:",
               num_discarded_examples, "time:", adjusted_epoch_time)
 
+        times = get_component_times()
+        print("average times:", times)
         if use_wandb:
-            wandb_run().log({"valid_acc": valid_acc, "epoch": epoch + 1, "epoch_time": adjusted_epoch_time,
-                             "num_discarded_examples": num_discarded_examples})
+            metrics = {"valid_acc": valid_acc, "epoch": epoch + 1, "epoch_time": adjusted_epoch_time,
+                             "num_discarded_examples": num_discarded_examples}
+            metrics.update(times)
+            wandb_run().log()
 
     def num_examples_per_epoch(self):
         for i, e in enumerate(self.epochs):

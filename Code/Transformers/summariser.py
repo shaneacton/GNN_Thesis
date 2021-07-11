@@ -1,3 +1,4 @@
+import time
 from typing import List, Union
 
 import torch
@@ -5,6 +6,7 @@ from torch import Tensor
 from transformers import TokenSpan
 
 from Code.Embedding.gru_contextualiser import GRUContextualiser
+from Code.Training.timer import log_time
 from Code.Transformers.coattention import Coattention
 from Code.Transformers.switch_coattention import SwitchCoattention
 from Code.Transformers.transformer import Transformer
@@ -70,9 +72,11 @@ class Summariser(Transformer):
 
         extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
         if not conf.use_simple_hde:  # simple hde skips the gru's and doesn't double model dimensions
+            gru_t = time.time()
             extracts = [self.coattention_gru(e) for e in extracts]
             # doubles embedded dim to get hidden dim
             extracts = [torch.cat([e, original_extracts[i]], dim=-1) for i, e in enumerate(extracts)]
+            log_time("GRUs", time.time()-gru_t, increment_counter=False)  # signals end of example, needed multiple calls
 
         batch, masks = self.pad(extracts)
         batch = self.encoder(batch, src_key_padding_mask=masks).transpose(0, 1)

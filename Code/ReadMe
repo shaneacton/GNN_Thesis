@@ -1,27 +1,39 @@
 Todo:
 
-* rewrite:
-    * switch to graph embedder instead of doing it in HDEModel
-    * switch timing to wandb logging over prints
-    * test trans block with distinct weights
+* Tests to do:
+    * Try recreate top of stack
+        * test trans block with distinct weights
+            * Try edge embeddings with distinct weights
+        * higher learning rate
+        * switch summariser
+    * Bert embeddings
+
+* Metrics
+    * Reselect parameters logged.
+        * GNN vs Transformer vs output
+
 
 * General:
     * add dropout to output model and other
-    * try turn off gradient accumulation
-        * try scale loss depending on batch size
+
 
 * Transformers
     * more batching can be done in the summariser
-    * code reuse between switch and regular variants
 
 * GNN's.
     *Try residual layer for GATConv
 
 
+* Speed
+    * more batching can be done in the summariser
+
+
 * house keeping:
-    * move wandb folder out of HDE
     * get rid of the summariser/switch summariser distinction
         turn rel off by only using the global edge
+    * code reuse between switch and regular variants
+    * switch to graph embedder instead of doing it in HDEModel
+
 
 
 * Visualisations

@@ -11,7 +11,6 @@
   "max_edges": 350000,
   "max_pad_volume": 32000,
   "max_context_chars": -1,
-  "print_times": false,
   "show_memory_usage_data": false,
   "visualise_graphs": false,
   "exit_after_first_viz": true,

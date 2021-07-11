@@ -1,6 +1,8 @@
+import time
 from abc import abstractmethod
-
 from torch import nn
+
+from Code.Training.timer import log_time
 
 
 class StringEmbedder(nn.Module):
@@ -10,4 +12,7 @@ class StringEmbedder(nn.Module):
         pass
 
     def forward(self, string, **kwargs):
-        return self.embed(string, **kwargs)
+        t = time.time()
+        emb = self.embed(string, **kwargs)
+        log_time("Token embedding", time.time() - t, increment_counter=False)
+        return emb

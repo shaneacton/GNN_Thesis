@@ -10,6 +10,7 @@ from Code.Embedding.glove_embedder import NoWordsException
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training import set_gpu
 from Code.Training.eval import evaluate
+from Code.Training.timer import log_time
 from Code.Training.training_results import TrainingResults
 from Code.Utils.model_utils import get_model
 from Code.Utils.training_utils import get_training_results, save_training_results
@@ -85,8 +86,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 loss.backward()
                 num_accumulation_steps += 1
 
-                if conf.print_times:
-                    print("back time:", (time.time() - t))
+                log_time("Backwards pass", time.time() - t)
 
                 accumulated_edges += num_edges
                 if conf.show_memory_usage_data:
