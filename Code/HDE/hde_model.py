@@ -146,7 +146,7 @@ class HDEModel(nn.Module):
         """
         t = time.time()
         support_embeddings = [self.embedder(sup) for sup in example.supports]
-        query_emb = self.embedder(example.query, allow_unknowns=False)
+        query_emb = self.embedder(example.query)
         cand_embs = [self.embedder(cand) for cand in example.candidates]
         self.check_pad_volume(support_embeddings)
 

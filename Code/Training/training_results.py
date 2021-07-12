@@ -73,14 +73,14 @@ class TrainingResults:
             metrics = {"valid_acc": valid_acc, "epoch": epoch + 1, "epoch_time": adjusted_epoch_time,
                              "num_discarded_examples": num_discarded_examples}
             metrics.update(times)
-            wandb_run().log()
+            wandb_run().log(metrics)
 
     def num_examples_per_epoch(self):
         for i, e in enumerate(self.epochs):
             ep = floor(e)
             if ep == 1:
                 break
-
+        i = max(i, 1)
         return i * conf.print_loss_every
 
     def get_epoch_span(self, epoch):

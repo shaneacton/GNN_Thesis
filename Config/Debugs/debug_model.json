@@ -1,8 +1,8 @@
 {
-  "model_name": "trans",
-  "embedded_dims": 100,
+  "model_name": "bert",
+  "embedded_dims": 512,
   "glove_tokens_code": "6B",
-  "transformer_heads": 5,
+  "transformer_heads": 4,
 
   "model_class": "HDE",
   "gnn_class": "SAGEConv",
@@ -17,5 +17,7 @@
   "gnn_aggr": "mean",
 
   "use_global_edge_message": true,
-  "scale_accumulated_gradients": true
+  "scale_accumulated_gradients": true,
+
+  "embedder_type": "bert"
 }

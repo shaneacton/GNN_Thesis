@@ -51,7 +51,7 @@ class GloveEmbedder(StringEmbedder):
         else:
             self.unknown_token_emb = np.asarray([0] * glove_dims, "float32")
 
-    def get_emb(self, word, allow_unknowns=True):
+    def get_emb(self, word):
         if word in self.embs.keys():
             emb = self.embs[word]
         else:
