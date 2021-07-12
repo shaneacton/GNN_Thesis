@@ -10,9 +10,15 @@ from Code.Training.training_results import TrainingResults
 def get_training_results(name, backup=False):
     path = training_results_path(name, backup=backup)
     if exists(path):
-        filehandler = open(path, 'rb')
-        data = pickle.load(filehandler)
-        filehandler.close()
+        try:
+            filehandler = open(path, 'rb')
+            data = pickle.load(filehandler)
+            filehandler.close()
+        except Exception as e:
+            print("training results file load error", e)
+            if not backup:
+                return get_training_results(name, backup=True)
+            raise e
         return data
 
     return TrainingResults()
