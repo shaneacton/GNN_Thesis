@@ -6,11 +6,11 @@ from os.path import join
 
 import torch.multiprocessing as mp
 
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
 sys.path.append(join(dir_path_1, 'Code'))
+sys.path.append(join(dir_path_1, 'Code.Main'))
 sys.path.append(join(dir_path_1, 'Config'))
 sys.path.append(join(dir_path_1, 'Checkpoint'))
 
