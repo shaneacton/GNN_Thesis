@@ -33,16 +33,22 @@ if __name__ == "__main__":
     from Code.Main.scheduler import train_config, effective_name
 
     if args.model_conf2:  # a second GPU is available. We will run a second config
-        ctx = mp.get_context('spawn')
+        print("found second model to train", args.model_conf2)
 
+        ctx = mp.get_context('spawn')
         kwargs = {"model_conf": args.model_conf2, "train_conf": args.train_conf, "gpu_num": 1,
                   "repeat_num": 0, "program_start_time": start_time, "debug": args.debug == "y"}
+
+        model_name = effective_name(args.model_conf2, 0)
+        create_model_checkpoint_folder(model_name, safe_mode=True)
+
         process = ctx.Process(target=train_config, kwargs=kwargs)
         process.start()
+        print("started second process to train", args.model_conf2, "on gpu 2")
 
-    from Config.config import conf
 
-    model_name = effective_name(conf.model_name, 0)
+    model_name = effective_name(args.model_conf, 0)
     create_model_checkpoint_folder(model_name, safe_mode=True)
 
+    print("training", args.model_conf, "in main thread")
     train_config(args.model_conf, args.train_conf, program_start_time=start_time)
