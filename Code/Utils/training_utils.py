@@ -15,7 +15,7 @@ def get_training_results(name, backup=False):
             data = pickle.load(filehandler)
             filehandler.close()
         except Exception as e:
-            print("training results file load error", e)
+            print("training results file load error for", name, e)
             if not backup:
                 return get_training_results(name, backup=True)
             raise e

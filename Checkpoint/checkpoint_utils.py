@@ -47,10 +47,14 @@ def get_backup_model_checkpoint_folder(name):
     return checkpoint_folder + "_backup"
 
 
-def create_model_checkpoint_folder(name):
+def create_model_checkpoint_folder(name, safe_mode=False):
     path = get_model_checkpoint_folder(name)
     if exists(path):
-        raise Exception("checkpoint folder already exists")
+        if safe_mode:
+            return
+        else:
+            raise Exception("checkpoint folder already exists")
+
     mkdir(path)
     status = get_new_training_status()
     save_json_data(status, training_status_path(name))
