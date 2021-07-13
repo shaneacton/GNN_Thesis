@@ -6,6 +6,7 @@ from os.path import join
 
 import torch.multiprocessing as mp
 
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -14,6 +15,7 @@ sys.path.append(join(dir_path_1, 'Config'))
 sys.path.append(join(dir_path_1, 'Checkpoint'))
 
 from Checkpoint.checkpoint_utils import create_model_checkpoint_folder
+from Code.Main.scheduler import effective_name, train_config
 
 
 if __name__ == "__main__":
@@ -29,8 +31,6 @@ if __name__ == "__main__":
     if args.debug == "y":
         args.model_conf = "debug_model"
         args.train_conf = "debug_train"
-
-    from Code.Main.scheduler import train_config, effective_name
 
     if args.model_conf2:  # a second GPU is available. We will run a second config
         print("found second model to train", args.model_conf2)
