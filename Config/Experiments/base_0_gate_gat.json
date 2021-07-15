@@ -9,7 +9,5 @@
   "use_switch_summariser": false,
   "use_switch_coattention": false,
   "use_switch_gnn": true,
-  "gnn_aggr": "add",
-
-  "scale_accumulated_gradients": true
+  "gnn_aggr": "add"
 }

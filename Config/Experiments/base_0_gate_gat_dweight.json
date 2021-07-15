@@ -1,6 +1,6 @@
 {
   "model_class": "HDE",
-  "gnn_class": "SAGEConv",
+  "gnn_class": "GATConv",
   "use_gating": true,
   "use_transformer_block": false,
   "use_simple_hde": true,
@@ -9,8 +9,5 @@
   "use_switch_summariser": false,
   "use_switch_coattention": false,
   "use_switch_gnn": true,
-  "gnn_aggr": "mean",
-
-  "max_accumulated_edges": -1,
-  "initial_lr": 0.01
+  "gnn_aggr": "add"
 }

@@ -70,7 +70,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                     if conf.scale_accumulated_gradients:
                         for p in model.parameters():
                             if p.grad is not None and p.requires_grad:
-                                p.grad /= num_accumulation_steps  # or whatever other operation
+                                p.grad /= num_accumulation_steps
 
                     optimizer.step()
                     num_accumulation_steps = 0
