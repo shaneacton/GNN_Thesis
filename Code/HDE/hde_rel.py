@@ -1,7 +1,9 @@
 import inspect
+import time
 
 from Code.GNNs.gnn_stack import GNNStack
 from Code.HDE.hde_model import HDEModel
+from Code.Training.timer import log_time
 from Config.config import conf
 
 
@@ -21,6 +23,11 @@ class HDERel(HDEModel):
         self.gnn = GNNStack(BASE_GNN_CLASS, **args)
 
     def pass_gnn(self, x, graph):
+        t = time.time()
+
         edge_types = graph.edge_types()
         edge_index = graph.edge_index()
-        return self.gnn(x, edge_types=edge_types, edge_index=edge_index)
+        x = self.gnn(x, edge_types=edge_types, edge_index=edge_index)
+
+        log_time("gnn", time.time() - t)
+        return x
