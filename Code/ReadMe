@@ -8,10 +8,12 @@ Todo:
         * switch summariser
     * Bert embeddings
     * grad acc up to: 250000 edges
+    * no lr schedule
 
 * Metrics
     * Reselect parameters logged.
         * GNN vs Transformer vs output
+    * Add datetime to loss prints
 
 
 * General:

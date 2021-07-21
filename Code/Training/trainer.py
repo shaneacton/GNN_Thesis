@@ -103,7 +103,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
 
             if len(training_results.all_losses) % conf.checkpoint_every == 0:  # save model and data
                 # saving takes a few minutes. We should check for an early stoppage to ensure program closes well
-                if conf.max_runtime_seconds != -1 and time.time() - program_start_time > conf.max_runtime_seconds - 240:
+                if conf.max_runtime_seconds != -1 and time.time() - program_start_time > conf.max_runtime_seconds - 480:
                     times_up()
                 epoch_start_time = save_training_states(training_results, epoch_start_time, i, model, name, optimizer,
                                                         scheduler, start_time)
