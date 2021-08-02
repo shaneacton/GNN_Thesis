@@ -2,9 +2,6 @@ Todo:
 
 * Tests to do:
     * Try recreate top of stack
-        * test trans block with distinct weights
-            * Try edge embeddings with distinct weights
-        * higher learning rate
         * switch summariser
     * Bert embeddings
     * grad acc up to: 250000 edges
