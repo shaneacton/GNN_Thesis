@@ -20,11 +20,15 @@ class GloveEmbedder(StringEmbedder):
     def __init__(self, use_positional_embeddings=True):
         super().__init__()
         self.use_positional_embeddings = use_positional_embeddings
-        file_path = pathlib.Path(__file__).parent.absolute()
         embeddings_dict = {}
         self.dims = glove_dims = conf.embedded_dims
-        path = join(file_path, "Glove", "glove." + conf.glove_tokens_code + "." + repr(glove_dims) + "d.txt")
-        print("loading glove. path:", file_path)
+        glove_code = "glove." + conf.glove_tokens_code + "." + repr(glove_dims) + "d.txt"
+        if conf.run_args.glove_path:
+            path = join(conf.run_args.glove_path, glove_code)
+        else:
+            file_path = pathlib.Path(__file__).parent.absolute()
+            path = join(file_path, "Glove", glove_code)
+        print("loading glove. path:", path)
 
         if not exists(path):
             raise Exception("no glove embeddings of dimension " + repr(glove_dims) + " emb dim: " + repr(self.dims))

@@ -25,7 +25,7 @@ from Checkpoint import CHECKPOINT_FOLDER
 GLOBAL_FILE_LOCK_PATH = join(CHECKPOINT_FOLDER, "scheduler_lock.lock")
 
 
-def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, program_start_time=-1, debug=False):
+def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, program_start_time=-1, debug=False, run_args=None):
     """
         train/continue a model using a model config in HDE/Config
         this method can be run in parallel by different processes
@@ -43,6 +43,7 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, prog
     model_name = effective_name(conf.model_name, repeat_num)
     conf.set("clean_model_name", conf.model_name)
     conf.set("model_name", model_name)
+    conf.run_args = run_args
     atexit.register(release_status)
 
     train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
@@ -156,7 +157,7 @@ def chose_model_conf(debug=False):
     return next_model_conf, repeat_num
 
 
-def continue_schedule(debug=False):
+def continue_schedule(debug=False, run_args=None):
     """reads the schedule, as well as which """
     num_gpus = torch.cuda.device_count()
     program_start_time = time.time()
@@ -174,11 +175,13 @@ def continue_schedule(debug=False):
         print("chosen conf:", next_model_conf)
         if next_gpu_id == num_gpus - 1:
             """is last config to run. can run in master thread"""
-            train_config(next_model_conf, train_conf, next_gpu_id, repeat_num, program_start_time, debug=debug)
+            train_config(next_model_conf, train_conf, next_gpu_id, repeat_num, program_start_time,
+                         debug=debug, run_args=run_args)
         else:
             # spawn process
             kwargs = {"model_conf": next_model_conf, "train_conf": train_conf, "gpu_num": next_gpu_id,
-                      "repeat_num":repeat_num, "program_start_time":program_start_time, "debug": debug}
+                      "repeat_num":repeat_num, "program_start_time": program_start_time, "debug": debug,
+                      "run_args": run_args}
             process = ctx.Process(target=train_config, kwargs=kwargs)
             process.start()
             print("starting new process for", next_model_conf, "on gpu:", next_gpu_id)
@@ -200,6 +203,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()  # error: <Process(Process-2, initial)>
     parser.add_argument('--debug', '-d', help='Whether or not to run the debug configs - y/n', default="n")
+    parser.add_argument('--glove_path', '-g', help='Where the glove.*.*.txt files are stored', default="")
+    parser.add_argument('--processed_data_path', '-p', help='Where proessed graphs are stored', default="")
 
     args = parser.parse_args()
-    continue_schedule(debug=args.debug == "y")
+    continue_schedule(debug=args.debug == "y", run_args=args)

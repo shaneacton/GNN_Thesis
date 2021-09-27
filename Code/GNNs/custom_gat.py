@@ -2,7 +2,6 @@ import torch
 from torch import dropout, Tensor
 from torch.nn.functional import linear
 from torch.nn.init import xavier_uniform_, constant_
-from torch.nn.modules.linear import _LinearWithBias
 from torch.nn.parameter import Parameter
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import softmax as gat_softmax, remove_self_loops, add_self_loops

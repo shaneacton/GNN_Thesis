@@ -41,7 +41,10 @@ def get_wikihop_graphs(model: HDEModel, split=nlp.Split.TRAIN):
 
     emb_name = conf.embedder_type + "(" + repr(conf.embedded_dims) + ")"
     file_name = emb_name + "_" + split._name + "_special.data"
-    data_path = join(DATA_FOLDER, file_name)
+    if conf.run_args.processed_data_path:
+        data_path = join(conf.run_args.processed_data_path, file_name)
+    else:
+        data_path = join(DATA_FOLDER, file_name)
 
     if exists(data_path):  # has been processed before
         print("loading preprocessed wikihop", split)
@@ -69,5 +72,5 @@ def get_wikihop_graphs(model: HDEModel, split=nlp.Split.TRAIN):
         graphs = [create_graph(ex, glove_embedder=model.embedder) for ex in tqdm(processed_examples)]
 
     print("saving", len(graphs), "graphs")
-    save_binary_data(graphs, join(DATA_FOLDER, file_name))
+    save_binary_data(graphs, data_path)
     return graphs

@@ -6,7 +6,6 @@ from torch_geometric.nn import GATConv, SAGEConv
 
 from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
     load_json_data, restore_from_backup_folder, load_status
-from Code.GNNs.custom_gat import CustomGAT
 
 from Code.HDE.hde_model import HDEModel
 from Code.HDE.hde_rel import HDERel
@@ -21,7 +20,7 @@ MODEL_MAP = {
     "HDE": HDEModel,
     "HDERel": HDERel
              }
-GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv, "CustomGAT": CustomGAT}
+GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv}
 
 
 def get_model(name, MODEL_CLASS=None, **model_kwargs):
