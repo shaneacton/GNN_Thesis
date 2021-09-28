@@ -140,7 +140,10 @@ def get_next_model_config(debug, repeat_num=0):
     return selected, repeat_num
 
 
-def get_schedule(debug):
+def get_schedule(debug, custom_schedule_name=""):
+    if custom_schedule_name:
+        return load_config(custom_schedule_name, add_model_name=False)
+
     if not debug:
         schedule = load_config("schedule", add_model_name=False)
     else:
@@ -161,7 +164,7 @@ def continue_schedule(debug=False, run_args=None):
     """reads the schedule, as well as which """
     num_gpus = torch.cuda.device_count()
     program_start_time = time.time()
-    schedule = get_schedule(debug)
+    schedule = get_schedule(debug, run_args.schedule_name)
 
     train_conf = schedule["train_config"]
     print("num gpus:", num_gpus)
@@ -204,7 +207,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()  # error: <Process(Process-2, initial)>
     parser.add_argument('--debug', '-d', help='Whether or not to run the debug configs - y/n', default="n")
     parser.add_argument('--glove_path', '-g', help='Where the glove.*.*.txt files are stored', default="")
-    parser.add_argument('--processed_data_path', '-p', help='Where proessed graphs are stored', default="")
+    parser.add_argument('--processed_data_path', '-p', help='Where processed graphs are stored', default="")
+    parser.add_argument('--schedule_name', '-p', help='The name of the schedule to use', default="")
 
     args = parser.parse_args()
     continue_schedule(debug=args.debug == "y", run_args=args)

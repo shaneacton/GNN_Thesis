@@ -1,16 +1,13 @@
 {
   "model_class": "HDERel",
-  "gnn_class": "GATConv",
+  "gnn_class": "SAGEConv",
   "use_gating": true,
   "use_transformer_block": false,
-  "use_simple_hde": true,
+  "use_simple_hde": false,
 
-  "layerwise_weight_sharing": false,
+  "layerwise_weight_sharing": true,
   "use_switch_summariser": false,
   "use_switch_coattention": false,
   "use_switch_gnn": false,
-  "gnn_aggr": "add",
-
-  "initial_lr": 0.01,
-  "use_lr_scheduler": false
+  "gnn_aggr": "add"
 }

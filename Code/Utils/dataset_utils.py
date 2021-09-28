@@ -45,6 +45,7 @@ def get_wikihop_graphs(model: HDEModel, split=nlp.Split.TRAIN):
         data_path = join(conf.run_args.processed_data_path, file_name)
     else:
         data_path = join(DATA_FOLDER, file_name)
+    print("processed data path:", data_path)
 
     if exists(data_path):  # has been processed before
         print("loading preprocessed wikihop", split)

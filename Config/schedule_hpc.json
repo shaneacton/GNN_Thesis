@@ -1,0 +1,10 @@
+{
+  "num_repeats": 1,
+  "train_config": "standard_train",
+  "config_overrides": {"optimizer_type":  "adam"},
+  "model_configs": [
+    "base_0_edge_emb_dweight_hi_lr_0",
+    "base_0_gru",
+    "base_0_switch"
+  ]
+}
