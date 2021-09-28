@@ -71,14 +71,14 @@ def get_safe_status(effective_name, max_hours=13):
     return status
 
 
-def get_next_model_config(debug, repeat_num=0):
+def get_next_model_config(debug, run_args, repeat_num=0):
     """
         process safe. Only one scheduler can be deciding a config at a time.
 
         finds first available model config to run. only once all are running/finished, will the scheduler repeat the list
         picks the config which has completed the fewest epochs
     """
-    schedule = get_schedule(debug)
+    schedule = get_schedule(debug, custom_schedule_name=run_args.schedule_name)
     with FileLock(GLOBAL_FILE_LOCK_PATH):
         """
             no two schedulers can pick configs at the same time
@@ -131,7 +131,7 @@ def get_next_model_config(debug, repeat_num=0):
     if selected is None:
         """no candidate was found, either all are running, or complete"""
         if repeat_num < schedule["num_repeats"] - 1:
-            return get_next_model_config(schedule, repeat_num=repeat_num+1)
+            return get_next_model_config(schedule, run_args,repeat_num=repeat_num+1)
         else:
             """nothing more to be run"""
             print("all configs running or completed")
@@ -151,12 +151,12 @@ def get_schedule(debug, custom_schedule_name=""):
     return schedule
 
 
-def chose_model_conf(debug=False):
-    next_model_conf, repeat_num = get_next_model_config(debug)
+def chose_model_conf(debug=False, run_args=None):
+    next_model_conf, repeat_num = get_next_model_config(debug, run_args)
     while next_model_conf is None:
         print("no more configs to run. hanging...")
         time.sleep(60)
-        next_model_conf, repeat_num = get_next_model_config(debug)
+        next_model_conf, repeat_num = get_next_model_config(debug, run_args)
     return next_model_conf, repeat_num
 
 
@@ -164,7 +164,7 @@ def continue_schedule(debug=False, run_args=None):
     """reads the schedule, as well as which """
     num_gpus = torch.cuda.device_count()
     program_start_time = time.time()
-    schedule = get_schedule(debug, run_args.schedule_name)
+    schedule = get_schedule(debug, custom_schedule_name=run_args.schedule_name)
 
     train_conf = schedule["train_config"]
     print("num gpus:", num_gpus)
@@ -173,7 +173,7 @@ def continue_schedule(debug=False, run_args=None):
     next_gpu_id = 0
     while next_gpu_id < num_gpus:
         """for each available gpu, spawn off a new process to run the next scheduled config"""
-        next_model_conf, repeat_num = chose_model_conf(debug=debug)
+        next_model_conf, repeat_num = chose_model_conf(debug=debug, run_args=run_args)
 
         print("chosen conf:", next_model_conf)
         if next_gpu_id == num_gpus - 1:
