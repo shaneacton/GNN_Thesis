@@ -7,7 +7,7 @@ from os.path import join, exists
 import torch
 from filelock import FileLock
 
-from Checkpoint import CHECKPOINT_FOLDER
+from Checkpoint import get_checkpoint_folder
 
 
 def duplicate_checkpoint_folder(name):
@@ -40,7 +40,7 @@ def get_model_checkpoint_folder(name, backup=False):
     if backup:
         return get_backup_model_checkpoint_folder(name)
 
-    return join(CHECKPOINT_FOLDER, name)
+    return join(get_checkpoint_folder(), name)
 
 
 def get_backup_model_checkpoint_folder(name):

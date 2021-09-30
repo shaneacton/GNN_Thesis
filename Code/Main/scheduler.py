@@ -20,9 +20,9 @@ from Config.config import set_conf_files
 from Checkpoint.checkpoint_utils import get_model_checkpoint_folder, load_status, create_model_checkpoint_folder, \
     save_status, training_status_path
 from Config.config_utils import load_config, load_effective_config
-from Checkpoint import CHECKPOINT_FOLDER, set_checkpoint_folder
+from Checkpoint import set_checkpoint_folder, get_checkpoint_folder
 
-GLOBAL_FILE_LOCK_PATH = join(CHECKPOINT_FOLDER, "scheduler_lock.lock")
+GLOBAL_FILE_LOCK_PATH = join(get_checkpoint_folder(), "scheduler_lock.lock")
 
 
 def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, program_start_time=-1, debug=False, run_args=None):
@@ -211,5 +211,7 @@ if __name__ == "__main__":
     parser.add_argument('--checkpoint_path', '-c', help='Where training checkpoints are stored', default="")
     parser.add_argument('--schedule_name', '-s', help='The name of the schedule to use', default="")
     args = parser.parse_args()
-    set_checkpoint_folder(args.checkpoint_path)
+    if args.checkpoint_path:
+        set_checkpoint_folder(args.checkpoint_path)
+
     continue_schedule(debug=args.debug == "y", run_args=args)
