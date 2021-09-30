@@ -20,7 +20,7 @@ from Config.config import set_conf_files
 from Checkpoint.checkpoint_utils import get_model_checkpoint_folder, load_status, create_model_checkpoint_folder, \
     save_status, training_status_path
 from Config.config_utils import load_config, load_effective_config
-from Checkpoint import CHECKPOINT_FOLDER
+from Checkpoint import CHECKPOINT_FOLDER, set_checkpoint_folder
 
 GLOBAL_FILE_LOCK_PATH = join(CHECKPOINT_FOLDER, "scheduler_lock.lock")
 
@@ -210,6 +210,6 @@ if __name__ == "__main__":
     parser.add_argument('--processed_data_path', '-p', help='Where processed graphs are stored', default="")
     parser.add_argument('--checkpoint_path', '-c', help='Where training checkpoints are stored', default="")
     parser.add_argument('--schedule_name', '-s', help='The name of the schedule to use', default="")
-
     args = parser.parse_args()
+    set_checkpoint_folder(args.checkpoint_path)
     continue_schedule(debug=args.debug == "y", run_args=args)
