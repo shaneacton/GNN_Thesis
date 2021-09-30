@@ -8,6 +8,7 @@ import torch
 from filelock import FileLock
 
 from Checkpoint import CHECKPOINT_FOLDER
+from Config.config import get_config
 
 
 def duplicate_checkpoint_folder(name):
@@ -39,6 +40,8 @@ def save_model(model, optimizer, scheduler):
 def get_model_checkpoint_folder(name, backup=False):
     if backup:
         return get_backup_model_checkpoint_folder(name)
+    if get_config().run_args.checkpoint_path:
+        return join(get_config().run_args.checkpoint_path, name)
     return join(CHECKPOINT_FOLDER, name)
 
 

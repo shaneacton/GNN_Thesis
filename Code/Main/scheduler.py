@@ -208,6 +208,7 @@ if __name__ == "__main__":
     parser.add_argument('--debug', '-d', help='Whether or not to run the debug configs - y/n', default="n")
     parser.add_argument('--glove_path', '-g', help='Where the glove.*.*.txt files are stored', default="")
     parser.add_argument('--processed_data_path', '-p', help='Where processed graphs are stored', default="")
+    parser.add_argument('--checkpoint_path', '-c', help='Where training checkpoints are stored', default="")
     parser.add_argument('--schedule_name', '-s', help='The name of the schedule to use', default="")
 
     args = parser.parse_args()
