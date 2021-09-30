@@ -8,7 +8,6 @@ import torch
 from filelock import FileLock
 
 from Checkpoint import CHECKPOINT_FOLDER
-from Config.config import get_config
 
 
 def duplicate_checkpoint_folder(name):
