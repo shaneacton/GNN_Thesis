@@ -44,7 +44,7 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, prog
     conf.set("clean_model_name", conf.model_name)
     conf.set("model_name", model_name)
     conf.run_args = run_args
-    conf.max_runtime_seconds = run_args.max_runtime
+    conf.max_runtime_seconds = int(run_args.max_runtime)
     atexit.register(release_status)
 
     train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
