@@ -44,6 +44,7 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, prog
     conf.set("clean_model_name", conf.model_name)
     conf.set("model_name", model_name)
     conf.run_args = run_args
+    conf.max_runtime_seconds = run_args.max_runtime
     atexit.register(release_status)
 
     train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
@@ -210,6 +211,7 @@ if __name__ == "__main__":
     parser.add_argument('--processed_data_path', '-p', help='Where processed graphs are stored', default="")
     parser.add_argument('--checkpoint_path', '-c', help='Where training checkpoints are stored', default="")
     parser.add_argument('--schedule_name', '-s', help='The name of the schedule to use', default="")
+    parser.add_argument('--max_runtime', '-t', help='How long to wait, in seconds, before safely exiting the program', default="")
     args = parser.parse_args()
     if args.checkpoint_path:
         set_checkpoint_folder(args.checkpoint_path)
