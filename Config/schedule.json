@@ -4,6 +4,7 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base_2_no_gate",
-    "base_2_trans"
+    "base_2_trans",
+    "base_2_trans_no_gate"
   ]
 }
