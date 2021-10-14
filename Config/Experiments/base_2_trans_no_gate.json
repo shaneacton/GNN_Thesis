@@ -11,5 +11,5 @@
   "use_switch_gnn": false,
   "gnn_aggr": "add",
 
-  "initial_lr": 0.01
+  "initial_lr": 0.001
 }
