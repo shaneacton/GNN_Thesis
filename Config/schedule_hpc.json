@@ -6,6 +6,7 @@
     "base_0_gru",
     "base_0_switch",
     "base_1_weight_share",
-    "base_2"
+    "base_2",
+    "base_1_no_switchS"
   ]
 }
