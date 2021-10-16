@@ -3,7 +3,6 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_0_edge_emb_dweight_hi_lr",
     "base_0_gru",
     "base_0_switch",
     "base_1_weight_share",
