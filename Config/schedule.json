@@ -8,6 +8,5 @@
   ],
   "low_priority_configs": [
     "base_2_trans_bert",
-    "base_2_trans_switchC"
   ]
 }
