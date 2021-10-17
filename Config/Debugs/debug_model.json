@@ -1,6 +1,6 @@
 {
-  "model_name": "glove",
-  "embedded_dims": 100,
+  "model_name": "bert",
+  "embedded_dims": 128,
   "glove_tokens_code": "6B",
   "transformer_heads": 4,
 
@@ -19,5 +19,6 @@
   "use_global_edge_message": true,
   "scale_accumulated_gradients": true,
 
-  "embedder_type": "glove"
+  "embedder_type": "bert",
+  "bert_size": "tiny"
 }

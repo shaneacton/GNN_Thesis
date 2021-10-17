@@ -73,7 +73,7 @@ def get_safe_status(effective_name, max_hours=13):
     return status
 
 
-def get_next_model_config(debug, run_args, repeat_num=0):
+def get_next_model_config(debug, run_args, repeat_num=0, check_low_priority_confs=False):
     """
         process safe. Only one scheduler can be deciding a config at a time.
 
@@ -87,7 +87,7 @@ def get_next_model_config(debug, run_args, repeat_num=0):
             a scheduler must chose a config, and set it to running before it is finished, and can release the lock
         """
         print("getting next config from schedule:", schedule, "repeat num:", repeat_num)
-        all_confs = schedule["model_configs"]
+        all_confs = schedule["model_configs"] if not check_low_priority_confs else schedule["low_priority_configs"]
         model_names = {}
         valid_confs = []
         for c in all_confs:
@@ -103,10 +103,11 @@ def get_next_model_config(debug, run_args, repeat_num=0):
 
         selected = None
         if len(not_started) > 0:
+            """new runs have highest priority"""
             selected = not_started[0]
             create_model_checkpoint_folder(model_names[selected])
             print("starting conf:", selected)
-        else:
+        else:  # no new runs
             min_epochs = 999999999
             statuses = [get_safe_status(model_names[s]) for s in started]
             finished = [s for i, s in enumerate(started) if statuses[i]["finished"]]
@@ -133,11 +134,17 @@ def get_next_model_config(debug, run_args, repeat_num=0):
     if selected is None:
         """no candidate was found, either all are running, or complete"""
         if repeat_num < schedule["num_repeats"] - 1:
-            return get_next_model_config(schedule, run_args,repeat_num=repeat_num+1)
+            return get_next_model_config(schedule, run_args, repeat_num=repeat_num+1,
+                                         check_low_priority_confs=check_low_priority_confs)
         else:
-            """nothing more to be run"""
-            print("all configs running or completed")
-            return None, None
+            if len(schedule["low_priority_configs"]) > 0 and not check_low_priority_confs:
+                print("checking low priority runs")
+                selected, repeat_num = get_next_model_config(schedule, run_args,
+                                                             repeat_num=0, check_low_priority_confs=True)
+                if selected is None:
+                    """nothing more to be run"""
+                    print("all configs running or completed")
+                    return None, None
 
     return selected, repeat_num
 

@@ -1,5 +1,8 @@
 {
   "num_repeats": 2,
-  "model_configs": ["debug_model"],
-  "train_config": "debug_train"
+  "model_configs": [],
+  "train_config": "debug_train",
+  "low_priority_configs": [
+    "debug_model"
+  ]
 }

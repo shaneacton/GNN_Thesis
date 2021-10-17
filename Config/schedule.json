@@ -5,5 +5,8 @@
   "model_configs": [
     "base_2_trans",
     "base_2_trans_no_gate"
+  ],
+  "low_priority_configs": [
+    "base_2_trans_bert"
   ]
 }
