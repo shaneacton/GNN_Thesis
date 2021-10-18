@@ -11,5 +11,5 @@
   "use_switch_gnn": true,
   "gnn_aggr": "mean",
 
-  "initial_lr": 0.01
+  "initial_lr": 0.0001
 }
