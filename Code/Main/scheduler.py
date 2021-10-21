@@ -134,12 +134,12 @@ def get_next_model_config(debug, run_args, repeat_num=0, check_low_priority_conf
     if selected is None:
         """no candidate was found, either all are running, or complete"""
         if repeat_num < schedule["num_repeats"] - 1:
-            return get_next_model_config(schedule, run_args, repeat_num=repeat_num+1,
+            return get_next_model_config(debug, run_args, repeat_num=repeat_num+1,
                                          check_low_priority_confs=check_low_priority_confs)
         else:
             if len(schedule["low_priority_configs"]) > 0 and not check_low_priority_confs:
                 print("checking low priority runs")
-                selected, repeat_num = get_next_model_config(schedule, run_args,
+                selected, repeat_num = get_next_model_config(debug, run_args,
                                                              repeat_num=0, check_low_priority_confs=True)
                 if selected is None:
                     """nothing more to be run"""
