@@ -16,6 +16,6 @@
   "exit_after_first_viz": true,
   "max_visualised_context_graph_chars": 200,
   "max_visualised_candidates": 3,
-  "max_runtime_seconds": 42000,
+  "max_runtime_seconds": 41200,
   "use_wandb": true
 }
