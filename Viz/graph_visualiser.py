@@ -72,5 +72,5 @@ def render_graph(graph: HDEGraph, graph_name="temp", graph_folder=None, view=Tru
 
 
 def get_file_path(folder, file_name):
-    path = os.path.join('/home/shane/Documents/GNN_Thesis/Viz/', folder, file_name)
+    path = os.path.join('.', folder, file_name)
     return path

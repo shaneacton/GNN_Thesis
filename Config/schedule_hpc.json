@@ -7,5 +7,6 @@
     "base_2_no_switch"
   ],
   "low_priority_configs": [
+    "base_2_trans_bert"
   ]
 }

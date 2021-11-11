@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import sys
 import time
 from typing import Tuple, List
 
@@ -241,7 +242,7 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
 
             text_name = name + ".txt"
             text_path = get_file_path(conf.model_name, text_name)
-            file = open(text_path, "w")
+            file = open(text_path, "w", encoding='utf-8')
             file.write(repr(example))
             file.close()
 
