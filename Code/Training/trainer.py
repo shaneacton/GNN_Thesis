@@ -1,18 +1,20 @@
 import random
 import time
 from math import floor
+
+import torch
 from nlp import tqdm
 
 from Checkpoint.checkpoint_utils import save_model, set_status_value, duplicate_checkpoint_folder, load_status, \
     save_status
-from Code.Embedding.bert_embedder import TooManyTokens
+from Code.Embedding.bert_embedder import TooManyTokens, BertEmbedder
 from Code.Embedding.glove_embedder import NoWordsException
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training import set_gpu
 from Code.Training.eval import evaluate
 from Code.Training.timer import log_time
 from Code.Training.training_results import TrainingResults
-from Code.Utils.model_utils import get_model
+from Code.Utils.model_utils import get_model, num_params
 from Code.Utils.training_utils import get_training_results, save_training_results
 from Config.config import conf
 from Code.Utils.dataset_utils import get_wikihop_graphs
@@ -25,6 +27,15 @@ def train_model(name, gpu_num=0, program_start_time=-1):
     set_gpu(gpu_num)
     print("max edges:", conf.max_edges, "max pad volume:", conf.max_pad_volume)
     model, optimizer, scheduler = get_model(name)
+    bert_optim = None
+    if type(model.embedder) == BertEmbedder:
+        model.embedder.set_trainable_params()
+        params = (p for p in model.embedder.parameters() if p.requires_grad)
+        num_bert_params = num_params(model.embedder)
+        if num_bert_params > 0:
+            bert_optim = torch.optim.SGD(params, lr=0.0001)
+        print("fine tuning bert embedder with ", num_bert_params, " params")
+
     if use_wandb:
         try:
             wandb_run().watch(model)
@@ -73,10 +84,14 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                                 p.grad /= num_accumulation_steps
 
                     optimizer.step()
+                    if bert_optim is not None and epoch > conf.num_embedder_freeze_epochs:
+                        bert_optim.step()
                     num_accumulation_steps = 0
                     if conf.use_lr_scheduler:
                         scheduler.step(epoch=e_frac())
                     optimizer.zero_grad()
+                    if bert_optim is not None:
+                        bert_optim.zero_grad()
                     if conf.show_memory_usage_data:
                         print("accumulated edges (", accumulated_edges, ") is over max. stepping optim:")
                     accumulated_edges = 0

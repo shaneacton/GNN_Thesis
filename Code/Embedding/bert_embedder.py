@@ -41,13 +41,20 @@ class BertEmbedder(StringEmbedder):
         #     self.tokenizer: RobertaTokenizerFast = RobertaTokenizerFast.from_pretrained(model_name)
 
         self.dims = self.model.config.hidden_size
-        self.set_trainable_params()
+        # self.set_trainable_params()
+        self.set_all_params_trainable(False)
         from Code.Utils.model_utils import num_params
         print("Loaded bert model with", self.dims, "dims and ", num_params(self),
               ("trainable" if self.fine_tune else "static"), "params")
 
+    def set_all_params_trainable(self, trainable: bool):
+        for param in self.model.parameters():
+            param.requires_grad = trainable
+
     def set_trainable_params(self):
         def is_in_fine_tune_list(name):
+            if "all" in bert_fine_tune_layers:
+                return True
             if name == "":  # full model is off by default
                 return False
 
@@ -56,9 +63,9 @@ class BertEmbedder(StringEmbedder):
                     return True
             return False
 
-        for param in self.model.parameters():
-            """all params are turned off. then we selectively reactivate grads"""
-            param.requires_grad = False
+        self.set_all_params_trainable(False)
+        """all params are turned off. then we selectively reactivate grads"""
+
         if self.fine_tune:
             bert_fine_tune_layers = get_config().bert_fine_tune_layers
             for n, m in self.model.named_modules():

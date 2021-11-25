@@ -20,5 +20,6 @@
   "scale_accumulated_gradients": true,
 
   "embedder_type": "bert",
+  "bert_fine_tune_layers": [],
   "bert_size": "tiny"
 }
