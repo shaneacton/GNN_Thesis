@@ -84,7 +84,8 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                                 p.grad /= num_accumulation_steps
 
                     optimizer.step()
-                    if bert_optim is not None and epoch > conf.num_embedder_freeze_epochs:
+                    if bert_optim is not None and hasattr(conf, "num_embedder_freeze_epochs") \
+                            and epoch > conf.num_embedder_freeze_epochs:
                         bert_optim.step()
                     num_accumulation_steps = 0
                     if conf.use_lr_scheduler:
