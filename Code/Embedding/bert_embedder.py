@@ -1,6 +1,6 @@
 import torch
-from transformers import AutoTokenizer, AutoModel, PreTrainedTokenizerBase, BigBirdModel, RobertaModel, \
-    RobertaTokenizerFast, BigBirdTokenizerFast
+from transformers import AutoTokenizer, AutoModel, PreTrainedTokenizerBase
+# from transformers import BigBirdModel, RobertaModel, RobertaTokenizerFast, BigBirdTokenizerFast
 
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.Training import dev
