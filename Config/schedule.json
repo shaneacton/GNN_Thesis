@@ -3,7 +3,7 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_switchC"
+    "base_0_switch_summ"
   ],
   "low_priority_configs": [
   ]
