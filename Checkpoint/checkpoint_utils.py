@@ -25,13 +25,14 @@ def restore_from_backup_folder(name):
     shutil.rmtree(primary)
 
     backup = get_backup_model_checkpoint_folder(name)
-
     shutil.copytree(backup, primary)
 
 
-def save_model(model, optimizer, scheduler):
+def save_model(model, optimizer, scheduler, second_optim=None):
     model_save_data = {"model": model, "optimizer_state_dict": optimizer.state_dict(),
                        "scheduler_state_dict": scheduler.state_dict()}
+    if second_optim is not None:
+        model_save_data["second_optim"] = second_optim.state_dict()
     path = model_path(model.name)
     torch.save(model_save_data, path)
 

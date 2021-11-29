@@ -1,6 +1,7 @@
 import random
 import time
 from math import floor
+from typing import Tuple
 
 import torch
 from nlp import tqdm
@@ -14,7 +15,7 @@ from Code.Training import set_gpu
 from Code.Training.eval import evaluate
 from Code.Training.timer import log_time
 from Code.Training.training_results import TrainingResults
-from Code.Utils.model_utils import get_model, num_params
+from Code.Utils.model_utils import get_model, num_params, get_optimizer
 from Code.Utils.training_utils import get_training_results, save_training_results
 from Config.config import conf
 from Code.Utils.dataset_utils import get_wikihop_graphs
@@ -27,14 +28,12 @@ def train_model(name, gpu_num=0, program_start_time=-1):
     set_gpu(gpu_num)
     print("max edges:", conf.max_edges, "max pad volume:", conf.max_pad_volume)
     model, optimizer, scheduler = get_model(name)
+    if scheduler is None:
+        raise Exception("weh")
     bert_optim = None
-    if type(model.embedder) == BertEmbedder:
-        model.embedder.set_trainable_params()
-        params = (p for p in model.embedder.parameters() if p.requires_grad)
-        num_bert_params = num_params(model.embedder)
-        if num_bert_params > 0:
-            bert_optim = torch.optim.SGD(params, lr=0.0001)
-        print("fine tuning bert embedder with ", num_bert_params, " params")
+    if type(optimizer) is tuple:
+        optimizer, bert_optim = optimizer
+        print("found bert optimiser")
 
     if use_wandb:
         try:
@@ -122,7 +121,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 if conf.max_runtime_seconds != -1 and time.time() - program_start_time > conf.max_runtime_seconds - 1000:
                     times_up()
                 epoch_start_time = save_training_states(training_results, epoch_start_time, i, model, name, optimizer,
-                                                        scheduler, start_time)
+                                                        scheduler, start_time, bert_optim)
         model.last_example = -1
 
         valid_acc = evaluate(model, program_start_time=program_start_time)
@@ -142,7 +141,7 @@ def times_up():
 
 
 def save_training_states(training_results: TrainingResults, epoch_start_time, i, model, name, optimizer, scheduler,
-                         start_time):
+                         start_time, bert_optim):
 
     if time.time() - start_time + 5 * 60 > conf.max_runtime_seconds != -1:
         # end 5m early before saving, as this can take long enough to send us over the max runtime
@@ -152,11 +151,7 @@ def save_training_states(training_results: TrainingResults, epoch_start_time, i,
     print("saving model at e", training_results.epoch, "i:", i)
     model.last_example = i
     model.last_epoch = floor(training_results.epoch)
-    if type(model.embedder) == BertEmbedder:  # don't bert optim param states
-        model.embedder.set_all_params_trainable(False)  # todo clean
-    save_model(model, optimizer, scheduler)
-    if type(model.embedder) == BertEmbedder:
-        model.embedder.set_trainable_params()
+    save_model(model, optimizer, scheduler, second_optim=bert_optim)
 
     save_training_results(training_results, name)
     save_time = time.time() - save_time
