@@ -152,7 +152,11 @@ def save_training_states(training_results: TrainingResults, epoch_start_time, i,
     print("saving model at e", training_results.epoch, "i:", i)
     model.last_example = i
     model.last_epoch = floor(training_results.epoch)
+    if type(model.embedder) == BertEmbedder:  # don't bert optim param states
+        model.embedder.set_all_params_trainable(False)  # todo clean
     save_model(model, optimizer, scheduler)
+    if type(model.embedder) == BertEmbedder:
+        model.embedder.set_trainable_params()
 
     save_training_results(training_results, name)
     save_time = time.time() - save_time
