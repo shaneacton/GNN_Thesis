@@ -8,6 +8,6 @@
   "low_priority_configs": [
     "base_2_trans_bert_all",
     "base_2_trans_bert_freeze",
-    "base_2_trans_bert_freeze_switchS"
+    "base_2_trans_bert_all_medium"
   ]
 }
