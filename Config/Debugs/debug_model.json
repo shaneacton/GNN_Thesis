@@ -1,6 +1,7 @@
 {
-  "model_name": "bert",
-  "embedded_dims": 128,
+  "dataset": "medhop",
+  "model_name": "medbert",
+  "embedded_dims": 768,
   "glove_tokens_code": "6B",
   "transformer_heads": 4,
 
@@ -20,6 +21,7 @@
   "scale_accumulated_gradients": true,
 
   "embedder_type": "bert",
+  "bert_name": "simonlevine/bioclinical-roberta-long",
   "bert_fine_tune_layers": [],
   "bert_size": "tiny"
 }

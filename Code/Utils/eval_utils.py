@@ -88,17 +88,3 @@ def get_acc_and_f1(gold_answers: List[List[str]], predictions: List[str]):
     f1 = 100.0 * f1 / total
 
     return {'exact_match': exact_match, 'f1': f1}
-
-
-def _compare_predictions(dataset_name, version_name, predictions):
-    gold_answers = []
-    unprocessed_valid_dataset = load_unprocessed_dataset(dataset_name, version_name, nlp.Split.VALIDATION)
-
-    for ref in unprocessed_valid_dataset:
-        # print("ref:", ref)
-        if 'answers' in ref:
-            gold_answers.append(ref['answers']['text'])
-        elif 'answer' in ref:
-            gold_answers.append(ref['answer'])
-
-    print(get_acc_and_f1(gold_answers, predictions))

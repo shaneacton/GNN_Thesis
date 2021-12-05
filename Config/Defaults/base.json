@@ -1,4 +1,5 @@
 {
+  "dataset": "wikihop",
   "model_name": "hde",
   "model_class": "HDERel",
   "gnn_class": "GATConv",
@@ -16,6 +17,7 @@
   "fine_tune_embedder": true,
   "num_embedder_freeze_epochs": 5,
   "embedder_type": "glove",
+  "bert_name": "prajjwal1/bert-",
   "gnn_aggr": "add",
   "gnn_stack_act": "none",
   "num_summariser_layers": 1,

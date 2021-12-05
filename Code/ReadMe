@@ -1,11 +1,6 @@
-Todo:
 
 * Tests to do:
-    * Try recreate top of stack
-        * switch summariser
-    * Bert embeddings
     * grad acc up to: 250000 edges
-    * no lr schedule
 
 * Metrics
     * Reselect parameters logged.
@@ -22,10 +17,6 @@ Todo:
 
 * GNN's.
     *Try residual layer for GATConv
-
-
-* Speed
-    * more batching can be done in the summariser
 
 
 * house keeping:

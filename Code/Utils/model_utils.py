@@ -105,10 +105,7 @@ def new_model(name, MODEL_CLASS=None, **model_kwargs):
 
 def get_optimizer(model, type="sgd", lr=None):
     print("using", type, "optimiser")
-    if conf.embedder_type == "bert":
-        params = (p for p in model.parameters() if p.requires_grad)
-    else:  # todo remove - legacy
-        params = (p for p in model.parameters())  # allows weights to be turned off and on
+    params = (p for p in model.parameters() if p.requires_grad)
 
     if lr is None:
         lr = conf.initial_lr

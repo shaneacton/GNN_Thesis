@@ -109,6 +109,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
 
             except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
                 num_discarded += 1
+                raise ne
                 continue
 
             training_results.report_step(loss.item(), predicted, graph.example.answer, len(graph.example.candidates))

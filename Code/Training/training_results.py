@@ -54,7 +54,7 @@ class TrainingResults:
         self.valid_accs.append(valid_acc)
         start, end = self.get_epoch_span(epoch)
 
-        print("epoch:", epoch, "range:", (start, end), "epochs:", self.epochs)
+        print("epoch:", epoch, "range:", (start, end), "epochs:", self.epochs, "num discarded:", num_discarded_examples)
         epoch_time = time.time() - epoch_start_time
         skipped_frac = num_fastforward_examples / self.num_examples_per_epoch()
         if 0 <= skipped_frac <= 1:

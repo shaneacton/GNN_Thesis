@@ -37,10 +37,12 @@ def load_unprocessed_dataset(dataset_name, version_name, split):
 
 
 def get_wikihop_graphs(model: HDEModel, split=nlp.Split.TRAIN):
-    global has_loaded
-
     emb_name = conf.embedder_type + "(" + repr(conf.embedded_dims) + ")"
+    if conf.embedder_type != "glove":
+        emb_name += "_" + conf.bert_name.replace("\\", "_").replace("/", "_")
     file_name = emb_name + "_" + split._name + "_special.data"
+    file_name = conf.dataset + "_" + file_name
+
     if conf.run_args.processed_data_path:
         data_path = join(conf.run_args.processed_data_path, file_name)
     else:
@@ -55,12 +57,12 @@ def get_wikihop_graphs(model: HDEModel, split=nlp.Split.TRAIN):
         filehandler.close()
         return graphs
 
-    print("loading wikihop unprocessed")
-    data = list(load_unprocessed_dataset("qangaroo", "wikihop", split))
+    print("loading",conf.dataset, "unprocessed")
+    data = list(load_unprocessed_dataset("qangaroo", conf.dataset, split))
     data = data[:conf.max_examples] if conf.max_examples > 0 else data
     print("num examples:", len(data))
 
-    print("processing wikihop", split)
+    print("processing", conf.dataset, split)
     if conf.embedder_type == "bert":
         print("tokenising text for bert")
         processed_examples = [Wikipoint(ex, tokeniser=model.embedder.tokenizer) for ex in tqdm(data)]
