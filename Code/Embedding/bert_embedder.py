@@ -89,7 +89,7 @@ class BertEmbedder(StringEmbedder):
         input_ids = encoding["input_ids"].to(dev())
         is_long = "long" in get_config().bert_name or "bigbird" in get_config().bert_name
         if input_ids.size(-1) > 512 and not is_long:
-            print("string too long for bert:", string)
+            # print("string too long for bert:", string)
             raise TooManyTokens("too many tokens:", input_ids.size(-1))
         # attention_mask = encoding["attention_mask"].to(dev())
         if self.fine_tune:
