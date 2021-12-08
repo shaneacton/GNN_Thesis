@@ -5,7 +5,8 @@
   "model_configs": [
     "base_2_trans_bert_freeze_transGNN",
     "base_2_trans_share",
-    "base_2_trans_sage"
+    "base_2_trans_sage",
+    "base_2_trans_no_switch"
   ],
   "low_priority_configs": [
 
