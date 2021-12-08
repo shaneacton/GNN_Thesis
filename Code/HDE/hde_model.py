@@ -110,12 +110,11 @@ class HDEModel(nn.Module):
 
     def pass_gnn(self, x, graph):
         t = time.time()
-        kwargs = {}
-        if conf.use_switch_gnn:
-            kwargs["graph"] = graph
-        if hasattr(conf, "use_transformer_gnn") and conf.use_transformer_gnn:
+        kwargs = {"graph": graph}
+
+        if conf.gnn_class == "Transformer":
             # print("x before:", x.size(), x)
-            x = self.gnn(x, graph.get_mask()).view(x.size(0), -1, **kwargs)
+            x = self.gnn(x, mask=graph.get_mask(), **kwargs)
             # print("x after:", x.size(), x)
         else:
             x = self.gnn(x, edge_index=graph.edge_index(), **kwargs)

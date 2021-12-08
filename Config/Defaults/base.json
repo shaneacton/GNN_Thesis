@@ -31,6 +31,5 @@
   "wandb_id": -1,
   "add_self_loops": true,
   "use_residual_attention": false,
-  "use_average_output_agg": false,
-  "use_transformer_gnn": false
+  "use_average_output_agg": false
 }

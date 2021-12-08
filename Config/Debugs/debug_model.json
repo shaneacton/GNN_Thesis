@@ -1,12 +1,12 @@
 {
-  "dataset": "medhop",
-  "model_name": "medbert",
-  "embedded_dims": 768,
+  "dataset": "wikihop",
+  "model_name": "transGNN",
+  "embedded_dims": 128,
   "glove_tokens_code": "6B",
   "transformer_heads": 4,
 
   "model_class": "HDE",
-  "gnn_class": "SAGEConv",
+  "gnn_class": "Transformer",
   "use_gating": true,
   "use_transformer_block": false,
   "use_simple_hde": true,
@@ -14,14 +14,14 @@
   "layerwise_weight_sharing": true,
   "use_switch_summariser": false,
   "use_switch_coattention": false,
-  "use_switch_gnn": true,
+  "use_switch_gnn": false,
   "gnn_aggr": "mean",
 
   "use_global_edge_message": true,
   "scale_accumulated_gradients": true,
 
   "embedder_type": "bert",
-  "bert_name": "simonlevine/bioclinical-roberta-long",
+  "bert_name": "prajjwal1/bert-",
   "bert_fine_tune_layers": [],
   "bert_size": "tiny"
 }

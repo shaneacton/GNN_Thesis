@@ -1,8 +1,8 @@
 {
   "model_class": "HDERel",
-  "gnn_class": "GATConv",
+  "gnn_class": "SAGEConv",
   "use_gating": true,
-  "use_transformer_block": false,
+  "use_transformer_block": true,
   "use_simple_hde": true,
 
   "layerwise_weight_sharing": false,

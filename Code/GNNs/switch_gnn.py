@@ -10,16 +10,11 @@ class SwitchGNN(nn.Module):
 
     """a wrapper around a gnn instance which runs different edges through different gnns and aggregates after"""
 
-    def __init__(self, gnn=None, **layer_kwargs):
+    def __init__(self, gnn=None):
         super().__init__()
         self.include_global = conf.use_global_edge_message
         types = ['candidate2candidate', 'candidate2document', 'candidate2entity', 'codocument', 'comention', 'document2entity', 'entity']
         self.gnns = SwitchModule(gnn, types=types, include_global=self.include_global)
-
-        # self.messages_summariser = None
-        # self.use_edge_summariser = conf.use_attention_edge_combination
-        # if self.use_edge_summariser:
-        #     self.messages_summariser = Summariser(use_type_embeddings=False)
 
     def forward(self, *inputs, graph: HDEGraph = None, **kwargs):
         type_messages = []

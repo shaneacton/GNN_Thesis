@@ -7,7 +7,7 @@ from torch_geometric.nn import GATConv
 
 from Code.GNNs.gated_gnn import GatedGNN
 from Code.GNNs.switch_gnn import SwitchGNN
-from Code.GNNs.wrap_gnn import EdgeEmbeddings
+from Code.GNNs.edge_embedding_gnn import EdgeEmbeddings
 from Config.config import conf
 
 
@@ -109,14 +109,14 @@ class TransGNNLayer(nn.Module):
         self.dropout1 = Dropout(conf.dropout)
         self.dropout2 = Dropout(conf.dropout)
 
-    def forward(self, x, **kwargs):
+    def forward(self, x, *inputs, **kwargs):
         """x ~ (N, in_channels)"""
         forward_args = inspect.getfullargspec(self.gnn.forward)[0]
         if "data" in forward_args:
             inp = (x, kwargs.pop("edge_index"))
         else:
             inp = x
-        x2 = self.dropout1(self.gnn(inp, **kwargs))  # # (N, out_channels)
+        x2 = self.dropout1(self.gnn(inp, *inputs, **kwargs))  # # (N, out_channels)
         if x.size(-1) == x2.size(-1):
             x = x + x2  # residual
             x = self.norm1(x)
@@ -136,7 +136,6 @@ class SimpleGNNLayer(nn.Module):
         h_size = conf.hidden_size
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
-
         if GNNClass == GATConv:
             self.gnn = GNNClass(h_size, h_size//layer_kwargs["heads"], **needed_kwargs)
         else:
@@ -150,7 +149,7 @@ class SimpleGNNLayer(nn.Module):
 
         self.dropout1 = Dropout(conf.dropout)
 
-    def forward(self, x, **kwargs):
+    def forward(self, x, *inputs, **kwargs):
         "x ~ (N, in_channels)"
-        x = self.dropout1(torch.relu(self.gnn(x, **kwargs)))  # # (N, out_channels)
+        x = self.dropout1(torch.relu(self.gnn(x, *inputs, **kwargs)))  # # (N, out_channels)
         return x

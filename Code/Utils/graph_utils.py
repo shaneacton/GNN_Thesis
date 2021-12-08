@@ -66,7 +66,7 @@ def connect_unconnected_entities(graph: HDEGraph):
 
 
 def similar(text1, text2):
-    return text1 == text2
+    return text1.lower() == text2.lower()
 
 
 def connect_entity_mentions(graph: HDEGraph, all_cases=True):
@@ -99,6 +99,7 @@ def connect_candidates_and_entities(graph: HDEGraph):
 
         for ent_node in graph.get_entity_nodes():
             if similar(cand_node.text, ent_node.text):
+                print("connecting cand", cand_node.text, "to ent", ent_node.text)
                 edge = HDEEdge(cand_node.id_in_graph, ent_node.id_in_graph, graph=graph)
                 graph.add_edge(edge)
 
