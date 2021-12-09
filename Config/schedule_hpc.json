@@ -3,7 +3,6 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_bert_freeze_transGNN",
     "base_2_trans_share",
     "base_2_trans_sage",
     "base_2_trans_no_switch"
