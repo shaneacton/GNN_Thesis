@@ -4,8 +4,7 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base_2_trans_share",
-    "base_2_trans_sage",
-    "base_2_trans_no_switch"
+    "base_2_trans_sage"
   ],
   "low_priority_configs": [
 
