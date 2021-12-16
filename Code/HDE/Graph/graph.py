@@ -127,7 +127,6 @@ class HDEGraph:
             matrix[edge.from_id, edge.to_id] = type_id
             matrix[edge.to_id, edge.from_id] = type_id
 
-        print("type mat:", matrix)
         return torch.tensor(matrix).to(dev()).long()
 
     def add_node(self, node: HDENode) -> int:

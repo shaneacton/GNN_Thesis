@@ -151,7 +151,6 @@ class MultiheadAttentionEdge(Module):
             edge_attn = torch.bmm(Q, Ed)
             edge_attn = edge_attn.permute(1, 0, 2)
             attn += edge_attn
-            print("using edge types")
 
         if attn_mask is not None:
             attn += attn_mask

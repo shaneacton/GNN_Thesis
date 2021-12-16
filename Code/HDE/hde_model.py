@@ -117,7 +117,6 @@ class HDEModel(nn.Module):
             mask = None
             if hasattr(conf, "include_trans_gnn_edges") and conf.include_trans_gnn_edges:  # todo remove legacy
                 mask = graph.get_mask()
-                print("using mask")
             x = self.gnn(x, mask=mask, **kwargs)
             # print("x after:", x.size(), x)
         else:
