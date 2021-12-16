@@ -267,19 +267,3 @@ def fully_connect(node_ids, graph, type):
     connect_all_to_all(node_ids, node_ids, graph, type)
 
 
-def window_connect(node_ids: List[int], window_size, graph, type_prefix, wrap=False):
-    for i1, id1 in enumerate(node_ids):
-        for w_offset in range(1, window_size + 1):
-            i2 = i1 + w_offset
-            if i2 >= len(node_ids):  # wrap or skip
-                if not wrap:
-                    continue
-                i2 %= len(node_ids)
-            id2 = node_ids[i2]
-            type = type_prefix + "_" + str(w_offset)
-            edge = HDEEdge(id1, id2, type=type, graph=graph)
-            graph.safe_add_edge(edge)
-
-
-
-

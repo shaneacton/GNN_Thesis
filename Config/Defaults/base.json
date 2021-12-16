@@ -31,5 +31,8 @@
   "wandb_id": -1,
   "add_self_loops": true,
   "use_residual_attention": false,
-  "use_average_output_agg": false
+  "use_average_output_agg": false,
+
+  "include_trans_gnn_edge_types": true,
+  "include_trans_gnn_edges": true
 }

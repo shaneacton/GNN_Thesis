@@ -11,7 +11,7 @@ from Code.Embedding.glove_embedder import GloveEmbedder
 from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
-from Code.GNNs.transformer_gnn import TransformerGNN
+from Code.GNNs.TransGNNs.transformer_gnn import TransformerGNN
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.scorer import HDEScorer
 from Code.Training import dev
@@ -112,9 +112,13 @@ class HDEModel(nn.Module):
         t = time.time()
         kwargs = {"graph": graph}
 
-        if conf.gnn_class == "Transformer":
+        if "Transformer" in conf.gnn_class:
             # print("x before:", x.size(), x)
-            x = self.gnn(x, mask=graph.get_mask(), **kwargs)
+            mask = None
+            if hasattr(conf, "include_trans_gnn_edges") and conf.include_trans_gnn_edges:  # todo remove legacy
+                mask = graph.get_mask()
+                print("using mask")
+            x = self.gnn(x, mask=mask, **kwargs)
             # print("x after:", x.size(), x)
         else:
             x = self.gnn(x, edge_index=graph.edge_index(), **kwargs)

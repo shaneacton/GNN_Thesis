@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING, Dict, Generator, Tuple, Set
 
+import numpy as np
 import torch
 from torch_geometric.utils import remove_self_loops, add_self_loops
 
@@ -71,11 +72,13 @@ class HDEGraph:
         return edge_index
 
     def get_mask(self):
-        # all connections maked. then connections are unmasked
+        # all connections masked. then connections are unmasked
         mask = [[True] * len(self.ordered_nodes) ] * len(self.ordered_nodes)
         for e in self.ordered_edges:  # adds both directions
             mask[e.from_id][e.to_id] = False
             mask[e.to_id][e.from_id] = False
+        for i in range(len(self.ordered_nodes)):  # allow self edges
+            mask[i][i] = False
         return torch.tensor(mask, dtype=torch.bool).to(dev())
 
     def ordered_unique_edge_types(self, include_global=False):
@@ -108,6 +111,24 @@ class HDEGraph:
             type_ids += [edge_type_map[SELF_LOOP]] * len(self.ordered_nodes)
 
         return torch.tensor(type_ids).to(dev()).long()
+
+    def get_edge_id_matrix(self):
+        """
+            here 0 means unconnected. 1 means self edge
+
+            returns: A Lq*Lk matrix of type ids
+        """
+        types = self.ordered_unique_edge_types()
+        edge_type_map = {t: i+2 for i, t in enumerate(types)}
+        num_nodes = len(self.ordered_nodes)
+        matrix = np.identity(num_nodes)  # all unconnected except for self edges
+        for edge in self.ordered_edges:
+            type_id = edge_type_map[edge.type()]
+            matrix[edge.from_id, edge.to_id] = type_id
+            matrix[edge.to_id, edge.from_id] = type_id
+
+        print("type mat:", matrix)
+        return torch.tensor(matrix).to(dev()).long()
 
     def add_node(self, node: HDENode) -> int:
         next_id = len(self.ordered_nodes)

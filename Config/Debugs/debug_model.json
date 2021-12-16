@@ -6,7 +6,7 @@
   "transformer_heads": 4,
 
   "model_class": "HDE",
-  "gnn_class": "Transformer",
+  "gnn_class": "TransformerEdge",
   "use_gating": true,
   "use_transformer_block": false,
   "use_simple_hde": true,
@@ -23,5 +23,8 @@
   "embedder_type": "bert",
   "bert_name": "prajjwal1/bert-",
   "bert_fine_tune_layers": [],
-  "bert_size": "tiny"
+  "bert_size": "tiny",
+
+  "include_trans_gnn_edge_types": true,
+  "include_trans_gnn_edges": false
 }
