@@ -4,12 +4,12 @@ from typing import Optional, Tuple
 
 import torch
 from torch.nn import Module, Linear, Embedding
-from torch.nn.functional import linear, softmax, dropout
+from torch.nn.functional import linear, softmax, dropout, pad
 from torch.nn.init import xavier_uniform_, constant_, xavier_normal_
 from torch.nn.parameter import Parameter
 from torch import Tensor
 
-from Code.Transformers.PytorchReimpl.torch_utils import pad, _in_projection_packed, _in_projection
+from Code.Transformers.PytorchReimpl.torch_utils import _in_projection_packed
 from Config.config import conf
 
 
@@ -93,7 +93,6 @@ class MultiheadAttentionEdge(Module):
         attn_output, attn_output_weights = self.multi_head_attention_forward(
             query, key, value, self.embed_dim, self.num_heads,
             self.in_proj_weight, self.in_proj_bias,
-            self.add_zero_attn,
             self.dropout, self.out_proj.weight, self.out_proj.bias,
             training=self.training,
             key_padding_mask=key_padding_mask, need_weights=need_weights,
@@ -168,17 +167,9 @@ class MultiheadAttentionEdge(Module):
         value: Tensor,
         embed_dim_to_check: int,
         num_heads: int,
-        in_proj_weight: Tensor,
-        in_proj_bias: Optional[Tensor],
-        add_zero_attn: bool,
-        dropout_p: float,
-        out_proj_weight: Tensor,
-        out_proj_bias: Optional[Tensor],
-        training: bool = True,
-        key_padding_mask: Optional[Tensor] = None,
-        need_weights: bool = True,
-        attn_mask: Optional[Tensor] = None,
-        use_separate_proj_weight: bool = False,
+        in_proj_weight: Tensor, in_proj_bias: Optional[Tensor], dropout_p: float, out_proj_weight: Tensor,
+        out_proj_bias: Optional[Tensor], training: bool = True, key_padding_mask: Optional[Tensor] = None,
+        need_weights: bool = True, attn_mask: Optional[Tensor] = None, use_separate_proj_weight: bool = False,
         **kwargs
     ) -> Tuple[Tensor, Optional[Tensor]]:
         # set up shape vars
@@ -238,33 +229,8 @@ class MultiheadAttentionEdge(Module):
         v = v.contiguous().view(-1, bsz * num_heads, head_dim).transpose(0, 1)
 
 
-        # add zero attention along batch dimension (now first)
-        if add_zero_attn:
-            print("zero att")
-            zero_attn_shape = (bsz * num_heads, 1, head_dim)
-            k = torch.cat([k, torch.zeros(zero_attn_shape, dtype=k.dtype, device=k.device)], dim=1)
-            v = torch.cat([v, torch.zeros(zero_attn_shape, dtype=v.dtype, device=v.device)], dim=1)
-            if attn_mask is not None:
-                attn_mask = pad(attn_mask, (0, 1))
-            if key_padding_mask is not None:
-                key_padding_mask = pad(key_padding_mask, (0, 1))
-
         # update source sequence length after adjustments
         src_len = k.size(1)
-
-        # merge key padding and attention masks
-        if key_padding_mask is not None:
-            print("key padding")
-            assert key_padding_mask.shape == (bsz, src_len), \
-                f"expecting key_padding_mask shape of {(bsz, src_len)}, but got {key_padding_mask.shape}"
-            key_padding_mask = key_padding_mask.view(bsz, 1, 1, src_len).   \
-                expand(-1, num_heads, -1, -1).reshape(bsz * num_heads, 1, src_len)
-            if attn_mask is None:
-                attn_mask = key_padding_mask
-            elif attn_mask.dtype == torch.bool:
-                attn_mask = attn_mask.logical_or(key_padding_mask)
-            else:
-                attn_mask = attn_mask.masked_fill(key_padding_mask, float("-inf"))
 
         # convert mask to float
         if attn_mask is not None and attn_mask.dtype == torch.bool:

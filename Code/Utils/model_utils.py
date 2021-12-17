@@ -7,8 +7,6 @@ from torch_geometric.nn import GATConv, SAGEConv
 from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
     load_json_data, restore_from_backup_folder, load_status
 from Code.Embedding.bert_embedder import BertEmbedder
-from Code.GNNs.TransGNNs.transformer_gnn import TransformerGNN
-from Code.GNNs.TransGNNs.transformer_gnn2 import TransformerGNN2
 from Code.GNNs.TransGNNs.transformer_gnn_edge import TransformerGNNEdge
 from Code.HDE.hde_model import HDEModel
 from Code.HDE.hde_rel import HDERel
@@ -23,8 +21,7 @@ MODEL_MAP = {
     "HDE": HDEModel,
     "HDERel": HDERel
              }
-GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv,
-           "Transformer": TransformerGNN, "Transformer2": TransformerGNN2, "TransformerEdge": TransformerGNNEdge}
+GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv, "TransformerEdge": TransformerGNNEdge}
 
 
 def get_model(name, MODEL_CLASS=None, **model_kwargs):

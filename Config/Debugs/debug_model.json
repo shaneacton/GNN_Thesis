@@ -26,5 +26,5 @@
   "bert_size": "tiny",
 
   "include_trans_gnn_edge_types": true,
-  "include_trans_gnn_edges": false
+  "include_trans_gnn_edges": true
 }

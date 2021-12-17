@@ -11,7 +11,6 @@ from Code.Embedding.glove_embedder import GloveEmbedder
 from Code.Embedding.gru_contextualiser import GRUContextualiser
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.GNNs.gnn_stack import GNNStack
-from Code.GNNs.TransGNNs.transformer_gnn import TransformerGNN
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.scorer import HDEScorer
 from Code.Training import dev
@@ -76,10 +75,8 @@ class HDEModel(nn.Module):
             args = {"heads": conf.heads}
         else:
             args = {}
-        if hasattr(conf, "use_transformer_gnn") and conf.use_transformer_gnn:
-            self.gnn = TransformerGNN(heads=conf.heads, num_layers=conf.num_layers, **args)
-        else:
-            self.gnn = GNNStack(GNN_CLASS, **args)
+
+        self.gnn = GNNStack(GNN_CLASS, **args)
 
     def forward(self, graph: HDEGraph):
         """
