@@ -1,8 +1,6 @@
 from torch import nn
-from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 
 from Code.Transformers.PytorchReimpl.MultiheadAttentionRe import MultiheadAttentionRe
-from Code.Transformers.PytorchReimpl.TransformerEncoderLayerRe import TransformerEncoderLayerRe
 from Config.config import conf
 
 

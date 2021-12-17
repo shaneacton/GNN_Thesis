@@ -3,12 +3,11 @@ import warnings
 from typing import Optional, Tuple
 
 import torch
+from torch import Tensor
 from torch.nn import Module, Linear
 from torch.nn.functional import linear, softmax, dropout
 from torch.nn.init import xavier_uniform_, constant_, xavier_normal_
 from torch.nn.parameter import Parameter
-from torch import Tensor
-from torch.overrides import handle_torch_function, has_torch_function
 
 from Code.Transformers.PytorchReimpl.torch_utils import pad, _in_projection_packed, _in_projection
 
