@@ -3,10 +3,11 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_no_switch"
-  ],
-  "low_priority_configs": [
+    "base_2_trans_sdp",
     "base_2_trans_sdp_all_edges",
     "base_2_trans_sdp_structure"
+  ],
+  "low_priority_configs": [
+
   ]
 }
