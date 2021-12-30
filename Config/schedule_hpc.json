@@ -7,6 +7,5 @@
     "base_2_trans_sage"
   ],
   "low_priority_configs": [
-    "base_2_trans_sdp_graph"
   ]
 }

@@ -4,8 +4,7 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base_2_trans_sdp",
-    "base_2_trans_sdp_all_edges",
-    "base_2_trans_sdp_structure"
+    "base_2_trans_sdp_graph"
   ],
   "low_priority_configs": [
 
