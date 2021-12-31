@@ -1,25 +1,23 @@
 import random
 import time
 from math import floor
-from typing import Tuple
 
-import torch
 from nlp import tqdm
 
 from Checkpoint.checkpoint_utils import save_model, set_status_value, duplicate_checkpoint_folder, load_status, \
     save_status
-from Code.Embedding.bert_embedder import TooManyTokens, BertEmbedder
+from Code.Embedding.bert_embedder import TooManyTokens
 from Code.Embedding.glove_embedder import NoWordsException
 from Code.HDE.hde_model import TooManyEdges, PadVolumeOverflow
 from Code.Training import set_gpu
 from Code.Training.eval import evaluate
 from Code.Training.timer import log_time
 from Code.Training.training_results import TrainingResults
-from Code.Utils.model_utils import get_model, num_params, get_optimizer
-from Code.Utils.training_utils import get_training_results, save_training_results
-from Config.config import conf
 from Code.Utils.dataset_utils import get_wikihop_graphs
+from Code.Utils.model_utils import get_model
+from Code.Utils.training_utils import get_training_results, save_training_results
 from Code.Utils.wandb_utils import use_wandb, wandb_run
+from Config.config import conf
 
 
 def train_model(name, gpu_num=0, program_start_time=-1):
@@ -119,7 +117,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
 
             if len(training_results.all_losses) % conf.checkpoint_every == 0:  # save model and data
                 # saving takes a few minutes. We should check for an early stoppage to ensure program closes well
-                if conf.max_runtime_seconds != -1 and time.time() - program_start_time > conf.max_runtime_seconds - 2000:
+                if conf.max_runtime_seconds != -1 and time.time() - program_start_time > conf.max_runtime_seconds - 3000:
                     times_up()
                 epoch_start_time = save_training_states(training_results, epoch_start_time, i, model, name, optimizer,
                                                         scheduler, start_time, bert_optim)
