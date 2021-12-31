@@ -171,8 +171,9 @@ def chose_model_conf(debug=False, run_args=None):
 
 def continue_schedule(debug=False, run_args=None):
     """reads the schedule, as well as which """
+    global program_start_time
+
     num_gpus = torch.cuda.device_count()
-    program_start_time = time.time()
     schedule = get_schedule(debug, custom_schedule_name=run_args.schedule_name)
 
     train_conf = schedule["train_config"]
@@ -209,9 +210,12 @@ def ask_exit() -> bool:
     except KeyboardInterrupt:
         return True
 
+program_start_time = None
+
 
 if __name__ == "__main__":
     print("master process", os.getpid())
+    program_start_time = time.time()
 
     parser = argparse.ArgumentParser()  # error: <Process(Process-2, initial)>
     parser.add_argument('--debug', '-d', help='Whether or not to run the debug configs - y/n', default="n")
