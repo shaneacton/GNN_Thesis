@@ -155,6 +155,7 @@ def save_training_states(training_results: TrainingResults, epoch_start_time, i,
     save_training_results(training_results, name)
     save_time = time.time() - save_time
     epoch_start_time += save_time
+    print("updating status file")
     set_status_value(name, "completed_epochs", training_results.epoch)
     """upon successful saving. make a backup so that if the next save fails, we can continue from here next time"""
     duplicate_checkpoint_folder(name)
