@@ -36,6 +36,9 @@ class HDEEdge:
 
         return hash(ids[0]) * 7 + hash(ids[1]) * 13
 
+    def __repr__(self) -> str:
+        return "Edge: " + self.type()
+
 
 if __name__ == "__main__":
 

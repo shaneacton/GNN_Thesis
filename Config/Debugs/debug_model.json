@@ -1,7 +1,7 @@
 {
   "dataset": "wikihop",
-  "model_name": "transGNN",
-  "embedded_dims": 128,
+  "model_name": "roberta",
+  "embedded_dims": 20,
   "glove_tokens_code": "6B",
   "transformer_heads": 4,
 
@@ -21,7 +21,7 @@
   "scale_accumulated_gradients": true,
 
   "embedder_type": "bert",
-  "bert_name": "prajjwal1/bert-",
+  "bert_name": "roberta-base",
   "bert_fine_tune_layers": [],
   "bert_size": "tiny",
 

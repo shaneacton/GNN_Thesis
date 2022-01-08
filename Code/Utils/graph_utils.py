@@ -1,22 +1,21 @@
 from __future__ import annotations
 
 import re
-import sys
-import time
+import zlib
+from typing import TYPE_CHECKING
 from typing import Tuple, List
 
 from torch import Tensor
 from transformers import LongformerTokenizerFast, BatchEncoding, TokenSpan
 
 from Code.Embedding.glove_embedder import GloveEmbedder
-from Code.Utils.spacy_utils import get_entity_char_spans
 from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode
-from Code.constants import DOCUMENT, ENTITY, CODOCUMENT, CANDIDATE, COMENTION
+from Code.Utils.spacy_utils import get_entity_char_spans
+from Code.constants import DOCUMENT, ENTITY, CANDIDATE, COMENTION
 from Config.config import conf
 from Viz.graph_visualiser import render_graph, get_file_path
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from Code.Training.wikipoint import Wikipoint
@@ -66,7 +65,7 @@ def connect_unconnected_entities(graph: HDEGraph):
 
 
 def similar(text1, text2):
-    return text1.lower() == text2.lower()
+    return text1.lower().strip() == text2.lower().strip()
 
 
 def connect_entity_mentions(graph: HDEGraph, all_cases=True):
@@ -99,7 +98,6 @@ def connect_candidates_and_entities(graph: HDEGraph):
 
         for ent_node in graph.get_entity_nodes():
             if similar(cand_node.text, ent_node.text):
-                print("connecting cand", cand_node.text, "to ent", ent_node.text)
                 edge = HDEEdge(cand_node.id_in_graph, ent_node.id_in_graph, graph=graph)
                 graph.add_edge(edge)
 
@@ -222,7 +220,6 @@ def get_transformer_entity_token_spans(support_encodings, supports) -> List[List
 
 
 def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, support_encodings=None):
-    start_t = time.time()
     graph = HDEGraph(example)
     add_doc_nodes(graph, example.supports)
     add_entity_nodes(graph, example.supports, example.ent_token_spans, glove_embedder=glove_embedder,
@@ -237,7 +234,8 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
             render_graph(graph, graph_folder="temp")
             exit()
         else:
-            hash_code = hash("_".join(sorted(example.candidates)))
+            cands = sorted([c.lower() for c in example.candidates])
+            hash_code = zlib.adler32(str.encode("_".join(cands)))
             name = "graph_"+ str(hash_code)
             render_graph(graph, view=False, graph_name=name)
 

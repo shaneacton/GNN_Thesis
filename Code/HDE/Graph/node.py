@@ -22,3 +22,7 @@ class HDENode:
         self.candidate_id = candidate_id
         self.type = type
         self.id_in_graph = None
+
+    def __repr__(self) -> str:
+        return "Node: " + self.type + ": " + self.text
+
