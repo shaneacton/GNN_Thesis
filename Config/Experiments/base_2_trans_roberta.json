@@ -11,7 +11,8 @@
   "use_switch_gnn": false,
   "gnn_aggr": "add",
 
-  "embedder_type": "roberta-base",
+  "embedder_type": "bert",
+  "bert_name": "roberta-base",
   "bert_fine_tune_layers": [],
   "embedded_dims": 768,
   "transformer_heads": 8,
