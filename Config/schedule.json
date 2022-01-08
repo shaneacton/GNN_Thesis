@@ -3,8 +3,7 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_sdp",
-    "base_2_trans_sdp_graph"
+    "base_2_trans_roberta"
   ],
   "low_priority_configs": [
 
