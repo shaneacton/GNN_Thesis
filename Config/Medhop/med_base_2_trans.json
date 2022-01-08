@@ -18,8 +18,8 @@
   "embedded_dims": 768,
   "transformer_heads": 8,
 
-  "print_loss_every": 1500,
-  "checkpoint_every": 1500,
+  "print_loss_every": 300,
+  "checkpoint_every": 300,
 
   "initial_lr": 0.01
 }
