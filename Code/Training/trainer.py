@@ -160,5 +160,5 @@ def save_training_states(training_results: TrainingResults, epoch_start_time, i,
     """upon successful saving. make a backup so that if the next save fails, we can continue from here next time"""
     print("duplicating checkpoint folder")
     duplicate_checkpoint_folder(name)
-
+    print("saving complete")
     return epoch_start_time
