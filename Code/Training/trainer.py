@@ -42,8 +42,6 @@ def train_model(name, gpu_num=0, program_start_time=-1):
     graphs = get_wikihop_graphs(model)
     accumulated_edges = 0
 
-    start_time = time.time()
-
     training_results = get_training_results(name)
 
     for epoch in range(conf.num_epochs):
@@ -119,8 +117,10 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 # saving takes a few minutes. We should check for an early stoppage to ensure program closes well
                 if conf.max_runtime_seconds != -1 and time.time() - program_start_time > conf.max_runtime_seconds - 3000:
                     times_up()
+                print("program run time:", (time.time() - program_start_time)/(60**2), "hours")
+
                 epoch_start_time = save_training_states(training_results, epoch_start_time, i, model, name, optimizer,
-                                                        scheduler, start_time, bert_optim)
+                                                        scheduler, bert_optim)
         model.last_example = -1
 
         valid_acc = evaluate(model, program_start_time=program_start_time)
@@ -140,12 +140,8 @@ def times_up():
 
 
 def save_training_states(training_results: TrainingResults, epoch_start_time, i, model, name, optimizer, scheduler,
-                         start_time, bert_optim):
+                         bert_optim):
 
-    if time.time() - start_time + 5 * 60 > conf.max_runtime_seconds != -1:
-        # end 5m early before saving, as this can take long enough to send us over the max runtime
-        print("reached max run time. shutting down so the program can exit safely")
-        exit()
     save_time = time.time()
     print("saving model at e", training_results.epoch, "i:", i)
     model.last_example = i
