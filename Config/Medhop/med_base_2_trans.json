@@ -22,5 +22,5 @@
   "checkpoint_every": 300,
   "num_epochs": 60,
 
-  "initial_lr": 0.001
+  "initial_lr": 0.01
 }
