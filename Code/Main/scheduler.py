@@ -44,8 +44,8 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, prog
     conf.set("clean_model_name", conf.model_name)
     conf.set("model_name", model_name)
     conf.run_args = run_args
-    runtime = run_args.max_runtime if run_args.max_runtime else -1
-    conf.max_runtime_seconds = int(runtime)
+    if run_args.max_runtime and run_args.max_runtime != -1:
+        conf.max_runtime_seconds = int(run_args.max_runtime)
     atexit.register(release_status)
 
     train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
@@ -193,7 +193,7 @@ def continue_schedule(debug=False, run_args=None):
         else:
             # spawn process
             kwargs = {"model_conf": next_model_conf, "train_conf": train_conf, "gpu_num": next_gpu_id,
-                      "repeat_num":repeat_num, "program_start_time": program_start_time, "debug": debug,
+                      "repeat_num": repeat_num, "program_start_time": program_start_time, "debug": debug,
                       "run_args": run_args}
             process = ctx.Process(target=train_config, kwargs=kwargs)
             process.start()
