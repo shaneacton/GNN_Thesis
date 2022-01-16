@@ -1,7 +1,7 @@
 {
   "dataset": "medhop",
-  "model_class": "HDERel",
-  "gnn_class": "GATConv",
+  "model_class": "HDE",
+  "gnn_class": "TransformerEdge",
   "use_gating": true,
   "use_transformer_block": true,
   "use_simple_hde": true,
@@ -22,6 +22,8 @@
   "checkpoint_every": 300,
   "num_epochs": 100,
 
-  "initial_lr": 0.05,
-  "lr_decay_fac":  0.95
+  "include_trans_gnn_edge_types": true,
+  "include_trans_gnn_edges": false,
+
+  "initial_lr": 0.05
 }

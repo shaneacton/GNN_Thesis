@@ -1,6 +1,6 @@
 {
-  "dataset": "wikihop",
-  "model_name": "roberta",
+  "dataset": "medhop",
+  "model_name": "med",
   "embedded_dims": 20,
   "glove_tokens_code": "6B",
   "transformer_heads": 4,

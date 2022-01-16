@@ -2,6 +2,7 @@
   "num_epochs": 30,
   "optimizer_type": "sgd",
   "initial_lr": 0.001,
+  "lr_decay_fac": 0.9,
   "use_lr_scheduler": true,
   "max_examples": -1,
   "print_loss_every": 2000,
