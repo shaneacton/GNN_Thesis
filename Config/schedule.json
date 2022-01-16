@@ -7,6 +7,6 @@
     "med_base_2_trans"
   ],
   "low_priority_configs": [
-
+    "med_base_2_trans_sdp_all_edges"
   ]
 }
