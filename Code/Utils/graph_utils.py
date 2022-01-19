@@ -15,7 +15,7 @@ from Code.HDE.Graph.node import HDENode
 from Code.Utils.spacy_utils import get_entity_char_spans
 from Code.constants import DOCUMENT, ENTITY, CANDIDATE, COMENTION
 from Config.config import conf
-from Viz.graph_visualiser import render_graph, get_file_path
+from Viz.graph_visualiser import render_graph, get_file_path, render_graph2
 
 if TYPE_CHECKING:
     from Code.Training.wikipoint import Wikipoint
@@ -177,7 +177,7 @@ def charspan_to_tokenspan(encoding: BatchEncoding, char_span: Tuple[int]) -> Tok
         offset = recoveries.pop(0)
         end = encoding.char_to_token(char_index=char_span[1] + offset, batch_or_char_index=0)
 
-    span = TokenSpan(start - 1, end)  # -1 to discount the <s> token
+    span = TokenSpan(start, end+1)
     return span
 
 
@@ -236,13 +236,33 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
         else:
             cands = sorted([c.lower() for c in example.candidates])
             hash_code = zlib.adler32(str.encode("_".join(cands)))
-            name = "graph_"+ str(hash_code)
-            render_graph(graph, view=False, graph_name=name)
+            name = "graph_" + str(hash_code)
+            render_graph2(graph, view=False, graph_name=name)
 
             text_name = name + ".txt"
             text_path = get_file_path(conf.model_name, text_name)
             file = open(text_path, "w", encoding='utf-8')
-            file.write(repr(example))
+
+            type_counts = {}
+            for edge in graph.ordered_edges:
+                if edge.type() not in type_counts:
+                    type_counts[edge.type()] = 0
+                type_counts[edge.type()] += 1
+
+            num_nodes = len(graph.ordered_nodes)
+            num_edges = len(graph.unique_edges)
+            num_cross_doc_ments = len(graph.get_cross_document_comention_edges())
+
+            file.write(repr(example) + '\n\n'+
+                       "edges: " + repr(num_edges) + "\n"+
+                       "nodes: " + repr(num_nodes) + "\n\n" +
+                       "edge density: " + repr(num_edges / (num_nodes * (num_nodes-1))) + "\n" +
+                       "cross doc comentions: " + repr(num_cross_doc_ments) + "\n" +
+                       "cross doc ratio: " + repr(num_cross_doc_ments / len(graph.doc_nodes)) + "\n" +
+
+                       "edge types:\n\t" + "\n\t".join([t + ": " + repr(c) for t, c in type_counts.items()])
+                       )
+
             file.close()
 
     return graph

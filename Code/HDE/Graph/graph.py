@@ -13,12 +13,13 @@ from Config.config import conf
 if TYPE_CHECKING:
     from Code.HDE.Graph.edge import HDEEdge
     from Code.HDE.Graph.node import HDENode
+    from Code.Training.wikipoint import Wikipoint
 
 
 class HDEGraph:
 
     def __init__(self, example):
-        self.example = example
+        self.example: Wikipoint = example
         self.ordered_nodes: List[HDENode] = []
         self.entity_nodes: List[int] = []
         self.entity_text_to_nodes: Dict[str, List[int]] = {}
@@ -176,3 +177,30 @@ class HDEGraph:
 
     def get_entity_nodes(self) -> Generator[HDENode]:
         return (self.ordered_nodes[e] for e in self.entity_nodes)
+
+    def get_cross_document_comention_edges(self) -> Set[HDEEdge]:
+        edges = set()
+        for edge in self.ordered_edges:
+            if edge.type() != "comention":
+                continue
+            ent0 = self.ordered_nodes[edge.from_id]
+            ent1 = self.ordered_nodes[edge.to_id]
+            if ent0.doc_id == ent1.doc_id:
+                continue
+            edges.add(edge)
+        return edges
+
+    @property
+    def num_nodes(self):
+        return len(self.ordered_nodes)
+
+    @property
+    def num_edges(self):
+        return len(self.ordered_edges)
+
+    def get_edge_density(self):
+        return self.num_edges / (self.num_nodes * (self.num_nodes-1))
+
+    def get_cross_doc_ratio(self):
+        return len(self.get_cross_document_comention_edges()) / len(self.doc_nodes)
+

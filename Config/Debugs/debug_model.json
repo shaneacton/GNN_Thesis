@@ -1,6 +1,9 @@
 {
   "dataset": "medhop",
-  "model_name": "med",
+  "model_name": "med_delt",
+  "use_special_entities": false,
+  "use_detected_entities": true,
+
   "embedded_dims": 20,
   "glove_tokens_code": "6B",
   "transformer_heads": 4,

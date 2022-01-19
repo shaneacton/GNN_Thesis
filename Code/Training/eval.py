@@ -15,7 +15,7 @@ from Config.config import conf
 
 def evaluate(hde, program_start_time=None):
     print("starting evaluation")
-    graphs = get_wikihop_graphs(hde, split=nlp.Split.VALIDATION)
+    graphs = get_wikihop_graphs(nlp.Split.VALIDATION, hde.embedder)
 
     answers = []
     predictions = []

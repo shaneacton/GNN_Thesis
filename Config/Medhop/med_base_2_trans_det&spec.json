@@ -1,4 +1,8 @@
 {
+  "dataset": "medhop",
+  "use_special_entities": true,
+  "use_detected_entities": true,
+
   "model_class": "HDERel",
   "gnn_class": "GATConv",
   "use_gating": true,
@@ -12,11 +16,15 @@
   "gnn_aggr": "add",
 
   "embedder_type": "bert",
-  "bert_name": "roberta-base",
+  "bert_name": "simonlevine/bioclinical-roberta-long",
   "bert_fine_tune_layers": [],
   "embedded_dims": 768,
   "transformer_heads": 8,
 
-  "initial_lr": 0.01,
-  "num_epochs": 50
+  "print_loss_every": 300,
+  "checkpoint_every": 300,
+  "num_epochs": 100,
+
+  "initial_lr": 0.05,
+  "lr_decay_fac":  0.95
 }

@@ -1,5 +1,6 @@
 import random
 import time
+from datetime import datetime
 from math import floor
 
 from nlp import tqdm
@@ -39,7 +40,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
         except:
             pass
 
-    graphs = get_wikihop_graphs(model)
+    graphs = get_wikihop_graphs(embedder=model.embedder)
     accumulated_edges = 0
 
     training_results = get_training_results(name)
@@ -143,7 +144,8 @@ def save_training_states(training_results: TrainingResults, epoch_start_time, i,
                          bert_optim):
 
     save_time = time.time()
-    print("saving model at e", training_results.epoch, "i:", i)
+    now = datetime.now()
+    print("saving model at e", training_results.epoch, "i:", i, "time:", now.strftime("%m/%d/%Y, %H:%M:%S"))
     model.last_example = i
     model.last_epoch = floor(training_results.epoch)
     save_model(model, optimizer, scheduler, second_optim=bert_optim)

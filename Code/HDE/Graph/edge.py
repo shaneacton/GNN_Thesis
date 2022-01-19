@@ -30,10 +30,13 @@ class HDEEdge:
         o = sorted([other.from_id, other.to_id])
         return s[0] == o[0] and s[1] == o[1]
 
+    @property
+    def edge_hash(self):
+        return tuple(sorted([self.from_id, self.to_id]))
+
     def __hash__(self):
         """same edge if it connects the same two nodes"""
-        ids = sorted([self.from_id, self.to_id])
-
+        ids = self.edge_hash
         return hash(ids[0]) * 7 + hash(ids[1]) * 13
 
     def __repr__(self) -> str:

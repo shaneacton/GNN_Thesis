@@ -1,5 +1,7 @@
 {
   "dataset": "wikihop",
+  "use_special_entities": true,
+  "use_detected_entities": false,
   "model_name": "hde",
   "model_class": "HDERel",
   "gnn_class": "GATConv",

@@ -22,9 +22,20 @@ class Wikipoint:
             self.ent_token_spans: List[List[Tuple[int]]] = get_glove_entity_token_spans(self, glove_embedder)
         else:
             supp_encs = [tokeniser(supp) for supp in supports]
-            # self.ent_token_spans: List[List[Tuple[int]]] = get_transformer_entity_token_spans(supp_encs, supports)
-            self.ent_token_spans: List[List[Tuple[int]]] = get_special_entity_token_spans(self, supp_encs, tokeniser)
 
+            # special only
+            if conf.use_special_entities and not conf.use_detected_entities:
+                spans = get_special_entity_token_spans(self, supp_encs, tokeniser)
+            # detected only
+            elif conf.use_detected_entities and not conf.use_special_entities:
+                spans = get_transformer_entity_token_spans(supp_encs, supports)
+            #both
+            else:
+                spec = get_special_entity_token_spans(self, supp_encs, tokeniser)
+                det = get_transformer_entity_token_spans(supp_encs, supports)
+                spans = [x + y for x,y in zip(spec, det)]
+
+            self.ent_token_spans: List[List[Tuple[int]]] = spans
     @property
     def relation(self):
         return self.query.split(" ")[0]
