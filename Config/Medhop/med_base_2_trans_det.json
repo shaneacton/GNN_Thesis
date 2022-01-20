@@ -24,6 +24,7 @@
   "print_loss_every": 300,
   "checkpoint_every": 300,
   "num_epochs": 100,
+  "max_edges": 250000,
 
   "initial_lr": 0.05,
   "lr_decay_fac":  0.95
