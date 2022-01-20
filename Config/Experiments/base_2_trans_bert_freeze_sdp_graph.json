@@ -1,6 +1,6 @@
 {
   "model_class": "HDE",
-  "gnn_class": "Transformer",
+  "gnn_class": "TransformerEdge",
   "use_gating": true,
   "use_transformer_block": true,
   "use_simple_hde": true,
@@ -16,6 +16,9 @@
   "bert_fine_tune_layers": [],
   "embedded_dims": 512,
   "transformer_heads": 8,
+
+  "include_trans_gnn_edge_types": true,
+  "include_trans_gnn_edges": true,
 
   "initial_lr": 0.01
 }

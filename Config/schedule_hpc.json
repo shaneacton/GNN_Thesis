@@ -3,6 +3,7 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
+    "base_2_trans_bert_freeze_sdp_graph"
   ],
   "low_priority_configs": [
   ]
