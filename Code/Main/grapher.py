@@ -73,7 +73,7 @@ def plot_stats(use_special_entities, use_detected_entities, row=0):
     stats = pd.concat([wiki_stats, med_stats]).replace(0, 0.01)
 
     sns.kdeplot(ax=AXES[row, 0], data=stats, multiple="stack", x="Edge Density", hue='Dataset')
-    sns.histplot(ax=AXES[row, 1], data=stats, multiple="stack", x="Cross Document Ratio", hue='Dataset', stat="density", log_scale=True)
+    sns.histplot(ax=AXES[row, 1], data=stats, multiple="stack", x="Cross Document Ratio", hue='Dataset', stat="density", log_scale=True, bins=15)
     AXES[row, 0].set_title("Edge Density")
     AXES[row, 1].set_title("Cross Document Ratio")
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     FIG.suptitle('Title')
 
     plot_stats(SPECIAL_ENTITIES, DETECTED_ENTITIES)
-    plot_stats(not SPECIAL_ENTITIES, not DETECTED_ENTITIES)
+    plot_stats(not SPECIAL_ENTITIES, not DETECTED_ENTITIES, row=1)
 
 
 
