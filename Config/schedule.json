@@ -3,10 +3,11 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "med_base_2_trans_det&spec",
-    "med_base_2_trans_det"
+    "med_base_2_trans_det",
+    "base_0_dweight_hi_lr"
   ],
   "low_priority_configs": [
-    "base_2_trans_roberta"
+    "base_2_trans_roberta",
+    "base_0_no_gate"
   ]
 }

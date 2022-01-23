@@ -1,6 +1,6 @@
 {
   "num_epochs": 1000,
-  "max_examples": 20,
+  "max_examples": 2000,
   "print_loss_every": 49,
   "checkpoint_every": 50,
   "max_accumulated_edges": 50000,
@@ -11,7 +11,7 @@
   "use_lr_scheduler": false,
   "num_layers": 2,
   "use_wandb": false,
-  "visualise_graphs": true,
+  "visualise_graphs": false,
   "exit_after_first_viz": false,
   "initial_lr": 0.001
 }

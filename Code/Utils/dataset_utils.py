@@ -10,7 +10,7 @@ from tqdm import tqdm
 from Code.Training.wikipoint import Wikipoint
 from Checkpoint.checkpoint_utils import save_binary_data
 from Code.Utils.graph_utils import create_graph
-from Config.config import conf, get_config
+from Config.config import get_config
 from Data import DATA_FOLDER
 
 if TYPE_CHECKING:

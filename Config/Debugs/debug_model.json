@@ -1,6 +1,6 @@
 {
   "dataset": "medhop",
-  "model_name": "med_delt",
+  "model_name": "med_det",
   "use_special_entities": false,
   "use_detected_entities": true,
 
