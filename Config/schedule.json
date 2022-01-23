@@ -4,7 +4,8 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "med_base_2_trans_det",
-    "base_0_dweight_hi_lr"
+    "base_0_dweight_hi_lr",
+    "base_0_linear"
   ],
   "low_priority_configs": [
     "base_2_trans_roberta",

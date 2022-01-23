@@ -1,0 +1,12 @@
+from torch import nn, Tensor
+from torch_geometric.nn import MessagePassing
+
+
+class LinearGNN(MessagePassing):
+
+    def __init__(self, in_size, out_size):
+        super().__init__(aggr="mean")
+        self.message_transform = nn.Linear(in_size, out_size)
+
+    def message(self, x_j: Tensor) -> Tensor:
+        return self.message_transform(x_j)

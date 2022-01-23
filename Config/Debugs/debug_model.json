@@ -9,7 +9,7 @@
   "transformer_heads": 4,
 
   "model_class": "HDE",
-  "gnn_class": "TransformerEdge",
+  "gnn_class": "Linear",
   "use_gating": true,
   "use_transformer_block": false,
   "use_simple_hde": true,

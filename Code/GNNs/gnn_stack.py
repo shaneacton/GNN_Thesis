@@ -139,6 +139,7 @@ class SimpleGNNLayer(nn.Module):
         if GNNClass == GATConv:
             self.gnn = GNNClass(h_size, h_size//layer_kwargs["heads"], **needed_kwargs)
         else:
+            print("needed:", needed_kwargs)
             self.gnn = GNNClass(h_size, h_size, **needed_kwargs)
 
         if conf.use_switch_gnn:
