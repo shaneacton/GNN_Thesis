@@ -3,6 +3,7 @@ from torch import nn
 from torch.nn import TransformerEncoderLayer, LayerNorm, TransformerEncoder
 from torch.nn.utils.rnn import pad_sequence
 
+from Code.Embedding.glove_embedder import NoWordsException
 from Code.Embedding.positional_embedder import PositionalEmbedder
 from Code.Training import dev
 from Config.config import conf
@@ -45,6 +46,8 @@ class Transformer(nn.Module):
             it also wants (seq, batch, emb)
         """
         lengths = [ex.size(-2) for ex in vecs]
+        if len(lengths) == 0:
+            raise NoWordsException("no vecs")
         max_len = max(lengths)
         masks = [[False] * size + [True] * (max_len - size) for size in lengths]
         masks = torch.tensor(masks).to(dev())
