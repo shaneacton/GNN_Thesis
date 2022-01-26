@@ -1,15 +1,15 @@
 {
-  "dataset": "medhop",
-  "model_name": "med_det",
-  "use_special_entities": false,
-  "use_detected_entities": true,
+  "dataset": "wikihop",
+  "model_name": "vtype",
+  "use_special_entities": true,
+  "use_detected_entities": false,
 
-  "embedded_dims": 20,
+  "embedded_dims": 768,
   "glove_tokens_code": "6B",
   "transformer_heads": 4,
 
   "model_class": "HDE",
-  "gnn_class": "Linear",
+  "gnn_class": "TransformerEdge",
   "use_gating": true,
   "use_transformer_block": false,
   "use_simple_hde": true,
