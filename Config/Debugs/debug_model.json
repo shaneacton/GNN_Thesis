@@ -29,5 +29,6 @@
   "bert_size": "tiny",
 
   "include_trans_gnn_edge_types": true,
-  "include_trans_gnn_edges": true
+  "include_trans_gnn_edges": true,
+  "use_key_type_edge_embs": false
 }

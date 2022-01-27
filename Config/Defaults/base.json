@@ -36,5 +36,6 @@
   "use_average_output_agg": false,
 
   "include_trans_gnn_edge_types": true,
+  "use_key_type_edge_embs": true,
   "include_trans_gnn_edges": true
 }

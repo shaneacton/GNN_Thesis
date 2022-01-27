@@ -24,6 +24,7 @@ class MultiheadAttentionEdge(Module):
         super(MultiheadAttentionEdge, self).__init__()
 
         self.edge_embs_K = Embedding(num_edge_types, embed_dim//num_heads)
+        self.edge_embs_V = Embedding(num_edge_types, embed_dim//num_heads)
 
         self.embed_dim = embed_dim
         self.kdim = kdim if kdim is not None else embed_dim
@@ -132,23 +133,30 @@ class MultiheadAttentionEdge(Module):
         """
         B, Nt, E = q.shape
         q = q / math.sqrt(E)
+        # print("q:", q.size())
         # (B, Nt, E) x (B, E, Ns) -> (B, Nt, Ns)
-        attn = torch.bmm(q, k.transpose(-2, -1))
+        attn = torch.bmm(q, k.transpose(-2, -1))  # (B, Nt, Ns)
+        # print("attn:", attn.size())
+        edge_id_mat = graph.get_edge_id_matrix()  # (Nq, Nk)
 
-        if hasattr(conf, "include_trans_gnn_edge_types") and conf.include_trans_gnn_edge_types:   # todo remove legacy
+        if hasattr(conf, "include_trans_gnn_edge_types") and conf.include_trans_gnn_edge_types and \
+                hasattr(conf, "use_key_type_edge_embs") and conf.use_key_type_edge_embs:
             """
                 need a (Nq, E, Nk) matrix for edge embeddings
                 start with (Nq, Nk) edge type id matrix
             """
+            edge_embs = self.edge_embs_K(edge_id_mat)  # (Nq, Nk, E)
 
-            edge_id_mat = graph.get_edge_id_matrix()
-            edge_embs = self.edge_embs_K(edge_id_mat)
+            # print("edge embs:", edge_embs.size(), "ids:", edge_id_mat.size())
 
             Q = q.permute(1, 0, 2)  # (Nq, B, E)
+            # print("Q:", Q.size())
+
             Ed = edge_embs.permute(0, 2, 1)  # (Nq, E, Nk)
 
             edge_attn = torch.bmm(Q, Ed)
-            edge_attn = edge_attn.permute(1, 0, 2)
+            edge_attn = edge_attn.permute(1, 0, 2)  # (B, Nq, Nk)
+            # print("edge attn:", edge_attn.size())
             attn += edge_attn
 
         if attn_mask is not None:
@@ -156,9 +164,17 @@ class MultiheadAttentionEdge(Module):
         attn = softmax(attn, dim=-1)
         if dropout_p > 0.0:
             attn = dropout(attn, p=dropout_p)
-        # (B, Nt, Ns) x (B, Ns, E) -> (B, Nt, E)
-        """Add edge embeddings aV to V here before matmult"""
         output = torch.bmm(attn, v)
+        if hasattr(conf, "include_trans_gnn_edge_types") and conf.include_trans_gnn_edge_types and \
+                hasattr(conf, "use_key_type_edge_embs") and not conf.use_key_type_edge_embs:   # todo remove legacy
+            """Add edge embeddings aV to V here before matmult"""
+            edge_embs = self.edge_embs_V(edge_id_mat)  # (Nq, Nk, E)
+            A = attn.permute(1,0,2)  # (Nq, B, Nk)
+            # print("values:", v.size(), "ve:", edge_embs.size())
+            AE = torch.bmm(A, edge_embs).permute(1,0,2)   # (B, Nq, E)
+            # print("ae:", AE.size())
+            # (B, Nt, Ns) x (B, Ns, E) -> (B, Nt, E)
+            output += AE
         return output, attn
 
     def multi_head_attention_forward(self,
