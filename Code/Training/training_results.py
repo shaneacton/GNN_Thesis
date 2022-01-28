@@ -53,6 +53,11 @@ class TrainingResults:
         self.num_discarded.append(num_discarded_examples)
         self.valid_accs.append(valid_acc)
         start, end = self.get_epoch_span(epoch)
+        if end == start:
+            print("num discarded:", num_discarded_examples)
+            print("valid accs:", self.valid_accs)
+            print("epoch:", epoch, "epochs:", self.epochs)
+            raise Exception("failed to get epoch span")
 
         # print("epoch:", epoch, "range:", (start, end), "epochs:", self.epochs, "num discarded:", num_discarded_examples)
         epoch_time = time.time() - epoch_start_time
@@ -95,5 +100,5 @@ class TrainingResults:
                     end = i
                 current_epoch = round_e
         if end == -1:
-            end = len(self.epochs) - 1
+            end = len(self.epochs)
         return start, end

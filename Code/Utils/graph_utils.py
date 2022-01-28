@@ -12,10 +12,10 @@ from Code.Embedding.glove_embedder import GloveEmbedder
 from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode
-from Code.Utils.spacy_utils import get_entity_char_spans
-from Code.constants import DOCUMENT, ENTITY, CANDIDATE, COMENTION
+from Code.Utils.spacy_utils import get_entity_char_spans, get_sentence_char_spans
+from Code.constants import DOCUMENT, ENTITY, CANDIDATE, COMENTION, SENTENCE
 from Config.config import conf
-from Viz.graph_visualiser import render_graph, get_file_path, render_graph2
+from Viz.graph_visualiser import get_file_path, render_graph2
 
 if TYPE_CHECKING:
     from Code.Training.wikipoint import Wikipoint
@@ -133,19 +133,16 @@ def add_doc_nodes(graph: HDEGraph, supports: List[str]):
         graph.add_node(node)
 
 
-def add_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List[Tuple[int]]],
+def get_entity_nodes(supports, ent_token_spans: List[List[Tuple[int]]],
                      tokeniser: LongformerTokenizerFast=None, support_encodings: List[BatchEncoding]=None,
-                     glove_embedder: GloveEmbedder=None):
+                     glove_embedder: GloveEmbedder=None,
+                     get_sentence_spans=False):
 
-    if tokeniser is not None and support_encodings is None:
-        support_encodings = [tokeniser(support) for support in supports]
-
+    all_nodes = []
     for s, support in enumerate(supports):
 
         ent_spans = ent_token_spans[s]
-        sup_node = graph.get_doc_nodes()[s]
-
-        ent_node_ids = []
+        nodes = []
         for ent_span in ent_spans:
             if glove_embedder is not None:
                 toks = glove_embedder.get_words(support)
@@ -153,16 +150,37 @@ def add_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List[Tuple
             else:
                 ent_tok_ids = support_encodings[s]["input_ids"][ent_span[0]: ent_span[1]]
                 text = tokeniser.decode(ent_tok_ids)
-            node = HDENode(ENTITY, doc_id=s, ent_token_spen=ent_span, text=text)
+            node_type = ENTITY if not get_sentence_spans else SENTENCE
+            node = HDENode(node_type, doc_id=s, ent_token_spen=ent_span, text=text)
+            nodes.append(node)
+        all_nodes.append(nodes)
+    return all_nodes
+
+
+def add_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List[Tuple[int]]],
+                     tokeniser: LongformerTokenizerFast=None, support_encodings: List[BatchEncoding]=None,
+                     glove_embedder: GloveEmbedder=None):
+
+    all_nodes = get_entity_nodes(supports, ent_token_spans, tokeniser, support_encodings, glove_embedder)
+
+    for s, support in enumerate(supports):
+
+        ent_spans = ent_token_spans[s]
+        sup_node = graph.get_doc_nodes()[s]
+
+        nodes = all_nodes[s]
+        for i, ent_span in enumerate(ent_spans):
+            node = nodes[i]
             ent_node_id = graph.add_node(node)
-            ent_node_ids.append(ent_node_id)
 
             doc_edge = HDEEdge(sup_node.id_in_graph, ent_node_id, graph=graph)
             graph.add_edge(doc_edge)
 
 
 def charspan_to_tokenspan(encoding: BatchEncoding, char_span: Tuple[int]) -> TokenSpan:
-    start = encoding.char_to_token(char_index=char_span[0], batch_or_char_index=0)
+    start = encoding.char_to_token(batch_or_char_index=char_span[0])
+    if start is None:
+        start = encoding.char_to_token(batch_or_char_index=char_span[0]+1)
     if start is None:
         raise Exception("cannot get token span from charspan:", char_span, "given:", encoding.tokens())
 
@@ -175,23 +193,23 @@ def charspan_to_tokenspan(encoding: BatchEncoding, char_span: Tuple[int]) -> Tok
                     len(encoding.tokens())) + " ~ " + repr(encoding))
 
         offset = recoveries.pop(0)
-        end = encoding.char_to_token(char_index=char_span[1] + offset, batch_or_char_index=0)
+        end = encoding.char_to_token(batch_or_char_index=char_span[1] + offset)
 
     span = TokenSpan(start, end+1)
     return span
 
 
-def get_entity_summaries(tok_spans: List[List[Tuple[int]]], support_embeddings: List[Tensor], summariser, query_vec=None):
+def get_entity_summaries(tok_spans: List[List[Tuple[int]]], support_embeddings: List[Tensor], summariser, query_vec=None, type=ENTITY):
     flat_spans = []
     flat_vecs = []
     for s, spans in enumerate(tok_spans):  # for each support document
         flat_spans.extend(spans)
         flat_vecs.extend([support_embeddings[s]] * len(spans))
     # return [summariser(vec, ENTITY, flat_spans[i]) for i, vec in enumerate(flat_vecs)]
-    return summariser(flat_vecs, ENTITY, flat_spans, query_vec=query_vec)
+    return summariser(flat_vecs, type, flat_spans, query_vec=query_vec)
 
 
-def get_transformer_entity_token_spans(support_encodings, supports) -> List[List[Tuple[int]]]:
+def get_transformer_entity_token_spans(support_encodings, supports, get_sentence_spans=False, tokeniser=None) -> List[List[Tuple[int]]]:
     """
         token_spans is indexed list[support_no][ent_no]
         summaries is a flat list
@@ -200,8 +218,12 @@ def get_transformer_entity_token_spans(support_encodings, supports) -> List[List
 
     for s, support in enumerate(supports):
         """get entity node embeddings"""
-        ent_c_spans = get_entity_char_spans(support)
-        support_encoding = support_encodings[s]
+        if not get_sentence_spans:
+            ent_c_spans = get_entity_char_spans(support)
+        else:
+            ent_c_spans = get_sentence_char_spans(support)
+
+        support_encoding: BatchEncoding = support_encodings[s]
 
         ent_token_spans: List[Tuple[int]] = []
         for e, c_span in enumerate(ent_c_spans):
@@ -209,7 +231,11 @@ def get_transformer_entity_token_spans(support_encodings, supports) -> List[List
             try:
                 ent_token_span = charspan_to_tokenspan(support_encoding, c_span)
             except Exception as ex:
-                print("cannot get ent ", e, "token span. in supp", s)
+                print("cannot get ent", e, "token span. in supp", s)
+                text = tokeniser.decode(support_encoding["input_ids"])
+                print("text:", text)
+                print("text len:", len(text))
+                print("char slice:", text[c_span[0]: c_span[1]])
                 print(ex)
                 continue
             ent_token_spans.append(ent_token_span)
@@ -219,9 +245,47 @@ def get_transformer_entity_token_spans(support_encodings, supports) -> List[List
     return token_spans
 
 
+def connect_sentence_and_entity_nodes(graph, tokeniser: LongformerTokenizerFast=None,
+                                      support_encodings: List[BatchEncoding]=None, glove_embedder: GloveEmbedder=None):
+    """
+        Adds sentence nodes if they contain any entity nodes.
+        Connects the sentence nodes to their documents and all entities whose text is contained in the sentences
+        Sentences are thus allowed to connect to entities from different documents
+    """
+    all_sentence_nodes = get_entity_nodes(graph.example.supports, graph.example.sent_token_spans, tokeniser=tokeniser,
+                                          support_encodings=support_encodings, glove_embedder=glove_embedder, get_sentence_spans=True)
+
+    ent_nodes = [graph.ordered_nodes[i] for i in graph.entity_nodes]
+    sentence_inclusion_bools = []
+    for d, sentence_nodes in enumerate(all_sentence_nodes):
+        sup_node = graph.get_doc_nodes()[d]
+
+        for sent_node in sentence_nodes:
+
+            sent_id = None
+            for ent_node in ent_nodes:
+                if clean(ent_node.text) in clean(sent_node.text):
+                    # print("found ent",  ent_node.text, " in sent:", sent_node.text)
+                    if sent_id is None:  # add sentence node to graph
+                        sent_id = graph.add_node(sent_node)
+                        doc_edge = HDEEdge(sup_node.id_in_graph, sent_id, graph=graph)
+                        graph.add_edge(doc_edge)
+                        # print("adding sentence node", sent_node)
+                        # print("since it contains ent:", ent_node)
+                    ent_edge = HDEEdge(sent_id, ent_node.id_in_graph, graph=graph)
+                    graph.add_edge(ent_edge)
+
+            sentence_inclusion_bools.append(sent_id is not None)
+    graph.sentence_inclusion_bools = sentence_inclusion_bools
+
+    print("num ents:", len(ent_nodes), "num sents:", len(graph.sentence_nodes))
+
+
 def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, support_encodings=None):
     graph = HDEGraph(example)
     add_doc_nodes(graph, example.supports)
+    if tokeniser is not None and support_encodings is None:
+        support_encodings = [tokeniser(support) for support in example.supports]
     add_entity_nodes(graph, example.supports, example.ent_token_spans, glove_embedder=glove_embedder,
                      tokeniser=tokeniser, support_encodings=support_encodings)
 
@@ -229,9 +293,13 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
     connect_candidates_and_entities(graph)
     connect_entity_mentions(graph)
 
+    if hasattr(conf, "use_sentence_nodes") and conf.use_sentence_nodes:  # todo remove legacy
+        connect_sentence_and_entity_nodes(graph, glove_embedder=glove_embedder,
+                         tokeniser=tokeniser, support_encodings=support_encodings)
+
     if conf.visualise_graphs:
         if conf.exit_after_first_viz:
-            render_graph(graph, graph_folder="temp")
+            render_graph2(graph, graph_folder="temp")
             exit()
         else:
             cands = sorted([c.lower() for c in example.candidates])

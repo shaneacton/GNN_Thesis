@@ -18,7 +18,7 @@ from Code.Training.timer import log_time
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_summariser import SwitchSummariser
 from Code.Utils.graph_utils import get_entity_summaries, similar
-from Code.constants import DOCUMENT, CANDIDATE
+from Code.constants import DOCUMENT, CANDIDATE, SENTENCE
 from Config.config import conf
 
 
@@ -87,7 +87,7 @@ class HDEModel(nn.Module):
             the graph is converted to a pytorch geometric datapoint
         """
 
-        x = self.get_graph_features(graph.example)  # learned
+        x = self.get_graph_features(graph)  # learned
         assert x.size(0) == len(graph.ordered_nodes), "error in feature extraction. num node features: " + repr(x.size(0)) + " num nodes: " + repr(len(graph.ordered_nodes))
 
         num_edges = len(graph.unique_edges)
@@ -137,13 +137,14 @@ class HDEModel(nn.Module):
 
         return pred_ans
 
-    def get_graph_features(self, example):
+    def get_graph_features(self, graph):
         """
             performs coattention between the query and context sequence
             then summarises subsequences of tokens according to node spans
             yielding the same-sized node features
         """
         t = time.time()
+        example = graph.example
         support_embeddings = [self.embedder(sup) for sup in example.supports]
         query_emb = self.embedder(example.query)
         cand_embs = [self.embedder(cand) for cand in example.candidates]
@@ -161,7 +162,16 @@ class HDEModel(nn.Module):
         support_summaries = self.summariser(support_embeddings, DOCUMENT, query_vec=query_emb)
 
         ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser, query_vec=query_emb)
-        x = torch.cat(support_summaries + ent_summaries + candidate_summaries)
+        all_summaries = support_summaries + ent_summaries + candidate_summaries
+        if hasattr(conf, "use_sentence_nodes") and conf.use_sentence_nodes:  # todo remove legacy
+            all_sent_summs = get_entity_summaries(example.sent_token_spans, support_embeddings, self.summariser, query_vec=query_emb, type=SENTENCE)
+            inclusion_bools = graph.sentence_inclusion_bools
+            included_sent_summs = []
+            for i, include in enumerate(inclusion_bools):
+                if include:
+                    included_sent_summs.append(all_sent_summs[i])
+            all_summaries += included_sent_summs
+        x = torch.cat(all_summaries)
         log_time("Graph embedding", time.time() - t)
         log_time("Node embedding", time.time() - node_t)
         log_time("Token embedding", 0, increment_counter=True)  # signals end of example, needed multiple calls
@@ -182,15 +192,12 @@ class HDEModel(nn.Module):
 
         return support_embeddings
 
-    def pass_output_model(self, x, graph, node_id_map=None):
+    def pass_output_model(self, x, graph):
         """
             transformations like pooling can change the effective node ids.
             node_id_map maps the original node ids, to the new effective node ids
         """
         cand_idxs = graph.candidate_nodes
-        if node_id_map is not None:
-            cand_idxs = [node_id_map[c] for c in cand_idxs]
-
         cand_embs = x[torch.tensor(cand_idxs).to(dev()).long(), :]
         cand_probs = self.candidate_scorer(cand_embs).view(len(cand_idxs))
 
@@ -202,8 +209,6 @@ class HDEModel(nn.Module):
             for ent_text in graph.entity_text_to_nodes.keys():  # find all entities with similar text
                 if similar(cand_node.text, ent_text):
                     ent_node_ids = graph.entity_text_to_nodes[ent_text]
-                    if node_id_map is not None:
-                        ent_node_ids = [node_id_map[e] for e in ent_node_ids if e in node_id_map]
                     linked_ent_nodes.update(ent_node_ids)
 
             if len(linked_ent_nodes) == 0:  # no mentions of this candidate

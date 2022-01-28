@@ -36,6 +36,12 @@ class Wikipoint:
                 spans = [x + y for x,y in zip(spec, det)]
 
             self.ent_token_spans: List[List[Tuple[int]]] = spans
+
+            if hasattr(conf, "use_sentence_nodes") and conf.use_sentence_nodes:  # todo remove legacy
+                spans = get_transformer_entity_token_spans(supp_encs, supports, get_sentence_spans=True, tokeniser=tokeniser)
+                self.sent_token_spans: List[List[Tuple[int]]] = spans
+
+
     @property
     def relation(self):
         return self.query.split(" ")[0]

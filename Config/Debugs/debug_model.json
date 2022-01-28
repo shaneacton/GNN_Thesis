@@ -1,10 +1,11 @@
 {
   "dataset": "wikihop",
-  "model_name": "vtype",
+  "model_name": "sents",
   "use_special_entities": true,
   "use_detected_entities": false,
+  "use_sentence_nodes": true,
 
-  "embedded_dims": 768,
+  "embedded_dims": 128,
   "glove_tokens_code": "6B",
   "transformer_heads": 4,
 
@@ -24,7 +25,7 @@
   "scale_accumulated_gradients": true,
 
   "embedder_type": "bert",
-  "bert_name": "roberta-base",
+  "bert_name": "prajjwal1/bert-",
   "bert_fine_tune_layers": [],
   "bert_size": "tiny",
 

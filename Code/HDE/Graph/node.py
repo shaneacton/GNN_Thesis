@@ -11,8 +11,8 @@ class HDENode:
     def __init__(self, type, doc_id=None, candidate_id=None, text=None,
                  ent_token_spen: Tuple[int] = None, ent_id=None, is_special_ent=False):
         assert type in [ENTITY, SENTENCE, TOKEN, PASSAGE, CANDIDATE, QUERY, DOCUMENT], "unrecognised type: " + repr(type)
-        assert (ent_token_spen is None and type != ENTITY) or \
-               (ent_token_spen is not None and type == ENTITY)  # is or isn't an entity
+        # assert (ent_token_spen is None and type != ENTITY) or \
+        #        (ent_token_spen is not None and type == ENTITY)  # is or isn't an entity
         assert (type == CANDIDATE) == (candidate_id is not None)  # is or isnt a candidate
 
         self.is_special_ent = is_special_ent  # if this ent is a query/candidate ent via exact match.

@@ -43,8 +43,11 @@ def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None) -> List[HDEGraph]:
         emb_name += "_" + get_config().bert_name.replace("\\", "_").replace("/", "_")
     file_name = emb_name + "_" + split._name
     ent_name = "detected" if not get_config().use_special_entities else ("special" if not get_config().use_detected_entities else "det&spec")
-    file_name += "_" + ent_name + ".data"
-    file_name = get_config().dataset + "_" + file_name
+    file_name += "_" + ent_name
+    if hasattr(get_config(), "use_sentence_nodes") and get_config().use_sentence_nodes:  # todo remove legacy
+        file_name += "_sents"
+
+    file_name = get_config().dataset + "_" + file_name + ".data"
 
     if get_config().run_args.processed_data_path:
         data_path = join(get_config().run_args.processed_data_path, file_name)

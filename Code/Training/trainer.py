@@ -44,7 +44,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
     accumulated_edges = 0
 
     training_results = get_training_results(name)
-
+    print("starting training")
     for epoch in range(conf.num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
             continue
@@ -123,7 +123,6 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 epoch_start_time = save_training_states(training_results, epoch_start_time, i, model, name, optimizer,
                                                         scheduler, bert_optim)
         model.last_example = -1
-
         valid_acc = evaluate(model, program_start_time=program_start_time)
         set_status_value(name, "completed_epochs", epoch)
 

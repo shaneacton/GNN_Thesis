@@ -44,8 +44,8 @@ def get_sentence_char_spans(text, doc=None) -> List[Tuple[int]]:
     doc = _init_doc(doc, text)
     sents = doc.sents
     sent_spans = [get_char_span_from_spacy_span(s, doc) for s in sents]
-
-    return sent_spans, doc
+    # print("sentences:", "\n".join([text[span[0]:span[1]] for span in sent_spans]))
+    return sent_spans
 
 
 def get_entity_char_spans(text, doc=None) -> List[Tuple[int]]:
@@ -119,8 +119,8 @@ if __name__ == "__main__":
     print(text)
     doc = None
     # char_spans, doc = get_flat_entity_and_corefs_chars(text, doc=doc)
-    # char_spans, doc = get_sentence_char_spans(text, doc=doc)
+    char_spans = get_sentence_char_spans(text, doc=doc)
     # char_spans, doc = get_noun_char_spans(text, doc=doc)
-    char_spans = get_noun_char_spans(text)
+    # char_spans = get_noun_char_spans(text)
     for s in char_spans:
         print(text[s[0]: s[1]])

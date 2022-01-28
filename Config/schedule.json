@@ -7,6 +7,7 @@
     "base_0_dweight_hi_lr"
   ],
   "low_priority_configs": [
-    "base_2_trans_sdp_graph_vtype"
+    "base_2_trans_sdp_graph_vtype",
+    "base_2_trans_bert_freeze_sdp_graph_sents"
   ]
 }

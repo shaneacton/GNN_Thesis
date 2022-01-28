@@ -7,7 +7,7 @@ import torch
 from torch_geometric.utils import remove_self_loops, add_self_loops
 
 from Code.Training import dev
-from Code.constants import ENTITY, DOCUMENT, CANDIDATE, GLOBAL, SELF_LOOP, REVERSE
+from Code.constants import ENTITY, DOCUMENT, CANDIDATE, GLOBAL, SELF_LOOP, SENTENCE
 from Config.config import conf
 
 if TYPE_CHECKING:
@@ -25,6 +25,9 @@ class HDEGraph:
         self.entity_text_to_nodes: Dict[str, List[int]] = {}
         self.doc_nodes: List[int] = []
         self.candidate_nodes: List[int] = []
+        if hasattr(conf, "use_sentence_nodes") and conf.use_sentence_nodes:  # todo remove legacy
+            self.sentence_inclusion_bools: List[bool] = []
+            self.sentence_nodes: List[int] = []
 
         self.ordered_edges: List[HDEEdge] = []
         self.unique_edges: Set[Tuple[int]] = set()  # set of (t, f) ids, which are always sorted, ie: t<f
@@ -144,6 +147,8 @@ class HDEGraph:
             self.doc_nodes.append(next_id)
         if node.type == CANDIDATE:
             self.candidate_nodes.append(next_id)
+        if node.type == SENTENCE:
+            self.sentence_nodes.append(next_id)
 
         self.ordered_nodes.append(node)
         return next_id
