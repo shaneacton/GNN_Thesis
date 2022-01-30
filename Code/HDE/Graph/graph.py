@@ -92,20 +92,20 @@ class HDEGraph:
             types.append(GLOBAL)
         return types
 
-    def edge_types(self, direction=None):
+    def edge_types(self):
         types = self.ordered_unique_edge_types()
         edge_type_map = {t: i for i, t in enumerate(types)}
+        # print("edge type map:", edge_type_map)
         type_ids = []
         for edge in self.ordered_edges:
             type_id = edge_type_map[edge.type()]
             type_ids.append(type_id)
-            if direction is None:
-                """
-                    if both directions are being included, then each edge will be added to the edge index twice.
-                    Different directionality is not considered a different type, the unidirectional edge_types vec 
-                    looks the same for forward and reverse.
-                """
-            type_ids.append(type_id)
+
+            if hasattr(conf, "bidirectional_edge_types") and conf.bidirectional_edge_types:  # todo remove legacy
+                reverse_id = edge_type_map[edge.type(reverse=True)]
+                type_ids.append(reverse_id)
+            else:  # unidirectional - add the same type id twice
+                type_ids.append(type_id)
 
         if conf.add_self_loops:
             """
@@ -124,13 +124,20 @@ class HDEGraph:
         """
         types = self.ordered_unique_edge_types()
         edge_type_map = {t: i+2 for i, t in enumerate(types)}
+        # print("edge type map:", edge_type_map)
         num_nodes = len(self.ordered_nodes)
         matrix = np.identity(num_nodes)  # all unconnected except for self edges
         for edge in self.ordered_edges:
             type_id = edge_type_map[edge.type()]
             matrix[edge.from_id, edge.to_id] = type_id
-            matrix[edge.to_id, edge.from_id] = type_id
 
+            if hasattr(conf, "bidirectional_edge_types") and conf.bidirectional_edge_types:  # todo remove legacy
+                reverse_id = edge_type_map[edge.type(reverse=True)]
+                matrix[edge.from_id, edge.to_id] = reverse_id
+            else:  # unidirectional - add the same type id twice
+                matrix[edge.from_id, edge.to_id] = type_id
+
+        # print("matrix:", matrix)
         return torch.tensor(matrix).to(dev()).long()
 
     def add_node(self, node: HDENode) -> int:
@@ -170,6 +177,10 @@ class HDEGraph:
         if self.has_edge(edge):
             print("warning, adding  an edge between two nodes which are already connected")
         self.unique_edge_types.add(edge.type())
+        if hasattr(conf, "bidirectional_edge_types") and conf.bidirectional_edge_types:  # todo remove legacy
+            # print("adding reverse edge type:", edge.type(reverse=True))
+            self.unique_edge_types.add(edge.type(reverse=True))
+
         self.ordered_edges.append(edge)
         self.unique_edges.add(tuple(sorted([edge.to_id, edge.from_id])))
 

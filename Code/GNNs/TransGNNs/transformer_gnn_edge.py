@@ -10,7 +10,7 @@ class TransformerGNNEdge(nn.Module):
         super().__init__()
         if in_channels != out_channels:
             raise Exception("")
-        self.self_attn = MultiheadAttentionEdge(in_channels, heads, 11, dropout=conf.dropout, batch_first=True)
+        self.self_attn = MultiheadAttentionEdge(in_channels, heads, 14, dropout=conf.dropout, batch_first=True)
 
     def forward(self, x, mask, **kwargs):
         """x~(l,f)"""

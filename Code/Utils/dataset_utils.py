@@ -47,6 +47,9 @@ def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None) -> List[HDEGraph]:
     if hasattr(get_config(), "use_sentence_nodes") and get_config().use_sentence_nodes:  # todo remove legacy
         file_name += "_sents"
 
+    if hasattr(get_config(), "bidirectional_edge_types") and get_config().bidirectional_edge_types:  # todo remove legacy
+        file_name += "_bi"
+
     file_name = get_config().dataset + "_" + file_name + ".data"
 
     if get_config().run_args.processed_data_path:

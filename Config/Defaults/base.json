@@ -3,6 +3,7 @@
   "use_special_entities": true,
   "use_detected_entities": false,
   "use_sentence_nodes": false,
+  "bidirectional_edge_types": false,
   "model_name": "hde",
   "model_class": "HDERel",
   "gnn_class": "GATConv",

@@ -1,9 +1,10 @@
 {
   "dataset": "wikihop",
-  "model_name": "sents",
+  "model_name": "bidir",
   "use_special_entities": true,
   "use_detected_entities": false,
   "use_sentence_nodes": true,
+  "bidirectional_edge_types": true,
 
   "embedded_dims": 128,
   "glove_tokens_code": "6B",

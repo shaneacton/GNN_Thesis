@@ -15,12 +15,22 @@ class HDEEdge:
         if type is None and graph is None:
             raise Exception("must provide type or graph to generate type from")
 
-    def type(self):
+    def is_bidirectional(self):
+        # edges which are x2y are bidirectional. Generic edges like Comention or Entity are unidirectional
+        nodes = self.graph.ordered_nodes
+        f, t = nodes[self.from_id], nodes[self.to_id]
+        types = sorted([f.type, t.type])
+        return self._type is None and types[0] != types[1]
+
+    def type(self, reverse=False):
         if self._type is None:  # default if no type is provided
             nodes = self.graph.ordered_nodes
             f, t = nodes[self.from_id], nodes[self.to_id]
             types = sorted([f.type, t.type])
-            return types[0] + "2" + types[1]
+            if reverse and self.is_bidirectional():
+                return types[1] + "2" + types[0]
+            else:
+                return types[0] + "2" + types[1]
 
         return self._type
 
