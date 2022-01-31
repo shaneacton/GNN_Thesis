@@ -165,14 +165,11 @@ class MultiheadAttentionEdge(Module):
         if dropout_p > 0.0:
             attn = dropout(attn, p=dropout_p)
         output = torch.bmm(attn, v)
-        if hasattr(conf, "include_trans_gnn_edge_types") and conf.include_trans_gnn_edge_types and \
-                hasattr(conf, "use_key_type_edge_embs") and not conf.use_key_type_edge_embs:   # todo remove legacy
-            """Add edge embeddings aV to V here before matmult"""
+        if conf.include_trans_gnn_edge_types and not conf.use_key_type_edge_embs:
+            """V-Type edge embeddings"""
             edge_embs = self.edge_embs_V(edge_id_mat)  # (Nq, Nk, E)
             A = attn.permute(1,0,2)  # (Nq, B, Nk)
-            # print("values:", v.size(), "ve:", edge_embs.size())
             AE = torch.bmm(A, edge_embs).permute(1,0,2)   # (B, Nq, E)
-            # print("ae:", AE.size())
             # (B, Nt, Ns) x (B, Ns, E) -> (B, Nt, E)
             output += AE
         return output, attn
