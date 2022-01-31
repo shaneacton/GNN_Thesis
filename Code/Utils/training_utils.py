@@ -31,9 +31,8 @@ def save_training_results(data, name):
 
 def get_exponential_schedule_with_warmup(optimizer, num_grace_epochs=1, decay_fac=0.9):
     """roughly halves the lr every 7 epochs. at e 50, lr is 200 times lower"""
-    if hasattr(get_config(), "lr_decay_fac") and get_config().lr_decay_fac != -1:
+    if get_config().lr_decay_fac != -1:
         decay_fac = get_config().lr_decay_fac
-        # todo remove legacy
 
     def lr_lambda(epoch: float):
         if epoch <= num_grace_epochs:

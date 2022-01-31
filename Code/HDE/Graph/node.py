@@ -6,8 +6,6 @@ from Code.constants import ENTITY, SENTENCE, TOKEN, PASSAGE, QUERY, CANDIDATE, D
 
 class HDENode:
 
-    # todo implement is_spaecial_entity. Maybe allow for both special and non special entities
-
     def __init__(self, type, doc_id=None, candidate_id=None, text=None,
                  ent_token_spen: Tuple[int] = None, ent_id=None, is_special_ent=False):
         assert type in [ENTITY, SENTENCE, TOKEN, PASSAGE, CANDIDATE, QUERY, DOCUMENT], "unrecognised type: " + repr(type)

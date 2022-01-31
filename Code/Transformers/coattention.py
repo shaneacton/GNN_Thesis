@@ -2,13 +2,12 @@ from typing import List
 
 import torch
 from torch import Tensor
-from torch.nn import LayerNorm
 
 from Code.Transformers.transformer import Transformer
-from Code.constants import QUERY, DOCUMENT
+from Code.constants import QUERY, DOCUMENT, ENTITY, SENTENCE, CANDIDATE
 from Config.config import conf
 
-SOURCE_TYPE_MAP = {DOCUMENT: 0, QUERY: 1}
+SOURCE_TYPE_MAP = {DOCUMENT: 0, QUERY: 1, ENTITY: 2, CANDIDATE: 3, SENTENCE: 3}
 
 
 class Coattention(Transformer):
@@ -16,7 +15,7 @@ class Coattention(Transformer):
     """here, the two types are context or query"""
 
     def __init__(self, intermediate_fac=2, use_type_embedder=True):
-        num_types = 2
+        num_types = len(SOURCE_TYPE_MAP)
         super().__init__(conf.embedded_dims, num_types, conf.num_coattention_layers, use_type_embeddings=use_type_embedder,
                          intermediate_fac=intermediate_fac)
 
@@ -25,7 +24,11 @@ class Coattention(Transformer):
 
     def batched_coattention(self, supps: List[Tensor], context_type: str, query: Tensor, return_query_encoding=False) -> List[Tensor]:
         if self.use_type_embeddings:
-            supps = [s + self.get_type_tensor(DOCUMENT, s.size(-2)) for s in supps]
+            if hasattr(conf, "use_coat_proper_types") and conf.use_coat_proper_types:  # todo remove legacy
+                supps = [s + self.get_type_tensor(context_type, s.size(-2)) for s in supps]
+                # print("using coat type:", context_type)
+            else:
+                supps = [s + self.get_type_tensor(DOCUMENT, s.size(-2)) for s in supps]
             query = (query + self.get_type_tensor(QUERY, query.size(-2)))
 
         supps = [s.view(-1, self.hidden_size) for s in supps]

@@ -112,7 +112,7 @@ class HDEModel(nn.Module):
         if "Transformer" in conf.gnn_class:
             # print("x before:", x.size(), x)
             mask = None
-            if hasattr(conf, "include_trans_gnn_edges") and conf.include_trans_gnn_edges:  # todo remove legacy
+            if conf.include_trans_gnn_edges:
                 mask = graph.get_mask()
             x = self.gnn(x, mask=mask, **kwargs)
             # print("x after:", x.size(), x)
@@ -219,11 +219,8 @@ class HDEModel(nn.Module):
                 ent_embs = torch.index_select(x, dim=0, index=linked_ent_nodes)
 
                 cand_ent_probs = self.entity_scorer(ent_embs)
+                ent_prob = torch.max(cand_ent_probs)
 
-                if conf.use_average_output_agg:
-                    ent_prob = torch.sum(cand_ent_probs)  # todo - divide by num cands
-                else:
-                    ent_prob = torch.max(cand_ent_probs)
             ent_probs += [ent_prob]
         ent_probs = torch.stack(ent_probs, dim=0)
 
