@@ -22,5 +22,5 @@
   "use_coat_proper_types": true,
   "num_coattention_layers": 2,
 
-  "initial_lr": 0.01
+  "initial_lr": 0.0075
 }
