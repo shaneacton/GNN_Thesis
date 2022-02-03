@@ -25,10 +25,9 @@ class Summariser(Transformer):
     """
 
     def __init__(self, intermediate_fac=2):
-        num_types = 4
-        use_types = hasattr(conf, "use_summariser_types") and conf.use_summariser_types  # todo remove legacy
+        num_types = 3
         super().__init__(conf.hidden_size, num_types, conf.num_summariser_layers,
-                         use_type_embeddings=use_types, intermediate_fac=intermediate_fac)
+                         use_type_embeddings=False, intermediate_fac=intermediate_fac)
 
         if conf.use_switch_coattention:
             self.coattention = SwitchCoattention(intermediate_fac)
