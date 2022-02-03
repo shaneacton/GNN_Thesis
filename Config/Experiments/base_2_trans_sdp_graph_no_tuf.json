@@ -1,0 +1,18 @@
+{
+  "model_class": "HDE",
+  "gnn_class": "TransformerEdge",
+  "use_gating": true,
+  "use_transformer_block": false,
+  "use_simple_hde": true,
+
+  "layerwise_weight_sharing": false,
+  "use_switch_summariser": true,
+  "use_switch_coattention": false,
+  "use_switch_gnn": false,
+  "gnn_aggr": "add",
+
+  "initial_lr": 0.01,
+
+  "include_trans_gnn_edge_types": true,
+  "include_trans_gnn_edges": true
+}
