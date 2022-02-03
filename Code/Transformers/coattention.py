@@ -15,8 +15,7 @@ class Coattention(Transformer):
     """here, the two types are context or query"""
 
     def __init__(self, intermediate_fac=2, use_type_embedder=True):
-        # todo remove legacy
-        num_types = len(SOURCE_TYPE_MAP) if hasattr(conf, "use_coat_proper_types") and conf.use_coat_proper_types else 2
+        num_types = len(SOURCE_TYPE_MAP)
         super().__init__(conf.embedded_dims, num_types, conf.num_coattention_layers, use_type_embeddings=use_type_embedder,
                          intermediate_fac=intermediate_fac)
 

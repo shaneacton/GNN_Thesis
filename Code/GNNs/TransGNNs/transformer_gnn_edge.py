@@ -11,7 +11,7 @@ class TransformerGNNEdge(nn.Module):
         if in_channels != out_channels:
             raise Exception("")
         # todo remove legacy
-        num_types = 11 if hasattr(conf, "use_coat_proper_types") and conf.use_coat_proper_types else 14
+        num_types = 14
         self.self_attn = MultiheadAttentionEdge(in_channels, heads, num_types, dropout=conf.dropout, batch_first=True)
 
     def forward(self, x, mask, **kwargs):
