@@ -10,7 +10,9 @@ class TransformerGNNEdge(nn.Module):
         super().__init__()
         if in_channels != out_channels:
             raise Exception("")
-        self.self_attn = MultiheadAttentionEdge(in_channels, heads, 14, dropout=conf.dropout, batch_first=True)
+        # todo remove legacy
+        num_types = 11 if hasattr(conf, "use_coat_proper_types") and conf.use_coat_proper_types else 14
+        self.self_attn = MultiheadAttentionEdge(in_channels, heads, num_types, dropout=conf.dropout, batch_first=True)
 
     def forward(self, x, mask, **kwargs):
         """x~(l,f)"""
