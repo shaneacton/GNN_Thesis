@@ -1,8 +1,6 @@
 from torch import nn, Tensor
 from torch_geometric.nn import MessagePassing
 
-from Code.HDE.Graph.graph import HDEGraph
-
 
 class LinearGNN(MessagePassing):
 
