@@ -9,7 +9,7 @@
   ],
   "low_priority_configs": [
     "base_2_trans_bert_freeze_sdp_graph_sents",
-    "base_2_trans_bert_freeze_sdp_graph_bi",
+    "base_0_new_grus",
     "base_2_trans_sdp_graph_no_tuf"
   ]
 }
