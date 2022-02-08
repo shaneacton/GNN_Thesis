@@ -14,5 +14,7 @@
   "initial_lr": 0.001,
 
   "include_trans_gnn_edge_types": true,
-  "include_trans_gnn_edges": true
+  "include_trans_gnn_edges": true,
+
+  "num_layers": 3
 }
