@@ -5,10 +5,10 @@
   "model_configs": [
     "base_0_new",
     "base_0_linear2",
-    "base_0_new_dweight"
+    "base_0_new_dweight",
+    "base_0_new_grus"
   ],
   "low_priority_configs": [
-    "base_2_trans_bert_freeze_sdp_graph_sents",
-    "base_2_trans_sdp_graph_no_tuf"
+    "base_2_trans_bert_freeze_sdp_graph_sents"
   ]
 }
