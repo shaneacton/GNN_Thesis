@@ -3,8 +3,6 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_0_new",
-    "base_0_new_dweight",
     "base_0_new_grus"
   ],
   "low_priority_configs": [
