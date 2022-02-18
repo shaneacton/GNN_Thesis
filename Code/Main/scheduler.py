@@ -25,11 +25,7 @@ from Checkpoint import set_checkpoint_folder, get_checkpoint_folder
 GLOBAL_FILE_LOCK_PATH = join(get_checkpoint_folder(), "scheduler_lock.lock")
 
 
-def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, program_start_time=-1, debug=False, run_args=None):
-    """
-        train/continue a model using a model config in HDE/Config
-        this method can be run in parallel by different processes
-    """
+def get_config(model_conf=None, train_conf=None, repeat_num=0, run_args=None):
     from Config.config import conf
     if model_conf is not None or train_conf is not None:
         if model_conf is None:
@@ -39,15 +35,24 @@ def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, prog
 
     set_conf_files(model_conf, train_conf)
     from Config.config import conf
-    from Code.Training.trainer import train_model
     model_name = effective_name(conf.model_name, repeat_num)
     conf.set("clean_model_name", conf.model_name)
     conf.set("model_name", model_name)
     conf.run_args = run_args
     if run_args.max_runtime and run_args.max_runtime != -1:
         conf.max_runtime_seconds = int(run_args.max_runtime)
+    return conf
+
+
+def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, program_start_time=-1, debug=False, run_args=None):
+    """
+        train/continue a model using a model config in HDE/Config
+        this method can be run in parallel by different processes
+    """
+    conf = get_config(model_conf, train_conf, repeat_num, run_args)
     atexit.register(release_status)
 
+    from Code.Training.trainer import train_model
     train_model(conf.model_name, gpu_num=gpu_num, program_start_time=program_start_time)
 
 

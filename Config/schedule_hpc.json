@@ -3,11 +3,9 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_bert_freeze_dup2",
-    "base_2_trans_bert_freeze_dup3"
+    "base_2_trans_bert_freeze_20L",
+    "base_2_trans_bert_freeze_15L"
   ],
   "low_priority_configs": [
-    "base_2_trans_bert_freeze_12L",
-    "base_2_trans_bert_freeze_15L"
   ]
 }

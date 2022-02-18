@@ -17,10 +17,7 @@ sys.path.append(join(dir_path_1, 'Checkpoint'))
 from Checkpoint.checkpoint_utils import create_model_checkpoint_folder
 from Code.Main.scheduler import effective_name, train_config
 
-
-if __name__ == "__main__":
-    start_time = time.time()
-
+def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_conf', '-m', help='Hyper params for model', default="base")
     parser.add_argument('--model_conf2', '-m2', help='Hyper params for 2nd model', default="")
@@ -31,6 +28,14 @@ if __name__ == "__main__":
     if args.debug == "y":
         args.model_conf = "debug_model"
         args.train_conf = "debug_train"
+
+    return args
+
+
+if __name__ == "__main__":
+    start_time = time.time()
+
+    args = get_args()
 
     if args.model_conf2:  # a second GPU is available. We will run a second config
         print("found second model to train", args.model_conf2)
@@ -45,7 +50,6 @@ if __name__ == "__main__":
         process = ctx.Process(target=train_config, kwargs=kwargs)
         process.start()
         print("started second process to train", args.model_conf2, "on gpu 2")
-
 
     model_name = effective_name(args.model_conf, 0)
     create_model_checkpoint_folder(model_name, safe_mode=True)
