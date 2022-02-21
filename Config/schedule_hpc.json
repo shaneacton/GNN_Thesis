@@ -7,5 +7,8 @@
     "base_2_trans_bert_freeze_15L"
   ],
   "low_priority_configs": [
+    "base_2_trans_bert_freeze_20L_tune_lr",
+    "base_2_trans_bert_freeze_20L_tune_dropout",
+    "base_2_trans_bert_freeze_20L_tune_heads"
   ]
 }
