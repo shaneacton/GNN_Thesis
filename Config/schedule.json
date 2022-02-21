@@ -6,5 +6,6 @@
     "base_0_new_grus"
   ],
   "low_priority_configs": [
+    "base_2_trans_linear"
   ]
 }
