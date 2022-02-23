@@ -9,8 +9,6 @@ import torch
 import torch.multiprocessing as mp
 from filelock import FileLock
 
-from Code.Main.run_utils import get_model_config, effective_name
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -18,6 +16,7 @@ sys.path.append(join(dir_path_1, 'Code'))
 sys.path.append(join(dir_path_1, 'Config'))
 sys.path.append(join(dir_path_1, 'Checkpoint'))
 
+from Code.Main.run_utils import get_model_config, effective_name
 from Checkpoint.checkpoint_utils import get_model_checkpoint_folder, load_status, create_model_checkpoint_folder, \
     save_status, training_status_path
 from Config.config_utils import load_config, load_effective_config
