@@ -9,7 +9,7 @@ from Code.Training import dev
 from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_transformer import SwitchTransformer
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT, GLOBAL
-from Config.config import conf
+from Config.config import get_config
 
 NODE_TYPE_MAP = {ENTITY: 0, DOCUMENT: 1, CANDIDATE: 2}
 
@@ -21,7 +21,7 @@ class SwitchSummariser(SwitchTransformer):
     """
 
     def __init__(self, intermediate_fac=2):
-        super().__init__(conf.embedded_dims, conf.num_summariser_layers, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac,
+        super().__init__(get_config().embedded_dims, get_config().num_summariser_layers, types=[ENTITY, DOCUMENT, CANDIDATE], intermediate_fac=intermediate_fac,
                          include_global=True)
 
     def get_type_tensor(self, type, length):

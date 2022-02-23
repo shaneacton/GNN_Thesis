@@ -36,6 +36,7 @@ class Config:
             return self.embedded_dims
         return self.embedded_dims * 2
 
+
 conf = None
 
 

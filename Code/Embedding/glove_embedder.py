@@ -1,18 +1,16 @@
+import pathlib
+import re
 from os.path import join, exists
 
 import numpy as np
 import torch
 from torch import Tensor
-import re
-import pathlib
-
-from torch.nn import LayerNorm
 
 from Code.Embedding.character_embedder import CharacterEmbedder
 from Code.Embedding.positional_embedder import PositionalEmbedder
 from Code.Embedding.string_embedder import StringEmbedder
 from Code.Training import dev
-from Config.config import conf
+from Config.config import get_config
 
 
 class GloveEmbedder(StringEmbedder):
@@ -21,10 +19,10 @@ class GloveEmbedder(StringEmbedder):
         super().__init__()
         self.use_positional_embeddings = use_positional_embeddings
         embeddings_dict = {}
-        self.dims = glove_dims = conf.embedded_dims
-        glove_code = "glove." + conf.glove_tokens_code + "." + repr(glove_dims) + "d.txt"
-        if conf.run_args.glove_path:
-            path = join(conf.run_args.glove_path, glove_code)
+        self.dims = glove_dims = get_config().embedded_dims
+        glove_code = "glove." + get_config().glove_tokens_code + "." + repr(glove_dims) + "d.txt"
+        if get_config().run_args.glove_path:
+            path = join(get_config().run_args.glove_path, glove_code)
         else:
             file_path = pathlib.Path(__file__).parent.absolute()
             path = join(file_path, "Glove", glove_code)
@@ -50,7 +48,7 @@ class GloveEmbedder(StringEmbedder):
         if use_positional_embeddings:
             self.positional_embedder = PositionalEmbedder()
 
-        if conf.use_character_embs_for_unknown_words:
+        if get_config().use_character_embs_for_unknown_words:
             self.unknown_character_embedder = CharacterEmbedder(glove_dims)
         else:
             self.unknown_token_emb = np.asarray([0] * glove_dims, "float32")
@@ -59,7 +57,7 @@ class GloveEmbedder(StringEmbedder):
         if word in self.embs.keys():
             emb = self.embs[word]
         else:
-            if conf.use_character_embs_for_unknown_words:
+            if get_config().use_character_embs_for_unknown_words:
                 emb = self.unknown_character_embedder(word)
             else:
                 emb = self.unknown_token_emb

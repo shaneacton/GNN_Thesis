@@ -11,7 +11,7 @@ from Code.Transformers.coattention import Coattention
 from Code.Transformers.switch_coattention import SwitchCoattention
 from Code.Transformers.transformer import Transformer
 from Code.constants import CANDIDATE, ENTITY, DOCUMENT
-from Config.config import conf
+from Config.config import get_config
 
 NODE_TYPE_MAP = {ENTITY: 0, DOCUMENT: 1, CANDIDATE: 2}
 
@@ -26,15 +26,15 @@ class Summariser(Transformer):
 
     def __init__(self, intermediate_fac=2):
         num_types = 3
-        super().__init__(conf.hidden_size, num_types, conf.num_summariser_layers,
+        super().__init__(get_config().hidden_size, num_types, get_config().num_summariser_layers,
                          use_type_embeddings=False, intermediate_fac=intermediate_fac)
 
-        if conf.use_switch_coattention:
+        if get_config().use_switch_coattention:
             self.coattention = SwitchCoattention(intermediate_fac)
         else:
             self.coattention = Coattention(intermediate_fac)
 
-        if not conf.use_simple_hde:
+        if not get_config().use_simple_hde:
             self.coattention_gru = GRUContextualiser()
 
     def get_type_tensor(self, type, length):
@@ -67,11 +67,11 @@ class Summariser(Transformer):
         if spans is None:
             spans = [None] * len(vecs)
 
-        extracts = [self.get_vec_extract(v, spans[i]).view(-1, conf.embedded_dims) for i, v in enumerate(vecs)]
+        extracts = [self.get_vec_extract(v, spans[i]).view(-1, get_config().embedded_dims) for i, v in enumerate(vecs)]
         original_extracts = extracts
 
         extracts = self.coattention.batched_coattention(extracts, _type, query_vec)
-        if not conf.use_simple_hde:  # simple hde skips the gru's and doesn't double model dimensions
+        if not get_config().use_simple_hde:  # simple hde skips the gru's and doesn't double model dimensions
             gru_t = time.time()
             extracts = [self.coattention_gru(e) for e in extracts]
             # doubles embedded dim to get hidden dim

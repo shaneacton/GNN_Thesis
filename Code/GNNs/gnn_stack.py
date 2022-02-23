@@ -8,7 +8,7 @@ from torch_geometric.nn import GATConv
 from Code.GNNs.gated_gnn import GatedGNN
 from Code.GNNs.switch_gnn import SwitchGNN
 from Code.GNNs.edge_embedding_gnn import EdgeEmbeddings
-from Config.config import conf
+from Config.config import get_config
 
 
 class GNNStack(nn.Module):
@@ -19,11 +19,11 @@ class GNNStack(nn.Module):
         layers = self.get_layers(GNNClass, layer_kwargs)
         self.layers = ModuleList(layers)
         self.act = None
-        if conf.gnn_stack_act != "none":
-            if conf.gnn_stack_act == "relu":
+        if get_config().gnn_stack_act != "none":
+            if get_config().gnn_stack_act == "relu":
                 self.act = nn.ReLU()
             else:
-                raise Exception("unreckognised activation: " + repr(conf.gnn_stack_act) )
+                raise Exception("unreckognised activation: " + repr(get_config().gnn_stack_act) )
 
     def get_layers(self, GNNClass, layer_kwargs):
         layers = []
@@ -33,21 +33,21 @@ class GNNStack(nn.Module):
             if "BASE_GNN_CLASS" in init_args:
                 base_args = layer_kwargs["BASE_GNN_CLASS"].__init__.__code__.co_varnames
                 if "dropout" in base_args:
-                    layer_kwargs.update({"dropout": conf.dropout})
+                    layer_kwargs.update({"dropout": get_config().dropout})
             elif "dropout" in init_args:
-                layer_kwargs.update({"dropout": conf.dropout})
-        layer_kwargs.setdefault("aggr", conf.gnn_aggr)
-        layer_kwargs.setdefault("add_self_loops", conf.add_self_loops)
+                layer_kwargs.update({"dropout": get_config().dropout})
+        layer_kwargs.setdefault("aggr", get_config().gnn_aggr)
+        layer_kwargs.setdefault("add_self_loops", get_config().add_self_loops)
 
-        for layer_i in range(conf.num_layers):
-            if conf.layerwise_weight_sharing and layer_i > 0:
+        for layer_i in range(get_config().num_layers):
+            if get_config().layerwise_weight_sharing and layer_i > 0:
                 """copy by reference so the layers share the same params"""
                 layers.append(layers[0])
                 continue
 
-            LayerWrapper = TransGNNLayer if conf.use_transformer_block else SimpleGNNLayer
+            LayerWrapper = TransGNNLayer if get_config().use_transformer_block else SimpleGNNLayer
             layer = LayerWrapper(GNNClass, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
-            if conf.use_gating:
+            if get_config().use_gating:
                 layer = GatedGNN(layer)
 
             layers.append(layer)
@@ -84,30 +84,30 @@ class TransGNNLayer(nn.Module):
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
 
-        size = conf.hidden_size
+        size = get_config().hidden_size
         if GNNClass == GATConv:
-            assert conf.hidden_size % layer_kwargs["heads"] == 0
-            out_size = conf.hidden_size / layer_kwargs["heads"]
+            assert get_config().hidden_size % layer_kwargs["heads"] == 0
+            out_size = get_config().hidden_size / layer_kwargs["heads"]
         else:
             out_size = size
         size = int(size)
         out_size = int(out_size)
         self.gnn = GNNClass(size, out_size, **needed_kwargs)
 
-        if conf.use_switch_gnn:
+        if get_config().use_switch_gnn:
             self.gnn = SwitchGNN(self.gnn)
         if use_edge_type_embs:
             num_types = 7 + 1  # +1 for self edges
             self.gnn = EdgeEmbeddings(self.gnn, size, num_types)
 
         self.linear1 = Linear(size, size * intermediate_fac)
-        self.dropout = Dropout(conf.dropout)
+        self.dropout = Dropout(get_config().dropout)
         self.linear2 = Linear(size * intermediate_fac, size)
 
         self.norm1 = LayerNorm(size)
         self.norm2 = LayerNorm(size)
-        self.dropout1 = Dropout(conf.dropout)
-        self.dropout2 = Dropout(conf.dropout)
+        self.dropout1 = Dropout(get_config().dropout)
+        self.dropout2 = Dropout(get_config().dropout)
 
     def forward(self, x, *inputs, **kwargs):
         """x ~ (N, in_channels)"""
@@ -133,7 +133,7 @@ class SimpleGNNLayer(nn.Module):
     def __init__(self, GNNClass, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()
 
-        h_size = conf.hidden_size
+        h_size = get_config().hidden_size
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
         if GNNClass == GATConv:
@@ -141,13 +141,13 @@ class SimpleGNNLayer(nn.Module):
         else:
             self.gnn = GNNClass(h_size, h_size, **needed_kwargs)
 
-        if conf.use_switch_gnn:
+        if get_config().use_switch_gnn:
             self.gnn = SwitchGNN(self.gnn)
         if use_edge_type_embs:
             num_types = 7 + 1  # +1 for self edges
             self.gnn = EdgeEmbeddings(self.gnn, h_size, num_types)
 
-        self.dropout1 = Dropout(conf.dropout)
+        self.dropout1 = Dropout(get_config().dropout)
 
     def forward(self, x, *inputs, **kwargs):
         "x ~ (N, in_channels)"
