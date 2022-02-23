@@ -19,7 +19,7 @@ from Code.Transformers.summariser import Summariser
 from Code.Transformers.switch_summariser import SwitchSummariser
 from Code.Utils.graph_utils import get_entity_summaries, similar
 from Code.constants import DOCUMENT, CANDIDATE, SENTENCE
-from Config.config import conf
+from Config.config import get_config
 
 
 class HDEModel(nn.Module):
@@ -29,50 +29,50 @@ class HDEModel(nn.Module):
 
         if GNN_CLASS is None:
             from Code.Utils.model_utils import GNN_MAP
-            GNN_CLASS = GNN_MAP[conf.gnn_class]
+            GNN_CLASS = GNN_MAP[get_config().gnn_class]
         super().__init__()
-        self.name = conf.model_name
-        self.use_gating = conf.use_gating
+        self.name = get_config().model_name
+        self.use_gating = get_config().use_gating
 
-        if not conf.use_simple_hde:
+        if not get_config().use_simple_hde:
             self.supp_contextualiser = GRUContextualiser()
             self.cand_contextualiser = GRUContextualiser()
             self.query_contextualiser = GRUContextualiser()
 
-        if conf.use_switch_summariser:
+        if get_config().use_switch_summariser:
             self.summariser = SwitchSummariser(**kwargs)
         else:
             self.summariser = Summariser(**kwargs)
-        conf.cfg["num_summariser_params"] = num_params(self.summariser)
+        get_config().cfg["num_summariser_params"] = num_params(self.summariser)
 
         self.relu = ReLU()
 
         self.gnn = None
         self.init_gnn(GNN_CLASS)
-        conf.cfg["num_gnn_params"] = num_params(self.gnn)
+        get_config().cfg["num_gnn_params"] = num_params(self.gnn)
 
-        self.candidate_scorer = HDEScorer(conf.hidden_size)
-        self.entity_scorer = HDEScorer(conf.hidden_size)
+        self.candidate_scorer = HDEScorer(get_config().hidden_size)
+        self.entity_scorer = HDEScorer(get_config().hidden_size)
 
-        conf.cfg["num_output_params"] = num_params(self.candidate_scorer) + num_params(self.entity_scorer)
+        get_config().cfg["num_output_params"] = num_params(self.candidate_scorer) + num_params(self.entity_scorer)
 
         self.loss_fn = CrossEntropyLoss()
         self.last_example = -1
         self.last_epoch = -1
 
-        if conf.embedder_type == "bert":
+        if get_config().embedder_type == "bert":
             self.embedder: StringEmbedder = BertEmbedder()
-        elif conf.embedder_type == "glove":
+        elif get_config().embedder_type == "glove":
             self.embedder: StringEmbedder = GloveEmbedder()
         else:
-            raise Exception("unreckognised embedder type: " + repr(conf.embedder_type) + " needs: {bert, glove}")
-        conf.cfg["num_embedding_params"] = num_params(self.embedder)
-        conf.cfg["num_total_params"] = num_params(self)
+            raise Exception("unreckognised embedder type: " + repr(get_config().embedder_type) + " needs: {bert, glove}")
+        get_config().cfg["num_embedding_params"] = num_params(self.embedder)
+        get_config().cfg["num_total_params"] = num_params(self)
 
     def init_gnn(self, GNN_CLASS):
         init_args = inspect.getfullargspec(GNN_CLASS.__init__)[0]
         if "heads" in init_args:
-            args = {"heads": conf.heads}
+            args = {"heads": get_config().heads}
         else:
             args = {}
 
@@ -91,9 +91,9 @@ class HDEModel(nn.Module):
         assert x.size(0) == len(graph.ordered_nodes), "error in feature extraction. num node features: " + repr(x.size(0)) + " num nodes: " + repr(len(graph.ordered_nodes))
 
         num_edges = len(graph.unique_edges)
-        if num_edges > conf.max_edges != -1:
+        if num_edges > get_config().max_edges != -1:
             raise TooManyEdges()
-        if conf.show_memory_usage_data:
+        if get_config().show_memory_usage_data:
             print("num edges:", num_edges)
 
         x = self.pass_gnn(x, graph)
@@ -109,10 +109,10 @@ class HDEModel(nn.Module):
         t = time.time()
         kwargs = {"graph": graph}
 
-        if "Transformer" in conf.gnn_class:
+        if "Transformer" in get_config().gnn_class:
             # print("x before:", x.size(), x)
             mask = None
-            if conf.include_trans_gnn_edges:
+            if get_config().include_trans_gnn_edges:
                 mask = graph.get_mask()
             x = self.gnn(x, mask=mask, **kwargs)
             # print("x after:", x.size(), x)
@@ -150,7 +150,7 @@ class HDEModel(nn.Module):
         cand_embs = [self.embedder(cand) for cand in example.candidates]
         self.check_pad_volume(support_embeddings)
 
-        if not conf.use_simple_hde:
+        if not get_config().use_simple_hde:
             gru_t = time.time()
             support_embeddings = [self.supp_contextualiser(sup) for sup in support_embeddings]
             query_emb = self.query_contextualiser(query_emb)
@@ -163,7 +163,7 @@ class HDEModel(nn.Module):
 
         ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser, query_vec=query_emb)
         all_summaries = support_summaries + ent_summaries + candidate_summaries
-        if hasattr(conf, "use_sentence_nodes") and conf.use_sentence_nodes:  # todo remove legacy
+        if hasattr(get_config(), "use_sentence_nodes") and get_config().use_sentence_nodes:  # todo remove legacy
             all_sent_summs = get_entity_summaries(example.sent_token_spans, support_embeddings, self.summariser, query_vec=query_emb, type=SENTENCE)
             inclusion_bools = graph.sentence_inclusion_bools
             included_sent_summs = []
@@ -185,9 +185,9 @@ class HDEModel(nn.Module):
             if return_query_encoding=False, the encoded sequences will be cropped to return to their pre-concat size
         """
         pad_volume = max([s.size(1) for s in support_embeddings]) * len(support_embeddings)
-        if pad_volume > conf.max_pad_volume:
+        if pad_volume > get_config().max_pad_volume:
             raise PadVolumeOverflow()
-        if conf.show_memory_usage_data:
+        if get_config().show_memory_usage_data:
             print("documents padded volume:", pad_volume)
 
         return support_embeddings

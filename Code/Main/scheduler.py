@@ -9,6 +9,8 @@ import torch
 import torch.multiprocessing as mp
 from filelock import FileLock
 
+from Code.Main.run_utils import get_model_config, effective_name
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -16,7 +18,6 @@ sys.path.append(join(dir_path_1, 'Code'))
 sys.path.append(join(dir_path_1, 'Config'))
 sys.path.append(join(dir_path_1, 'Checkpoint'))
 
-from Config.config import set_conf_files
 from Checkpoint.checkpoint_utils import get_model_checkpoint_folder, load_status, create_model_checkpoint_folder, \
     save_status, training_status_path
 from Config.config_utils import load_config, load_effective_config
@@ -25,31 +26,12 @@ from Checkpoint import set_checkpoint_folder, get_checkpoint_folder
 GLOBAL_FILE_LOCK_PATH = join(get_checkpoint_folder(), "scheduler_lock.lock")
 
 
-def get_config(model_conf=None, train_conf=None, repeat_num=0, run_args=None):
-    from Config.config import conf
-    if model_conf is not None or train_conf is not None:
-        if model_conf is None:
-            model_conf = conf.model_cfg_name
-        if train_conf is None:
-            train_conf = conf.train_cfg_name
-
-    set_conf_files(model_conf, train_conf)
-    from Config.config import conf
-    model_name = effective_name(conf.model_name, repeat_num)
-    conf.set("clean_model_name", conf.model_name)
-    conf.set("model_name", model_name)
-    conf.run_args = run_args
-    if run_args.max_runtime and run_args.max_runtime != -1:
-        conf.max_runtime_seconds = int(run_args.max_runtime)
-    return conf
-
-
 def train_config(model_conf=None, train_conf=None, gpu_num=0, repeat_num=0, program_start_time=-1, debug=False, run_args=None):
     """
         train/continue a model using a model config in HDE/Config
         this method can be run in parallel by different processes
     """
-    conf = get_config(model_conf, train_conf, repeat_num, run_args)
+    conf = get_model_config(model_conf, train_conf, repeat_num, run_args)
     atexit.register(release_status)
 
     from Code.Training.trainer import train_model
@@ -62,10 +44,6 @@ def release_status():
     status["running"] = False
     save_status(conf.model_name, status)
     print("setting running=False for", conf.model_name)
-
-
-def effective_name(name, repeat_num):
-    return name + "_" + repr(repeat_num)
 
 
 def get_safe_status(effective_name, max_hours=13):

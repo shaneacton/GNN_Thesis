@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from Config.config import conf
+from Config.config import get_config
 
 
 class GatedGNN(nn.Module):
@@ -17,7 +17,7 @@ class GatedGNN(nn.Module):
     def __init__(self, gnn):
         super().__init__()
         self.gnn = gnn
-        size = conf.hidden_size
+        size = get_config().hidden_size
         self.update_linear = nn.Linear(size, size)
         self.gate_linear = nn.Linear(2*size, size)
         self.sig = nn.Sigmoid()

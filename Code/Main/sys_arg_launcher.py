@@ -6,6 +6,7 @@ from os.path import join
 
 import torch.multiprocessing as mp
 
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -14,8 +15,6 @@ sys.path.append(join(dir_path_1, 'Code.Main'))
 sys.path.append(join(dir_path_1, 'Config'))
 sys.path.append(join(dir_path_1, 'Checkpoint'))
 
-from Checkpoint.checkpoint_utils import create_model_checkpoint_folder
-from Code.Main.scheduler import effective_name, train_config
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -23,6 +22,9 @@ def get_args():
     parser.add_argument('--model_conf2', '-m2', help='Hyper params for 2nd model', default="")
     parser.add_argument('--train_conf', '-t', help='Training details and memory budgeting', default="standard_train")
     parser.add_argument('--debug', '-d', help='Whether or not to run the debug configs - y/n', default="n")
+    parser.add_argument('--max_runtime', '-mt', help='How long to wait, in seconds, before safely exiting the program', default="-1")
+    parser.add_argument('--glove_path', '-g', help='Where the glove.*.*.txt files are stored', default="")
+    parser.add_argument('--processed_data_path', '-p', help='Where processed graphs are stored', default="")
 
     args = parser.parse_args()
     if args.debug == "y":
@@ -36,6 +38,10 @@ if __name__ == "__main__":
     start_time = time.time()
 
     args = get_args()
+
+    from Checkpoint.checkpoint_utils import create_model_checkpoint_folder
+    from Code.Main.scheduler import train_config
+    from Code.Main.run_utils import effective_name
 
     if args.model_conf2:  # a second GPU is available. We will run a second config
         print("found second model to train", args.model_conf2)

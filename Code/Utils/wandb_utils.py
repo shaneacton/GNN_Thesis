@@ -1,8 +1,8 @@
-from Config.config import conf, get_config
+from Config.config import get_config
 
 try:
     import wandb
-    use_wandb = conf.use_wandb
+    use_wandb = get_config().use_wandb
 except Exception as e:
     print("wandb error:", e)
     use_wandb = False
@@ -35,7 +35,7 @@ def new_run(model_name, config=None):
     return _wandb_run
 
 
-def continue_run(id, model_name=conf.model_name):
+def continue_run(id, model_name=get_config().model_name):
     if id == -1:
         raise Exception("cannot continue wandb run. no valid  run id")
     global _wandb_run
