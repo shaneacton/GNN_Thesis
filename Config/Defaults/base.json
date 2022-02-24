@@ -3,6 +3,8 @@
   "use_special_entities": true,
   "use_detected_entities": false,
   "use_sentence_nodes": false,
+  "use_all_sentences": false,
+  "connect_sent2doc": false,
   "use_compliment_edges": false,
   "bidirectional_edge_types": false,
   "model_name": "hde",
