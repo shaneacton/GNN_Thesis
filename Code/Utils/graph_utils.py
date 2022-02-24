@@ -257,27 +257,40 @@ def connect_sentence_and_entity_nodes(graph, tokeniser: LongformerTokenizerFast=
     ent_nodes = [graph.ordered_nodes[i] for i in graph.entity_nodes]
     sentence_inclusion_bools = []
     for d, sentence_nodes in enumerate(all_sentence_nodes):
-        sup_node = graph.get_doc_nodes()[d]
+        doc_node = graph.get_doc_nodes()[d]
 
         for sent_node in sentence_nodes:
 
+            """
+                for each sentence in each document, loop through all entities in all docs
+            """
             sent_id = None
             for ent_node in ent_nodes:
                 if clean(ent_node.text) in clean(sent_node.text):
-                    # print("found ent",  ent_node.text, " in sent:", sent_node.text)
+                    """this entity is found in this sentence"""
                     if sent_id is None:  # add sentence node to graph
                         sent_id = graph.add_node(sent_node)
-                        doc_edge = HDEEdge(sup_node.id_in_graph, sent_id, graph=graph)
+                        doc_edge = HDEEdge(doc_node.id_in_graph, sent_id, graph=graph)
                         graph.add_edge(doc_edge)
-                        # print("adding sentence node", sent_node)
-                        # print("since it contains ent:", ent_node)
+
                     ent_edge = HDEEdge(sent_id, ent_node.id_in_graph, graph=graph)
                     graph.add_edge(ent_edge)
 
+                    if get_config().connect_sent2doc and ent_node.doc_id != doc_node.id_in_graph:
+                        """a cross doc link due to contained entity in different document"""
+                        cross_doc_edge = HDEEdge(sent_id, ent_node.doc_id, graph=graph)
+                        graph.add_edge(cross_doc_edge)
+
+            if sent_id is None and get_config().use_all_sentences:
+                """this sentence does not contain any entities. just connect it to its document"""
+                sent_id = graph.add_node(sent_node)
+                doc_edge = HDEEdge(doc_node.id_in_graph, sent_id, graph=graph)
+                graph.add_edge(doc_edge)
+
+
             sentence_inclusion_bools.append(sent_id is not None)
     graph.sentence_inclusion_bools = sentence_inclusion_bools
-
-    print("num ents:", len(ent_nodes), "num sents:", len(graph.sentence_nodes))
+    # print("num ents:", len(ent_nodes), "num sents:", len(graph.sentence_nodes))
 
 
 def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, support_encodings=None):
