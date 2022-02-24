@@ -6,6 +6,6 @@
     "base_0_new_faith"
   ],
   "low_priority_configs": [
-    "base_2_trans_linear"
+    "base_2_trans_sdp_graph_comp"
   ]
 }
