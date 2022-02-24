@@ -14,7 +14,7 @@ from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode
 from Code.Utils.spacy_utils import get_entity_char_spans, get_sentence_char_spans
 from Code.constants import DOCUMENT, ENTITY, CANDIDATE, COMENTION, SENTENCE
-from Config.config import conf
+from Config.config import get_config
 from Viz.graph_visualiser import get_file_path, render_graph2
 
 if TYPE_CHECKING:
@@ -205,7 +205,6 @@ def get_entity_summaries(tok_spans: List[List[Tuple[int]]], support_embeddings: 
     for s, spans in enumerate(tok_spans):  # for each support document
         flat_spans.extend(spans)
         flat_vecs.extend([support_embeddings[s]] * len(spans))
-    # return [summariser(vec, ENTITY, flat_spans[i]) for i, vec in enumerate(flat_vecs)]
     return summariser(flat_vecs, type, flat_spans, query_vec=query_vec)
 
 
@@ -293,47 +292,54 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
     connect_candidates_and_entities(graph)
     connect_entity_mentions(graph)
 
-    if hasattr(conf, "use_sentence_nodes") and conf.use_sentence_nodes:  # todo remove legacy
+    if hasattr(get_config(), "use_sentence_nodes") and get_config().use_sentence_nodes:  # todo remove legacy
         connect_sentence_and_entity_nodes(graph, glove_embedder=glove_embedder,
                          tokeniser=tokeniser, support_encodings=support_encodings)
 
-    if conf.visualise_graphs:
-        if conf.exit_after_first_viz:
-            render_graph2(graph, graph_folder="temp")
-            exit()
-        else:
-            cands = sorted([c.lower() for c in example.candidates])
-            hash_code = zlib.adler32(str.encode("_".join(cands)))
-            name = "graph_" + str(hash_code)
-            render_graph2(graph, view=False, graph_name=name)
+    if hasattr(get_config(), "use_compliment_edges") and get_config().use_compliment_edges:
+        connect_unconnected_entities(graph)
 
-            text_name = name + ".txt"
-            text_path = get_file_path(conf.model_name, text_name)
-            file = open(text_path, "w", encoding='utf-8')
-
-            type_counts = {}
-            for edge in graph.ordered_edges:
-                if edge.type() not in type_counts:
-                    type_counts[edge.type()] = 0
-                type_counts[edge.type()] += 1
-
-            num_nodes = len(graph.ordered_nodes)
-            num_edges = len(graph.unique_edges)
-            num_cross_doc_ments = len(graph.get_cross_document_comention_edges())
-
-            file.write(repr(example) + '\n\n'+
-                       "edges: " + repr(num_edges) + "\n"+
-                       "nodes: " + repr(num_nodes) + "\n\n" +
-                       "edge density: " + repr(num_edges / (num_nodes * (num_nodes-1))) + "\n" +
-                       "cross doc comentions: " + repr(num_cross_doc_ments) + "\n" +
-                       "cross doc ratio: " + repr(num_cross_doc_ments / len(graph.doc_nodes)) + "\n" +
-
-                       "edge types:\n\t" + "\n\t".join([t + ": " + repr(c) for t, c in type_counts.items()])
-                       )
-
-            file.close()
+    if get_config().visualise_graphs:
+        render_graph(example, graph)
 
     return graph
+
+
+def render_graph(example, graph):
+    if get_config().exit_after_first_viz:
+        render_graph2(graph, graph_folder="temp")
+        exit()
+    else:
+        cands = sorted([c.lower() for c in example.candidates])
+        hash_code = zlib.adler32(str.encode("_".join(cands)))
+        name = "graph_" + str(hash_code)
+        render_graph2(graph, view=False, graph_name=name)
+
+        text_name = name + ".txt"
+        text_path = get_file_path(get_config().model_name, text_name)
+        file = open(text_path, "w", encoding='utf-8')
+
+        type_counts = {}
+        for edge in graph.ordered_edges:
+            if edge.type() not in type_counts:
+                type_counts[edge.type()] = 0
+            type_counts[edge.type()] += 1
+
+        num_nodes = len(graph.ordered_nodes)
+        num_edges = len(graph.unique_edges)
+        num_cross_doc_ments = len(graph.get_cross_document_comention_edges())
+
+        file.write(repr(example) + '\n\n' +
+                   "edges: " + repr(num_edges) + "\n" +
+                   "nodes: " + repr(num_nodes) + "\n\n" +
+                   "edge density: " + repr(num_edges / (num_nodes * (num_nodes - 1))) + "\n" +
+                   "cross doc comentions: " + repr(num_cross_doc_ments) + "\n" +
+                   "cross doc ratio: " + repr(num_cross_doc_ments / len(graph.doc_nodes)) + "\n" +
+
+                   "edge types:\n\t" + "\n\t".join([t + ": " + repr(c) for t, c in type_counts.items()])
+                   )
+
+        file.close()
 
 
 def connect_all_to_all(source_node_ids: List[int], target_node_ids: List[int], graph, type):
