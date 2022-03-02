@@ -3,11 +3,9 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_bert_freeze_20L",
-    "base_2_trans_bert_freeze_20L_tune_dropout"
+    "base_2_trans_bert_freeze_15L_tune_lr_dropout",
+    "base_2_trans_bert_freeze_20L_tune_lr"
   ],
   "low_priority_configs": [
-    "base_2_trans_bert_freeze_20L_tune_lr",
-    "base_2_trans_bert_freeze_20L_tune_heads"
   ]
 }
