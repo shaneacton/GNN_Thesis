@@ -5,7 +5,9 @@
   "model_configs": [
     "base_0_new_faith",
     "base_0_new_gat",
-    "base_2_trans_bert_freeze_sdp_graph_sents2"
+    "base_2_trans_bert_freeze_sdp_graph_sents2",
+    "base_0_new_tuf_no_gate",
+    "base_0_new_tuf"
   ],
   "low_priority_configs": [
     "base_2_trans_bert_freeze_sdp_graph_all_sents2"
