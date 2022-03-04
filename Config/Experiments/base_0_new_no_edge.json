@@ -1,13 +1,13 @@
 {
   "model_class": "HDE",
-  "gnn_class": "SAGEConv",
+  "gnn_class": "Linear2",
   "use_gating": true,
   "use_transformer_block": false,
   "use_simple_hde": true,
 
   "layerwise_weight_sharing": true,
-  "use_switch_summariser": true,
+  "use_switch_summariser": false,
   "use_switch_coattention": false,
-  "use_switch_gnn": true,
-  "gnn_aggr": "mean"
+  "use_switch_gnn": false,
+  "gnn_aggr": "add"
 }

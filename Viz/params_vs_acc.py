@@ -3,12 +3,24 @@
 # NUM_PARAMS = [3.2, 3.7, 3.3, 8.3, 6.1]
 
 # # base1, base1_SDP, base1_sage, base1_linear, base1_nogate, base1_noTuf, base1_noSS, base1_share
+from typing import List
+
 GROUP_NAME = "Base1"
 ACCURACIES = [64, 64.7, 57.3, 60.1, 60.3, 62.9, 65, 63.6]
 NUM_PARAMS = [10.8, 13.2, 11.6, 10.8, 8.4, 7.5, 6.1, 5.0]
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+def regress_data(x: List, y: List):
+    if x is List:
+        x, y = np.array(x), np.array(y)
+    r = round(np.corrcoef(x, y)[1, 0], 3)
+    X = np.vstack([x, np.ones(len(x))]).T
+    m, c = np.linalg.lstsq(X, y)[0]
+
+    return m, c, r
 
 
 def plot(accs, params):
@@ -18,16 +30,14 @@ def plot(accs, params):
     plt.xlabel("Num Model Parameters (Millions)")
     plt.ylabel('Accuracy %')
 
+    m, c, r = regress_data(params, accs)
     params = np.array(params)
-    accs = np.array(accs)
-    pearR = round(np.corrcoef(params, accs)[1, 0], 3)
-
-    A = np.vstack([params, np.ones(len(params))]).T
-    m, c = np.linalg.lstsq(A, accs)[0]
-    plt.plot(params, params * m + c, color="red", label="R = " + repr(pearR))
+    plt.plot(params, params * m + c, color="red", label="R = " + repr(r))
 
     plt.legend(loc=2)
     plt.show()
 
 
-plot(ACCURACIES, NUM_PARAMS)
+if __name__ == "__main__":
+    plot(ACCURACIES, NUM_PARAMS)
+
