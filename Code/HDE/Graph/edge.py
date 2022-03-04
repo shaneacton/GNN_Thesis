@@ -3,16 +3,16 @@ from Code.HDE.Graph.graph import HDEGraph
 
 class HDEEdge:
 
-    def __init__(self, from_id, to_id, graph=None, type=None):
+    def __init__(self, from_id, to_id, graph=None, type=None, safe_mode=False):
         self.graph: HDEGraph = graph
         self._type = type
         self.from_id = from_id
         self.to_id = to_id
 
-        if from_id == to_id:
+        if from_id == to_id and not safe_mode:
             raise Exception("self loops are optionally added in by the gnn. not modeled by hdegraph")
 
-        if type is None and graph is None:
+        if type is None and graph is None and not safe_mode:
             raise Exception("must provide type or graph to generate type from")
 
     def is_bidirectional(self):

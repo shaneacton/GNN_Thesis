@@ -1,12 +1,13 @@
 import torch
 from torch import dropout, Tensor
+from torch.nn import Linear
 from torch.nn.functional import linear
 from torch.nn.init import xavier_uniform_, constant_
 from torch.nn.parameter import Parameter
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import softmax as gat_softmax, remove_self_loops, add_self_loops
 
-from Config.config import conf
+from Config.config import get_config
 
 
 class CustomGAT(MessagePassing):
@@ -24,12 +25,12 @@ class CustomGAT(MessagePassing):
         self.in_proj_weight = Parameter(torch.empty(3 * in_channels, in_channels))
         self.in_proj_bias = Parameter(torch.empty(3 * in_channels))
 
-        self.out_proj = _LinearWithBias(in_channels, out_channels)
+        self.out_proj = Linear(in_channels, out_channels)
 
         self._reset_parameters()
         self.add_self_loops = add_self_loops
         if residual_attention is None:
-            residual_attention = conf.use_residual_attention
+            residual_attention = get_config().use_residual_attention
         self.residual_attention = residual_attention
         if residual_attention:
             self.last_attention_scores = None

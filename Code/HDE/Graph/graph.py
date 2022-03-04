@@ -8,7 +8,7 @@ from torch_geometric.utils import remove_self_loops, add_self_loops
 
 from Code.Training import dev
 from Code.constants import ENTITY, DOCUMENT, CANDIDATE, GLOBAL, SELF_LOOP, SENTENCE
-from Config.config import conf
+from Config.config import conf, get_config
 
 if TYPE_CHECKING:
     from Code.HDE.Graph.edge import HDEEdge
@@ -68,7 +68,7 @@ class HDEGraph:
 
         edge_index = torch.tensor([froms, tos]).to(dev()).long()
 
-        if conf.add_self_loops:
+        if get_config().add_self_loops:
             num_nodes = len(self.ordered_nodes)
             edge_index, _ = remove_self_loops(edge_index)
             edge_index, _ = add_self_loops(edge_index, num_nodes=num_nodes)
@@ -173,8 +173,8 @@ class HDEGraph:
             return True
         return False
 
-    def add_edge(self, edge: HDEEdge):
-        if self.has_edge(edge):
+    def add_edge(self, edge: HDEEdge, safe_mode=False):
+        if self.has_edge(edge) and not safe_mode:
             print("warning, adding  an edge between two nodes which are already connected")
         self.unique_edge_types.add(edge.type())
         if hasattr(conf, "bidirectional_edge_types") and conf.bidirectional_edge_types:  # todo remove legacy

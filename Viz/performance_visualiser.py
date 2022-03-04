@@ -1,6 +1,7 @@
 from math import floor
 from typing import List
 
+import nlp
 import torch
 from matplotlib import pyplot as plt
 from tqdm import tqdm
@@ -55,7 +56,7 @@ if __name__ == "__main__":
 
     from Code.Utils.dataset_utils import get_wikihop_graphs
     from Code.HDE.Graph.graph import HDEGraph
-    graphs: List[HDEGraph] = get_wikihop_graphs(embedder=model.embedder)
+    graphs: List[HDEGraph] = get_wikihop_graphs(embedder=model.embedder, split=nlp.Split.TEST)
 
     print("loaded", len(graphs), "graphs")
 

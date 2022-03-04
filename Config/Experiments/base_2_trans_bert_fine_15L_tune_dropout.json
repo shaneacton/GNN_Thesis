@@ -1,0 +1,26 @@
+{
+  "model_class": "HDERel",
+  "gnn_class": "GATConv",
+  "use_gating": true,
+  "use_transformer_block": true,
+  "use_simple_hde": true,
+
+  "layerwise_weight_sharing": false,
+  "use_switch_summariser": false,
+  "use_switch_coattention": false,
+  "use_switch_gnn": false,
+  "gnn_aggr": "add",
+
+  "embedder_type": "bert",
+  "bert_size": "small",
+  "bert_fine_tune_layers": [],
+  "embedded_dims": 512,
+  "transformer_heads": 8,
+
+  "initial_lr": 0.001,
+  "dropout": 0.2,
+  "lr_decay_fac": 0.95,
+
+  "num_layers": 15,
+  "num_epochs": 50
+}
