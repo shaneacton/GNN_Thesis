@@ -10,6 +10,7 @@
     "base_0_new_tuf"
   ],
   "low_priority_configs": [
-    "base_2_trans_bert_freeze_sdp_graph_all_sents2"
+    "base_2_trans_bert_freeze_sdp_graph_all_sents2",
+    "base_0_new_no_edge"
   ]
 }
