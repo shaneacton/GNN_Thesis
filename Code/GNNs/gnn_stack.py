@@ -1,3 +1,4 @@
+import copy
 import inspect
 
 import torch
@@ -44,9 +45,13 @@ class GNNStack(nn.Module):
                 """copy by reference so the layers share the same params"""
                 layers.append(layers[0])
                 continue
+            if hasattr(get_config(), "share_tuf_params") and get_config().share_tuf_params and layer_i > 0:  # todo remove legacy
+                first_layer = layers[0].gnn if get_config().use_gating else layers[0]
+                layer = SharedTransGNNLayer(first_layer)
+            else:
+                LayerWrapper = TransGNNLayer if get_config().use_transformer_block else SimpleGNNLayer
+                layer = LayerWrapper(GNNClass, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
 
-            LayerWrapper = TransGNNLayer if get_config().use_transformer_block else SimpleGNNLayer
-            layer = LayerWrapper(GNNClass, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
             if get_config().use_gating:
                 layer = GatedGNN(layer)
 
@@ -77,32 +82,14 @@ def get_core_gnn(layer):  # unpeels any nested gnns, eg Gate(Rel(Gat(x)))
     return gnn
 
 
-class TransGNNLayer(nn.Module):
-
-    def __init__(self, GNNClass, intermediate_fac=2, use_edge_type_embs=False, **layer_kwargs):
+class TUF(nn.Module):
+    def __init__(self, size, gnn, linear1, linear2):
         super().__init__()
-        init_args = inspect.getfullargspec(GNNClass.__init__)[0]
-        needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
-
-        size = get_config().hidden_size
-        if GNNClass == GATConv:
-            assert get_config().hidden_size % layer_kwargs["heads"] == 0
-            out_size = get_config().hidden_size / layer_kwargs["heads"]
-        else:
-            out_size = size
-        size = int(size)
-        out_size = int(out_size)
-        self.gnn = GNNClass(size, out_size, **needed_kwargs)
-
-        if get_config().use_switch_gnn:
-            self.gnn = SwitchGNN(self.gnn)
-        if use_edge_type_embs:
-            num_types = 7 + 1  # +1 for self edges
-            self.gnn = EdgeEmbeddings(self.gnn, size, num_types)
-
-        self.linear1 = Linear(size, size * intermediate_fac)
+        self.size = size
+        self.gnn = gnn
+        self.linear1 = linear1
         self.dropout = Dropout(get_config().dropout)
-        self.linear2 = Linear(size * intermediate_fac, size)
+        self.linear2 = linear2
 
         self.norm1 = LayerNorm(size)
         self.norm2 = LayerNorm(size)
@@ -127,8 +114,43 @@ class TransGNNLayer(nn.Module):
         x = self.norm2(x)
 
         return x
-    
-    
+
+
+class TransGNNLayer(TUF):
+
+    def __init__(self, GNNClass, intermediate_fac=2, use_edge_type_embs=False, **layer_kwargs):
+        init_args = inspect.getfullargspec(GNNClass.__init__)[0]
+        needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
+
+        size = get_config().hidden_size
+        if GNNClass == GATConv:
+            assert get_config().hidden_size % layer_kwargs["heads"] == 0
+            out_size = get_config().hidden_size / layer_kwargs["heads"]
+        else:
+            out_size = size
+        size = int(size)
+        out_size = int(out_size)
+        gnn = GNNClass(size, out_size, **needed_kwargs)
+
+        if get_config().use_switch_gnn:
+            gnn = SwitchGNN(self.gnn)
+        if use_edge_type_embs:
+            num_types = 7 + 1  # +1 for self edges
+            gnn = EdgeEmbeddings(self.gnn, size, num_types)
+
+        linear1 = Linear(size, size * intermediate_fac)
+        linear2 = Linear(size * intermediate_fac, size)
+
+        super().__init__(size, gnn, linear1, linear2)
+
+
+class SharedTransGNNLayer(TUF):
+    """distinctly weighted GNN, shared linear layers"""
+    def __init__(self, translayer: TransGNNLayer):
+        new_gnn = copy.deepcopy(translayer.gnn)
+        super().__init__(translayer.size, new_gnn, translayer.linear1, translayer.linear2)
+
+
 class SimpleGNNLayer(nn.Module):
     def __init__(self, GNNClass, use_edge_type_embs=False, **layer_kwargs):
         super().__init__()

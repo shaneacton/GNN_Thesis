@@ -14,6 +14,7 @@
   "use_simple_hde": true,
   "use_gating": true,
   "use_transformer_block": true,
+  "share_tuf_params": false,
   "layerwise_weight_sharing": false,
   "use_switch_summariser": true,
   "use_switch_coattention": true,
