@@ -4,10 +4,10 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base_2_trans_sharetuf",
-    "base_2_trans_sharegate"
+    "base_2_trans_sharegnn"
   ],
   "low_priority_configs": [
     "base_2_trans_sharetufgate",
-    "base_2_trans_sharegnn"
+    "base_2_trans_sharegate"
   ]
 }
