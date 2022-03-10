@@ -12,6 +12,7 @@
   "gnn_class": "GATConv",
   "num_layers": 9,
   "use_simple_hde": true,
+  "share_gnn_params": false,
   "use_gating": true,
   "share_gate_params": false,
   "use_transformer_block": true,
