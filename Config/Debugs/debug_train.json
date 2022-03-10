@@ -11,7 +11,7 @@
   "use_lr_scheduler": false,
   "num_layers": 2,
   "use_wandb": false,
-  "visualise_graphs": false,
+  "visualise_graphs": true,
   "exit_after_first_viz": false,
   "initial_lr": 0.001
 }

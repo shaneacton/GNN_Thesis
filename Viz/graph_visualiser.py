@@ -19,7 +19,7 @@ name = lambda node: "Node(" + repr(node.text_hash) + ")"
 
 
 def get_node_colour(node: HDENode):
-    colours = {CANDIDATE: "orange", DOCUMENT:  "darkgreen", ENTITY: "cadetblue1"}
+    colours = {CANDIDATE: "yellow", DOCUMENT:  "darkgreen", ENTITY: "cadetblue1"}
     return colours[node.type]
 
 
@@ -85,7 +85,7 @@ def render_graph2(graph: HDEGraph, graph_name="temp", graph_folder=None, view=Tr
     added_node_hashes: Set[int] = set()
 
     dot = graphviz.Digraph(comment='The Round Table')
-    dot.node("Question", graph.example.query, fillcolor="yellow", style="filled")
+    dot.node("Question", graph.example.query, fillcolor="orange", style="filled")
 
     dot.graph_attr.update({'rankdir': 'LR'})
     doc_num = 0

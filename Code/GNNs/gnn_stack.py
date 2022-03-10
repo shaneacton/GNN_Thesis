@@ -6,7 +6,7 @@ from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
 from torch_geometric.nn import GATConv
 
-from Code.GNNs.gated_gnn import GatedGNN
+from Code.GNNs.gated_gnn import GatedGNN, SharedGatedGNN
 from Code.GNNs.switch_gnn import SwitchGNN
 from Code.GNNs.edge_embedding_gnn import EdgeEmbeddings
 from Config.config import get_config
@@ -45,7 +45,7 @@ class GNNStack(nn.Module):
                 """copy by reference so the layers share the same params"""
                 layers.append(layers[0])
                 continue
-            if hasattr(get_config(), "share_tuf_params") and get_config().share_tuf_params and layer_i > 0:  # todo remove legacy
+            if hasattr(get_config(), "share_tuf_params") and get_config().share_tuf_params and layer_i > 0 and get_config().use_transformer_block:  # todo remove legacy
                 first_layer = layers[0].gnn if get_config().use_gating else layers[0]
                 layer = SharedTransGNNLayer(first_layer)
             else:
@@ -53,7 +53,10 @@ class GNNStack(nn.Module):
                 layer = LayerWrapper(GNNClass, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
 
             if get_config().use_gating:
-                layer = GatedGNN(layer)
+                if hasattr(get_config(), "share_gate_params") and get_config().share_gate_params and layer_i > 0:  # todo remove legacy
+                    layer = SharedGatedGNN(layers[0])
+                else:
+                    layer = GatedGNN(layer)
 
             layers.append(layer)
         return layers
