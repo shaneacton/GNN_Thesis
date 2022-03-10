@@ -12,6 +12,20 @@ from Code.GNNs.edge_embedding_gnn import EdgeEmbeddings
 from Config.config import get_config
 
 
+def share_gnn(layer, layer0):
+    if get_config().use_gating:
+        if get_config().use_transformer_block:  # both
+            layer.gnn.gnn = layer0.gnn.gnn
+        else:  # just gating
+            layer.gnn = layer0.gnn
+    else:  # no gating
+        if get_config().use_transformer_block:  # just trans
+            layer.gnn = layer0.gnn
+        else:  # neither
+            layer = layer0
+    return layer
+
+
 class GNNStack(nn.Module):
 
     def __init__(self, GNNClass, use_edge_type_embs=False, **layer_kwargs):
@@ -57,6 +71,9 @@ class GNNStack(nn.Module):
                     layer = SharedGatedGNN(layers[0])
                 else:
                     layer = GatedGNN(layer)
+
+            if hasattr(get_config(), "share_gnn_params") and get_config().share_gnn_params and layer_i > 0:   # todo remove legacy
+                layer = share_gnn(layer, layers[0])
 
             layers.append(layer)
         return layers

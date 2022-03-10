@@ -13,6 +13,7 @@
 
   "model_class": "HDE",
   "gnn_class": "TransformerEdge",
+  "share_gnn_params": true,
   "use_gating": true,
   "share_gate_params": true,
   "use_transformer_block": true,
