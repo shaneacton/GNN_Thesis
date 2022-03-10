@@ -3,8 +3,10 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_sharetuf"
+    "base_2_trans_sharetuf",
+    "base_2_trans_sharegate"
   ],
   "low_priority_configs": [
+    "base_2_trans_sharetufgate"
   ]
 }
