@@ -16,7 +16,11 @@ class EdgeEmbeddings(WrapGNN):
 
     def wrap_message(self, *args, **kwargs):
         if hasattr(get_config(), "use_edge_types") and get_config().use_edge_types:
-            edge_types = self.last_custom_kwargs["edge_types"]
+            if "edge_types" in self.last_custom_kwargs:
+                edge_types = self.last_custom_kwargs["edge_types"]
+            else:
+                edge_types = kwargs["edge_types"]
+
             edge_embs = self.embeddings(edge_types)
             for target in self.target_vectors:
                 vec = kwargs[target]

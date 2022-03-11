@@ -3,7 +3,7 @@ from torch import nn
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.switch_module import SwitchModule
 from Code.constants import GLOBAL
-from Config.config import conf
+from Config.config import conf, get_config
 
 
 class SwitchGNN(nn.Module):
@@ -15,6 +15,8 @@ class SwitchGNN(nn.Module):
         self.include_global = conf.use_global_edge_message
         types = ['candidate2candidate', 'candidate2document', 'candidate2entity', 'codocument', 'comention', 'document2entity', 'entity']
         self.gnns = SwitchModule(gnn, types=types, include_global=self.include_global)
+        if hasattr(get_config(), "switch_gnn_self_transform") and get_config().switch_gnn_self_transform:
+            self.self_transform = nn.Linear(get_config().hidden_size, get_config().hidden_size)
 
     def forward(self, *inputs, graph: HDEGraph = None, **kwargs):
         type_messages = []
@@ -31,5 +33,7 @@ class SwitchGNN(nn.Module):
             type_messages.append(x)
 
         x_agg = sum(type_messages) / len(type_messages)
-
+        if hasattr(get_config(), "switch_gnn_self_transform") and get_config().switch_gnn_self_transform:
+            self_node_features = self.self_transform(*inputs)
+            x_agg += self_node_features
         return x_agg

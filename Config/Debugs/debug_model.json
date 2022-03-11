@@ -1,6 +1,6 @@
 {
   "dataset": "wikihop",
-  "model_name": "lin3",
+  "model_name": "switchGNN",
   "use_special_entities": true,
   "use_detected_entities": false,
   "use_sentence_nodes": false,
@@ -11,9 +11,9 @@
   "glove_tokens_code": "6B",
   "transformer_heads": 4,
 
-  "model_class": "HDERel",
+  "model_class": "HDE",
   "use_edge_types": true,
-  "gnn_class": "Linear3",
+  "gnn_class": "Linear2",
   "share_gnn_params": true,
   "use_gating": true,
   "share_gate_params": true,
@@ -24,7 +24,8 @@
   "layerwise_weight_sharing": false,
   "use_switch_summariser": false,
   "use_switch_coattention": false,
-  "use_switch_gnn": false,
+  "use_switch_gnn": true,
+  "switch_gnn_self_transform": true,
   "gnn_aggr": "mean",
 
   "use_global_edge_message": true,

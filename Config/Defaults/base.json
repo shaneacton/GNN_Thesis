@@ -24,6 +24,7 @@
   "num_coattention_layers": 1,
   "use_coat_proper_types": false,
   "use_switch_gnn": false,
+  "switch_gnn_self_transform": false,
   "use_edge_types": true,
   "use_global_edge_message": false,
   "embedded_dims": 300,
