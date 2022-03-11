@@ -1,6 +1,6 @@
 {
   "dataset": "wikihop",
-  "model_name": "sharegate",
+  "model_name": "lin3",
   "use_special_entities": true,
   "use_detected_entities": false,
   "use_sentence_nodes": false,
@@ -11,8 +11,9 @@
   "glove_tokens_code": "6B",
   "transformer_heads": 4,
 
-  "model_class": "HDE",
-  "gnn_class": "TransformerEdge",
+  "model_class": "HDERel",
+  "use_edge_types": true,
+  "gnn_class": "Linear3",
   "share_gnn_params": true,
   "use_gating": true,
   "share_gate_params": true,

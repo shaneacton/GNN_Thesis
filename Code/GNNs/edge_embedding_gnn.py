@@ -3,6 +3,7 @@ from torch import nn
 from torch_geometric.nn import GATConv
 
 from Code.GNNs.wrap_gnn import WrapGNN
+from Config.config import get_config
 
 
 class EdgeEmbeddings(WrapGNN):
@@ -10,15 +11,17 @@ class EdgeEmbeddings(WrapGNN):
     def __init__(self, gnn_layer, hidden_size, num_edge_types, target_vectors=None):
         super().__init__(gnn_layer)
         self.target_vectors = ["x_j"]
-        self.embeddings = nn.Embedding(num_embeddings=num_edge_types, embedding_dim=hidden_size)
+        if hasattr(get_config(), "use_edge_types") and get_config().use_edge_types:
+            self.embeddings = nn.Embedding(num_embeddings=num_edge_types, embedding_dim=hidden_size)
 
     def wrap_message(self, *args, **kwargs):
-        edge_types = self.last_custom_kwargs["edge_types"]
-        edge_embs = self.embeddings(edge_types)
-        for target in self.target_vectors:
-            vec = kwargs[target]
-            vec = self.add_type_embs(edge_embs, vec)
-            kwargs[target] = vec
+        if hasattr(get_config(), "use_edge_types") and get_config().use_edge_types:
+            edge_types = self.last_custom_kwargs["edge_types"]
+            edge_embs = self.embeddings(edge_types)
+            for target in self.target_vectors:
+                vec = kwargs[target]
+                vec = self.add_type_embs(edge_embs, vec)
+                kwargs[target] = vec
         return kwargs
 
     def add_type_embs(self, edge_embs, vec):
@@ -37,6 +40,7 @@ class EdgeEmbeddings(WrapGNN):
             assert vec.size() == edge_embs.size(), "feature vec size: " + repr(vec.size()) + " does not match edge embs: " + repr(edge_embs.size())
             vec += edge_embs
         return vec
+
 
 if __name__ == "__main__":
     hid = 6

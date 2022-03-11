@@ -3,8 +3,7 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_bert_med_fine_15L_tune_dropout",
-    "base_2_trans_bert_fine_15L_tune_dropout"
+    "base_0_newnew"
   ],
   "low_priority_configs": [
   ]
