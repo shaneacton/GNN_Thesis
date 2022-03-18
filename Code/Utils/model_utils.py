@@ -11,6 +11,7 @@ from Code.GNNs.TransGNNs.transformer_gnn_edge import TransformerGNNEdge
 from Code.GNNs.linear_gnn import LinearGNN
 from Code.GNNs.linear_gnn2 import LinearGNN2
 from Code.GNNs.linear_gnn3 import LinearGNN3
+from Code.GNNs.linear_gnn_sage import LinearGNNSAGE
 from Code.HDE.hde_model import HDEModel
 from Code.HDE.hde_rel import HDERel
 from Code.Training import dev
@@ -26,7 +27,7 @@ MODEL_MAP = {
              }
 
 GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv, "TransformerEdge": TransformerGNNEdge, "Linear": LinearGNN,
-           "Linear2": LinearGNN2, "Linear3": LinearGNN3}
+           "Linear2": LinearGNN2, "Linear3": LinearGNN3, "LinearSAGE": LinearGNNSAGE}
 
 
 def get_model(name, MODEL_CLASS=None, **model_kwargs):
