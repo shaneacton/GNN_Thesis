@@ -1,6 +1,6 @@
 {
   "dataset": "wikihop",
-  "model_name": "switchGNN",
+  "model_name": "linSAGE",
   "use_special_entities": true,
   "use_detected_entities": false,
   "use_sentence_nodes": false,
@@ -13,7 +13,7 @@
 
   "model_class": "HDE",
   "use_edge_types": true,
-  "gnn_class": "Linear2",
+  "gnn_class": "LinearSAGE",
   "share_gnn_params": true,
   "use_gating": true,
   "share_gate_params": true,

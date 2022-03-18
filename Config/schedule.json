@@ -4,9 +4,11 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base_0_newnew_no_gate",
-    "base_0_new_no_gate"
+    "base_0_new_no_gate",
+    "base_2_trans_sharegnn"
   ],
   "low_priority_configs": [
-    "base_2_trans_sharegnn"
+    "base_0_new_sage_no_gate",
+    "base_0_new_sage"
   ]
 }
