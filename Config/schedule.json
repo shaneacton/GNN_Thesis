@@ -7,9 +7,6 @@
     "base_0_new_no_gate"
   ],
   "low_priority_configs": [
-    "base_2_trans_sharetufgate",
-    "base_2_trans_sharegate",
-    "base_2_trans_sharegnntuf",
     "base_2_trans_sharegnn"
   ]
 }
