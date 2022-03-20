@@ -25,7 +25,7 @@ class HDEGraph:
         self.entity_text_to_nodes: Dict[str, List[int]] = {}
         self.doc_nodes: List[int] = []
         self.candidate_nodes: List[int] = []
-        if hasattr(conf, "use_sentence_nodes") and conf.use_sentence_nodes:  # todo remove legacy
+        if conf.use_sentence_nodes:
             self.sentence_inclusion_bools: List[bool] = []
             self.sentence_nodes: List[int] = []
 
@@ -101,7 +101,7 @@ class HDEGraph:
             type_id = edge_type_map[edge.type()]
             type_ids.append(type_id)
 
-            if hasattr(conf, "bidirectional_edge_types") and conf.bidirectional_edge_types:  # todo remove legacy
+            if conf.bidirectional_edge_types:
                 reverse_id = edge_type_map[edge.type(reverse=True)]
                 type_ids.append(reverse_id)
             else:  # unidirectional - add the same type id twice
@@ -131,7 +131,7 @@ class HDEGraph:
             type_id = edge_type_map[edge.type()]
             matrix[edge.from_id, edge.to_id] = type_id
 
-            if hasattr(conf, "bidirectional_edge_types") and conf.bidirectional_edge_types:  # todo remove legacy
+            if conf.bidirectional_edge_types:
                 reverse_id = edge_type_map[edge.type(reverse=True)]
                 matrix[edge.from_id, edge.to_id] = reverse_id
             else:  # unidirectional - add the same type id twice
@@ -174,10 +174,13 @@ class HDEGraph:
         return False
 
     def add_edge(self, edge: HDEEdge, safe_mode=False):
-        if self.has_edge(edge) and not safe_mode:
-            print("warning, adding  an edge between two nodes which are already connected")
+        if self.has_edge(edge):
+            if safe_mode:
+                return
+            raise Exception("warning, adding  an edge between two nodes which are already connected")
+
         self.unique_edge_types.add(edge.type())
-        if hasattr(conf, "bidirectional_edge_types") and conf.bidirectional_edge_types:  # todo remove legacy
+        if conf.bidirectional_edge_types:
             # print("adding reverse edge type:", edge.type(reverse=True))
             self.unique_edge_types.add(edge.type(reverse=True))
 

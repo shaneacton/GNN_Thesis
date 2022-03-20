@@ -13,7 +13,7 @@ from Code.HDE.Graph.edge import HDEEdge
 from Code.HDE.Graph.graph import HDEGraph
 from Code.HDE.Graph.node import HDENode
 from Code.Utils.spacy_utils import get_entity_char_spans, get_sentence_char_spans
-from Code.constants import DOCUMENT, ENTITY, CANDIDATE, COMENTION, SENTENCE
+from Code.constants import DOCUMENT, ENTITY, CANDIDATE, COMENTION, SENTENCE, CODOCUMENT, SEQUENTIAL
 from Config.config import get_config
 from Viz.graph_visualiser import get_file_path, render_graph2
 
@@ -170,11 +170,14 @@ def add_entity_nodes(graph: HDEGraph, supports, ent_token_spans: List[List[Tuple
 
         nodes = all_nodes[s]
         for i, ent_span in enumerate(ent_spans):
-            node = nodes[i]
-            ent_node_id = graph.add_node(node)
-
-            doc_edge = HDEEdge(sup_node.id_in_graph, ent_node_id, graph=graph)
+            graph.add_node(nodes[i])
+            doc_edge = HDEEdge(sup_node.id_in_graph, nodes[i].id_in_graph, graph=graph)
             graph.add_edge(doc_edge)
+
+        # todo remove legacy
+        if hasattr(get_config(), "use_codocument_edges") and get_config().use_codocument_edges:
+            node_ids = [n.id_in_graph for n in nodes]
+            fully_connect(node_ids, graph, type=CODOCUMENT)
 
 
 def charspan_to_tokenspan(encoding: BatchEncoding, char_span: Tuple[int]) -> TokenSpan:
@@ -259,6 +262,7 @@ def connect_sentence_and_entity_nodes(graph, tokeniser: LongformerTokenizerFast=
     for d, sentence_nodes in enumerate(all_sentence_nodes):
         doc_node = graph.get_doc_nodes()[d]
 
+        sent_ids = []
         for sent_node in sentence_nodes:
 
             """
@@ -279,7 +283,7 @@ def connect_sentence_and_entity_nodes(graph, tokeniser: LongformerTokenizerFast=
                     if get_config().connect_sent2doc and ent_node.doc_id != doc_node.id_in_graph:
                         """a cross doc link due to contained entity in different document"""
                         cross_doc_edge = HDEEdge(sent_id, ent_node.doc_id, graph=graph)
-                        graph.add_edge(cross_doc_edge)
+                        graph.add_edge(cross_doc_edge, safe_mode=True)  # mat already be connected
 
             if sent_id is None and get_config().use_all_sentences:
                 """this sentence does not contain any entities. just connect it to its document"""
@@ -287,8 +291,15 @@ def connect_sentence_and_entity_nodes(graph, tokeniser: LongformerTokenizerFast=
                 doc_edge = HDEEdge(doc_node.id_in_graph, sent_id, graph=graph)
                 graph.add_edge(doc_edge)
 
+            if sent_id is not None:
+                sent_ids.append(sent_id)
 
             sentence_inclusion_bools.append(sent_id is not None)
+
+        # todo remove legacy
+        if hasattr(get_config(), "connect_sent2sent") and get_config().connect_sent2sent:
+            connect_sequentially(sent_ids, graph, SEQUENTIAL)
+
     graph.sentence_inclusion_bools = sentence_inclusion_bools
     # print("num ents:", len(ent_nodes), "num sents:", len(graph.sentence_nodes))
 
@@ -305,10 +316,11 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
     connect_candidates_and_entities(graph)
     connect_entity_mentions(graph)
 
-    if hasattr(get_config(), "use_sentence_nodes") and get_config().use_sentence_nodes:  # todo remove legacy
+    if get_config().use_sentence_nodes:
         connect_sentence_and_entity_nodes(graph, glove_embedder=glove_embedder,
                          tokeniser=tokeniser, support_encodings=support_encodings)
 
+    # todo remove legacy
     if hasattr(get_config(), "use_compliment_edges") and get_config().use_compliment_edges:
         connect_unconnected_entities(graph)
 
@@ -370,5 +382,16 @@ def connect_one_to_all(source_node_id: int, target_node_ids: List[int], graph, t
 
 def fully_connect(node_ids, graph, type):
     connect_all_to_all(node_ids, node_ids, graph, type)
+
+
+def connect_sequentially(node_ids, graph, type):
+    last_id = None
+    for id in node_ids:
+        if last_id is None:
+            last_id = id
+            continue
+        edge = HDEEdge(last_id, id, type=type, graph=graph)
+        graph.add_edge(edge)
+        last_id = id
 
 

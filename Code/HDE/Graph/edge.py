@@ -1,4 +1,5 @@
 from Code.HDE.Graph.graph import HDEGraph
+from Code.constants import SEQUENTIAL
 
 
 class HDEEdge:
@@ -31,7 +32,8 @@ class HDEEdge:
                 return types[1] + "2" + types[0]
             else:
                 return types[0] + "2" + types[1]
-
+        if reverse and self._type == SEQUENTIAL:
+            return self._type + "_reverse"
         return self._type
 
     def __eq__(self, other):

@@ -155,8 +155,7 @@ class TransGNNLayer(TUF):
         if get_config().use_switch_gnn:
             gnn = SwitchGNN(gnn)
         if use_edge_type_embs:
-            num_types = 7 + 1  # +1 for self edges
-            gnn = EdgeEmbeddings(gnn, size, num_types)
+            gnn = EdgeEmbeddings(gnn, size)
 
         linear1 = Linear(size, size * intermediate_fac)
         linear2 = Linear(size * intermediate_fac, size)
@@ -186,8 +185,7 @@ class SimpleGNNLayer(nn.Module):
         if get_config().use_switch_gnn:
             self.gnn = SwitchGNN(self.gnn)
         if use_edge_type_embs:
-            num_types = 7 + 1  # +1 for self edges
-            self.gnn = EdgeEmbeddings(self.gnn, h_size, num_types)
+            self.gnn = EdgeEmbeddings(self.gnn, h_size)
 
         self.dropout1 = Dropout(get_config().dropout)
 
