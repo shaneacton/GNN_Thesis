@@ -44,10 +44,19 @@ def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None) -> List[HDEGraph]:
     file_name = emb_name + "_" + split._name
     ent_name = "detected" if not get_config().use_special_entities else ("special" if not get_config().use_detected_entities else "det&spec")
     file_name += "_" + ent_name
-    if hasattr(get_config(), "use_sentence_nodes") and get_config().use_sentence_nodes:  # todo remove legacy
-        file_name += "_sents"
+    # todo remove legacy
+    if hasattr(get_config(), "use_codocument_edges") and get_config().use_codocument_edges:
+        file_name += "_codoc"
 
-    if hasattr(get_config(), "bidirectional_edge_types") and get_config().bidirectional_edge_types:  # todo remove legacy
+    if get_config().use_sentence_nodes:
+        if get_config().use_all_sentences:
+            file_name += "_allSents"
+        else:
+            file_name += "_sents"
+        if hasattr(get_config(), "connect_sent2sent") and get_config().connect_sent2sent:
+            file_name += "Seq"
+
+    if get_config().bidirectional_edge_types:
         file_name += "_bi"
 
     file_name = get_config().dataset + "_" + file_name + ".data"
@@ -82,6 +91,7 @@ def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None) -> List[HDEGraph]:
         processed_examples = [Wikipoint(ex, glove_embedder=embedder) for ex in tqdm(data)]
         print("creating graphs")
         graphs = [create_graph(ex, glove_embedder=embedder) for ex in tqdm(processed_examples)]
+    print("created graphs with edge types:", graphs[0].unique_edge_types)
 
     print("saving", len(graphs), "graphs")
     save_binary_data(graphs, data_path)

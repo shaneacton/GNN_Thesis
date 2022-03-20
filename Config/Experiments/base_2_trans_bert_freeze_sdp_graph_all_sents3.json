@@ -25,5 +25,6 @@
   "initial_lr": 0.01,
 
   "connect_sent2doc": true,
-  "use_all_sentences": true
+  "use_all_sentences": true,
+  "connect_sent2sent": true
 }

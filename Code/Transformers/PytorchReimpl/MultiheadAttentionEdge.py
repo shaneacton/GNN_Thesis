@@ -139,8 +139,7 @@ class MultiheadAttentionEdge(Module):
         # print("attn:", attn.size())
         edge_id_mat = graph.get_edge_id_matrix()  # (Nq, Nk)
         # print("edge id mat:", edge_id_mat.size())
-        if hasattr(conf, "include_trans_gnn_edge_types") and conf.include_trans_gnn_edge_types and \
-                hasattr(conf, "use_key_type_edge_embs") and conf.use_key_type_edge_embs:
+        if conf.include_trans_gnn_edge_types and conf.use_key_type_edge_embs:
             """
                 need a (Nq, E, Nk) matrix for edge embeddings
                 start with (Nq, Nk) edge type id matrix

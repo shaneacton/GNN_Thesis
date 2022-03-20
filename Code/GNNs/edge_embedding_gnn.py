@@ -8,11 +8,11 @@ from Config.config import get_config
 
 class EdgeEmbeddings(WrapGNN):
 
-    def __init__(self, gnn_layer, hidden_size, num_edge_types, target_vectors=None):
+    def __init__(self, gnn_layer, hidden_size):
         super().__init__(gnn_layer)
         self.target_vectors = ["x_j"]
         if hasattr(get_config(), "use_edge_types") and get_config().use_edge_types:
-            self.embeddings = nn.Embedding(num_embeddings=num_edge_types, embedding_dim=hidden_size)
+            self.embeddings = nn.Embedding(num_embeddings=25, embedding_dim=hidden_size)
 
     def wrap_message(self, *args, **kwargs):
         if hasattr(get_config(), "use_edge_types") and get_config().use_edge_types:
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     num_edge_types = 3
 
     base_gnn = GATConv(hid, hid, heads=3)
-    edge_gnn = EdgeEmbeddings(base_gnn, hid, num_edge_types)
+    edge_gnn = EdgeEmbeddings(base_gnn, hid)
 
     x = torch.zeros(num_nodes, hid)
     print("nodes:", x.size())

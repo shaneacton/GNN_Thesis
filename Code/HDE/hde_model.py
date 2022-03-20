@@ -163,7 +163,7 @@ class HDEModel(nn.Module):
 
         ent_summaries = get_entity_summaries(example.ent_token_spans, support_embeddings, self.summariser, query_vec=query_emb)
         all_summaries = support_summaries + ent_summaries + candidate_summaries
-        if hasattr(get_config(), "use_sentence_nodes") and get_config().use_sentence_nodes:  # todo remove legacy
+        if get_config().use_sentence_nodes:
             all_sent_summs = get_entity_summaries(example.sent_token_spans, support_embeddings, self.summariser, query_vec=query_emb, type=SENTENCE)
             inclusion_bools = graph.sentence_inclusion_bools
             included_sent_summs = []
