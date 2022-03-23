@@ -1,0 +1,13 @@
+{
+  "model_class": "HDERel",
+  "gnn_class": "RealSAGE",
+  "use_gating": false,
+  "use_transformer_block": false,
+  "use_simple_hde": true,
+
+  "layerwise_weight_sharing": true,
+  "use_switch_summariser": false,
+  "use_switch_coattention": false,
+  "use_switch_gnn": false,
+  "gnn_aggr": "mean"
+}
