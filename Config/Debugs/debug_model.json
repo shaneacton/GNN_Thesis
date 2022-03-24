@@ -17,7 +17,7 @@
 
   "model_class": "HDERel",
   "use_edge_types": true,
-  "gnn_class": "LinearSAGE",
+  "gnn_class": "RealSAGE",
   "share_gnn_params": true,
   "use_gating": true,
   "share_gate_params": true,
