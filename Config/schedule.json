@@ -3,8 +3,9 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-        "base_0_new_sage",
-        "base_0_new_sage_no_gate"
+      "base_0_new_sage",
+      "base_0_new_sage_no_gate",
+      "base_0_new_no_edge"
   ],
   "low_priority_configs": [
     "base_2_no_gate",
