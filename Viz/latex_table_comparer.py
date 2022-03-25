@@ -1,48 +1,51 @@
-MLP_table = """\multicolumn{1}{r}{No.} & GNN Core & Gating & TUF & MLP \newline Asym & SAGE \newline Asym & Dev \newline Accuracy & Name\\\hline\hline
-        & Edge-Core & \yes & \no & \no & \no & 60.5 & base0 new\\\hline
-        & Edge-Core & \no & \no & \no & \no & 52.7 & new no gate\\\hline
-        & Edge-Core & \yes & \yes & \no & \no & 61.5 & new tuf\\\hline
-        & Edge-Core & \no & \yes & \no & \no & 64.1 & new tuf no gate\\\hline
+MLP_table = """\multicolumn{1}{r}{\cellcolor{gray} No.} & GNN Core & Gating & TUF & MLP \newline Asym & SAGE \newline Asym & Dev \newline Accuracy & Name\\\hline\hline
+        \cellcolor{gray}& Edge-Core & \yes & \no & \no & \no & 60.5 & base0 new\\\hline
+        \cellcolor{gray}& Edge-Core & \no & \no & \no & \no & 52.7 & new no gate\\\hline
+        \cellcolor{gray}& Edge-Core & \yes & \yes & \no & \no & 61.5 & new tuf\\\hline
+        \cellcolor{gray}& Edge-Core & \no & \yes & \no & \no & 64.1 & new tuf no gate\\\hline
 
-        & Edge-Core & \no & \no & \yes & \no & 58.2 & newnew no gate\\\hline
-        & Edge-Core & \yes & \no & \yes & \no & 60.3 & newnew\\\hline
-        & Edge-Core & \yes & \no & \no & \yes & - & new sage\\\hline
-        & Edge-Core & \no & \no & \no & \yes & - & new sage no gate\\\hline\hline
+        \cellcolor{gray}& Edge-Core & \no & \no & \yes & \no & 58.2 & newnew no gate\\\hline
+        \cellcolor{gray}& Edge-Core & \yes & \no & \yes & \no & 60.3 & newnew\\\hline
+        \cellcolor{gray}& Edge-Core & \yes & \no & \no & \yes & - & new sage\\\hline
+        \cellcolor{gray}& Edge-Core & \no & \no & \no & \yes & - & new sage no gate\\\hline\hline
 
-        & Switch-Core & \yes & \no & \no & \no & 58.9 & base0 linear2\\\hline
-        & Switch-Core & \yes & \no & \yes & \no & 58 & newnew switch\\\hline
-        & Switch-Core & \no & \no & \yes & \no & todo & -\\\hline\hline
+        \cellcolor{gray}& Switch-Core & \yes & \no & \no & \no & 58.9 & base0 linear2\\\hline
+        \cellcolor{gray}& Switch-Core & \yes & \no & \yes & \no & 58 & newnew switch\\\hline
+        \cellcolor{gray}& Switch-Core & \no & \no & \yes & \no & - & newnew switch no gate\\\hline\hline
 
-        & SAGE-Core & \yes & \no & \no & \yes & - & realsage\\\hline
-        & SAGE-Core & \yes & \no & \yes & \no & 59.6 & base0 edge\\\hline
-        & SAGE-Core & \no & \no & \no & \yes & Failed to Train & realsage nogate\\\hline"""
-GAT_table = """\multicolumn{1}{r}{No.} & GNN Core & Gating & TUF & MLP \newline Asym & SAGE \newline Asym & Dev \newline Accuracy & Name\\\hline\hline
-        & GAT-Core & \yes & \yes & \no & \no & 64 & base2 trans\\\hline
-        & GAT-Core & \no & \yes & \no & \no & 60.4 & trans no gate\\\hline
-        & GAT-Core & \yes & \no & \no & \no & 62.9 & base2\\\hline
-        & GAT-Core & \no & \no & \no & \no & - & base2 no gate\\\hline\hline
+        \cellcolor{gray}& SAGE-Core & \yes & \no & \no & \yes & - & realsage\\\hline
+        \cellcolor{gray}& SAGE-Core & \yes & \no & \yes & \no & 59.6 & base0 edge\\\hline
+        \cellcolor{gray}& SAGE-Core & \no & \no & \no & \yes & Failed to Train & realsage nogate\\\hline"""
+GAT_table = """\multicolumn{1}{r}{\cellcolor{gray} No.} & GNN Core & Gating & TUF & MLP \newline Asym & SAGE \newline Asym & Dev \newline Accuracy & Name\\\hline\hline
+        \cellcolor{gray}& GAT-Core & \yes & \yes & \no & \no & 64 & base2 trans\\\hline
+        \cellcolor{gray}& GAT-Core & \no & \yes & \no & \no & 60.4 & trans no gate\\\hline
+        \cellcolor{gray}& GAT-Core & \yes & \no & \no & \no & 62.9 & base2\\\hline
+        \cellcolor{gray}& GAT-Core & \no & \no & \no & \no & - & base2 no gate\\\hline\hline
         
-        & SDP-Core & \yes & \yes & \no & \no & 64.7 & sdp\\\hline
-        & SDP-Core & \yes & \no & \no & \no & 59.2 & sdp no tuf\\\hline
-        & SDP-Core & \no & \yes & \no & \no & 59.1 & sdp no gate\\\hline
-        & SDP-Core & \no & \no & \no & \no & todo & - \\\hline\hline
+        \cellcolor{gray}& SDP-Core & \yes & \yes & \no & \no & 64.7 & sdp\\\hline
+        \cellcolor{gray}& SDP-Core & \yes & \no & \no & \no & 59.2 & sdp trans no tuf\\\hline
+        \cellcolor{gray}& SDP-Core & \no & \yes & \no & \no & 59.1 & sdp trans no gate\\\hline
+        \cellcolor{gray}& SDP-Core & \no & \no & \no & \no & - & sdp no gate \\\hline\hline
 
-        & SAGE-Core & \yes & \yes & \yes & \no & 57.1 & trans sage\\\hline
-        & SAGE-Core & \yes & \yes & \no & \no & todo & -\\\hline
-        & Edge-Core & \yes & \yes & \no & \no & 60.2 & trans linear\\\hline"""
+        \cellcolor{gray}& Edge-Core & \yes & \yes & \no & \no & 60.2 & trans linear\\\hline
+        \cellcolor{gray}& Edge-Core & \no & \yes & \no & \no & todo & -\\\hline
+        \cellcolor{gray}& Edge-Core & \yes & \no & \no & \no & todo & -\\\hline"""
 
-which_table = "GAT"
-# which_table = "MLP"
+WHICH_TABLE = "GAT"
+# WHICH_TABLE = "MLP"
+USE_DELTAS = False
 
-if which_table == "GAT":
+
+if WHICH_TABLE == "GAT":
     table = GAT_table
 else:
     table = MLP_table
 
 table = table.replace("\\\hline\hline", "\\\hline")
 table = table.replace("\n        ", "")
-table = table.replace("\multicolumn{1}{r}{No.} & ", "")
 table = table.replace(" \newline", "")
+table = table.replace("\cellcolor{gray}", "")
+table = table.replace("\multicolumn{1}{r}{ No.} & ", "")
 table = table.replace("\yes", "yes")
 table = table.replace("\no", "no")
 # table = table.replace("todo", "-")
@@ -140,7 +143,7 @@ def plot_deltas(column, primary_value):
 
     for i, group in enumerate(all_duplicate_groups):
         # new row. start with empty deltas
-        deltas_table.loc[i] = ["-"] * len(all_independent_values) + list(dependents.iloc[group[0]])
+        deltas_table.loc[i] = ["NA"] * len(all_independent_values) + list(dependents.iloc[group[0]])
         primary_index = df.iloc[group].index[df.iloc[group][column] == primary_value].tolist()[0]
         primary_acc = df.at[primary_index, "Dev Accuracy"]
         for row_num in group:
@@ -148,7 +151,7 @@ def plot_deltas(column, primary_value):
             if row_num == primary_index:
                 delta = primary_acc
             else:
-                if primary_acc.replace('.','1').isdigit() and dup_acc.replace('.','1').isdigit():
+                if USE_DELTAS and primary_acc.replace('.','1').isdigit() and dup_acc.replace('.','1').isdigit():
                     delta = round(float(dup_acc) - float(primary_acc), 2)
                 else:
                     delta = dup_acc
@@ -156,14 +159,18 @@ def plot_deltas(column, primary_value):
             deltas_table[row_independent_value][i] = delta
 
     # sort by number of non-empty cells
-    num_empties = [len(deltas_table[(deltas_table[iv] == "-") | (deltas_table[iv] == "todo") | (deltas_table[iv] == "Failed to Train")])
+    num_empties = [len(deltas_table[(deltas_table[iv] == "-") | (deltas_table[iv] == "todo")
+                                    | (deltas_table[iv] == "Failed to Train") | (deltas_table[iv] == "NA")])
                    for iv in deltas_table.columns]
     non_primary_values = list({*all_independent_values} - {primary_value})
     si = sorted(list(range(0, len(non_primary_values))), key=lambda i: num_empties[i+1])
     sorted_columns = [primary_value] + [non_primary_values[so] for so in si] + get_dependent_column_names(column)
     deltas_table = deltas_table.reindex(sorted_columns, axis=1)
-    renames = {npv: "Δ " + npv for npv in non_primary_values}
-    renames.update({"yes": column, "no": "no " + column})
+    deltas_table.sort_values(primary_value, inplace=True, ascending=False)
+
+    renames = {"yes": column, "no": "no " + column}
+    if USE_DELTAS:
+        renames.update({npv: "Δ " + npv for npv in non_primary_values})
     deltas_table = deltas_table.rename(columns=renames)  # old method
 
     print(column, "delts tab:\n", deltas_table.to_markdown())
@@ -176,7 +183,7 @@ def plot_deltas(column, primary_value):
 # get_fair_tests("MLP Asym")
 
 
-if which_table == "GAT":
+if WHICH_TABLE == "GAT":
     plot_deltas("GNN Core", "GAT-Core")
     plot_deltas("TUF", "yes")
     plot_deltas("Gating", "yes")
