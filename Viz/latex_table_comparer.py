@@ -31,8 +31,8 @@ GAT_table = """\multicolumn{1}{r}{\cellcolor{gray} No.} & GNN Core & Gating & TU
         \cellcolor{gray}& Edge-Core & \no & \yes & \no & \no & todo & -\\\hline
         \cellcolor{gray}& Edge-Core & \yes & \no & \no & \no & todo & -\\\hline"""
 
-WHICH_TABLE = "GAT"
-# WHICH_TABLE = "MLP"
+# WHICH_TABLE = "GAT"
+WHICH_TABLE = "MLP"
 USE_DELTAS = False
 
 
@@ -193,8 +193,8 @@ else:
     plot_deltas("GNN Core", "Edge-Core")
     plot_deltas("TUF", "no")
     plot_deltas("Gating", "yes")
-    plot_deltas("MLP Asym", "no")
-    plot_deltas("SAGE Asym", "no")
+    plot_deltas("MLP Asym", "yes")
+    plot_deltas("SAGE Asym", "yes")
 
 
 

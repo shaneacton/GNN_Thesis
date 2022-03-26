@@ -16,7 +16,7 @@
   "transformer_heads": 4,
 
   "model_class": "HDERel",
-  "use_edge_types": true,
+  "use_edge_types": false,
   "gnn_class": "RealSAGE",
   "share_gnn_params": true,
   "use_gating": true,
