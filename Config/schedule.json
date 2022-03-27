@@ -8,8 +8,6 @@
       "base_0_new_realsage"
   ],
   "low_priority_configs": [
-    "base_0_newnew_switch_no_gate",
-    "base_2_linear",
-    "base_2_trans_linear_no_gate"
+    "base_0_newnew_switch_no_gate"
   ]
 }
