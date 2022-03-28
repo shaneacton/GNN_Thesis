@@ -11,5 +11,5 @@
   "use_switch_gnn": false,
   "gnn_aggr": "add",
 
-  "use_edge_types": true
+  "use_edge_types": false
 }
