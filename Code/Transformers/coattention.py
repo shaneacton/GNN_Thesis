@@ -24,7 +24,7 @@ class Coattention(Transformer):
 
     def batched_coattention(self, supps: List[Tensor], context_type: str, query: Tensor, return_query_encoding=False) -> List[Tensor]:
         if self.use_type_embeddings:
-            if hasattr(conf, "use_coat_proper_types") and conf.use_coat_proper_types:  # todo remove legacy
+            if conf.use_coat_proper_types:
                 supps = [s + self.get_type_tensor(context_type, s.size(-2)) for s in supps]
                 # print("using coat type:", context_type)
             else:

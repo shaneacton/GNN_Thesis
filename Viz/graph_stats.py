@@ -13,8 +13,11 @@ import seaborn as sns
 DATASET = "wikihop"
 SPECIAL_ENTITIES = True
 DETECTED_ENTITIES = False
-BIDIRECTIONAL_EDGES = False
 SENTENCE_NODES = False
+
+BIDIRECTIONAL_EDGES = False
+CODOCUMENT_EDGES = False
+COMPLIMENT_EDGES = False
 
 
 def parse_args():
@@ -39,15 +42,17 @@ def parse_args():
     conf.run_args = args
 
 
-def get_graphs(dataset, use_special_entities, use_detected_entities):
+def get_graphs(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs):
     from Code.Utils.dataset_utils import get_wikihop_graphs
     from Config.config import conf
 
     conf.set("dataset", dataset)
     conf.set("use_special_entities", use_special_entities)
     conf.set("use_detected_entities", use_detected_entities)
-    conf.set("use_sentence_nodes", SENTENCE_NODES)
+    conf.set("use_sentence_nodes", sentence_nodes)
     conf.set("bidirectional_edge_types", BIDIRECTIONAL_EDGES)
+    conf.set("use_codocument_edges", codocs)
+    conf.set("use_compliment_edges", compliments)
 
     try:
         graphs = get_wikihop_graphs()
@@ -60,8 +65,8 @@ def get_graphs(dataset, use_special_entities, use_detected_entities):
     return graphs
 
 
-def get_graph_stats(dataset, use_special_entities, use_detected_entities):
-    graphs = get_graphs(dataset, use_special_entities, use_detected_entities)
+def get_graph_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs):
+    graphs = get_graphs(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs)
 
     densities = []
     cross_dot_ratios = []
@@ -75,31 +80,55 @@ def get_graph_stats(dataset, use_special_entities, use_detected_entities):
     data["Dataset"] = dataset
     data["Special Entities"] = use_special_entities
     data["Detected Entities"] = use_detected_entities
-    return data
+    return data.replace(0, 0)
 
 
-def plot_wikimed_stats(use_special_entities, use_detected_entities, row=0):
-    wiki_stats = get_graph_stats("wikihop", use_special_entities, use_detected_entities)
-    med_stats = get_graph_stats("medhop", use_special_entities, use_detected_entities)
+# def plot_wikimed_stats(use_special_entities, use_detected_entities, row=0):
+#     wiki_stats = get_graph_stats("wikihop", use_special_entities, use_detected_entities)
+#     med_stats = get_graph_stats("medhop", use_special_entities, use_detected_entities)
+#
+#     stats = pd.concat([wiki_stats, med_stats])
+#
+#     sns.kdeplot(ax=AXES[row, 0], data=stats, multiple="stack", x="Edge Density", hue='Dataset')
+#     sns.histplot(ax=AXES[row, 1], data=stats, multiple="stack", x="Cross Document Ratio", hue='Dataset', stat="density", log_scale=True, bins=15)
+#     AXES[row, 0].set_title("Edge Density")
+#     AXES[row, 1].set_title("Cross Document Ratio")
 
-    stats = pd.concat([wiki_stats, med_stats]).replace(0, 0.01)
 
-    sns.kdeplot(ax=AXES[row, 0], data=stats, multiple="stack", x="Edge Density", hue='Dataset')
-    sns.histplot(ax=AXES[row, 1], data=stats, multiple="stack", x="Cross Document Ratio", hue='Dataset', stat="density", log_scale=True, bins=15)
-    AXES[row, 0].set_title("Edge Density")
-    AXES[row, 1].set_title("Cross Document Ratio")
+def plot_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, row=0, title=None):
+    stats = get_graph_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs)
+    print("stats:", stats)
+    if ROWS == 1:
+        ax0 = AXES[0]
+        ax1 = AXES[1]
+    else:
+        ax0 = AXES[row, 0]
+        ax1 = AXES[row, 1]
+    sns.histplot(ax=ax0, data=stats, multiple="stack", x="Edge Density", hue='Dataset', bins=15)
+    sns.histplot(ax=ax1, data=stats, multiple="stack", x="Cross Document Ratio", hue='Dataset', bins=15)
+    if title is None:
+        ax0.set_title("Edge Density")
+        ax1.set_title("Cross Document Ratio")
+    else:
+        ax0.set_title(title)
+        ax1.set_title(title)
 
 
-FIG, AXES = plt.subplots(2, 2, figsize=(15, 5))
+ROWS = 3
+FIG, AXES = plt.subplots(ROWS, 2, figsize=(15, 5))
+plt.subplots_adjust(hspace=1.2, wspace=0.4)
+
 if __name__ == "__main__":
     parse_args()
-    AXES[0, 1].set_xscale('symlog')
+    # AXES[0, 1].set_xscale('symlog')
     FIG.suptitle('Title')
 
-    plot_wikimed_stats(SPECIAL_ENTITIES, DETECTED_ENTITIES)
-    plot_wikimed_stats(not SPECIAL_ENTITIES, not DETECTED_ENTITIES, row=1)
+    # plot_wikimed_stats(SPECIAL_ENTITIES, DETECTED_ENTITIES)
+    # plot_wikimed_stats(not SPECIAL_ENTITIES, not DETECTED_ENTITIES, row=1)
 
-
+    plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, title="Default")
+    plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, True, title="CoDocument Edges", row=1)
+    plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, True, False, title="Compliment Edges", row=2)
 
 
     plt.show()

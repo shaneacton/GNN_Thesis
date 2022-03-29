@@ -54,8 +54,7 @@ class SharedGatedGNN(Gate):
     """
 
     def __init__(self, gated_gnn: GatedGNN):
-        if hasattr(get_config(), "share_tuf_params") and get_config().share_tuf_params \
-                and get_config().use_transformer_block:  # todo remove legacy
+        if get_config().share_tuf_params and get_config().use_transformer_block:
             tuf_gnn = gated_gnn.gnn  # will be s shared TUF
             from Code.GNNs.gnn_stack import SharedTransGNNLayer
             new_gnn = SharedTransGNNLayer(tuf_gnn)

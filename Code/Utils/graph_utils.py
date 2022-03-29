@@ -320,8 +320,7 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
         connect_sentence_and_entity_nodes(graph, glove_embedder=glove_embedder,
                          tokeniser=tokeniser, support_encodings=support_encodings)
 
-    # todo remove legacy
-    if hasattr(get_config(), "use_compliment_edges") and get_config().use_compliment_edges:
+    if get_config().use_compliment_edges:
         connect_unconnected_entities(graph)
 
     if get_config().visualise_graphs:
