@@ -8,7 +8,7 @@ from torch_geometric.utils import remove_self_loops, add_self_loops
 
 from Code.Training import dev
 from Code.constants import ENTITY, DOCUMENT, CANDIDATE, GLOBAL, SELF_LOOP, SENTENCE
-from Config.config import conf, get_config
+from Config.config import get_config
 
 if TYPE_CHECKING:
     from Code.HDE.Graph.edge import HDEEdge
@@ -25,7 +25,7 @@ class HDEGraph:
         self.entity_text_to_nodes: Dict[str, List[int]] = {}
         self.doc_nodes: List[int] = []
         self.candidate_nodes: List[int] = []
-        if conf.use_sentence_nodes:
+        if get_config().use_sentence_nodes:
             self.sentence_inclusion_bools: List[bool] = []
             self.sentence_nodes: List[int] = []
 
@@ -101,13 +101,13 @@ class HDEGraph:
             type_id = edge_type_map[edge.type()]
             type_ids.append(type_id)
 
-            if conf.bidirectional_edge_types:
+            if get_config().bidirectional_edge_types:
                 reverse_id = edge_type_map[edge.type(reverse=True)]
                 type_ids.append(reverse_id)
             else:  # unidirectional - add the same type id twice
                 type_ids.append(type_id)
 
-        if conf.add_self_loops:
+        if get_config().add_self_loops:
             """
                 self loops will be automatically appended to the back of the edge index. 
                 We must account for those in the type vec. There is 1 self loop per node
@@ -131,7 +131,7 @@ class HDEGraph:
             type_id = edge_type_map[edge.type()]
             matrix[edge.from_id, edge.to_id] = type_id
 
-            if conf.bidirectional_edge_types:
+            if get_config().bidirectional_edge_types:
                 reverse_id = edge_type_map[edge.type(reverse=True)]
                 matrix[edge.from_id, edge.to_id] = reverse_id
             else:  # unidirectional - add the same type id twice
@@ -180,7 +180,7 @@ class HDEGraph:
             raise Exception("warning, adding  an edge between two nodes which are already connected")
 
         self.unique_edge_types.add(edge.type())
-        if conf.bidirectional_edge_types:
+        if get_config().bidirectional_edge_types:
             # print("adding reverse edge type:", edge.type(reverse=True))
             self.unique_edge_types.add(edge.type(reverse=True))
 
@@ -200,10 +200,12 @@ class HDEGraph:
     def get_cross_document_comention_edges(self) -> Set[HDEEdge]:
         edges = set()
         for edge in self.ordered_edges:
-            if edge.type() != "comention":
+            if "candidate" in edge.type() or "sequential" in edge.type():
                 continue
             ent0 = self.ordered_nodes[edge.from_id]
             ent1 = self.ordered_nodes[edge.to_id]
+            if ent0.doc_id is None or ent1.doc_id is None:
+                raise Exception("no doc id on node " + repr(ent0) + " or " + repr(ent1))
             if ent0.doc_id == ent1.doc_id:
                 continue
             edges.add(edge)

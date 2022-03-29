@@ -17,7 +17,7 @@
 
   "model_class": "HDERel",
   "use_edge_types": false,
-  "gnn_class": "RealSAGE",
+  "gnn_class": "SAGECore",
   "share_gnn_params": true,
   "use_gating": true,
   "share_gate_params": true,

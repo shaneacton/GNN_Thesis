@@ -13,6 +13,7 @@ from Code.GNNs.linear_gnn2 import LinearGNN2
 from Code.GNNs.linear_gnn3 import LinearGNN3
 from Code.GNNs.linear_gnn_sage import LinearGNNSAGE
 from Code.GNNs.real_sage import RealSAGE
+from Code.GNNs.sage_core import SAGECore
 from Code.HDE.hde_model import HDEModel
 from Code.HDE.hde_rel import HDERel
 from Code.Training import dev
@@ -28,12 +29,19 @@ MODEL_MAP = {
              }
 
 GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv, "TransformerEdge": TransformerGNNEdge, "Linear": LinearGNN,
-           "Linear2": LinearGNN2, "Linear3": LinearGNN3, "LinearSAGE": LinearGNNSAGE, "RealSAGE": RealSAGE}
+           "Linear2": LinearGNN2, "Linear3": LinearGNN3, "LinearSAGE": LinearGNNSAGE, "RealSAGE": RealSAGE, "SAGECore": SAGECore}
+
+
+def get_model_class(model_class_name=None):
+    if model_class_name is None:
+        model_class_name = get_config().model_class
+    MODEL_CLASS = MODEL_MAP[model_class_name]
+    return MODEL_CLASS
 
 
 def get_model(name, MODEL_CLASS=None, **model_kwargs):
     if MODEL_CLASS is None:
-        MODEL_CLASS = MODEL_MAP[conf.model_class]
+        MODEL_CLASS = get_model_class(conf.model_class)
     hde = None
     if exists(model_path(name)):
         hde, optimizer, scheduler = continue_model(name)

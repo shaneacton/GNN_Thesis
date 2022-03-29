@@ -6,12 +6,15 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm
 
 from Code.HDE.Graph.graph import HDEGraph
+from Code.Training import dev
 from Config.config import set_conf_files
 import seaborn as sns
 
 DATASET = "wikihop"
 SPECIAL_ENTITIES = True
 DETECTED_ENTITIES = False
+BIDIRECTIONAL_EDGES = False
+SENTENCE_NODES = False
 
 
 def parse_args():
@@ -43,8 +46,17 @@ def get_graphs(dataset, use_special_entities, use_detected_entities):
     conf.set("dataset", dataset)
     conf.set("use_special_entities", use_special_entities)
     conf.set("use_detected_entities", use_detected_entities)
+    conf.set("use_sentence_nodes", SENTENCE_NODES)
+    conf.set("bidirectional_edge_types", BIDIRECTIONAL_EDGES)
 
-    graphs = get_wikihop_graphs()
+    try:
+        graphs = get_wikihop_graphs()
+    except:
+        print("graphs not generated yet. Generating")
+        from Code.Utils.model_utils import get_model_class
+        model = get_model_class()().to(dev())
+        graphs = get_wikihop_graphs(embedder=model.embedder)
+
     return graphs
 
 
@@ -66,7 +78,7 @@ def get_graph_stats(dataset, use_special_entities, use_detected_entities):
     return data
 
 
-def plot_stats(use_special_entities, use_detected_entities, row=0):
+def plot_wikimed_stats(use_special_entities, use_detected_entities, row=0):
     wiki_stats = get_graph_stats("wikihop", use_special_entities, use_detected_entities)
     med_stats = get_graph_stats("medhop", use_special_entities, use_detected_entities)
 
@@ -84,8 +96,8 @@ if __name__ == "__main__":
     AXES[0, 1].set_xscale('symlog')
     FIG.suptitle('Title')
 
-    plot_stats(SPECIAL_ENTITIES, DETECTED_ENTITIES)
-    plot_stats(not SPECIAL_ENTITIES, not DETECTED_ENTITIES, row=1)
+    plot_wikimed_stats(SPECIAL_ENTITIES, DETECTED_ENTITIES)
+    plot_wikimed_stats(not SPECIAL_ENTITIES, not DETECTED_ENTITIES, row=1)
 
 
 
