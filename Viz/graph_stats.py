@@ -104,8 +104,14 @@ def plot_stats(dataset, use_special_entities, use_detected_entities, sentence_no
     else:
         ax0 = AXES[row, 0]
         ax1 = AXES[row, 1]
+    ax0.set(xlim=(0, 0.35))
+    cross_doc_range = stats["Cross Document Ratio"].max() - stats["Cross Document Ratio"].min()
+    # bins = int(100*cross_doc_range/max_range)
+    bins = int(BINS_FAC*cross_doc_range/MAX_CDR_RANGE)
+    print(title, "range:", cross_doc_range, "bins:", bins)
+    ax1.set(xlim=(0, MAX_CDR_RANGE))
     sns.histplot(ax=ax0, data=stats, multiple="stack", x="Edge Density", hue='Dataset', bins=15)
-    sns.histplot(ax=ax1, data=stats, multiple="stack", x="Cross Document Ratio", hue='Dataset', bins=15)
+    sns.histplot(ax=ax1, data=stats, multiple="stack", x="Cross Document Ratio", hue='Dataset', bins=bins)
     if title is None:
         ax0.set_title("Edge Density")
         ax1.set_title("Cross Document Ratio")
@@ -115,8 +121,14 @@ def plot_stats(dataset, use_special_entities, use_detected_entities, sentence_no
 
 
 ROWS = 3
-FIG, AXES = plt.subplots(ROWS, 2, figsize=(15, 5))
-plt.subplots_adjust(hspace=1.2, wspace=0.4)
+# MAX_CDR_RANGE = 400
+MAX_CDR_RANGE = 900
+
+BINS_FAC = 40
+
+
+FIG, AXES = plt.subplots(ROWS, 2, figsize=(15, 3 + ROWS*2.5))
+plt.subplots_adjust(hspace=0.5, wspace=0.4)
 
 if __name__ == "__main__":
     parse_args()
@@ -129,6 +141,10 @@ if __name__ == "__main__":
     plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, title="Default")
     plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, True, title="CoDocument Edges", row=1)
     plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, True, False, title="Compliment Edges", row=2)
+
+    # plot_stats("wikihop", True, False, False, False, False, title="Special Entities")
+    # plot_stats("wikihop", False, True, False, False, False, title="Detected Entities", row=1)
+    # plot_stats("wikihop", True, False, True, False, False, title="Sentence Nodes", row=2)
 
 
     plt.show()
