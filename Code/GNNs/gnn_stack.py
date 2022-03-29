@@ -59,7 +59,7 @@ class GNNStack(nn.Module):
                 """copy by reference so the layers share the same params"""
                 layers.append(layers[0])
                 continue
-            if hasattr(get_config(), "share_tuf_params") and get_config().share_tuf_params and layer_i > 0 and get_config().use_transformer_block:  # todo remove legacy
+            if get_config().share_tuf_params and layer_i > 0 and get_config().use_transformer_block:
                 first_layer = layers[0].gnn if get_config().use_gating else layers[0]
                 layer = SharedTransGNNLayer(first_layer)
             else:
@@ -67,12 +67,12 @@ class GNNStack(nn.Module):
                 layer = LayerWrapper(GNNClass, use_edge_type_embs=self.use_edge_type_embs, **layer_kwargs)
 
             if get_config().use_gating:
-                if hasattr(get_config(), "share_gate_params") and get_config().share_gate_params and layer_i > 0:  # todo remove legacy
+                if get_config().share_gate_params and layer_i > 0:
                     layer = SharedGatedGNN(layers[0])
                 else:
                     layer = GatedGNN(layer)
 
-            if hasattr(get_config(), "share_gnn_params") and get_config().share_gnn_params and layer_i > 0:   # todo remove legacy
+            if get_config().share_gnn_params and layer_i > 0:
                 layer = share_gnn(layer, layers[0])
 
             layers.append(layer)

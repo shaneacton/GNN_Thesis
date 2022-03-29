@@ -44,16 +44,18 @@ def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None) -> List[HDEGraph]:
     file_name = emb_name + "_" + split._name
     ent_name = "detected" if not get_config().use_special_entities else ("special" if not get_config().use_detected_entities else "det&spec")
     file_name += "_" + ent_name
-    # todo remove legacy
-    if hasattr(get_config(), "use_codocument_edges") and get_config().use_codocument_edges:
+    if get_config().use_codocument_edges:
         file_name += "_codoc"
+
+    if get_config().use_compliment_edges:
+        file_name += "_comp"
 
     if get_config().use_sentence_nodes:
         if get_config().use_all_sentences:
             file_name += "_allSents"
         else:
             file_name += "_sents"
-        if hasattr(get_config(), "connect_sent2sent") and get_config().connect_sent2sent:
+        if get_config().connect_sent2sent:
             file_name += "Seq"
 
     if get_config().bidirectional_edge_types:

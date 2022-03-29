@@ -10,7 +10,6 @@ class TransformerGNNEdge(nn.Module):
         super().__init__()
         if in_channels != out_channels:
             raise Exception("")
-        # todo remove legacy
         num_types = 14
         self.self_attn = MultiheadAttentionEdge(in_channels, heads, num_types, dropout=conf.dropout, batch_first=True)
 
