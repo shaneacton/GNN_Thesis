@@ -61,6 +61,9 @@ def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None) -> List[HDEGraph]:
     if get_config().bidirectional_edge_types:
         file_name += "_bi"
 
+    if get_config().max_examples != -1:
+        file_name += "_" + repr(get_config().max_examples)
+
     file_name = get_config().dataset + "_" + file_name + ".data"
 
     if get_config().run_args.processed_data_path:
