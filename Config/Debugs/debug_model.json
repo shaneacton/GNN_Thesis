@@ -1,6 +1,6 @@
 {
   "dataset": "wikihop",
-  "model_name": "comms",
+  "model_name": "simbi",
   "use_special_entities": true,
   "use_detected_entities": false,
   "use_codocument_edges": true,
@@ -9,16 +9,17 @@
   "use_all_sentences": false,
   "connect_sent2doc": true,
   "connect_sent2sent": true,
-  "bidirectional_edge_types": false,
+  "bidirectional_edge_types": true,
+  "similar_bidirectional_edge_types": true,
   "use_coat_proper_types": true,
 
   "embedded_dims": 128,
   "glove_tokens_code": "6B",
   "transformer_heads": 4,
 
-  "model_class": "HDERel",
+  "model_class": "HDE",
   "use_edge_types": false,
-  "gnn_class": "SAGECore",
+  "gnn_class": "TransformerEdge",
   "share_gnn_params": true,
   "use_gating": true,
   "share_gate_params": true,
@@ -43,5 +44,5 @@
 
   "include_trans_gnn_edge_types": true,
   "include_trans_gnn_edges": true,
-  "use_key_type_edge_embs": false
+  "use_key_type_edge_embs": true
 }

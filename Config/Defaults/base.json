@@ -10,6 +10,7 @@
   "use_codocument_edges": false,
   "use_comention_edges": true,
   "bidirectional_edge_types": false,
+  "similar_bidirectional_edge_types": false,
   "model_name": "hde",
   "model_class": "HDERel",
   "gnn_class": "GATConv",

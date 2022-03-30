@@ -10,7 +10,7 @@ from torch.nn.parameter import Parameter
 from torch import Tensor
 
 from Code.Transformers.PytorchReimpl.torch_utils import _in_projection_packed
-from Config.config import conf
+from Config.config import get_config
 
 
 class MultiheadAttentionEdge(Module):
@@ -25,6 +25,19 @@ class MultiheadAttentionEdge(Module):
 
         self.edge_embs_K = Embedding(num_edge_types, embed_dim//num_heads)
         self.edge_embs_V = Embedding(num_edge_types, embed_dim//num_heads)
+        if get_config().similar_bidirectional_edge_types:
+            self.rev_edge_embs_K = Embedding(num_embeddings=num_edge_types, embedding_dim=embed_dim//num_heads)
+            self.rev_edge_embs_V = Embedding(num_embeddings=num_edge_types, embedding_dim=embed_dim//num_heads)
+            single_emb = Embedding(num_embeddings=1, embedding_dim=embed_dim//num_heads).weight
+            extrusion = single_emb.repeat(num_edge_types, 1)
+
+            self.rev_edge_embs_K.weight = Parameter(extrusion)
+            assert torch.equal(self.rev_edge_embs_K(torch.Tensor([0]).long()), self.rev_edge_embs_K(torch.Tensor([1]).long()))
+
+            single_emb = Embedding(num_embeddings=1, embedding_dim=embed_dim // num_heads).weight
+            extrusion = single_emb.repeat(num_edge_types, 1)
+            self.rev_edge_embs_V.weight = Parameter(extrusion)
+            assert torch.equal(self.rev_edge_embs_V(torch.Tensor([0]).long()), self.rev_edge_embs_V(torch.Tensor([1]).long()))
 
         self.embed_dim = embed_dim
         self.kdim = kdim if kdim is not None else embed_dim
@@ -137,14 +150,13 @@ class MultiheadAttentionEdge(Module):
         # (B, Nt, E) x (B, E, Ns) -> (B, Nt, Ns)
         attn = torch.bmm(q, k.transpose(-2, -1))  # (B, Nt, Ns)
         # print("attn:", attn.size())
-        edge_id_mat = graph.get_edge_id_matrix()  # (Nq, Nk)
         # print("edge id mat:", edge_id_mat.size())
-        if conf.include_trans_gnn_edge_types and conf.use_key_type_edge_embs:
+        if get_config().include_trans_gnn_edge_types and get_config().use_key_type_edge_embs:
             """
                 need a (Nq, E, Nk) matrix for edge embeddings
                 start with (Nq, Nk) edge type id matrix
             """
-            edge_embs = self.edge_embs_K(edge_id_mat)  # (Nq, Nk, E)
+            edge_embs = self.get_edge_embeddings(graph, True)  # (Nq, Nk, E)
 
             # print("edge embs:", edge_embs.size(), "ids:", edge_id_mat.size())
 
@@ -164,14 +176,37 @@ class MultiheadAttentionEdge(Module):
         if dropout_p > 0.0:
             attn = dropout(attn, p=dropout_p)
         output = torch.bmm(attn, v)
-        if conf.include_trans_gnn_edge_types and not conf.use_key_type_edge_embs:
+        if get_config().include_trans_gnn_edge_types and not get_config().use_key_type_edge_embs:
             """V-Type edge embeddings"""
-            edge_embs = self.edge_embs_V(edge_id_mat)  # (Nq, Nk, E)
+            edge_embs = self.get_edge_embeddings(graph, False)  # (Nq, Nk, E)
             A = attn.permute(1,0,2)  # (Nq, B, Nk)
             AE = torch.bmm(A, edge_embs).permute(1,0,2)   # (B, Nq, E)
             # (B, Nt, Ns) x (B, Ns, E) -> (B, Nt, E)
             output += AE
         return output, attn
+
+    def get_edge_embeddings(self, graph, k_type: bool):
+        similar = get_config().similar_bidirectional_edge_types
+        if similar:
+            edge_id_mat = graph.get_edge_id_matrix(ignore_reverse=True)  # (Nq, Nk)
+        else:
+            edge_id_mat = graph.get_edge_id_matrix()  # (Nq, Nk)
+
+        if k_type:
+            edge_embs = self.edge_embs_K(edge_id_mat)  # (Nq, Nk, E)
+        else:
+            edge_embs = self.edge_embs_V(edge_id_mat)  # (Nq, Nk, E)
+
+        if similar:
+            rev_edge_id_mat = graph.get_edge_id_matrix()  # (Nq, Nk)
+            if k_type:
+                rev_edge_embs = self.rev_edge_embs_K(rev_edge_id_mat)  # (Nq, Nk, E)
+            else:
+                rev_edge_embs = self.rev_edge_embs_V(rev_edge_id_mat)  # (Nq, Nk, E)
+            edge_embs += rev_edge_embs
+            edge_embs /= 2
+
+        return edge_embs
 
     def multi_head_attention_forward(self,
         query: Tensor,

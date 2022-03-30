@@ -1,5 +1,5 @@
 import torch
-from torch import nn
+from torch import nn, Tensor
 from torch_geometric.nn import GATConv
 
 from Code.GNNs.wrap_gnn import WrapGNN
@@ -11,22 +11,25 @@ class EdgeEmbeddings(WrapGNN):
     def __init__(self, gnn_layer, hidden_size):
         super().__init__(gnn_layer)
         self.target_vectors = ["x_j"]
-        if hasattr(get_config(), "use_edge_types") and get_config().use_edge_types:
+        if hasattr(get_config(), "use_edge_types") and get_config().use_edge_types:  # todo remove legacy
             self.embeddings = nn.Embedding(num_embeddings=25, embedding_dim=hidden_size)
 
     def wrap_message(self, *args, **kwargs):
-        if hasattr(get_config(), "use_edge_types") and get_config().use_edge_types:
+        if hasattr(get_config(), "use_edge_types") and get_config().use_edge_types:   # todo remove legacy
             if "edge_types" in self.last_custom_kwargs:
                 edge_types = self.last_custom_kwargs["edge_types"]
             else:
                 edge_types = kwargs["edge_types"]
-
-            edge_embs = self.embeddings(edge_types)
+            edge_embs = self.get_edge_embs(edge_types)
             for target in self.target_vectors:
                 vec = kwargs[target]
                 vec = self.add_type_embs(edge_embs, vec)
                 kwargs[target] = vec
         return kwargs
+
+    def get_edge_embs(self, edge_types: Tensor):
+        edge_embs = self.embeddings(edge_types)
+        return edge_embs
 
     def add_type_embs(self, edge_embs, vec):
         dims = len(list(vec.size()))

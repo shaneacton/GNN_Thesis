@@ -4,13 +4,13 @@ from Code.Transformers.PytorchReimpl.MultiheadAttentionEdge import MultiheadAtte
 from Config.config import conf
 
 
-class TransformerGNNEdge(nn.Module):
+class TransformerGNNEdge(nn.Module):  # todo move backwards in file structure
 
     def __init__(self, in_channels, out_channels, heads, **kwargs):
         super().__init__()
         if in_channels != out_channels:
             raise Exception("")
-        num_types = 14
+        num_types = 25
         self.self_attn = MultiheadAttentionEdge(in_channels, heads, num_types, dropout=conf.dropout, batch_first=True)
 
     def forward(self, x, mask, **kwargs):

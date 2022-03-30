@@ -92,7 +92,7 @@ class HDEGraph:
             types.append(GLOBAL)
         return types
 
-    def edge_types(self):
+    def edge_types(self, ignore_reverse=False):
         types = self.ordered_unique_edge_types()
         edge_type_map = {t: i for i, t in enumerate(types)}
         # print("edge type map:", edge_type_map)
@@ -101,7 +101,7 @@ class HDEGraph:
             type_id = edge_type_map[edge.type()]
             type_ids.append(type_id)
 
-            if get_config().bidirectional_edge_types:
+            if get_config().bidirectional_edge_types and not ignore_reverse:
                 reverse_id = edge_type_map[edge.type(reverse=True)]
                 type_ids.append(reverse_id)
             else:  # unidirectional - add the same type id twice
@@ -116,7 +116,7 @@ class HDEGraph:
 
         return torch.tensor(type_ids).to(dev()).long()
 
-    def get_edge_id_matrix(self):
+    def get_edge_id_matrix(self, ignore_reverse=False):
         """
             here 0 means unconnected. 1 means self edge
 
@@ -131,11 +131,11 @@ class HDEGraph:
             type_id = edge_type_map[edge.type()]
             matrix[edge.from_id, edge.to_id] = type_id
 
-            if get_config().bidirectional_edge_types:
+            if get_config().bidirectional_edge_types and not ignore_reverse:
                 reverse_id = edge_type_map[edge.type(reverse=True)]
-                matrix[edge.from_id, edge.to_id] = reverse_id
+                matrix[edge.to_id, edge.from_id] = reverse_id
             else:  # unidirectional - add the same type id twice
-                matrix[edge.from_id, edge.to_id] = type_id
+                matrix[edge.to_id, edge.from_id] = type_id
 
         # print("matrix:", matrix)
         return torch.tensor(matrix).to(dev()).long()

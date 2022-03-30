@@ -84,6 +84,7 @@ class GNNStack(nn.Module):
             kwargs.update(res)  # pass previous attention scores forward
             x = layer(x, **kwargs)
             gnn = get_core_gnn(layer)
+            # todo remove feature
             if hasattr(gnn, "last_attention_scores") and gnn.last_attention_scores is not None:
                 res = {"previous_attention_scores": gnn.last_attention_scores}  # store for next layer
 

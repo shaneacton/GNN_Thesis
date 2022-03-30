@@ -63,6 +63,9 @@ def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None) -> List[HDEGraph]:
 
     if get_config().bidirectional_edge_types:
         file_name += "_bi"
+        # todo remove legacy
+        if hasattr(get_config(), "similar_bidirectional_edge_types") and get_config().similar_bidirectional_edge_types:
+            file_name+= "Sim"
 
     if get_config().max_examples != -1:
         file_name += "_" + repr(get_config().max_examples)

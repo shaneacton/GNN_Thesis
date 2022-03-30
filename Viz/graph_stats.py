@@ -141,13 +141,13 @@ if __name__ == "__main__":
     # plot_wikimed_stats(SPECIAL_ENTITIES, DETECTED_ENTITIES)
     # plot_wikimed_stats(not SPECIAL_ENTITIES, not DETECTED_ENTITIES, row=1)
 
-    plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, title="Default")
-    plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, True, title="CoDocument Edges", row=1)
-    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, True, False, title="Compliment Edges", row=2)
+    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, title="Default")
+    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, True, title="CoDocument Edges", row=1)
+    plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, True, False, title="Compliment Edges", row=2)
 
     # plot_stats("wikihop", True, False, False, False, False, title="Special Entities")
-    # plot_stats("wikihop", False, True, False, False, False, title="Detected Entities", row=1)
-    # plot_stats("wikihop", True, False, True, False, False, title="Sentence Nodes", row=2)
+    plot_stats("wikihop", False, True, False, False, False, title="Detected Entities", row=1)
+    plot_stats("wikihop", True, False, True, False, False, title="Sentence Nodes", row=2)
 
 
     plt.show()
