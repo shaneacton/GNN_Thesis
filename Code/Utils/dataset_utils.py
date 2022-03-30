@@ -50,6 +50,9 @@ def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None) -> List[HDEGraph]:
     if get_config().use_compliment_edges:
         file_name += "_comp"
 
+    if hasattr(get_config(), "use_comention_edges") and not get_config().use_comention_edges:  # todo remove legacy
+        file_name += "_no_comen"
+
     if get_config().use_sentence_nodes:
         if get_config().use_all_sentences:
             file_name += "_allSents"
