@@ -4,7 +4,8 @@
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
     "base_0_new_no_edge",
-    "base_2_linear"
+    "base_2_linear",
+    "base_2_trans_bert_freeze_sdp_graph_bi"
   ],
   "low_priority_configs": [
     "base_0_newnew_switch_no_gate",
