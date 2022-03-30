@@ -1,14 +1,15 @@
 {
   "dataset": "wikihop",
-  "model_name": "allSents",
+  "model_name": "comms",
   "use_special_entities": true,
   "use_detected_entities": false,
   "use_codocument_edges": true,
   "use_sentence_nodes": true,
+  "use_comention_edges": true,
   "use_all_sentences": false,
   "connect_sent2doc": true,
   "connect_sent2sent": true,
-  "bidirectional_edge_types": true,
+  "bidirectional_edge_types": false,
   "use_coat_proper_types": true,
 
   "embedded_dims": 128,

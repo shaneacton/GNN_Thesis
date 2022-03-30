@@ -314,7 +314,9 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
 
     add_candidate_nodes(graph, example.candidates, example.supports)
     connect_candidates_and_entities(graph)
-    connect_entity_mentions(graph)
+    has_att = hasattr(get_config(), "use_comention_edges")  # todo remove legacy
+    if not has_att or (has_att and get_config().use_comention_edges):
+        connect_entity_mentions(graph)
 
     if get_config().use_sentence_nodes:
         connect_sentence_and_entity_nodes(graph, glove_embedder=glove_embedder,

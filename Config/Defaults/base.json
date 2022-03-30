@@ -8,6 +8,7 @@
   "connect_sent2sent": false,
   "use_compliment_edges": false,
   "use_codocument_edges": false,
+  "use_comention_edges": true,
   "bidirectional_edge_types": false,
   "model_name": "hde",
   "model_class": "HDERel",

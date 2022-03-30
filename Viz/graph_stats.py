@@ -1,4 +1,5 @@
 import argparse
+import copy
 
 import numpy as np
 import pandas as pd
@@ -60,7 +61,9 @@ def get_graphs(dataset, use_special_entities, use_detected_entities, sentence_no
         print("graphs not generated yet. Generating")
         from Code.Utils.model_utils import get_model_class
         model = get_model_class()().to(dev())
-        graphs = get_wikihop_graphs(embedder=model.embedder)
+        embedder = copy.deepcopy(model.embedder)
+        del model
+        graphs = get_wikihop_graphs(embedder=embedder)
 
     return graphs
 
@@ -140,7 +143,7 @@ if __name__ == "__main__":
 
     plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, title="Default")
     plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, True, title="CoDocument Edges", row=1)
-    plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, True, False, title="Compliment Edges", row=2)
+    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, True, False, title="Compliment Edges", row=2)
 
     # plot_stats("wikihop", True, False, False, False, False, title="Special Entities")
     # plot_stats("wikihop", False, True, False, False, False, title="Detected Entities", row=1)
