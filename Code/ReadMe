@@ -1,28 +1,9 @@
-
-* Tests to do:
-    * grad acc up to: 250000 edges
-
-* Metrics
-    * Reselect parameters logged.
-        * GNN vs Transformer vs output
-    * Add datetime to loss prints
-
-
-* General:
-    * add dropout to output model and other
-
-
-* Transformers
-    * more batching can be done in the summariser
-
-* GNN's.
-    *Try residual layer for GATConv
-
-
-* house keeping:
-    * get rid of the summariser/switch summariser distinction
-        turn rel off by only using the global edge
-    * code reuse between switch and regular variants
+* Publication Clean Up
+    * remove redundant features like Switch transformer
+    * create GNN core, asyncs parallel in code
+    * allow nested configs
+    * generalise data input
+    * save tokenisations and graphs separately
     * switch to graph embedder instead of doing it in HDEModel
 
 
@@ -34,22 +15,8 @@
     * graph memory usage/ flops/ runtime   against   sequence length and sparsity
 
 * Graph structuring
-    * make adding new node types easy
-    * sentence nodes
-        * different connection possibilities. hierarchical, sequential, codocument, complement
     * query node connected to all other nodes
         * one for each context-aware query sequence. one untransformed
-    * make new config system for graph structuring options
-    * resolve passage vs document naming
-    * new git branch for the new graphing system
-    * graph construction statistics on wandb
-        * num nodes, num edges, num discarded examples, num_fully_connected edges, entropy
-        * num types of nodes and edges
-        * add network timing data to wandb
-
-* Perceiver GNN
-    * byte array is the (E,F) edge message vector.
-    * latent array could the (N,F) node vectors, or a std perceiver latent emb
 
 * Pretraining
     * Entities are masked from the system

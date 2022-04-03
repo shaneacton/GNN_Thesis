@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import List, TYPE_CHECKING, Dict, Generator, Tuple, Set
 
 import numpy as np
@@ -223,5 +224,8 @@ class HDEGraph:
         return self.num_edges / (self.num_nodes * (self.num_nodes-1))
 
     def get_cross_doc_ratio(self):
-        return len(self.get_cross_document_comention_edges()) / len(self.doc_nodes)
+        ratio = len(self.get_cross_document_comention_edges()) / len(self.doc_nodes)
+        if ratio == 0:  # for visualisation in histogram
+            ratio = (random.random()-0.5) * 5
+        return ratio
 

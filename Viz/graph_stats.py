@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from Code.HDE.Graph.graph import HDEGraph
 from Code.Training import dev
-from Config.config import set_conf_files
+from Config.config import set_conf_files, get_config
 import seaborn as sns
 
 DATASET = "wikihop"
@@ -19,6 +19,8 @@ SENTENCE_NODES = False
 BIDIRECTIONAL_EDGES = False
 CODOCUMENT_EDGES = False
 COMPLIMENT_EDGES = False
+
+embedder = None
 
 
 def parse_args():
@@ -43,9 +45,10 @@ def parse_args():
     conf.run_args = args
 
 
-def get_graphs(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs):
+def get_graphs(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, comentions, example_span=None):
     from Code.Utils.dataset_utils import get_wikihop_graphs
     from Config.config import conf
+    global embedder
 
     conf.set("dataset", dataset)
     conf.set("use_special_entities", use_special_entities)
@@ -54,29 +57,42 @@ def get_graphs(dataset, use_special_entities, use_detected_entities, sentence_no
     conf.set("bidirectional_edge_types", BIDIRECTIONAL_EDGES)
     conf.set("use_codocument_edges", codocs)
     conf.set("use_compliment_edges", compliments)
+    conf.set("use_comention_edges", comentions)
 
     try:
-        graphs = get_wikihop_graphs()
+        graphs = get_wikihop_graphs(example_span=example_span)
     except:
         print("graphs not generated yet. Generating")
-        from Code.Utils.model_utils import get_model_class
-        model = get_model_class()().to(dev())
-        embedder = copy.deepcopy(model.embedder)
-        del model
-        graphs = get_wikihop_graphs(embedder=embedder)
-
+        if embedder is None:
+            from Code.Utils.model_utils import get_model_class
+            model = get_model_class()().to(dev())
+            embedder = copy.deepcopy(model.embedder)
+            del model
+        graphs = get_wikihop_graphs(embedder=embedder, example_span=example_span)
     return graphs
 
 
-def get_graph_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs):
-    graphs = get_graphs(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs)
-
+def get_graph_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, comentions):
     densities = []
     cross_dot_ratios = []
-    for graph in tqdm(graphs):
-        graph: HDEGraph = graph
-        densities.append(graph.get_edge_density())
-        cross_dot_ratios.append(graph.get_cross_doc_ratio())
+
+    def get_metrics(example_span):
+        graphs = get_graphs(dataset, use_special_entities, use_detected_entities, sentence_nodes,
+                            compliments, codocs, comentions, example_span=example_span)
+
+        for graph in tqdm(graphs):
+            graph: HDEGraph = graph
+            densities.append(graph.get_edge_density())
+            cross_dot_ratios.append(graph.get_cross_doc_ratio())
+
+    if CHUNK_SIZE == -1 or get_config().max_examples != -1:
+        get_metrics(None)
+    else:
+        start = 0
+        while start <= DATASET_LENGTH:
+            end = start + CHUNK_SIZE
+            get_metrics((start, end))
+            start += CHUNK_SIZE
 
     data = np.array([densities, cross_dot_ratios]).transpose()
     data = pd.DataFrame(data, columns=['Edge Density', 'Cross Document Ratio'])
@@ -98,8 +114,8 @@ def get_graph_stats(dataset, use_special_entities, use_detected_entities, senten
 #     AXES[row, 1].set_title("Cross Document Ratio")
 
 
-def plot_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, row=0, title=None):
-    stats = get_graph_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs)
+def plot_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, comentions, row=0, title=None):
+    stats = get_graph_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, comentions)
     print("stats:", stats)
     if ROWS == 1:
         ax0 = AXES[0]
@@ -107,14 +123,20 @@ def plot_stats(dataset, use_special_entities, use_detected_entities, sentence_no
     else:
         ax0 = AXES[row, 0]
         ax1 = AXES[row, 1]
-    ax0.set(xlim=(0, 0.35))
+    ax0.set(xlim=EDGE_DENSITY_SPAN)
     cross_doc_range = stats["Cross Document Ratio"].max() - stats["Cross Document Ratio"].min()
     # bins = int(100*cross_doc_range/max_range)
-    bins = int(BINS_FAC*cross_doc_range/MAX_CDR_RANGE)
+    bins = max(1, int(BINS_FAC*cross_doc_range/MAX_CDR_RANGE))
     print(title, "range:", cross_doc_range, "bins:", bins)
-    ax1.set(xlim=(0, MAX_CDR_RANGE))
-    sns.histplot(ax=ax0, data=stats, multiple="stack", x="Edge Density", hue='Dataset', bins=15)
-    sns.histplot(ax=ax1, data=stats, multiple="stack", x="Cross Document Ratio", hue='Dataset', bins=bins)
+    ax1.set(xlim=(-5, MAX_CDR_RANGE))
+    ed = sns.histplot(ax=ax0, data=stats, multiple="stack", x="Edge Density", bins=15)
+    cdr = sns.histplot(ax=ax1, data=stats, multiple="stack", x="Cross Document Ratio", bins=bins)
+
+    ed.set_xlabel(ed.xaxis.get_label().get_text(), fontsize=15)
+    ed.set_ylabel(ed.yaxis.get_label().get_text(), fontsize=15)
+    cdr.set_xlabel(cdr.xaxis.get_label().get_text(), fontsize=15)
+    cdr.set_ylabel(cdr.yaxis.get_label().get_text(), fontsize=15)
+
     if title is None:
         ax0.set_title("Edge Density")
         ax1.set_title("Cross Document Ratio")
@@ -124,14 +146,19 @@ def plot_stats(dataset, use_special_entities, use_detected_entities, sentence_no
 
 
 ROWS = 3
-# MAX_CDR_RANGE = 400
-MAX_CDR_RANGE = 900
+MAX_CDR_RANGE = 400
+# MAX_CDR_RANGE = 900
+EDGE_DENSITY_SPAN = (0.02, 0.4)
 
 BINS_FAC = 40
 
+CHUNK_SIZE = 5000  # -1 to load whole dataset at once
+DATASET_LENGTH = 41000
 
-FIG, AXES = plt.subplots(ROWS, 2, figsize=(15, 3 + ROWS*2.5))
-plt.subplots_adjust(hspace=0.5, wspace=0.4)
+
+FIG, AXES = plt.subplots(ROWS, 2, figsize=(15, 3 + ROWS*3))
+plt.subplots_adjust(hspace=0.5, wspace=0.3)
+sns.set(font_scale=1.75)
 
 if __name__ == "__main__":
     parse_args()
@@ -141,13 +168,14 @@ if __name__ == "__main__":
     # plot_wikimed_stats(SPECIAL_ENTITIES, DETECTED_ENTITIES)
     # plot_wikimed_stats(not SPECIAL_ENTITIES, not DETECTED_ENTITIES, row=1)
 
-    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, title="Default")
-    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, True, title="CoDocument Edges", row=1)
-    plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, True, False, title="Compliment Edges", row=2)
+    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, True, title="Default")
+    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, True, True, title="CoDocument Edges", row=1)
+    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, True, False, True, title="Compliment Edges", row=2)
+    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, False, title="No Comention Edges", row=3)
 
-    # plot_stats("wikihop", True, False, False, False, False, title="Special Entities")
-    plot_stats("wikihop", False, True, False, False, False, title="Detected Entities", row=1)
-    plot_stats("wikihop", True, False, True, False, False, title="Sentence Nodes", row=2)
+    plot_stats("wikihop", True, False, False, False, False, True, title="Special Entities")
+    plot_stats("wikihop", False, True, False, False, False, True, title="Detected Entities", row=1)
+    plot_stats("wikihop", True, False, True, False, False, True, title="Sentence Nodes", row=2)
 
 
     plt.show()
