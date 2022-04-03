@@ -146,9 +146,10 @@ def plot_stats(dataset, use_special_entities, use_detected_entities, sentence_no
 
 
 ROWS = 3
-MAX_CDR_RANGE = 400
-# MAX_CDR_RANGE = 900
-EDGE_DENSITY_SPAN = (0.02, 0.4)
+MAX_CDR_RANGE = 200
+# MAX_CDR_RANGE = 250
+EDGE_DENSITY_SPAN = (0.02, 0.25)
+# EDGE_DENSITY_SPAN = (0.02, 0.4)
 
 BINS_FAC = 40
 
