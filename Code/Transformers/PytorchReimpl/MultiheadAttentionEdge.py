@@ -151,7 +151,11 @@ class MultiheadAttentionEdge(Module):
         attn = torch.bmm(q, k.transpose(-2, -1))  # (B, Nt, Ns)
         # print("attn:", attn.size())
         # print("edge id mat:", edge_id_mat.size())
-        if get_config().include_trans_gnn_edge_types and get_config().use_key_type_edge_embs:
+        # todo remove legacy
+        use_k_type = get_config().use_key_type_edge_embs or \
+                     (hasattr(get_config(), "use_key_and_value_type_edge_embs") and
+                      get_config().use_key_and_value_type_edge_embs)
+        if get_config().include_trans_gnn_edge_types and use_k_type:
             """
                 need a (Nq, E, Nk) matrix for edge embeddings
                 start with (Nq, Nk) edge type id matrix
@@ -176,7 +180,10 @@ class MultiheadAttentionEdge(Module):
         if dropout_p > 0.0:
             attn = dropout(attn, p=dropout_p)
         output = torch.bmm(attn, v)
-        if get_config().include_trans_gnn_edge_types and not get_config().use_key_type_edge_embs:
+        use_v_type = (not get_config().use_key_type_edge_embs) or \
+                     (hasattr(get_config(), "use_key_and_value_type_edge_embs") and
+                      get_config().use_key_and_value_type_edge_embs)
+        if get_config().include_trans_gnn_edge_types and use_v_type:
             """V-Type edge embeddings"""
             edge_embs = self.get_edge_embeddings(graph, False)  # (Nq, Nk, E)
             A = attn.permute(1,0,2)  # (Nq, B, Nk)
