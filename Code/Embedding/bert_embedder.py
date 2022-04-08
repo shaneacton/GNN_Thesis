@@ -101,6 +101,10 @@ class BertEmbedder(StringEmbedder):
         last_hidden_state = out["last_hidden_state"]
         return last_hidden_state
 
+    def sep_embedding(self):
+        sep_emb = self.embed(self.tokenizer.sep_token)[:,1:-1, :]
+        return sep_emb
+
 
 class TooManyTokens(Exception):
     pass
@@ -125,6 +129,7 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
         for i, layer in enumerate(self.roberta.encoder.layer):
             # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
             layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
+
 
 if __name__ == "__main__":
     embedder = BertEmbedder()

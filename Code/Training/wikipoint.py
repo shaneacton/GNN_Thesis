@@ -4,14 +4,14 @@ from transformers import TokenSpan, BatchEncoding, PreTrainedTokenizerBase
 
 from Code.Utils.glove_utils import get_glove_entity_token_spans
 from Code.Utils.graph_utils import get_transformer_entity_token_spans
-from Config.config import conf
+from Config.config import get_config
 
 
 class Wikipoint:
 
-    def __init__(self, example, glove_embedder=None, tokeniser=None):
+    def __init__(self, example, glove_embedder=None, tokeniser:PreTrainedTokenizerBase=None):
         supports = example["supports"]
-        supports = [s[:conf.max_context_chars] if conf.max_context_chars != -1 else s for s in supports]
+        supports = [s[:get_config().max_context_chars] if get_config().max_context_chars != -1 else s for s in supports]
 
         self.supports = supports
         self.answer = example["answer"]
@@ -20,14 +20,19 @@ class Wikipoint:
 
         if glove_embedder is not None:
             self.ent_token_spans: List[List[Tuple[int]]] = get_glove_entity_token_spans(self, glove_embedder)
+            # todo remove option
+            if hasattr(get_config(), "store_document_token_spans") and get_config().store_document_token_spans:
+                self.doc_token_lengths = [len(glove_embedder.get_words(s)) for s in supports]
         else:
             supp_encs = [tokeniser(supp) for supp in supports]
-
+            # todo remove option
+            if hasattr(get_config(), "store_document_token_spans") and get_config().store_document_token_spans:
+                self.doc_token_lengths = [len(enc.tokens()) for enc in supp_encs]
             # special only
-            if conf.use_special_entities and not conf.use_detected_entities:
+            if get_config().use_special_entities and not get_config().use_detected_entities:
                 spans = get_special_entity_token_spans(self, supp_encs, tokeniser)
             # detected only
-            elif conf.use_detected_entities and not conf.use_special_entities:
+            elif get_config().use_detected_entities and not get_config().use_special_entities:
                 spans = get_transformer_entity_token_spans(supp_encs, supports)
             #both
             else:
@@ -37,10 +42,9 @@ class Wikipoint:
 
             self.ent_token_spans: List[List[Tuple[int]]] = spans
 
-            if conf.use_sentence_nodes:
+            if get_config().use_sentence_nodes:
                 spans = get_transformer_entity_token_spans(supp_encs, supports, get_sentence_spans=True, tokeniser=tokeniser)
                 self.sent_token_spans: List[List[Tuple[int]]] = spans
-
 
     @property
     def relation(self):

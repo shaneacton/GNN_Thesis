@@ -147,6 +147,9 @@ class HDEModel(nn.Module):
         example = graph.example
         support_embeddings = [self.embedder(sup) for sup in example.supports]
         query_emb = self.embedder(example.query)
+        if hasattr(get_config(), "append_query_to_context") and get_config().append_query_to_context:
+            support_embeddings = [torch.cat([s, self.embedder.sep_embedding(), query_emb], dim=1) for s in support_embeddings]
+
         cand_embs = [self.embedder(cand) for cand in example.candidates]
         self.check_pad_volume(support_embeddings)
 

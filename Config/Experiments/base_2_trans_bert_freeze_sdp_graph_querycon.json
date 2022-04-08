@@ -1,6 +1,6 @@
 {
-  "model_class": "HDERel",
-  "gnn_class": "GATConv",
+  "model_class": "HDE",
+  "gnn_class": "TransformerEdge",
   "use_gating": true,
   "use_transformer_block": true,
   "use_simple_hde": true,
@@ -13,14 +13,13 @@
 
   "embedder_type": "bert",
   "bert_size": "small",
-  "bert_fine_tune_layers": ["all"],
+  "bert_fine_tune_layers": [],
   "embedded_dims": 512,
   "transformer_heads": 8,
 
-  "initial_lr": 0.001,
-  "dropout": 0.2,
-  "lr_decay_fac": 0.95,
+  "include_trans_gnn_edge_types": true,
+  "include_trans_gnn_edges": true,
 
-  "num_layers": 15,
-  "num_epochs": 50
+  "initial_lr": 0.01,
+  "append_query_to_context": true
 }

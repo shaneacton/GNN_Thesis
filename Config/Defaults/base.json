@@ -53,5 +53,8 @@
   "include_trans_gnn_edge_types": true,
   "use_key_type_edge_embs": true,
   "use_key_and_value_type_edge_embs": false,
-  "include_trans_gnn_edges": true
+  "include_trans_gnn_edges": true,
+
+  "store_document_token_spans": false,
+  "append_query_to_context": false
 }

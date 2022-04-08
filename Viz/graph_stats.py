@@ -1,182 +1,102 @@
-import argparse
-import copy
-
-import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from tqdm import tqdm
 
-from Code.HDE.Graph.graph import HDEGraph
-from Code.Training import dev
-from Config.config import set_conf_files, get_config
 import seaborn as sns
 
-DATASET = "wikihop"
-SPECIAL_ENTITIES = True
-DETECTED_ENTITIES = False
-SENTENCE_NODES = False
-
-BIDIRECTIONAL_EDGES = False
-CODOCUMENT_EDGES = False
-COMPLIMENT_EDGES = False
-
-embedder = None
+from Viz.graph_fetch_utils import parse_args, get_graph_data, get_graph_stats
 
 
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--debug', '-d', help='Whether or not to run the debug configs - y/n', default="n")
-    parser.add_argument('--processed_data_path', '-p', help='Where processed graphs are stored', default="")
-
-    args = parser.parse_args()
-    model_conf = "debug_model"
-    train_conf = "debug_train"
-
-    from Config.config import conf
-
-    if model_conf is not None or train_conf is not None:
-        if model_conf is None:
-            model_conf = conf.model_cfg_name
-        if train_conf is None:
-            train_conf = conf.train_cfg_name
-
-    set_conf_files(model_conf, train_conf)
-    from Config.config import conf
-    conf.run_args = args
-
-
-def get_graphs(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, comentions, example_span=None):
-    from Code.Utils.dataset_utils import get_wikihop_graphs
-    from Config.config import conf
-    global embedder
-
-    conf.set("dataset", dataset)
-    conf.set("use_special_entities", use_special_entities)
-    conf.set("use_detected_entities", use_detected_entities)
-    conf.set("use_sentence_nodes", sentence_nodes)
-    conf.set("bidirectional_edge_types", BIDIRECTIONAL_EDGES)
-    conf.set("use_codocument_edges", codocs)
-    conf.set("use_compliment_edges", compliments)
-    conf.set("use_comention_edges", comentions)
-
-    try:
-        graphs = get_wikihop_graphs(example_span=example_span)
-    except:
-        print("graphs not generated yet. Generating")
-        if embedder is None:
-            from Code.Utils.model_utils import get_model_class
-            model = get_model_class()().to(dev())
-            embedder = copy.deepcopy(model.embedder)
-            del model
-        graphs = get_wikihop_graphs(embedder=embedder, example_span=example_span)
-    return graphs
-
-
-def get_graph_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, comentions):
-    densities = []
-    cross_dot_ratios = []
-
-    def get_metrics(example_span):
-        graphs = get_graphs(dataset, use_special_entities, use_detected_entities, sentence_nodes,
-                            compliments, codocs, comentions, example_span=example_span)
-
-        for graph in tqdm(graphs):
-            graph: HDEGraph = graph
-            densities.append(graph.get_edge_density())
-            cross_dot_ratios.append(graph.get_cross_doc_ratio())
-
-    if CHUNK_SIZE == -1 or get_config().max_examples != -1:
-        get_metrics(None)
-    else:
-        start = 0
-        while start <= DATASET_LENGTH:
-            end = start + CHUNK_SIZE
-            get_metrics((start, end))
-            start += CHUNK_SIZE
-
-    data = np.array([densities, cross_dot_ratios]).transpose()
-    data = pd.DataFrame(data, columns=['Edge Density', 'Cross Document Ratio'])
-    data["Dataset"] = dataset
-    data["Special Entities"] = use_special_entities
-    data["Detected Entities"] = use_detected_entities
-    return data.replace(0, 0)
-
-
-# def plot_wikimed_stats(use_special_entities, use_detected_entities, row=0):
-#     wiki_stats = get_graph_stats("wikihop", use_special_entities, use_detected_entities)
-#     med_stats = get_graph_stats("medhop", use_special_entities, use_detected_entities)
-#
-#     stats = pd.concat([wiki_stats, med_stats])
-#
-#     sns.kdeplot(ax=AXES[row, 0], data=stats, multiple="stack", x="Edge Density", hue='Dataset')
-#     sns.histplot(ax=AXES[row, 1], data=stats, multiple="stack", x="Cross Document Ratio", hue='Dataset', stat="density", log_scale=True, bins=15)
-#     AXES[row, 0].set_title("Edge Density")
-#     AXES[row, 1].set_title("Cross Document Ratio")
-
-
-def plot_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, comentions, row=0, title=None):
-    stats = get_graph_stats(dataset, use_special_entities, use_detected_entities, sentence_nodes, compliments, codocs, comentions)
-    print("stats:", stats)
-    if ROWS == 1:
-        ax0 = AXES[0]
-        ax1 = AXES[1]
-    else:
-        ax0 = AXES[row, 0]
-        ax1 = AXES[row, 1]
-    ax0.set(xlim=EDGE_DENSITY_SPAN)
-    cross_doc_range = stats["Cross Document Ratio"].max() - stats["Cross Document Ratio"].min()
-    # bins = int(100*cross_doc_range/max_range)
-    bins = max(1, int(BINS_FAC*cross_doc_range/MAX_CDR_RANGE))
-    print(title, "range:", cross_doc_range, "bins:", bins)
-    ax1.set(xlim=(-5, MAX_CDR_RANGE))
-    ed = sns.histplot(ax=ax0, data=stats, multiple="stack", x="Edge Density", bins=15)
-    cdr = sns.histplot(ax=ax1, data=stats, multiple="stack", x="Cross Document Ratio", bins=bins)
-
-    ed.set_xlabel(ed.xaxis.get_label().get_text(), fontsize=15)
-    ed.set_ylabel(ed.yaxis.get_label().get_text(), fontsize=15)
-    cdr.set_xlabel(cdr.xaxis.get_label().get_text(), fontsize=15)
-    cdr.set_ylabel(cdr.yaxis.get_label().get_text(), fontsize=15)
-
-    if title is None:
-        ax0.set_title("Edge Density")
-        ax1.set_title("Cross Document Ratio")
-    else:
-        ax0.set_title(title)
-        ax1.set_title(title)
-
-
-ROWS = 3
-MAX_CDR_RANGE = 200
-# MAX_CDR_RANGE = 250
-EDGE_DENSITY_SPAN = (0.02, 0.25)
-# EDGE_DENSITY_SPAN = (0.02, 0.4)
+ROWS = None
+COLS = None
 
 BINS_FAC = 40
 
-CHUNK_SIZE = 5000  # -1 to load whole dataset at once
-DATASET_LENGTH = 41000
+node_variants = ["Detected Entities", "Special and Detected Entities", "Sentence Nodes"]
+edge_variants = ["CoDocument Edges", "No Comention Edges"]
 
 
-FIG, AXES = plt.subplots(ROWS, 2, figsize=(15, 3 + ROWS*3))
-plt.subplots_adjust(hspace=0.5, wspace=0.3)
-sns.set(font_scale=1.75)
+def plot_stat_hist(configs, config_name, row, col, stat_name, x_range=None):
+    stats = get_graph_data(**configs[config_name])
+    if ROWS == 1:
+        axis = AXES[col]
+    elif COLS == 1:
+        axis = AXES[row]
+    else:
+        axis = AXES[row, col]
+    bins = 15
+
+    if x_range is not None:
+        axis.set(xlim=x_range)
+        value_range = stats[stat_name].max() - stats[stat_name].min()
+        bins = max(1, int(BINS_FAC * value_range / x_range[1]))
+
+    plot = sns.histplot(ax=axis, data=stats, multiple="stack", x=stat_name, bins=bins)
+    plot.set_xlabel(plot.xaxis.get_label().get_text(), fontsize=15)
+    plot.set_ylabel(plot.yaxis.get_label().get_text(), fontsize=15)
+    axis.set_title(config_name)
+
+
+def plot_stats_boxes(configs, stat_name, ordered_confs):
+    relevant_stats = pd.DataFrame()
+    new_subfigs(1, 1, width=10)
+    ordered_confs = ["Default"] + ordered_confs
+
+    for i, conf in enumerate(ordered_confs):
+        stats = get_graph_data(**configs[conf])
+        stat = stats[stat_name]
+        print("stat:", stat)
+        relevant_stats[conf] = stat
+    sns.boxplot(ax=AXES, data=relevant_stats, orient="h", showfliers=False)  # RUN PLOT
+    plt.title(stat_name)
+    plt.tight_layout()
+    plt.show()
+
+
+def new_subfigs(rows, cols, width=15, font_scale=1.4):
+    global FIG, AXES, ROWS, COLS
+    ROWS = rows
+    COLS = cols
+    sns.set(font_scale=font_scale)
+    FIG, AXES = plt.subplots(rows, cols, figsize=(width, 2 + rows*3.5))
+    plt.subplots_adjust(hspace=0.75, wspace=0.3)
+
+
+def plot_token_counts(**kwargs):
+    new_subfigs(3, 1, width=14)
+    _, _, _, (all_token_lengths, sum_token_lengths, num_documents) = get_graph_stats(**kwargs)
+    ax1, ax2, ax3 = AXES[0], AXES[1], AXES[2]
+    doc_data = pd.DataFrame({"Document Token Lengths": all_token_lengths})
+    total_data = pd.DataFrame({"Wikihop Datapoint Total Tokens": sum_token_lengths})
+    num_docs = pd.DataFrame({"Wikihop Datapoint Document Count": num_documents})
+
+    sns.boxplot(ax=ax1, data=num_docs, orient="h", showfliers=False)
+    sns.boxplot(ax=ax2, data=doc_data, orient="h", showfliers=False)
+    sns.boxplot(ax=ax3, data=total_data, showfliers=False, orient="h")  # x="Wikihop Datapoint Total Tokens"
+    plt.tight_layout()
+    plt.show()
+
 
 if __name__ == "__main__":
     parse_args()
-    # AXES[0, 1].set_xscale('symlog')
-    FIG.suptitle('Title')
 
-    # plot_wikimed_stats(SPECIAL_ENTITIES, DETECTED_ENTITIES)
-    # plot_wikimed_stats(not SPECIAL_ENTITIES, not DETECTED_ENTITIES, row=1)
+    configs = {"Default":           {"dataset": "wikihop", "use_special_entities": True, "use_detected_entities": False,
+                    "sentence_nodes": False, "compliments": False, "codocs": False, "comentions": True},
+               "CoDocument Edges":  {"dataset": "wikihop", "use_special_entities": True, "use_detected_entities": False,
+                    "sentence_nodes": False, "compliments": False, "codocs": True, "comentions": True},
+               "Compliment Edges":  {"dataset": "wikihop", "use_special_entities": True, "use_detected_entities": False,
+                    "sentence_nodes": False, "compliments": True, "codocs": False, "comentions": True},
+               "No Comention Edges": {"dataset": "wikihop", "use_special_entities": True, "use_detected_entities": False,
+                    "sentence_nodes": False, "compliments": False, "codocs": False, "comentions": False},
+               "Detected Entities": {"dataset": "wikihop", "use_special_entities": False, "use_detected_entities": True,
+                    "sentence_nodes": False, "compliments": False, "codocs": False, "comentions": True},
+               "Special and Detected Entities": {"dataset": "wikihop", "use_special_entities": True, "use_detected_entities": True,
+                    "sentence_nodes": False, "compliments": False, "codocs": False, "comentions": True},
+               "Sentence Nodes":    {"dataset": "wikihop", "use_special_entities": True, "use_detected_entities": False,
+                    "sentence_nodes": True, "compliments": False, "codocs": False, "comentions": True}
+               }
 
-    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, True, title="Default")
-    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, True, True, title="CoDocument Edges", row=1)
-    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, True, False, True, title="Compliment Edges", row=2)
-    # plot_stats("wikihop", SPECIAL_ENTITIES, DETECTED_ENTITIES, SENTENCE_NODES, False, False, False, title="No Comention Edges", row=3)
+    plot_token_counts(**configs["Default"])
+    plot_stats_boxes(configs, "Number of Nodes", node_variants)
+    plot_stats_boxes(configs, 'Cross Document Ratio', node_variants + edge_variants)
+    plot_stats_boxes(configs, 'Edge Density', node_variants + edge_variants)
 
-    plot_stats("wikihop", True, False, False, False, False, True, title="Special Entities")
-    plot_stats("wikihop", False, True, False, False, False, True, title="Detected Entities", row=1)
-    plot_stats("wikihop", True, False, True, False, False, True, title="Sentence Nodes", row=2)
-
-
-    plt.show()

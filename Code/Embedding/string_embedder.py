@@ -16,3 +16,7 @@ class StringEmbedder(nn.Module):
         emb = self.embed(string, **kwargs)
         log_time("Token embedding", time.time() - t, increment_counter=False)
         return emb
+
+    @abstractmethod
+    def sep_embedding(self):
+        pass

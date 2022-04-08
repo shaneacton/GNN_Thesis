@@ -15,7 +15,7 @@ class HDENode:
 
         self.is_special_ent = is_special_ent  # if this ent is a query/candidate ent via exact match.
         self.ent_id = ent_id  # which in-order entity this node represents. Only relevant if is an ent
-        self.token_spen = ent_token_spen  # token span wrt a passage. Only relevant for ents/sentences
+        self.token_spen = ent_token_spen  # token span wrt a passage. Only relevant for ents/sentences  # todo fix typo
         self.text = text.strip()
         self.doc_id = doc_id
         self.candidate_id = candidate_id
