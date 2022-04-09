@@ -95,7 +95,7 @@ if __name__ == "__main__":
                     "sentence_nodes": True, "compliments": False, "codocs": False, "comentions": True}
                }
 
-    plot_token_counts(**configs["Default"])
+    # plot_token_counts(**configs["Default"])
     plot_stats_boxes(configs, "Number of Nodes", node_variants)
     plot_stats_boxes(configs, 'Cross Document Ratio', node_variants + edge_variants)
     plot_stats_boxes(configs, 'Edge Density', node_variants + edge_variants)
