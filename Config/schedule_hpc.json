@@ -3,9 +3,11 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_bert_freeze_sdp_graph_codoc_no_comen",
-    "base_2_trans_bert_fine_sdp_graph_querycon"
+    "",
+    "base_2_trans_bert_fine_sdp_graph_querycon",
+    "base_2_trans_bert_freeze_sdp_graph_medium"
   ],
   "low_priority_configs": [
+    "base_2_trans_bert_freeze_sdp_graph"
   ]
 }

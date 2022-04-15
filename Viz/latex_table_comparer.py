@@ -7,14 +7,14 @@ MLP_table = """\multicolumn{1}{r}{\cellcolor{gray} No.} & GNN Core & Gating & TU
         \cellcolor{gray}& Edge-Core & \no & \no & \yes & \no & 58.2 & newnew no gate\\\hline
         \cellcolor{gray}& Edge-Core & \yes & \no & \yes & \no & 60.3 & newnew\\\hline
         \cellcolor{gray}& Edge-Core & \yes & \no & \no & \yes & 61.9 & new sage\\\hline
-        \cellcolor{gray}& Edge-Core & \no & \no & \no & \yes & - & new sage no gate\\\hline\hline
+        \cellcolor{gray}& Edge-Core & \no & \no & \no & \yes & 60.7 & new sage no gate\\\hline\hline
 
         \cellcolor{gray}& Switch-Core & \yes & \no & \no & \no & 58.9 & base0 linear2\\\hline
         \cellcolor{gray}& Switch-Core & \yes & \no & \yes & \no & 58 & newnew switch\\\hline
-        \cellcolor{gray}& Switch-Core & \no & \no & \yes & \no & - & newnew switch no gate\\\hline\hline
+        \cellcolor{gray}& Switch-Core & \no & \no & \yes & \no & 58.6 & newnew switch no gate\\\hline\hline
 
-        \cellcolor{gray}& SAGE-Core & \yes & \no & \no & \yes & - & realsage\\\hline
-        \cellcolor{gray}& SAGE-Core & \yes & \no & \no & \no & todo & \\\hline
+        \cellcolor{gray}& SAGE-Core & \yes & \no & \no & \yes & 58 & realsage\\\hline
+        \cellcolor{gray}& SAGE-Core & \yes & \no & \no & \no & 57.4 & sagecore gate\\\hline
         \cellcolor{gray}& SAGE-Core & \yes & \no & \yes & \no & 59.6 & base0 edge\\\hline
         \cellcolor{gray}& SAGE-Core & \no & \no & \no & \yes & Failed to Train & realsage nogate\\\hline"""
 GAT_table = """\multicolumn{1}{r}{\cellcolor{gray} No.} & GNN Core & Gating & TUF & MLP \newline Asym & SAGE \newline Asym & Dev \newline Accuracy & Name\\\hline\hline
@@ -24,16 +24,16 @@ GAT_table = """\multicolumn{1}{r}{\cellcolor{gray} No.} & GNN Core & Gating & TU
         \cellcolor{gray}& GAT-Core & \no & \no & \no & \no & 29 & base2 no gate\\\hline\hline
         
         \cellcolor{gray}& SDP-Core & \yes & \yes & \no & \no & 64.7 & sdp\\\hline
-        \cellcolor{gray}& SDP-Core & \yes & \no & \no & \no & 59.2 & sdp trans no tuf\\\hline
-        \cellcolor{gray}& SDP-Core & \no & \yes & \no & \no & 59.1 & sdp trans no gate\\\hline
+        \cellcolor{gray}& SDP-Core & \yes & \no & \no & \no & 61.4 & sdp trans no tuf\\\hline
+        \cellcolor{gray}& SDP-Core & \no & \yes & \no & \no & 66 & sdp trans no gate\\\hline
         \cellcolor{gray}& SDP-Core & \no & \no & \no & \no & Failed to Train & sdp no gate \\\hline\hline
 
         \cellcolor{gray}& Edge-Core & \yes & \yes & \no & \no & 60.2 & trans linear\\\hline
-        \cellcolor{gray}& Edge-Core & \no & \yes & \no & \no & - & -\\\hline
-        \cellcolor{gray}& Edge-Core & \yes & \no & \no & \no & - & -\\\hline"""
+        \cellcolor{gray}& Edge-Core & \no & \yes & \no & \no & 62.5 & trans linear no gate\\\hline
+        \cellcolor{gray}& Edge-Core & \yes & \no & \no & \no & 58.5 & 2 linear\\\hline"""
 
-# WHICH_TABLE = "GAT"
-WHICH_TABLE = "MLP"
+WHICH_TABLE = "GAT"
+# WHICH_TABLE = "MLP"
 USE_DELTAS = False
 
 
