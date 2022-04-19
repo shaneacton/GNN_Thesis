@@ -27,5 +27,5 @@
   "use_all_sentences": false,
   "connect_sent2sent": true,
 
-  "use_comention_edges": false
+  "use_codocument_edges": true
 }
