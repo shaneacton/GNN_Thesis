@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import re
 import zlib
 from typing import TYPE_CHECKING
@@ -304,6 +305,25 @@ def connect_sentence_and_entity_nodes(graph, tokeniser: LongformerTokenizerFast=
     # print("num ents:", len(ent_nodes), "num sents:", len(graph.sentence_nodes))
 
 
+def shuffle_graph(graph: HDEGraph):
+    for edge in graph.ordered_edges:
+        # reassign the edge
+        if edge.type() != "candidate2candidate":
+            graph.unique_edges.remove(edge.edge_hash)
+            edge.from_id = random.randint(0, graph.num_nodes-1)
+            edge.to_id = random.randint(0, graph.num_nodes-1)
+            while edge.from_id == edge.to_id or edge.edge_hash in graph.unique_edges:
+                edge.from_id = random.randint(0, graph.num_nodes-1)
+                edge.to_id = random.randint(0, graph.num_nodes-1)
+            graph.unique_edges.add(edge.edge_hash)
+            if edge._type is not None:
+                edge._type="random"
+            if edge.type() == "document2document" or edge.type() == "entity2entity":
+                edge._type="random"
+    graph.unique_edge_types.add("random")
+
+
+
 def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, support_encodings=None):
     graph = HDEGraph(example)
     add_doc_nodes(graph, example.supports)
@@ -324,6 +344,10 @@ def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, suppor
 
     if get_config().use_compliment_edges:
         connect_unconnected_entities(graph)
+
+    # todo remove legacy
+    if hasattr(get_config(), "use_random_edges") and get_config().use_random_edges:
+        shuffle_graph(graph)
 
     if get_config().visualise_graphs:
         render_graph(example, graph)

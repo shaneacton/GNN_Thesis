@@ -117,6 +117,9 @@ def get_data_file_path(split, example_span=None):
         # todo remove legacy
         if hasattr(get_config(), "similar_bidirectional_edge_types") and get_config().similar_bidirectional_edge_types:
             file_name += "Sim"
+    # todo remove legacy
+    if hasattr(get_config(), "use_random_edges") and get_config().use_random_edges:
+        file_name += "_rand"
     if get_config().max_examples != -1:
         file_name += "_" + repr(get_config().max_examples)
     full_file_name = get_config().dataset + "_" + file_name + ".data"
