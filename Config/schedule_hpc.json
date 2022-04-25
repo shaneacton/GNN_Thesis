@@ -3,12 +3,11 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_bert_freeze_sdp_graph"
+        "base_2_trans_bert_freeze_sdp_graph_bi_sents_codoc"
   ],
   "low_priority_configs": [
-    "base_2_trans_bert_freeze_sdp_graph_dup",
-    "base_2_trans_bert_freeze_sdp_graph_bi_sents",
-    "base_2_trans_bert_freeze_sdp_graph_bi_sents_no_comen",
-    "base_2_trans_bert_freeze_sdp_graph_bi_sents_codoc"
+      "base_2_trans_bert_freeze_sdp_graph_bi_sents_codoc_coat",
+      "base_2_trans_bert_freeze_sdp_graph_bi_sents_codoc_querycon",
+      "base_2_trans_bert_freeze_sdp_graph_bi_sents_codoc_coat_querycon"
   ]
 }
