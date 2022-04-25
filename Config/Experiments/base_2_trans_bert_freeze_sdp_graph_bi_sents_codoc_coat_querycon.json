@@ -31,5 +31,5 @@
 
   "use_coat_proper_types": true,
   "num_coattention_layers": 2,
-  "append_query_to_context": tru
+  "append_query_to_context": true
 }
