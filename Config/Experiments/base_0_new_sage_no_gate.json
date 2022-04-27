@@ -1,7 +1,7 @@
 {
   "model_class": "HDERel",
   "gnn_class": "LinearSAGE",
-  "use_gating": true,
+  "use_gating": false,
   "use_transformer_block": false,
   "use_simple_hde": true,
 
