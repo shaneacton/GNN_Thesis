@@ -1,4 +1,4 @@
-# GROUP_NAME = "Base0"
+# GROUP_NAME = "MLP-Base"
 # ACCURACIES = [60, 58.9, 59.6, 57.6, 62]  # base_0, base_0_switch, base_0_sage, *base_0_gru, base_0_NoShare
 # NUM_PARAMS = [3.2, 3.7, 3.3, 8.3, 6.1]
 
