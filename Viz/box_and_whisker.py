@@ -1,9 +1,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-RUN_NAME = "Base0"
+RUN_NAME = "BertBase SDP"
 # ACCURACIES = [68.8, 68.9, 67.6, 68.0, 67.9]  # BertBase GAT
-ACCURACIES = [60.5, 60.3, 60.0, 59.3, 60.3]
+# ACCURACIES = [60.5, 60.3, 60.0, 59.3, 60.3]  # Base0
+ACCURACIES = [68.2, 68.4, 68.1, 68.1, 68.3]  # BertBase SDP
 
 
 data = np.array(ACCURACIES)
@@ -12,7 +13,7 @@ mean = round(np.mean(data), 2)
 min = min(ACCURACIES)
 max = max(ACCURACIES)
 
-fig = plt.figure(figsize=(5, 6))
+fig = plt.figure(figsize=(5.6, 6))
 plt.boxplot(data, whis=2.5)
 
 plt.title(RUN_NAME + " Dev Accuracy. n=" + repr(len(ACCURACIES)))
