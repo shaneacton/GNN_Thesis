@@ -17,5 +17,5 @@
   "embedded_dims": 512,
   "transformer_heads": 8,
 
-  "initial_lr": 0.005
+  "initial_lr": 0.002
 }
