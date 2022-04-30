@@ -8,6 +8,7 @@
     "base_2_trans_bert_freeze_sdp_graph_rand"
   ],
   "low_priority_configs": [
+    "base_2_trans_bert_freeze_sdp_graph_bi_sents_codoc_coat_no_gate",
     "base_2_trans_bert_freeze_sdp_graph_coat_types_3L",
     "base_2_trans_bert_freeze_sdp_graph_coat_types_4L"
   ]
