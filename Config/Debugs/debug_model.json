@@ -3,7 +3,7 @@
   "model_name": "rand",
   "use_special_entities": true,
   "use_detected_entities": false,
-  "use_codocument_edges": true,
+  "use_codocument_edges": false,
   "use_sentence_nodes": false,
   "use_comention_edges": true,
   "use_all_sentences": false,

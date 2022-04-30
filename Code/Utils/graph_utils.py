@@ -323,7 +323,6 @@ def shuffle_graph(graph: HDEGraph):
     graph.unique_edge_types.add("random")
 
 
-
 def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, support_encodings=None):
     graph = HDEGraph(example)
     add_doc_nodes(graph, example.supports)
