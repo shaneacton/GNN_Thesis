@@ -1,7 +1,7 @@
 {
   "model_class": "HDE",
   "gnn_class": "TransformerEdge",
-  "use_gating": true,
+  "use_gating": false,
   "use_transformer_block": true,
   "use_simple_hde": true,
 
@@ -19,12 +19,17 @@
 
   "include_trans_gnn_edge_types": true,
   "include_trans_gnn_edges": true,
+  "bidirectional_edge_types": true,
 
-
-  "initial_lr": 0.01,
+  "initial_lr": 0.005,
 
   "use_sentence_nodes": true,
   "connect_sent2doc": true,
   "use_all_sentences": false,
-  "connect_sent2sent": true
+  "connect_sent2sent": true,
+
+  "use_codocument_edges": true,
+
+  "use_coat_proper_types": true,
+  "num_coattention_layers": 2
 }
