@@ -3,12 +3,11 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_bert_freeze_sdp_graph_no_gate",
     "base_2_trans_bert_freeze_no_gate",
     "base_2_trans_bert_freeze_sdp_graph_rand"
   ],
   "low_priority_configs": [
     "base_2_trans_bert_freeze_sdp_graph_bi_sents_codoc_coat_no_gate",
-    "base_2_trans_bert_freeze_sdp_graph_coat_types_3L"
+    "top_v0"
   ]
 }
