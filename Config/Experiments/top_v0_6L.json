@@ -31,5 +31,6 @@
   "num_coattention_layers": 2,
 
   "initial_lr": 0.001,
-  "dropout": 0.2
+  "dropout": 0.2,
+  "num_layers": 6
 }

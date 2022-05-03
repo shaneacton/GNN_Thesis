@@ -21,6 +21,11 @@
   "include_trans_gnn_edges": true,
   "bidirectional_edge_types": true,
 
+  "initial_lr": 0.001,
+  "dropout": 0.2,
+  "max_accumulated_edges": 250000,
+  "scale_accumulated_gradients": true,
+
   "connect_sent2doc": true,
   "use_all_sentences": false,
   "connect_sent2sent": true,
@@ -28,8 +33,5 @@
   "use_codocument_edges": true,
 
   "use_coat_proper_types": true,
-  "num_coattention_layers": 2,
-
-  "initial_lr": 0.001,
-  "dropout": 0.2
+  "num_coattention_layers": 2
 }
