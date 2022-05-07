@@ -48,5 +48,7 @@
   "use_key_type_edge_embs": true,
 
   "store_document_token_spans": true,
-  "append_query_to_context": true
+  "append_query_to_context": true,
+
+  "fixed_accumulate_steps": 5
 }

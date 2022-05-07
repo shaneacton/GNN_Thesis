@@ -3,13 +3,11 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_0_new_sage_no_gate",
-    "base_2_trans_bert_freeze_sdp_graph_bi_actualsents_codoc_coat_no_gate"
+    "base_2_trans_bert_freeze_sdp_graph_bi_actualsents_codoc_coat_no_gate",
+    "base_2_trans_bert_freeze_sdp_graph_bi_actualsents_codoc_coat_no_gate_querycon"
   ],
   "low_priority_configs": [
-    "base_2_trans_bert_freeze_sdp_graph_bi_sents_codoc_coat_querycon",
-    "base_2_trans_bert_freeze_sdp_graph_bi_actualsents_codoc_coat_no_gate_querycon",
-    "top_v0_grad_acc",
-    "top_v0_12L"
+    "top_v0_12L",
+    "top_v0_grad_acc4"
   ]
 }

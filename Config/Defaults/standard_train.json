@@ -8,6 +8,7 @@
   "print_loss_every": 2000,
   "checkpoint_every": 2000,
   "max_accumulated_edges": -1,
+  "fixed_accumulate_steps": -1,
   "scale_accumulated_gradients": false,
   "max_edges": 350000,
   "max_pad_volume": 32000,

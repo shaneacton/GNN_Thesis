@@ -18,14 +18,14 @@ from Code.Utils.dataset_utils import get_wikihop_graphs
 from Code.Utils.model_utils import get_model
 from Code.Utils.training_utils import get_training_results, save_training_results
 from Code.Utils.wandb_utils import use_wandb, wandb_run
-from Config.config import conf
+from Config.config import get_config
 
 
 def train_model(name, gpu_num=0, program_start_time=-1):
     if program_start_time == -1:
         program_start_time = time.time() - 120
     set_gpu(gpu_num)
-    print("max edges:", conf.max_edges, "max pad volume:", conf.max_pad_volume)
+    print("max edges:", get_config().max_edges, "max pad volume:", get_config().max_pad_volume)
     model, optimizer, scheduler = get_model(name)
     if scheduler is None:
         raise Exception("weh")
@@ -45,7 +45,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
 
     training_results = get_training_results(name)
     print("starting training")
-    for epoch in range(conf.num_epochs):
+    for epoch in range(get_config().num_epochs):
         if model.last_epoch != -1 and epoch < model.last_epoch:  # fast forward
             continue
         random.Random(4).shuffle(graphs)
@@ -60,35 +60,43 @@ def train_model(name, gpu_num=0, program_start_time=-1):
             def e_frac():
                 return epoch + (i+num_fastforward_examples)/len(graphs)
 
-            if i >= conf.max_examples != -1:
+            if i >= get_config().max_examples != -1:
                 break
 
-            if time.time() - program_start_time > conf.max_runtime_seconds != -1:
+            if time.time() - program_start_time > get_config().max_runtime_seconds != -1:
                 times_up()
 
             try:
                 num_edges = len(graph.unique_edges)
-                if accumulated_edges + num_edges > conf.max_accumulated_edges:  # always true if mae=-1
+                fixed_acc = hasattr(get_config(), "fixed_accumulate_steps") and get_config().fixed_accumulate_steps != -1
+                if fixed_acc:
+                    step_optim = num_accumulation_steps >= get_config().fixed_accumulate_steps
+                else:  # dynamic number of steps
+                    # always true if mae=-1
+                    step_optim = accumulated_edges + num_edges > get_config().max_accumulated_edges
+
+                if step_optim:
                     """
                         this new graph would send us over the accumulated edges budget,
                         so we must first wipe previous gradients by stepping
                     """
                     num_accumulation_steps = max(1, num_accumulation_steps)
-                    if conf.scale_accumulated_gradients:
+                    if get_config().scale_accumulated_gradients:
                         for p in model.parameters():
                             if p.grad is not None and p.requires_grad:
                                 p.grad /= num_accumulation_steps
 
                     optimizer.step()
-                    if bert_optim is not None and epoch > conf.num_embedder_freeze_epochs:
+                    if bert_optim is not None and epoch > get_config().num_embedder_freeze_epochs:
                         bert_optim.step()
+                    # print("stepping at i=", i, "num acc steps:", num_accumulation_steps)
                     num_accumulation_steps = 0
-                    if conf.use_lr_scheduler:
+                    if get_config().use_lr_scheduler:
                         scheduler.step(epoch=e_frac())
                     optimizer.zero_grad()
                     if bert_optim is not None:
                         bert_optim.zero_grad()
-                    if conf.show_memory_usage_data:
+                    if get_config().show_memory_usage_data:
                         print("accumulated edges (", accumulated_edges, ") is over max. stepping optim:")
                     accumulated_edges = 0
 
@@ -100,7 +108,7 @@ def train_model(name, gpu_num=0, program_start_time=-1):
                 log_time("Backwards pass", time.time() - t)
 
                 accumulated_edges += num_edges
-                if conf.show_memory_usage_data:
+                if get_config().show_memory_usage_data:
                     print("accumulated edges:", accumulated_edges)
 
             except (NoWordsException, PadVolumeOverflow, TooManyEdges, TooManyTokens) as ne:
@@ -110,14 +118,14 @@ def train_model(name, gpu_num=0, program_start_time=-1):
 
             training_results.report_step(loss.item(), predicted, graph.example.answer, len(graph.example.candidates))
 
-            if len(training_results.all_losses) % conf.print_loss_every == 0:  # print loss
+            if len(training_results.all_losses) % get_config().print_loss_every == 0:  # print loss
                 training_results.log_last_steps(e_frac())
 
-            if len(training_results.all_losses) % conf.checkpoint_every == 0:  # save model and data
+            if len(training_results.all_losses) % get_config().checkpoint_every == 0:  # save model and data
                 # saving takes a few minutes. We should check for an early stoppage to ensure program closes well
-                if conf.max_runtime_seconds != -1 and time.time() - program_start_time > conf.max_runtime_seconds - 3000:
+                if get_config().max_runtime_seconds != -1 and time.time() - program_start_time > get_config().max_runtime_seconds - 3000:
                     times_up()
-                print("program run time:", (time.time() - program_start_time)/(60**2), "hours/ ", time.time() - program_start_time, "seconds. Max:", conf.max_runtime_seconds)
+                print("program run time:", (time.time() - program_start_time)/(60**2), "hours/ ", time.time() - program_start_time, "seconds. Max:", get_config().max_runtime_seconds)
 
                 epoch_start_time = save_training_states(training_results, epoch_start_time, i, model, name, optimizer,
                                                         scheduler, bert_optim)
@@ -132,9 +140,9 @@ def train_model(name, gpu_num=0, program_start_time=-1):
 
 def times_up():
     print("reached max run time. shutting down so the program can exit safely")
-    status = load_status(conf.model_name)
+    status = load_status(get_config().model_name)
     status["running"] = False
-    save_status(conf.model_name, status)
+    save_status(get_config().model_name, status)
     exit()
 
 
