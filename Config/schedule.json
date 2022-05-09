@@ -3,12 +3,13 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "top_v0",
-    "top_v0_6L"
+    "base_2_trans_bert_freeze_sdp_structure"
   ],
   "low_priority_configs": [
     "top_v0_6L_coat_4L",
     "top_v0_no_lr_schedj",
-    "top_v0_grad_acc2"
+    "top_v0_grad_acc2",
+    "top_v0",
+    "top_v0_6L"
   ]
 }
