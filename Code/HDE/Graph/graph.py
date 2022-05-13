@@ -5,7 +5,10 @@ from typing import List, TYPE_CHECKING, Dict, Generator, Tuple, Set
 
 import numpy as np
 import torch
-from torch_geometric.utils import remove_self_loops, add_self_loops
+try:
+    from torch_geometric.utils import remove_self_loops, add_self_loops
+except ModuleNotFoundError:
+    pass
 
 from Code.Training import dev
 from Code.constants import ENTITY, DOCUMENT, CANDIDATE, GLOBAL, SELF_LOOP, SENTENCE

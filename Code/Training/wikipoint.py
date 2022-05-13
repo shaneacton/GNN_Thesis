@@ -10,6 +10,7 @@ from Config.config import get_config
 class Wikipoint:
 
     def __init__(self, example, glove_embedder=None, tokeniser:PreTrainedTokenizerBase=None):
+        # print(example)
         supports = example["supports"]
         supports = [s[:get_config().max_context_chars] if get_config().max_context_chars != -1 else s for s in supports]
 
@@ -17,6 +18,7 @@ class Wikipoint:
         self.answer = example["answer"]
         self.candidates = example["candidates"]
         self.query = example["query"]
+        self.example_id = example["id"]
 
         if glove_embedder is not None:
             self.ent_token_spans: List[List[Tuple[int]]] = get_glove_entity_token_spans(self, glove_embedder)

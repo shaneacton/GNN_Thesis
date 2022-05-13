@@ -2,24 +2,29 @@ import os
 from os.path import exists
 
 import torch
-from torch_geometric.nn import GATConv, SAGEConv
+pytorch_geo_installed = True
+try:
+    from torch_geometric.nn import GATConv, SAGEConv
+    from Code.GNNs.linear_gnn2 import LinearGNN2
+    from Code.GNNs.linear_gnn3 import LinearGNN3
+    from Code.GNNs.linear_gnn_sage import LinearGNNSAGE
+    from Code.GNNs.real_sage import RealSAGE
+    from Code.GNNs.sage_core import SAGECore
+    from Code.GNNs.linear_gnn import LinearGNN
+
+except ModuleNotFoundError:
+    pytorch_geo_installed = False
 
 from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
     load_json_data, restore_from_backup_folder, load_status
 from Code.Embedding.bert_embedder import BertEmbedder
 from Code.GNNs.TransGNNs.transformer_gnn_edge import TransformerGNNEdge
-from Code.GNNs.linear_gnn import LinearGNN
-from Code.GNNs.linear_gnn2 import LinearGNN2
-from Code.GNNs.linear_gnn3 import LinearGNN3
-from Code.GNNs.linear_gnn_sage import LinearGNNSAGE
-from Code.GNNs.real_sage import RealSAGE
-from Code.GNNs.sage_core import SAGECore
 from Code.HDE.hde_model import HDEModel
 from Code.HDE.hde_rel import HDERel
 from Code.Training import dev
 from Code.Training.lamb import Lamb
 from Code.Utils.training_utils import get_exponential_schedule_with_warmup, get_training_results
-from Config.config import conf, get_config
+from Config.config import get_config
 from Code.Utils import wandb_utils
 from Code.Utils.wandb_utils import use_wandb
 
@@ -28,8 +33,12 @@ MODEL_MAP = {
     "HDERel": HDERel
              }
 
-GNN_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv, "TransformerEdge": TransformerGNNEdge, "Linear": LinearGNN,
-           "Linear2": LinearGNN2, "Linear3": LinearGNN3, "LinearSAGE": LinearGNNSAGE, "RealSAGE": RealSAGE, "SAGECore": SAGECore}
+PYGEO_MAP = {"GATConv": GATConv, "SAGEConv": SAGEConv, "Linear2": LinearGNN2, "Linear3": LinearGNN3,
+             "LinearSAGE": LinearGNNSAGE, "RealSAGE": RealSAGE, "SAGECore": SAGECore, "Linear": LinearGNN} \
+    if pytorch_geo_installed else {}
+
+GNN_MAP = {"TransformerEdge": TransformerGNNEdge}
+GNN_MAP.update(PYGEO_MAP)
 
 
 def get_model_class(model_class_name=None):
@@ -41,7 +50,7 @@ def get_model_class(model_class_name=None):
 
 def get_model(name, MODEL_CLASS=None, **model_kwargs):
     if MODEL_CLASS is None:
-        MODEL_CLASS = get_model_class(conf.model_class)
+        MODEL_CLASS = get_model_class(get_config().model_class)
     hde = None
     if exists(model_path(name)):
         hde, optimizer, scheduler = continue_model(name)
@@ -60,7 +69,7 @@ def continue_model(name, backup=False):
         model = checkpoint["model"].to(dev())
         if type(model.embedder) == BertEmbedder:
             model.embedder.set_all_params_trainable(False)
-        optimizer = get_optimizer(model, type=conf.optimizer_type)
+        optimizer = get_optimizer(model, type=get_config().optimizer_type)
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         scheduler = get_exponential_schedule_with_warmup(optimizer)
 
@@ -123,7 +132,7 @@ def get_optimizer(model, type="sgd", lr=None):
     params = (p for p in model.parameters() if p.requires_grad)
 
     if lr is None:
-        lr = conf.initial_lr
+        lr = get_config().initial_lr
     if type == "sgd":
         return torch.optim.SGD(params, lr=lr)
     if type == "adamw":

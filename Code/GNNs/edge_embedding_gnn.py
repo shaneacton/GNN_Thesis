@@ -1,6 +1,5 @@
 import torch
 from torch import nn, Tensor
-from torch_geometric.nn import GATConv
 
 from Code.GNNs.wrap_gnn import WrapGNN
 from Config.config import get_config
@@ -53,6 +52,8 @@ if __name__ == "__main__":
     hid = 6
     num_nodes = 5
     num_edge_types = 3
+
+    from torch_geometric.nn import GATConv
 
     base_gnn = GATConv(hid, hid, heads=3)
     edge_gnn = EdgeEmbeddings(base_gnn, hid)

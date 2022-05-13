@@ -1,10 +1,7 @@
+import copy
 import inspect
 
-import torch
 from torch import nn
-from torch_geometric.nn import GATConv
-import copy
-
 
 
 class WrapGNN(nn.Module):

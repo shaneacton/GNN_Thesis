@@ -4,7 +4,11 @@ import inspect
 import torch
 from torch import nn
 from torch.nn import Linear, Dropout, LayerNorm, ModuleList
-from torch_geometric.nn import GATConv
+pytorch_geo_installed = True
+try:
+    from torch_geometric.nn import GATConv
+except ModuleNotFoundError:
+    pytorch_geo_installed = False
 
 from Code.GNNs.gated_gnn import GatedGNN, SharedGatedGNN
 from Code.GNNs.switch_gnn import SwitchGNN
@@ -144,7 +148,7 @@ class TransGNNLayer(TUF):
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
 
         size = get_config().hidden_size
-        if GNNClass == GATConv:
+        if pytorch_geo_installed and GNNClass == GATConv:
             assert get_config().hidden_size % layer_kwargs["heads"] == 0
             out_size = get_config().hidden_size / layer_kwargs["heads"]
         else:
@@ -178,7 +182,7 @@ class SimpleGNNLayer(nn.Module):
         h_size = get_config().hidden_size
         init_args = inspect.getfullargspec(GNNClass.__init__)[0]
         needed_kwargs = {k: v for k, v in layer_kwargs.items() if k in init_args}
-        if GNNClass == GATConv:
+        if pytorch_geo_installed and GNNClass == GATConv:
             self.gnn = GNNClass(h_size, h_size//layer_kwargs["heads"], **needed_kwargs)
         else:
             self.gnn = GNNClass(h_size, h_size, **needed_kwargs)

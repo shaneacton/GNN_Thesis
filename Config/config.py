@@ -26,6 +26,10 @@ class Config:
 
         self.run_args = None
 
+    def set_values(self, cfg):
+        for k, v in cfg.items():
+            self.__setattr__(k, v)
+
     def set(self, att_name, value):
         setattr(self, att_name, value)
         self.cfg[att_name] = value

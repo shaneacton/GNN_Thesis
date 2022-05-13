@@ -5,7 +5,7 @@ from torch import Tensor
 
 from Code.Transformers.transformer import Transformer
 from Code.constants import QUERY, DOCUMENT, ENTITY, SENTENCE, CANDIDATE
-from Config.config import conf
+from Config.config import get_config
 
 SOURCE_TYPE_MAP = {DOCUMENT: 0, QUERY: 1, ENTITY: 2, CANDIDATE: 3, SENTENCE: 3}
 
@@ -16,7 +16,7 @@ class Coattention(Transformer):
 
     def __init__(self, intermediate_fac=2, use_type_embedder=True):
         num_types = len(SOURCE_TYPE_MAP)
-        super().__init__(conf.embedded_dims, num_types, conf.num_coattention_layers, use_type_embeddings=use_type_embedder,
+        super().__init__(get_config().embedded_dims, num_types, get_config().num_coattention_layers, use_type_embeddings=use_type_embedder,
                          intermediate_fac=intermediate_fac)
 
     def get_type_tensor(self, type, length):
@@ -24,7 +24,7 @@ class Coattention(Transformer):
 
     def batched_coattention(self, supps: List[Tensor], context_type: str, query: Tensor, return_query_encoding=False) -> List[Tensor]:
         if self.use_type_embeddings:
-            if conf.use_coat_proper_types:
+            if get_config().use_coat_proper_types:
                 supps = [s + self.get_type_tensor(context_type, s.size(-2)) for s in supps]
                 # print("using coat type:", context_type)
             else:
