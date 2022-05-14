@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import random
+import subprocess
 import sys
 from os.path import join
 
@@ -15,6 +16,25 @@ sys.path.append(join(dir_path_1, 'Code'))
 sys.path.append(join(dir_path_1, 'Code.Main'))
 sys.path.append(join(dir_path_1, 'Config'))
 sys.path.append(join(dir_path_1, 'Checkpoint'))
+
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+
+def install_packages():
+    # subprocess.call(['pip', 'install', '--upgrade'] + ["torch", "pytorch"])
+    try:
+        import transformers
+    except ModuleNotFoundError:
+        print("installing transformers")
+        install("transformers")
+    try:
+        import nlp
+    except ModuleNotFoundError:
+        print("installing nlp")
+        install("nlp")
+
+install_packages()
 
 from Code.Embedding.bert_embedder import TooManyTokens
 from Code.Embedding.glove_embedder import NoWordsException

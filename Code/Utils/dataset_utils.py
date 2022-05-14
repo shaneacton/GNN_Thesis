@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import pickle
 from os.path import exists, join
 from typing import TYPE_CHECKING, List
@@ -12,10 +10,6 @@ from Checkpoint.checkpoint_utils import save_binary_data
 from Code.Utils.graph_utils import create_graph
 from Config.config import get_config
 from Data import DATA_FOLDER
-
-if TYPE_CHECKING:
-    from Code.HDE.hde_model import HDEModel
-    from Code.HDE.Graph.graph import HDEGraph
 
 
 def file_to_path(file_name):
@@ -45,7 +39,7 @@ def load_unprocessed_dataset(dataset_name, version_name, split):
     return dataset
 
 
-def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None, example_span=None) -> List[HDEGraph]:
+def get_wikihop_graphs(split=nlp.Split.TRAIN, embedder=None, example_span=None) -> List:
     """
     example_span ~ if given (int, int) tuple dictates which examples should be turned into graphs
     """

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import random
 from typing import List, TYPE_CHECKING, Dict, Generator, Tuple, Set
 
@@ -14,17 +12,12 @@ from Code.Training import dev
 from Code.constants import ENTITY, DOCUMENT, CANDIDATE, GLOBAL, SELF_LOOP, SENTENCE
 from Config.config import get_config
 
-if TYPE_CHECKING:
-    from Code.HDE.Graph.edge import HDEEdge
-    from Code.HDE.Graph.node import HDENode
-    from Code.Training.wikipoint import Wikipoint
-
 
 class HDEGraph:
 
     def __init__(self, example):
-        self.example: Wikipoint = example
-        self.ordered_nodes: List[HDENode] = []
+        self.example = example
+        self.ordered_nodes: List = []
         self.entity_nodes: List[int] = []
         self.entity_text_to_nodes: Dict[str, List[int]] = {}
         self.doc_nodes: List[int] = []
@@ -33,7 +26,7 @@ class HDEGraph:
             self.sentence_inclusion_bools: List[bool] = []
             self.sentence_nodes: List[int] = []
 
-        self.ordered_edges: List[HDEEdge] = []
+        self.ordered_edges: List = []
         self.unique_edges: Set[Tuple[int]] = set()  # set of (t, f) ids, which are always sorted, ie: t<f
         self.unique_edge_types: Set[str] = set()
 
@@ -144,7 +137,7 @@ class HDEGraph:
         # print("matrix:", matrix)
         return torch.tensor(matrix).to(dev()).long()
 
-    def add_node(self, node: HDENode) -> int:
+    def add_node(self, node) -> int:
         next_id = len(self.ordered_nodes)
         node.id_in_graph = next_id
         if node.type == ENTITY:
@@ -177,7 +170,7 @@ class HDEGraph:
             return True
         return False
 
-    def add_edge(self, edge: HDEEdge, safe_mode=False):
+    def add_edge(self, edge, safe_mode=False):
         if self.has_edge(edge):
             if safe_mode:
                 return
@@ -191,17 +184,17 @@ class HDEGraph:
         self.ordered_edges.append(edge)
         self.unique_edges.add(tuple(sorted([edge.to_id, edge.from_id])))
 
-    def get_doc_nodes(self) -> List[HDENode]:
+    def get_doc_nodes(self) -> List:
         """returns the actual nodes, in order"""
         return [self.ordered_nodes[d] for d in self.doc_nodes]
 
-    def get_candidate_nodes(self) -> List[HDENode]:
+    def get_candidate_nodes(self) -> List:
         return [self.ordered_nodes[c] for c in self.candidate_nodes]
 
-    def get_entity_nodes(self) -> Generator[HDENode]:
+    def get_entity_nodes(self) -> Generator:
         return (self.ordered_nodes[e] for e in self.entity_nodes)
 
-    def get_cross_document_comention_edges(self) -> Set[HDEEdge]:
+    def get_cross_document_comention_edges(self) -> Set:
         edges = set()
         for edge in self.ordered_edges:
             if "candidate" in edge.type() or "sequential" in edge.type():

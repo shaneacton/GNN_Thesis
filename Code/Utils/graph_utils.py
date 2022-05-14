@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import random
 import re
 import zlib
@@ -17,9 +15,6 @@ from Code.Utils.spacy_utils import get_entity_char_spans, get_sentence_char_span
 from Code.constants import DOCUMENT, ENTITY, CANDIDATE, COMENTION, SENTENCE, CODOCUMENT, SEQUENTIAL
 from Config.config import get_config
 from Viz.graph_visualiser import get_file_path, render_graph2
-
-if TYPE_CHECKING:
-    from Code.Training.wikipoint import Wikipoint
 
 _regex = None
 
@@ -323,7 +318,7 @@ def shuffle_graph(graph: HDEGraph):
     graph.unique_edge_types.add("random")
 
 
-def create_graph(example: Wikipoint, glove_embedder=None, tokeniser=None, support_encodings=None):
+def create_graph(example, glove_embedder=None, tokeniser=None, support_encodings=None):
     graph = HDEGraph(example)
     add_doc_nodes(graph, example.supports)
     if tokeniser is not None and support_encodings is None:
