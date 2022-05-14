@@ -9,6 +9,7 @@
     "top_v0_12L",
     "top_v0_grad_acc4",
     "top_v0_grad_acc8",
-    "top_v0_lr_schedj_85"
+    "top_v0_lr_schedj_85",
+    "top_v0_grad_acc16"
   ]
 }
