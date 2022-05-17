@@ -78,6 +78,7 @@ def get_graph_stats(**kwargs):
     all_token_lengths = []
     sum_token_lengths = []
     num_documents = []
+    num_candidates = []
 
     def get_metrics(example_span):
         graphs = get_graphs(example_span=example_span, **kwargs)
@@ -90,6 +91,7 @@ def get_graph_stats(**kwargs):
             all_token_lengths.extend(graph.example.doc_token_lengths)
             sum_token_lengths.append(sum(graph.example.doc_token_lengths))
             num_documents.append(len(graph.doc_nodes))
+            num_candidates.append(len(graph.candidate_nodes))
 
     if CHUNK_SIZE == -1 or get_config().max_examples != -1:
         get_metrics(None)
@@ -99,4 +101,4 @@ def get_graph_stats(**kwargs):
             end = start + CHUNK_SIZE
             get_metrics((start, end))
             start += CHUNK_SIZE
-    return cross_dot_ratios, densities, num_nodes, (all_token_lengths, sum_token_lengths, num_documents)
+    return cross_dot_ratios, densities, num_nodes, (all_token_lengths, sum_token_lengths, num_documents, num_candidates)

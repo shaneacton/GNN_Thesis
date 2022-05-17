@@ -52,7 +52,6 @@ def plot(accs, params):
     params = np.array(params)
     plt.plot(params, params * m + c, color="red", label="R = " + repr(r))
 
-
     plt.legend(loc=4)
     plt.show()
 

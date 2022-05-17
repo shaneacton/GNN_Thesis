@@ -1,6 +1,6 @@
 {
   "dataset": "wikihop",
-  "model_name": "rand",
+  "model_name": "default",
   "use_special_entities": true,
   "use_detected_entities": false,
   "use_codocument_edges": false,
@@ -9,7 +9,7 @@
   "use_all_sentences": false,
   "connect_sent2doc": true,
   "connect_sent2sent": true,
-  "use_random_edges": true,
+  "use_random_edges": false,
   "bidirectional_edge_types": false,
   "similar_bidirectional_edge_types": false,
   "use_coat_proper_types": true,

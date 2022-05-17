@@ -29,7 +29,7 @@ end_density = 0.25
 num_densities = 2
 
 inner_repeats = 1
-outter_repeats = 1
+outter_repeats = 2
 num_warmups = 1
 
 densities = [start_density + i*(end_density-start_density)/(num_densities-1) for i in range(num_densities)]
@@ -94,7 +94,7 @@ def get_mem_usage():
     return a/1048576
 
 
-def time_dense():
+def measure_dense():
     global x
     x = x.view(1, n, dim)
     mask = graph.get_mask()
@@ -112,7 +112,7 @@ def time_dense():
     return delta/inner_repeats
 
 
-def time_sparse():
+def measure_sparse():
     global x
     x = x.view(n, dim)
     index = graph.edge_index()
@@ -129,7 +129,7 @@ def time_sparse():
     return delta/inner_repeats
 
 
-def time_all():
+def measure_all():
     global graph
     s_times = []
     d_times = []
@@ -138,8 +138,8 @@ def time_all():
         s = 0
         for i in range(outter_repeats):
             graph = get_graph(density)
-            d += time_dense()
-            s += time_sparse()
+            d += measure_dense()
+            s += measure_sparse()
         s_times.append(s/outter_repeats)
         d_times.append(d/outter_repeats)
 
@@ -156,7 +156,7 @@ def plot_test(num_nodes, features, num_heads):
     n = num_nodes
     dim = features
     heads = num_heads
-    s_times, d_times = time_all()
+    s_times, d_times = measure_all()
     density_intersection, m, c = _get_density_intersection(s_times, d_times, return_mc=True)
     density_intersection = round(density_intersection, 3)
     time_intersection = density_intersection * m + c
@@ -206,7 +206,7 @@ def get_density_intersection(num_nodes, features, num_heads):
     heads = num_heads
     dense = MultiheadAttention(dim, num_heads, batch_first=True).to(dev())
     sparse = CustomGAT(dim, dim, num_heads, add_self_loops=False).to(dev())
-    s_times, d_times = time_all()
+    s_times, d_times = measure_all()
     return _get_density_intersection(s_times, d_times)
 
 
@@ -243,10 +243,12 @@ def plot_density_intersections(fixed_values: Dict, loop_values:List):
 
 
 if __name__ == "__main__":
-    # plot_density_intersections({"num_nodes": n, "features": 100, "num_heads": None}, [1, 10, 20, 50, 100])
-    # plot_density_intersections({"num_nodes": n, "features": None, "num_heads": 10}, [10, 20, 30, 50, 100, 300, 500, 750, 1000])
-    # plot_density_intersections({"num_nodes": None, "features": 10, "num_heads": 10}, [20, 30, 50, 100, 200, 300, 450, 600, 800, 1000, 1250, 1500])
-    plot_test(n, dim, heads)
+    plt.rcParams.update({'font.size': 15})
+
+    plot_density_intersections({"num_nodes": 100, "features": 100, "num_heads": None}, [1, 10, 20, 50, 100])
+    plot_density_intersections({"num_nodes": 100, "features": None, "num_heads": 10}, [10, 20, 30, 50, 100, 300, 500, 750, 1000])
+    plot_density_intersections({"num_nodes": None, "features": 10, "num_heads": 10}, [20, 30, 50, 100, 200, 300, 450, 600, 800, 1000, 1250, 1500])
+    # plot_test(n, dim, heads)
 
 
 
