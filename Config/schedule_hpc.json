@@ -3,13 +3,13 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "base_2_trans_sdp_graph_no_gate"
-  ],
-  "low_priority_configs": [
+    "base_2_trans_sdp_graph_no_gate",
     "top_v0_12L",
-    "top_v0_grad_acc4",
-    "top_v0_grad_acc8",
     "top_v0_lr_schedj_85",
     "top_v0_grad_acc16"
+  ],
+  "low_priority_configs": [
+    "top_v0_dropout_01",
+    "top_v0_grad_acc32"
   ]
 }

@@ -6,8 +6,6 @@
   ],
   "low_priority_configs": [
     "top_v0_6L_coat_4L",
-    "top_v0_non_lr_schedj",
-    "top_v0",
-    "top_v0_6L"
+    "top_v0_non_lr_schedj"
   ]
 }
