@@ -15,6 +15,7 @@ try:
 except ModuleNotFoundError:
     pytorch_geo_installed = False
 
+from Code.Utils.lr_drop import Adam_LRD, SGD_LRD
 from Checkpoint.checkpoint_utils import save_json_data, model_config_path, model_path, \
     load_json_data, restore_from_backup_folder, load_status
 from Code.Embedding.bert_embedder import BertEmbedder
@@ -141,6 +142,10 @@ def get_optimizer(model, type="sgd", lr=None):
         return torch.optim.Adam(params, lr=lr)
     if type == "lamb":
         return Lamb(params, lr=lr)
+    if type == "sgd_lrd":
+        return SGD_LRD(params, lr, dropout=get_config().lr_dropout)
+    if type == "adam_lrd":
+        return Adam_LRD(params, lr, dropout=get_config().lr_dropout)
 
     raise Exception("unreckognised optimizer arg: " + type)
 

@@ -46,6 +46,7 @@
   "heads": 4,
   "transformer_heads": 6,
   "dropout": 0.1,
+  "lr_dropout": 0,
   "wandb_id": -1,
   "add_self_loops": true,
   "use_residual_attention": false,
