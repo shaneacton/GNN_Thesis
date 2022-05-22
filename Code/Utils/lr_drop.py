@@ -122,7 +122,7 @@ class SGD_LRD(Optimizer):
         The Nesterov version is analogously modified.
     """
 
-    def __init__(self, params, lr, momentum=0, dampening=0,
+    def __init__(self, params, lr, momentum=0.1, dampening=0,
                  weight_decay=0, dropout=0.0, nesterov=False):
         if momentum < 0.0:
             raise ValueError("Invalid momentum value: {}".format(momentum))
