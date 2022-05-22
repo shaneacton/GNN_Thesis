@@ -135,17 +135,17 @@ def get_optimizer(model, type="sgd", lr=None):
     if lr is None:
         lr = get_config().initial_lr
     if type == "sgd":
-        return torch.optim.SGD(params, lr=lr)
+        return torch.optim.SGD(params, lr=lr, weight_decay=get_config().weight_decay)
     if type == "adamw":
-        return torch.optim.AdamW(params, lr=lr)
+        return torch.optim.AdamW(params, lr=lr, weight_decay=get_config().weight_decay)
     if type == "adam":
-        return torch.optim.Adam(params, lr=lr)
+        return torch.optim.Adam(params, lr=lr, weight_decay=get_config().weight_decay)
     if type == "lamb":
         return Lamb(params, lr=lr)
     if type == "sgd_lrd":
-        return SGD_LRD(params, lr, dropout=get_config().lr_dropout)
+        return SGD_LRD(params, lr, dropout=get_config().lr_dropout, weight_decay=get_config().weight_decay)
     if type == "adam_lrd":
-        return Adam_LRD(params, lr, dropout=get_config().lr_dropout)
+        return Adam_LRD(params, lr, dropout=get_config().lr_dropout, weight_decay=get_config().weight_decay)
 
     raise Exception("unreckognised optimizer arg: " + type)
 

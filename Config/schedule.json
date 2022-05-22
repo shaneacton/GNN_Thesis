@@ -8,6 +8,8 @@
     "top_v0_grad_acc32_lr_005"
   ],
   "low_priority_configs": [
-    "top_v0_dropout_0_lrdrop_01"
+    "top_v0_dropout_0_lrdrop_01",
+    "top_v0_dropout_0_weight_decay_02",
+    "top_v0_dropout_0_weight_decay_005"
   ]
 }
