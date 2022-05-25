@@ -30,7 +30,7 @@
   "use_coat_proper_types": true,
   "num_coattention_layers": 2,
 
-  "initial_lr": 0.005,
+  "initial_lr": 0.003,
   "use_lr_scheduler": false,
   "dropout": 0.2,
   "num_epochs": 50,
