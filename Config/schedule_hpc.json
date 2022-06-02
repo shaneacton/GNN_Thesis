@@ -7,7 +7,5 @@
     "top_v0_dropout_05"
   ],
   "low_priority_configs": [
-    "top_v0_grad_acc32_lr_003_no_shedj",
-    "top_v0_dropout_0_no_schedj"
   ]
 }
