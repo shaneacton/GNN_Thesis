@@ -3,8 +3,8 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "top_v0_dropout_0_lrdrop_05",
-    "top_v0_dropout_05"
+    "top_v0_dropout_0_lrdrop_05_no_schedj",
+    "top_v0_dropout_0_weight_decay_02_no_schedj"
   ],
   "low_priority_configs": [
   ]
