@@ -3,12 +3,13 @@
   "train_config": "standard_train",
   "config_overrides": {"optimizer_type":  "adam"},
   "model_configs": [
-    "top_v0_dropout_0_lrdrop_01_no_schedj",
-    "top_v0_dropout_0_no_schedj"
+    "top_v0_dropout_0_no_schedj",
+    "top_v0_dropout_0_grad_acc32_lr_003_no_shedj",
+    "top_v0_adam_dropout_0_weight_decay_1_grad_acc32_lr_003_no_shedj"
   ],
   "low_priority_configs": [
     "top_v0_dropout_0_weight_decay_1",
-    "top_v0_grad_acc32_lr_003_no_shedj",
-    "top_v0_grad_dropout_0_acc32_lr_005"
+    "top_v0_grad_dropout_0_acc32_lr_005",
+    "top_v0_dropout_0_weight_decay_1_grad_acc32_lr_003_no_shedj"
   ]
 }
