@@ -5,7 +5,7 @@
   "model_configs": [
     "top_v0_dropout_0_no_schedj",
     "top_v0_dropout_0_grad_acc32_lr_003_no_shedj",
-    "top_v0_adam_dropout_0_weight_decay_1_grad_acc32_lr_003_no_shedj"
+    "top_v0_adam_dropout_0_weight_decay_1_grad_acc32_lr_0001_no_shedj"
   ],
   "low_priority_configs": [
     "top_v0_dropout_0_weight_decay_1",
