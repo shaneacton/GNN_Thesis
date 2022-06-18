@@ -1,0 +1,40 @@
+{
+  "model_class": "HDE",
+  "gnn_class": "TransformerEdge",
+  "use_gating": false,
+  "use_transformer_block": true,
+  "use_simple_hde": true,
+
+  "layerwise_weight_sharing": false,
+  "use_switch_summariser": false,
+  "use_switch_coattention": false,
+  "use_switch_gnn": false,
+  "gnn_aggr": "add",
+
+  "embedder_type": "bert",
+  "bert_size": "small",
+  "bert_fine_tune_layers": [],
+  "embedded_dims": 512,
+  "transformer_heads": 8,
+
+  "include_trans_gnn_edge_types": true,
+  "include_trans_gnn_edges": true,
+  "bidirectional_edge_types": true,
+
+  "connect_sent2doc": true,
+  "use_all_sentences": false,
+  "connect_sent2sent": true,
+
+  "use_codocument_edges": true,
+
+  "use_coat_proper_types": true,
+  "num_coattention_layers": 2,
+
+  "optimizer_type": "adamw",
+  "initial_lr": 0.0001,
+  "weight_decay": 0.001,
+  "use_lr_scheduler": true,
+  "dropout": 0,
+  "num_epochs": 60,
+  "fixed_accumulate_steps": 32
+}
